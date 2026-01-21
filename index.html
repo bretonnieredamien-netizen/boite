@@ -1,60 +1,68 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOS Boîte Magique 2026</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background: #000; color: white; font-family: sans-serif; }
-        .btn-test { background: #ef4444; color: white; padding: 20px; border-radius: 15px; width: 100%; font-weight: bold; margin-bottom: 10px; }
-        #log { background: #1a1a1a; color: #00ff00; padding: 15px; font-family: monospace; font-size: 11px; border-radius: 10px; min-height: 200px; white-space: pre-wrap; word-break: break-all; }
-    </style>
+    <title>TEST ULTIME</title>
 </head>
-<body class="p-6">
+<body style="background: white; color: black; padding: 20px; font-family: sans-serif;">
 
-    <h1 class="text-xl font-bold text-center mb-6 text-amber-500">CONTRÔLE TECHNIQUE</h1>
-
-    <button id="mainBtn" onclick="testerSysteme()" class="btn-test">1. APPUYER ICI</button>
-
-    <div class="mb-4">
-        <input type="text" id="promptInput" placeholder="Sujet de l'histoire..." class="w-full p-4 rounded-xl bg-zinc-800 text-white border border-zinc-700">
+    <h1>TEST DE CONNEXION</h1>
+    
+    <p>Si tu vois ce message, le HTML fonctionne.</p>
+    
+    <div id="diag" style="border: 2px solid red; padding: 10px; margin: 10px 0;">
+        Vérification du JavaScript... (Si ce message ne change pas, JS est bloqué)
     </div>
 
-    <div id="log"> > En attente d'un clic sur le bouton...</div>
+    <button id="btn" style="padding: 20px; width: 100%; background: blue; color: white; font-size: 20px;">
+        CLIQUE ICI POUR TESTER L'IA
+    </button>
 
-    <button onclick="localStorage.clear(); location.reload();" class="mt-8 text-zinc-500 text-xs underline block w-full text-center">RÉINITIALISER LA CLÉ API</button>
+    <pre id="logs" style="background: #eee; padding: 10px; margin-top: 20px;"></pre>
 
     <script>
-        // On récupère la clé
-        let API_KEY = localStorage.getItem('KEY_DIAG_2026');
-        if (!API_KEY) {
-            API_KEY = prompt("COLLE TA CLÉ API ICI :");
-            if (API_KEY) localStorage.setItem('KEY_DIAG_2026', API_KEY);
-        }
+        // TEST IMMEDIAT AU CHARGEMENT
+        window.onload = function() {
+            document.getElementById('diag').innerHTML = "✅ LE JAVASCRIPT FONCTIONNE !";
+            document.getElementById('diag').style.borderColor = "green";
+        };
 
-        function writeLog(msg) {
-            const l = document.getElementById('log');
-            l.innerHTML += "\n> " + msg;
-            console.log(msg);
-        }
+        const key = localStorage.getItem('FINAL_KEY') || prompt("Entre ta clé API Gemini :");
+        if(key) localStorage.setItem('FINAL_KEY', key);
 
-        async function testerSysteme() {
-            const btn = document.getElementById('mainBtn');
-            const input = document.getElementById('promptInput').value || "Un petit chat";
-            
-            // FEEDBACK VISUEL IMMÉDIAT
-            btn.style.background = "#22c55e"; // Devient vert
-            btn.innerText = "EN COURS...";
-            writeLog("Bouton activé ! Début du test.");
+        document.getElementById('btn').onclick = async function() {
+            const logs = document.getElementById('logs');
+            logs.innerText += "\n> Bouton cliqué, envoi à Google...";
+            this.style.background = "orange";
+            this.innerText = "PATIENTER...";
 
-            if (!API_KEY) {
-                alert("ERREUR : Aucune clé API trouvée.");
-                return;
+            try {
+                // On utilise l'URL la plus simple possible
+                const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=" + key;
+                
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: "Dis 'OK' !" }] }]
+                    })
+                });
+
+                const data = await res.json();
+                logs.innerText += "\n> Réponse reçue !";
+                
+                if(data.candidates) {
+                    alert("SUCCÈS ! L'IA a répondu : " + data.candidates[0].content.parts[0].text);
+                    this.style.background = "green";
+                } else {
+                    logs.innerText += "\n> ERREUR : " + JSON.stringify(data.error);
+                    alert("ERREUR : " + data.error.message);
+                }
+            } catch (e) {
+                logs.innerText += "\n> CRASH RÉSEAU : " + e.message;
+                alert("Erreur réseau : " + e.message);
             }
-
-            // TEST DE PLUSIEURS ROUTES GOOGLE
-            const model = "gemini-1.5-pro"; // On force le Pro sans suffixe
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${API_KEY}`;
-
-            write
+        };
+    </script>
+</body>
+</html>
