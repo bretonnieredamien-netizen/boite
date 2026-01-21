@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boîte Magique - Diagnostic</title>
+    <title>Boîte Magique - Diagnostic Final</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Short+Stack&display=swap" rel="stylesheet">
     <style>
@@ -13,32 +13,33 @@
 </head>
 <body class="p-4 flex flex-col items-center">
 
-    <div id="main" class="w-full max-w-md">
+    <div class="w-full max-w-md">
         <h1 class="text-2xl font-bold text-yellow-600 text-center my-6">La Boîte Magique ✨</h1>
         
         <div class="flex flex-col items-center">
-            <button onclick="toggleListening()" class="bg-yellow-400 p-10 rounded-full shadow-xl mb-4 border-4 border-white">
+            <button onclick="toggleListening()" class="bg-yellow-400 p-10 rounded-full shadow-xl mb-4 border-4 border-white active:scale-95 transition-transform">
                 <span class="text-5xl">🎤</span>
             </button>
-            <p id="status" class="text-yellow-800 font-medium mb-6 text-center">Appuie et parle</p>
+            <p id="status" class="text-yellow-800 font-medium mb-6">Appuie et dis "Bonjour"</p>
         </div>
 
         <div id="story-box" class="bg-white p-6 rounded-2xl shadow-md border-2 border-yellow-200 hidden mb-6">
             <p id="story-text" class="text-lg text-gray-800"></p>
         </div>
 
-        <div class="mt-10 w-full">
-            <p class="text-xs text-gray-500 mb-1">Journal technique (Logs) :</p>
-            <div id="debug-zone" class="bg-black text-green-400 p-4 rounded-lg text-[10px] font-mono overflow-auto max-h-60 shadow-inner">
-                > Prêt pour le test...
+        <div class="mt-10 w-full bg-black rounded-lg p-4 shadow-2xl">
+            <p class="text-blue-400 text-[10px] font-mono mb-2 uppercase tracking-widest border-b border-blue-900 pb-1">Analyseur de flux Google API</p>
+            <div id="debug-zone" class="text-green-500 text-[11px] font-mono overflow-auto max-h-64 leading-tight">
+                > Système prêt. En attente du micro...
             </div>
         </div>
-        <button onclick="localStorage.clear(); location.reload();" class="mt-4 text-[10px] text-gray-400 underline">Réinitialiser l'app</button>
+        
+        <button onclick="localStorage.clear(); location.reload();" class="mt-4 text-[10px] text-gray-400 underline block mx-auto">Réinitialiser l'application</button>
     </div>
 
     <script>
-        let apiKey = localStorage.getItem('gemini_key_final') || prompt("Entre ta clé API Gemini :");
-        localStorage.setItem('gemini_key_final', apiKey);
+        let apiKey = localStorage.getItem('gemini_key_v2026') || prompt("Entre ta clé API Gemini :");
+        if(apiKey) localStorage.setItem('gemini_key_v2026', apiKey);
 
         const synth = window.speechSynthesis;
         let recognition = null;
@@ -46,58 +47,64 @@
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRecognition();
             recognition.lang = 'fr-FR';
-        } catch (e) { alert("Micro non supporté"); }
+        } catch (e) { alert("Navigateur non compatible (utilise Chrome)"); }
 
-        function log(msg, obj = null) {
-            const debug = document.getElementById('debug-msg');
-            const div = document.getElementById('debug-zone');
-            const entry = document.createElement('div');
-            entry.innerHTML = `<span class="text-blue-300">[${new Date().toLocaleTimeString()}]</span> ${msg}`;
-            if (obj) entry.innerHTML += `<pre class="text-yellow-200">${JSON.stringify(obj, null, 2)}</pre>`;
-            div.appendChild(entry);
-            div.scrollTop = div.scrollHeight;
+        function log(msg, color = "text-green-500") {
+            const zone = document.getElementById('debug-zone');
+            const line = document.createElement('div');
+            line.className = "mb-1 " + color;
+            line.innerHTML = `<span class="opacity-50">[${new Date().toLocaleTimeString()}]</span> > ${msg}`;
+            zone.appendChild(line);
+            zone.scrollTop = zone.scrollHeight;
         }
 
         function toggleListening() {
             synth.cancel();
             recognition.start();
-            log("Micro activé...");
+            log("Micro activé. Parle maintenant...");
         }
 
         recognition.onresult = (event) => {
             const promptText = event.results[0][0].transcript;
-            log("Entendu : " + promptText);
+            log("Entendu : " + promptText, "text-white");
             generateStory(promptText);
         };
 
         async function generateStory(promptText) {
-            log("Envoi de la requête...");
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+            log("Envoi de la requête à Google...");
+            // Test du point de terminaison v1 avec le modèle flash-latest
+            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
             
             try {
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: "Raconte une histoire courte : " + promptText }] }]
+                        contents: [{ parts: [{ text: "Raconte une histoire très courte pour enfant sur : " + promptText }] }]
                     })
                 });
 
                 const data = await response.json();
-                log("Réponse reçue :", data);
+                
+                if (!response.ok) {
+                    log("ERREUR SERVEUR : " + response.status, "text-red-500");
+                    log(JSON.stringify(data), "text-red-300");
+                    return;
+                }
 
-                // PROTECTION CONTRE L'ERREUR 'READING 0'
-                if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
+                log("Réponse brute reçue :", "text-blue-300");
+                log(JSON.stringify(data, null, 1), "text-yellow-200");
+
+                if (data.candidates && data.candidates[0].content) {
                     const story = data.candidates[0].content.parts[0].text;
                     showStory(story);
                 } else {
-                    log("ERREUR : Google a renvoyé une réponse vide.");
-                    if (data.promptFeedback) log("Raison probable (Sécurité) :", data.promptFeedback);
-                    alert("L'IA n'a pas pu répondre. Vérifie les logs en bas.");
+                    log("ATTENTION : Liste 'candidates' vide.", "text-orange-500");
+                    if(data.promptFeedback) log("Blocage Sécurité : " + JSON.stringify(data.promptFeedback), "text-red-400");
                 }
 
             } catch (error) {
-                log("ERREUR CRITIQUE : " + error.message);
+                log("ERREUR RESEAU : " + error.message, "text-red-500");
             }
         }
 
@@ -107,6 +114,7 @@
             const utter = new SpeechSynthesisUtterance(story);
             utter.lang = 'fr-FR';
             synth.speak(utter);
+            log("Histoire affichée et lue !", "text-white font-bold");
         }
     </script>
 </body>
