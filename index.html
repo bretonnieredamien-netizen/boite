@@ -3,110 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>La Boîte Magique ✨</title>
+    <title>Ma Boîte à Histoires ✨</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Short+Stack&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Short Stack', cursive; background: #fffbeb; }
-        .magic-btn:active { transform: scale(0.9); }
+        body { font-family: 'Short Stack', cursive; background: #fffdf2; touch-action: manipulation; }
         .pulsate { animation: pulse 1.5s infinite; }
-        @keyframes pulse { 
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
-            70% { transform: scale(1.1); box-shadow: 0 0 0 20px rgba(245, 158, 11, 0); }
-            100% { transform: scale(1); }
-        }
+        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); } 70% { transform: scale(1.1); box-shadow: 0 0 0 20px rgba(245, 158, 11, 0); } 100% { transform: scale(1); } }
+        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
+        .hidden { display: none !important; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center p-4">
+<body class="min-h-screen flex flex-col items-center p-4 select-none">
 
-    <div id="setup" class="fixed inset-0 z-50 bg-amber-50 flex items-center justify-center p-6 hidden">
-        <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl border-4 border-amber-200 w-full max-w-md text-center">
-            <h2 class="text-2xl font-bold text-amber-600 mb-4">🔑 Activation</h2>
-            <input type="text" id="api-key" placeholder="Ta clé Gemini ici..." class="w-full p-4 rounded-2xl border-2 border-amber-100 mb-6 text-center outline-none focus:border-amber-500">
-            <button onclick="saveKey()" class="w-full bg-amber-500 text-white font-bold py-4 rounded-2xl shadow-lg">Lancer</button>
+    <div id="setup" class="fixed inset-0 z-50 glass flex items-center justify-center p-6 hidden">
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl border-4 border-amber-300 w-full max-w-md text-center">
+            <h2 class="text-3xl font-bold text-amber-600 mb-6">✨ Activation ✨</h2>
+            <input type="password" id="api-key" placeholder="Colle ta clé API ici" class="w-full p-4 rounded-2xl border-2 border-amber-100 mb-6 text-center text-lg outline-none focus:border-amber-500">
+            <button onclick="saveKey()" class="w-full bg-amber-500 text-white font-bold py-5 rounded-2xl shadow-lg active:scale-95 transition-all uppercase tracking-widest">Réveiller la magie</button>
         </div>
     </div>
 
-    <main class="w-full max-w-xl flex flex-col items-center">
-        <h1 class="text-3xl font-bold text-amber-600 my-8">Ma Boîte Magique ✨</h1>
-        
-        <div id="img-box" class="w-full aspect-video rounded-[2rem] shadow-2xl border-8 border-white overflow-hidden mb-8 hidden">
+    <main class="w-full max-w-xl flex flex-col items-center py-8">
+        <header class="mb-8 text-center">
+            <h1 class="text-4xl font-bold text-amber-600 mb-2">Boîte Magique ✨</h1>
+            <p id="status" class="text-amber-800 text-lg opacity-80 italic">Prêt pour une aventure ?</p>
+        </header>
+
+        <div id="img-container" class="w-full aspect-video rounded-[2rem] shadow-2xl border-8 border-white overflow-hidden mb-10 hidden transition-all duration-1000">
             <img id="story-img" src="" class="w-full h-full object-cover">
         </div>
 
-        <p id="status" class="text-xl text-amber-900 mb-8 text-center font-medium">Appuie sur le micro pour me parler</p>
-
-        <button id="mic-btn" onclick="startAction()" class="bg-amber-400 p-12 rounded-full shadow-2xl border-8 border-white mb-10 transition-all">
-            <span class="text-6xl">🎤</span>
-        </button>
-
-        <div id="story-card" class="bg-white w-full rounded-[2.5rem] shadow-xl border-4 border-amber-100 p-8 mb-10 hidden">
-            <p id="story-text" class="text-xl leading-relaxed text-gray-800"></p>
-            <button onclick="replay()" class="mt-6 bg-amber-100 text-amber-700 px-6 py-2 rounded-full font-bold mx-auto block">🔈 Réécouter</button>
+        <div class="relative mb-12">
+            <button id="mic-btn" onclick="startProcess()" class="bg-amber-400 p-14 rounded-full shadow-[0_20px_60px_rgba(245,158,11,0.4)] border-8 border-white transition-all active:scale-90">
+                <span id="mic-icon" class="text-7xl">🎤</span>
+            </button>
         </div>
 
-        <button onclick="localStorage.clear(); location.reload();" class="text-[10px] text-gray-400 underline">Changer la clé</button>
+        <div id="story-card" class="bg-white w-full rounded-[2.5rem] shadow-xl border-4 border-amber-100 p-8 mb-12 hidden">
+            <div id="story-text" class="text-xl leading-relaxed text-gray-800 mb-8 italic"></div>
+            <button onclick="speakStory()" class="bg-amber-50 text-amber-600 px-8 py-3 rounded-full font-bold mx-auto block hover:bg-amber-100 transition-colors">
+                🔈 RÉÉCOUTER
+            </button>
+        </div>
+
+        <button onclick="resetApp()" class="text-[10px] text-gray-400 underline uppercase tracking-widest opacity-50 hover:opacity-100">Changer la clé</button>
     </main>
 
     <script>
-        let KEY = localStorage.getItem('BOITE_MAGIQUE_KEY');
+        let API_KEY = localStorage.getItem('MAGICAL_BOX_2026');
         let currentStory = "";
         const synth = window.speechSynthesis;
         let recognition = null;
 
-        // On prépare le micro au premier clic pour éviter les blocages mobiles
-        function initMic() {
+        // Initialisation
+        window.onload = () => {
+            if (!API_KEY) document.getElementById('setup').classList.remove('hidden');
+            setupSpeech();
+        };
+
+        function saveKey() {
+            const val = document.getElementById('api-key').value.trim();
+            if (val) { localStorage.setItem('MAGICAL_BOX_2026', val); location.reload(); }
+        }
+
+        function resetApp() { if(confirm("Changer de clé ?")) { localStorage.removeItem('MAGICAL_BOX_2026'); location.reload(); } }
+
+        function setupSpeech() {
             try {
-                const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
-                if (!SpeechRecognition) return alert("Désolé, ton navigateur ne supporte pas le micro. Utilise Chrome sur Android ou Safari sur iPhone.");
-                
-                recognition = new SpeechRecognition();
+                const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new Speech();
                 recognition.lang = 'fr-FR';
-                
                 recognition.onstart = () => {
                     document.getElementById('mic-btn').classList.add('pulsate');
                     document.getElementById('status').innerText = "Je t'écoute...";
                 };
-
                 recognition.onresult = (e) => {
                     const text = e.results[0][0].transcript;
                     document.getElementById('mic-btn').classList.remove('pulsate');
                     handleAI(text);
                 };
-
-                recognition.onerror = (e) => {
+                recognition.onerror = () => {
                     document.getElementById('mic-btn').classList.remove('pulsate');
-                    document.getElementById('status').innerText = "Erreur micro : " + e.error;
+                    document.getElementById('status').innerText = "Oups, je n'ai pas entendu !";
                 };
-                
-                recognition.start();
-            } catch(e) {
-                alert("Erreur d'initialisation du micro : " + e.message);
-            }
+            } catch(e) { console.error("Speech non supporté"); }
         }
 
-        window.onload = () => { if(!KEY) document.getElementById('setup').classList.remove('hidden'); };
-
-        function saveKey() {
-            const val = document.getElementById('api-key').value.trim();
-            if(val) { localStorage.setItem('BOITE_MAGIQUE_KEY', val); location.reload(); }
-        }
-
-        function startAction() {
+        function startProcess() {
             synth.cancel();
-            initMic();
+            if(recognition) recognition.start();
         }
 
-        async function handleAI(prompt) {
-            document.getElementById('status').innerText = "L'IA réfléchit...";
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KEY}`;
+        async function handleAI(userText) {
+            document.getElementById('status').innerText = "Je prépare ton histoire...";
+            // Utilisation du modèle stable avec votre clé désormais "Billing-Enabled"
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
             
             try {
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: "Raconte une histoire très courte et joyeuse pour enfant sur : " + prompt }] }],
+                        contents: [{ parts: [{ text: "Tu es un conteur. Raconte une histoire très courte et magique pour enfant sur : " + userText }] }],
+                        // SÉCURITÉ : On autorise tout pour éviter les réponses vides sur des thèmes enfants
                         safetySettings: [
                             { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
                             { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
@@ -117,27 +117,39 @@
                 });
 
                 const data = await response.json();
+                
                 if (data.candidates && data.candidates[0].content) {
                     currentStory = data.candidates[0].content.parts[0].text;
-                    showResult(currentStory, prompt);
+                    displayResult(currentStory, userText);
                 } else {
-                    document.getElementById('status').innerText = "L'IA n'a pas pu répondre.";
+                    document.getElementById('status').innerText = "L'IA est fatiguée, réessaie !";
                 }
-            } catch (e) { document.getElementById('status').innerText = "Erreur de connexion."; }
+            } catch (e) {
+                document.getElementById('status').innerText = "Erreur de connexion magique.";
+            }
         }
 
-        function showResult(text, prompt) {
-            document.getElementById('status').innerText = "Voici ton histoire !";
-            document.getElementById('img-box').classList.remove('hidden');
-            document.getElementById('story-img').src = `https://image.pollinations.ai/prompt/children_book_illustration_${encodeURIComponent(prompt)}`;
+        function displayResult(story, theme) {
+            document.getElementById('status').innerText = "Il était une fois...";
+            
+            // Image
+            const imgContainer = document.getElementById('img-container');
+            document.getElementById('story-img').src = `https://image.pollinations.ai/prompt/child_illustration_fairytale_${encodeURIComponent(theme)}?width=800&height=450&nologo=true`;
+            imgContainer.classList.remove('hidden');
+
+            // Texte
             document.getElementById('story-card').classList.remove('hidden');
-            document.getElementById('story-text').innerText = text;
-            replay();
+            document.getElementById('story-text').innerText = story;
+
+            speakStory();
         }
 
-        function replay() {
+        function speakStory() {
+            synth.cancel();
             const utter = new SpeechSynthesisUtterance(currentStory);
             utter.lang = 'fr-FR';
+            utter.pitch = 1.1;
+            utter.rate = 0.95;
             synth.speak(utter);
         }
     </script>
