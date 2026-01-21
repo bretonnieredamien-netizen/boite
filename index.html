@@ -7,71 +7,130 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Short+Stack&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Short Stack', cursive; background: #fffdf2; touch-action: manipulation; }
-        .pulsate { animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        body { font-family: 'Short Stack', cursive; background: #fffdf2; }
+        .hidden { display: none !important; }
+        #debug-log { background: #000; color: #0f0; font-family: monospace; font-size: 10px; padding: 10px; border-radius: 10px; margin-top: 20px; max-height: 100px; overflow-y: auto; width: 100%; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center p-6 select-none">
+<body class="flex flex-col items-center p-6 min-h-screen">
 
-    <header class="text-center my-6">
-        <h1 class="text-4xl font-bold text-amber-600 drop-shadow-sm">Ma Boîte Magique ✨</h1>
-        <p id="status" class="text-amber-800 mt-2 opacity-80 italic">Prêt pour l'aventure ?</p>
-    </header>
+    <h1 class="text-3xl font-bold text-amber-600 mb-8">Ma Boîte Magique ✨</h1>
 
-    <div id="image-box" class="w-full max-w-md aspect-video bg-white rounded-[2rem] shadow-2xl border-4 border-white overflow-hidden mb-8 hidden transition-all duration-1000">
-        <img id="story-img" src="" class="w-full h-full object-cover">
+    <div id="status-box" class="w-full max-w-md bg-white p-4 rounded-2xl shadow-md border-2 border-amber-100 text-center mb-6">
+        <p id="status-text" class="text-amber-900">En attente de ton idée...</p>
     </div>
 
-    <div class="w-full max-w-md flex flex-col items-center gap-6">
-        <div class="w-full flex gap-2 bg-amber-100/50 p-2 rounded-2xl border border-amber-200">
-            <input type="text" id="manualInput" placeholder="Tape un mot ici..." class="flex-1 bg-white p-3 rounded-xl outline-none shadow-inner">
-            <button onclick="envoyerTexte()" class="bg-amber-500 text-white px-5 py-3 rounded-xl font-bold active:scale-95 transition-all">OK</button>
-        </div>
-
-        <button id="mic-btn" onclick="ecouter()" class="bg-amber-400 p-12 rounded-full shadow-2xl border-8 border-white opacity-50 cursor-not-allowed" disabled>
-            <span class="text-6xl">🎤</span>
-        </button>
+    <div class="w-full max-w-md flex gap-2 mb-10">
+        <input type="text" id="manualInput" placeholder="Ex: Un petit robot..." 
+               class="flex-1 border-2 border-amber-200 p-3 rounded-xl outline-none focus:border-amber-500">
+        <button id="ok-btn" onclick="validerSaisie()" class="bg-amber-500 text-white px-6 py-3 rounded-xl font-bold shadow-lg active:scale-90">OK</button>
     </div>
 
-    <div id="story-card" class="bg-white w-full max-w-md rounded-[2.5rem] shadow-xl border-4 border-amber-100 p-8 mt-8 hidden">
-        <div id="story-text" class="text-xl leading-relaxed text-gray-800 italic"></div>
+    <button id="mic-btn" onclick="ecouter()" class="bg-amber-400 p-12 rounded-full shadow-2xl border-8 border-white mb-8 opacity-50" disabled>
+        <span class="text-5xl">🎤</span>
+    </button>
+
+    <div id="result-card" class="bg-white w-full max-w-md rounded-3xl shadow-xl p-6 hidden">
+        <div id="story-display" class="text-lg text-gray-800 leading-relaxed italic mb-4"></div>
+        <img id="story-img" class="w-full rounded-2xl shadow-inner hidden">
     </div>
 
-    <div id="debug" class="mt-auto w-full max-w-md bg-black text-[9px] text-green-500 p-2 rounded font-mono opacity-50 overflow-auto max-h-20">
-        > Initialisation...
-    </div>
+    <div id="debug-log">> Système prêt.</div>
 
     <script>
-        const KEY = localStorage.getItem('BOITE_MAGIQUE_FINAL_2026');
-        let activeModel = "";
-        const synth = window.speechSynthesis;
-        let recognition = null;
+        const API_KEY = localStorage.getItem('BOITE_MAGIQUE_KEY_2026');
+        let modelFound = "";
 
-        function log(msg) { document.getElementById('debug').innerHTML += `<div>> ${msg}</div>`; }
-
-        // 1. Détection du modèle au lancement
-        async function init() {
-            try {
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${KEY}`);
-                const data = await res.json();
-                const model = data.models.find(m => m.name.includes('gemini-1.5-pro')) || data.models[0];
-                activeModel = model.name;
-                log("Modèle prêt : " + activeModel);
-                document.getElementById('mic-btn').disabled = false;
-                document.getElementById('mic-btn').classList.remove('opacity-50', 'cursor-not-allowed');
-                document.getElementById('status').innerText = "Je suis prête !";
-            } catch(e) { log("Erreur init"); }
+        function log(msg) {
+            const div = document.getElementById('debug-log');
+            div.innerHTML += `<div>> ${msg}</div>`;
+            div.scrollTop = div.scrollHeight;
         }
 
-        // 2. Micro
-        const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (Speech) {
-            recognition = new Speech();
-            recognition.lang = 'fr-FR';
-            recognition.onstart = () => {
-                document.getElementById('mic-btn').classList.add('pulsate');
-                document.getElementById('status').innerText = "Je t'écoute...";
-            };
-            recognition.onresult = (e) => {
-                document.getElementById('mic-btn').classList.remove('pulsate');
+        // 1. Initialisation : Trouver le modèle
+        async function init() {
+            log("Recherche du modèle...");
+            try {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${API_KEY}`);
+                const data = await res.json();
+                const m = data.models.find(m => m.name.includes('gemini-1.5-pro')) || data.models[0];
+                modelFound = m.name;
+                log("Modèle OK : " + modelFound);
+                document.getElementById('mic-btn').disabled = false;
+                document.getElementById('mic-btn').classList.remove('opacity-50');
+                document.getElementById('status-text').innerText = "C'est prêt ! Tape un mot ou parle.";
+            } catch (e) { log("Erreur Init : Clé API peut-être invalide."); }
+        }
+
+        // 2. Fonction de validation (Appelée par le bouton OK)
+        function validerSaisie() {
+            const input = document.getElementById('manualInput');
+            const theme = input.value.trim();
+            
+            if (!theme) {
+                alert("Écris quelque chose d'abord !");
+                return;
+            }
+
+            log("Bouton OK cliqué : " + theme);
+            document.getElementById('status-text').innerText = "Analyse de ton idée...";
+            genererMagie(theme);
+        }
+
+        // 3. Appel IA (Simplifié au maximum)
+        async function genererMagie(sujet) {
+            log("Appel Google en cours...");
+            const url = `https://generativelanguage.googleapis.com/v1beta/${modelFound}:generateContent?key=${API_KEY}`;
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{ text: `Raconte une histoire très courte (3 lignes), magique et gentille pour un enfant sur : ${sujet}.` }]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                log("Réponse reçue.");
+
+                if (data.candidates && data.candidates[0].content) {
+                    const texte = data.candidates[0].content.parts[0].text;
+                    afficher(texte, sujet);
+                } else {
+                    log("Erreur : Google a renvoyé une réponse vide.", true);
+                    alert("Google refuse de répondre à ce sujet. Essaie autre chose !");
+                }
+            } catch (error) {
+                log("Erreur réseau ou API.");
+                alert("La connexion a échoué.");
+            }
+        }
+
+        function afficher(texte, sujet) {
+            document.getElementById('status-text').innerText = "Il était une fois...";
+            document.getElementById('result-card').classList.remove('hidden');
+            document.getElementById('story-display').innerText = texte;
+            
+            const img = document.getElementById('story-img');
+            img.src = `https://image.pollinations.ai/prompt/fairytale_illustration_${encodeURIComponent(sujet)}?nologo=true`;
+            img.classList.remove('hidden');
+
+            const utter = new SpeechSynthesisUtterance(texte);
+            utter.lang = 'fr-FR';
+            window.speechSynthesis.speak(utter);
+        }
+
+        // Lancement
+        if (!API_KEY) {
+            const key = prompt("Entre ta clé API Gemini :");
+            localStorage.setItem('BOITE_MAGIQUE_KEY_2026', key);
+            location.reload();
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>
