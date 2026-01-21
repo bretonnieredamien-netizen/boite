@@ -2,130 +2,124 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>La Boîte Magique - Fix Micro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Boîte Magique ✨</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Short+Stack&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Short Stack', cursive; background: #fffdf2; }
-        .pulsate { animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); } 70% { transform: scale(1.1); box-shadow: 0 0 0 20px rgba(245, 158, 11, 0); } 100% { transform: scale(1); } }
+        body { font-family: 'Short Stack', cursive; background: #fffdf2; -webkit-tap-highlight-color: transparent; }
+        .pulsate { animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
     </style>
 </head>
-<body class="p-4 flex flex-col items-center min-h-screen">
+<body class="flex flex-col items-center p-6">
 
-    <div class="w-full max-w-md">
-        <h1 class="text-3xl font-bold text-amber-600 text-center my-6">Ma Boîte Magique ✨</h1>
-        
-        <div class="bg-white p-6 rounded-3xl shadow-xl mb-6 text-center border-4 border-yellow-200">
-            <p id="status" class="text-amber-900 text-lg">Appuie sur le micro pour parler</p>
-        </div>
+    <h1 class="text-3xl font-bold text-amber-600 my-6">Ma Boîte Magique ✨</h1>
 
-        <div class="flex flex-col items-center mb-8">
-            <button id="micBtn" onclick="initAction()" class="bg-amber-400 p-12 rounded-full shadow-2xl border-8 border-white active:scale-95 transition-all">
-                <span id="mic-icon" class="text-6xl">🎤</span>
-            </button>
-        </div>
+    <div id="status-card" class="w-full max-w-sm bg-white p-4 rounded-2xl shadow-md border-2 border-amber-100 text-center mb-8">
+        <p id="status-text" class="text-amber-800">Clique sur le micro et parle !</p>
+    </div>
 
-        <div id="story-box" class="bg-white p-6 rounded-2xl shadow-lg border-2 border-yellow-200 hidden mb-6">
-            <p id="story-text" class="text-lg text-gray-800 leading-relaxed"></p>
-        </div>
+    <button id="micBtn" class="bg-amber-400 w-32 h-32 rounded-full shadow-2xl border-4 border-white flex items-center justify-center transition-transform active:scale-90">
+        <span id="mic-icon" class="text-5xl">🎤</span>
+    </button>
 
-        <div id="console" class="bg-black text-green-400 p-3 rounded-lg font-mono text-[10px] overflow-auto max-h-32 opacity-80">
-            > Système prêt.
-        </div>
+    <div id="story-box" class="mt-8 bg-white p-6 rounded-2xl shadow-xl border-2 border-amber-200 hidden w-full max-w-md">
+        <p id="story-content" class="text-gray-800 leading-relaxed"></p>
+    </div>
+
+    <div class="mt-10 w-full max-w-md bg-black text-[10px] text-green-500 p-2 font-mono rounded-lg opacity-70">
+        > LOGS : <span id="debug-info">Système prêt.</span>
     </div>
 
     <script>
-        const API_KEY = localStorage.getItem('BOITE_KEY_2026') || prompt("Entre ta clé API Gemini :");
-        if(API_KEY) localStorage.setItem('BOITE_KEY_2026', API_KEY);
+        const API_KEY = localStorage.getItem('MAGICAL_KEY') || prompt("Entre ta clé Gemini :");
+        if(API_KEY) localStorage.setItem('MAGICAL_KEY', API_KEY);
 
-        const synth = window.speechSynthesis;
+        const btn = document.getElementById('micBtn');
+        const status = document.getElementById('status-text');
+        const debug = document.getElementById('debug-info');
+        
+        const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recognition = null;
 
-        function log(msg, err = false) {
-            const c = document.getElementById('console');
-            c.innerHTML += `<div class="${err ? 'text-red-500' : ''}">> ${msg}</div>`;
-            c.scrollTop = c.scrollHeight;
+        if (!Speech) {
+            debug.innerText = "ERREUR : Navigateur incompatible (Speech API manquante).";
+        } else {
+            recognition = new Speech();
+            recognition.lang = 'fr-FR';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            recognition.onstart = () => {
+                debug.innerText = "Micro : ÉCOUTE EN COURS...";
+                btn.classList.add('pulsate');
+                status.innerText = "Je t'écoute...";
+            };
+
+            recognition.onerror = (event) => {
+                btn.classList.remove('pulsate');
+                debug.innerText = "ERREUR MICRO : " + event.error;
+                if(event.error === 'not-allowed') {
+                    alert("Accès micro refusé. Active-le dans les réglages de ton navigateur.");
+                }
+            };
+
+            recognition.onresult = (event) => {
+                const text = event.results[0][0].transcript;
+                debug.innerText = "ENTENDU : " + text;
+                btn.classList.remove('pulsate');
+                fetchStory(text);
+            };
+
+            recognition.onend = () => {
+                btn.classList.remove('pulsate');
+                if(status.innerText === "Je t'écoute...") status.innerText = "Appuie pour parler";
+            };
         }
 
-        // Initialisation du micro
-        function initAction() {
-            synth.cancel(); // Arrête toute voix en cours
-            
-            if (!recognition) {
-                const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-                if (!Speech) {
-                    log("ERREUR : Navigateur non compatible.", true);
-                    alert("Ton navigateur ne supporte pas le micro. Utilise Chrome ou Safari.");
-                    return;
-                }
-                recognition = new Speech();
-                recognition.lang = 'fr-FR';
-                recognition.continuous = false;
-
-                recognition.onstart = () => {
-                    log("Micro : ACTIF");
-                    document.getElementById('micBtn').classList.add('pulsate');
-                    document.getElementById('status').innerText = "Je t'écoute...";
-                };
-
-                recognition.onresult = (e) => {
-                    const text = e.results[0][0].transcript;
-                    log("Entendu : " + text);
-                    generateStory(text);
-                };
-
-                recognition.onerror = (e) => {
-                    log("Erreur Micro : " + e.error, true);
-                    document.getElementById('micBtn').classList.remove('pulsate');
-                    document.getElementById('status').innerText = "Erreur micro. Réessaie.";
-                    if(e.error === 'not-allowed') alert("Tu dois autoriser le micro dans les réglages de ton navigateur !");
-                };
-
-                recognition.onend = () => {
-                    document.getElementById('micBtn').classList.remove('pulsate');
-                };
-            }
-
+        // LE DÉCLENCHEUR SÉCURISÉ
+        btn.onclick = () => {
+            if (!recognition) return;
+            window.speechSynthesis.cancel(); // Arrête la voix si elle parlait
             try {
                 recognition.start();
             } catch(e) {
-                log("Déjà en écoute...");
+                recognition.stop();
+                debug.innerText = "Redémarrage du micro...";
             }
-        }
+        };
 
-        async function generateStory(userText) {
-            document.getElementById('status').innerText = "L'IA réfléchit...";
-            log("Appel Gemini...");
+        async function fetchStory(prompt) {
+            status.innerText = "L'IA réfléchit...";
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
             
-            // On teste les deux versions v1 et v1beta pour éviter la 404
-            const models = [
-                `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
-                `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`
-            ];
-
-            for (let url of models) {
-                try {
-                    const res = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type' : 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: "Raconte une histoire magique très courte pour enfant sur : " + userText }] }]
-                        })
-                    });
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: "Raconte une histoire très courte pour enfant sur : " + prompt }] }]
+                    })
+                });
+                const data = await response.json();
+                
+                if(data.candidates) {
+                    const story = data.candidates[0].content.parts[0].text;
+                    document.getElementById('story-box').classList.remove('hidden');
+                    document.getElementById('story-content').innerText = story;
+                    status.innerText = "Il était une fois...";
                     
-                    if (res.ok) {
-                        const data = await res.json();
-                        const story = data.candidates[0].content.parts[0].text;
-                        log("Succès IA !");
-                        showStory(story);
-                        return;
-                    }
-                } catch(e) { log("Echec modèle..."); }
+                    const utter = new SpeechSynthesisUtterance(story);
+                    utter.lang = 'fr-FR';
+                    window.speechSynthesis.speak(utter);
+                } else {
+                    debug.innerText = "Erreur IA : " + JSON.stringify(data.error);
+                }
+            } catch(e) {
+                debug.innerText = "Erreur réseau.";
             }
-            log("Erreur : Aucun modèle n'a répondu.", true);
         }
-
-        function showStory(text) {
-            document.getElementById('status').innerText
+    </script>
+</body>
+</html>
