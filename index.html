@@ -2,64 +2,75 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>La Boîte Magique ✨</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Short+Stack&display=swap" rel="stylesheet">
     <style>
-        /* FOND DE SÉCURITÉ : Violet profond pour que le texte blanc soit TOUJOURS visible */
         body { 
             font-family: 'Short Stack', cursive; 
-            background-color: #2e1065; /* Violet très foncé */
-            background-image: radial-gradient(circle at top, #4c1d95, #2e1065);
+            background: linear-gradient(180deg, #4c1d95 0%, #1e1b4b 100%);
             background-attachment: fixed;
-            color: #ffffff;
+            color: white;
+            min-h-screen: 100vh;
             margin: 0;
-            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .hidden { display: none !important; }
 
-        /* PANNEAUX MAGIQUES : Opacité augmentée pour être sûr de les voir */
-        .magic-panel {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 2px solid rgba(251, 191, 36, 0.4); /* Bordure dorée douce */
+        /* Conteneur de saisie ultra-visible (Effet Cristal) */
+        .crystal-card {
+            background: rgba(255, 255, 255, 0.95); /* Presque blanc pur pour la visibilité */
+            border-radius: 3rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4), 0 0 20px rgba(251, 191, 36, 0.3);
+            width: 90%;
+            max-width: 450px;
+            border: 4px solid #fbbf24; /* Bordure Or */
+        }
+
+        .magic-input {
+            background: #f3f4f6;
             border-radius: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            padding: 1rem 1.5rem;
+            color: #1f2937;
+            font-size: 1.1rem;
+            border: 2px solid #e5e7eb;
+            width: 100%;
+            outline: none;
         }
 
-        /* BOUTONS LUMINEUX */
-        .btn-gold {
+        .btn-ok {
             background: linear-gradient(135deg, #fbbf24, #d97706);
-            color: #4c1d95; /* Texte foncé sur bouton clair pour lire facilement */
+            color: white;
             font-weight: bold;
-            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
-            border: 2px solid #ffffff;
+            border-radius: 2rem;
+            padding: 0.8rem 2rem;
+            box-shadow: 0 4px 10px rgba(217, 119, 6, 0.4);
+            transition: all 0.2s;
         }
 
-        .btn-gold:active { transform: scale(0.95); }
+        .btn-ok:active { transform: scale(0.95); }
 
+        /* Micro Magique */
         .btn-mic {
-            background: linear-gradient(135deg, #8b5cf6, #ec4899);
-            border: 4px solid #ffffff;
-            box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.5), 0 0 0 8px rgba(255,255,255,0.1);
+            border: 4px solid white;
+            margin-top: 1.5rem;
+            cursor: pointer;
         }
 
-        /* SCROLLBAR DOREE */
-        #story-card::-webkit-scrollbar { width: 8px; }
-        #story-card::-webkit-scrollbar-thumb { background: #fbbf24; border-radius: 10px; }
-    </style>
-</head>
-<body class="min-h-screen flex flex-col items-center p-4 md:p-8">
-
-    <header class="text-center mb-10">
-        <h1 class="text-4xl md:text-5xl font-bold text-white drop-shadow-[0_2px_10px_rgba(251,191,36,0.5)]">
-            Ma Boîte Magique ✨
-        </h1>
-        <p id="status" class="text-purple-200 mt-2 italic">L'aventure t'attend...</p>
-    </header>
-
-    <div id="image-box" class="w-full max-w-md aspect-video magic-panel overflow-hidden mb-8 hidden ring-4 ring-white/20">
-        <img id="
+        /* Histoire */
+        .story-panel {
+            background: rgba(
