@@ -1,32 +1,50 @@
 async function generateStory(userText) {
-    document.getElementById('status').innerText = "Demande en cours...";
+    document.getElementById('status').innerText = "La magie opère...";
+    
+    // On utilise v1beta qui est souvent plus flexible pour les comptes récents
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
     
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: "Raconte une histoire très courte pour enfant sur : " + userText }] }]
-            })
-        });
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            contents: [{
+                parts: [{ text: "Raconte une histoire magique très courte (100 mots) pour un enfant sur : " + userText }]
+            }],
+            // ON FORCE LES FILTRES À "OFF" POUR ÉVITER LES RÉPONSES VIDES
+            safetySettings: [
+                { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
+            ]
+        })
+    };
 
+    try {
+        const response = await fetch(url, requestOptions);
         const data = await response.json();
 
         if (data.error) {
-            // C'EST ICI QUE LE SECRET SERA RÉVÉLÉ
-            console.error(data.error);
-            alert("MESSAGE DE GOOGLE : " + data.error.message);
-            document.getElementById('status').innerText = "Erreur : " + data.error.status;
+            console.error("ERREUR GOOGLE :", data.error);
+            alert("ERREUR GOOGLE : " + data.error.message);
+            return;
+        }
+
+        // On vérifie si Google a bloqué la réponse (FinishReason)
+        if (data.candidates && data.candidates[0].finishReason === "SAFETY") {
+            alert("L'IA a jugé le thème trop sensible. Essaie un autre sujet !");
             return;
         }
 
         if (data.candidates && data.candidates[0].content) {
             currentStory = data.candidates[0].content.parts[0].text;
             displayResult(currentStory, userText);
+        } else {
+            alert("Réponse vide de l'IA. Vérifie tes quotas sur Google AI Studio.");
         }
 
     } catch (e) {
-        alert("Erreur réseau : " + e.message);
+        alert("Erreur de connexion : " + e.message);
     }
 }
