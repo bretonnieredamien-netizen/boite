@@ -2,75 +2,33 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>La Boîte Magique ✨</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>La Boîte Magique Turbo ✨</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Short+Stack&display=swap" rel="stylesheet">
     <style>
-        body { 
-            font-family: 'Short Stack', cursive; 
-            background: linear-gradient(180deg, #4c1d95 0%, #1e1b4b 100%);
-            background-attachment: fixed;
-            color: white;
-            min-h-screen: 100vh;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
+        body { font-family: 'Short Stack', cursive; background: #fffdf2; touch-action: manipulation; }
         .hidden { display: none !important; }
+        #story-card::-webkit-scrollbar { width: 8px; }
+        #story-card::-webkit-scrollbar-thumb { background: #fcd34d; border-radius: 10px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-6 select-none">
 
-        /* Conteneur de saisie ultra-visible (Effet Cristal) */
-        .crystal-card {
-            background: rgba(255, 255, 255, 0.95); /* Presque blanc pur pour la visibilité */
-            border-radius: 3rem;
-            padding: 1.5rem;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.4), 0 0 20px rgba(251, 191, 36, 0.3);
-            width: 90%;
-            max-width: 450px;
-            border: 4px solid #fbbf24; /* Bordure Or */
-        }
+    <header class="text-center my-6">
+        <h1 class="text-4xl font-bold text-amber-600 drop-shadow-sm">Ma Boîte Magique ⚡</h1>
+        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Prêt pour une grande aventure !</p>
+    </header>
 
-        .magic-input {
-            background: #f3f4f6;
-            border-radius: 2rem;
-            padding: 1rem 1.5rem;
-            color: #1f2937;
-            font-size: 1.1rem;
-            border: 2px solid #e5e7eb;
-            width: 100%;
-            outline: none;
-        }
+    <div id="image-box" class="w-full max-w-md aspect-video bg-white rounded-[2rem] shadow-2xl border-4 border-white overflow-hidden mb-6 hidden">
+        <img id="story-img" src="" class="w-full h-full object-cover">
+    </div>
 
-        .btn-ok {
-            background: linear-gradient(135deg, #fbbf24, #d97706);
-            color: white;
-            font-weight: bold;
-            border-radius: 2rem;
-            padding: 0.8rem 2rem;
-            box-shadow: 0 4px 10px rgba(217, 119, 6, 0.4);
-            transition: all 0.2s;
-        }
+    <div class="w-full max-w-md flex flex-col items-center gap-6">
+        <div class="w-full flex gap-2 bg-amber-100/50 p-2 rounded-2xl border border-amber-200">
+            <input type="text" id="manualInput" placeholder="De quoi doit parler l'aventure ?" 
+                   class="flex-1 bg-white p-4 rounded-xl outline-none text-sm shadow-inner">
+            <button onclick="lancerMagieDepuisTexte()" class="bg-amber-500 text-white px-6 py-4 rounded-xl font-bold active:scale-95 shadow-md">OK</button>
+        </div>
 
-        .btn-ok:active { transform: scale(0.95); }
-
-        /* Micro Magique */
-        .btn-mic {
-            background: linear-gradient(135deg, #fbbf24, #f59e0b);
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.5), 0 0 0 8px rgba(255,255,255,0.1);
-            border: 4px solid white;
-            margin-top: 1.5rem;
-            cursor: pointer;
-        }
-
-        /* Histoire */
-        .story-panel {
-            background: rgba(
+        <button id="mic-btn" onclick="lancerMicro()" class="bg-amber-400 p
