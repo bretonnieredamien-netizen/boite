@@ -9,156 +9,145 @@
     <style>
         body { font-family: 'Short Stack', cursive; background: #fffdf2; }
         .pulsate { animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); } 70% { transform: scale(1.1); box-shadow: 0 0 0 20px rgba(245, 158, 11, 0); } 100% { transform: scale(1); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         .hidden { display: none !important; }
     </style>
 </head>
-<body class="p-4 flex flex-col items-center min-h-screen">
+<body class="p-6 flex flex-col items-center min-h-screen">
 
-    <div class="w-full max-w-md">
-        <h1 class="text-3xl font-bold text-amber-600 text-center my-6">Ma Boîte Magique ✨</h1>
-        
-        <div class="bg-white p-6 rounded-3xl shadow-xl mb-6 text-center border-4 border-yellow-200">
-            <p id="status" class="text-amber-900 text-lg">Recherche de la magie...</p>
+    <h1 class="text-3xl font-bold text-amber-600 text-center mb-8">Ma Boîte Magique ✨</h1>
+    
+    <div class="w-full max-w-md bg-white p-6 rounded-[2.5rem] shadow-xl border-4 border-amber-200 text-center mb-8">
+        <p id="status" class="text-amber-900 text-lg mb-4">Prêt pour une histoire ?</p>
+        <div id="img-container" class="w-full aspect-video rounded-2xl overflow-hidden hidden border-2 border-amber-50">
+            <img id="story-img" src="" class="w-full h-full object-cover">
         </div>
+    </div>
 
-        <div class="flex flex-col items-center mb-8">
-            <button id="recordBtn" onclick="toggleListening()" class="bg-amber-400 p-12 rounded-full shadow-2xl border-8 border-white active:scale-90 transition-all opacity-50 cursor-not-allowed" disabled>
-                <span id="mic-icon" class="text-6xl">🎤</span>
-            </button>
-            <p class="text-xs text-amber-700 mt-2">Le micro s'activera quand l'IA sera prête</p>
-        </div>
+    <div class="flex flex-col items-center gap-6 mb-10">
+        <button id="micBtn" onclick="startMagic()" class="bg-amber-400 p-12 rounded-full shadow-2xl border-8 border-white active:scale-90 transition-all">
+            <span class="text-6xl">🎤</span>
+        </button>
+        <button onclick="testSansMicro()" class="text-amber-600 text-sm font-bold bg-white px-4 py-2 rounded-full border border-amber-200 shadow-sm">
+            🚀 Test Rapide (Sans Micro)
+        </button>
+    </div>
 
-        <div id="story-box" class="bg-white p-6 rounded-2xl shadow-lg border-2 border-yellow-200 hidden mb-6">
-            <p id="story-text" class="text-lg text-gray-800 leading-relaxed"></p>
-        </div>
+    <div id="story-card" class="bg-white w-full max-w-md rounded-[2rem] shadow-lg border-2 border-amber-100 p-6 hidden">
+        <p id="story-text" class="text-gray-800 text-lg leading-relaxed italic"></p>
+    </div>
 
-        <div class="bg-black text-green-400 p-4 rounded-xl font-mono text-[10px] shadow-inner overflow-hidden">
-            <p class="border-b border-green-900 pb-1 mb-2 text-blue-400 uppercase">Console d'auto-détection</p>
-            <div id="debug-log" class="overflow-auto max-h-40 leading-tight"></div>
-        </div>
-        
-        <button onclick="localStorage.clear(); location.reload();" class="mt-4 text-[10px] text-gray-400 underline block mx-auto">Réinitialiser l'app</button>
+    <div class="mt-auto w-full max-w-md bg-slate-900 text-[10px] text-green-400 p-3 rounded-lg font-mono opacity-80 overflow-auto max-h-32">
+        <p class="border-b border-slate-700 mb-1 pb-1 text-blue-300">CONSOLE DE BORD</p>
+        <div id="logs">> Système prêt.</div>
     </div>
 
     <script>
-        const API_KEY = localStorage.getItem('BOITE_MAGIQUE_V10') || prompt("Entre ta clé API Gemini :");
-        if(API_KEY) localStorage.setItem('BOITE_MAGIQUE_V10', API_KEY);
+        // Récupération de la clé
+        let API_KEY = localStorage.getItem('GEMINI_STABLE_KEY_2026') || prompt("Entre ta clé API Gemini :");
+        if(API_KEY) localStorage.setItem('GEMINI_STABLE_KEY_2026', API_KEY);
 
-        let activeModel = ""; // Sera rempli par l'auto-détection
         const synth = window.speechSynthesis;
         let recognition = null;
 
-        function log(msg, isError = false) {
-            const logDiv = document.getElementById('debug-log');
-            const line = document.createElement('div');
-            line.className = isError ? "text-red-400" : "text-green-400";
-            line.innerHTML = `> ${msg}`;
-            logDiv.appendChild(line);
-            logDiv.scrollTop = logDiv.scrollHeight;
+        function log(msg, error = false) {
+            const l = document.getElementById('logs');
+            l.innerHTML += `<div class="${error ? 'text-red-400' : ''}">> ${msg}</div>`;
+            l.scrollTop = l.scrollHeight;
         }
 
-        // 1. AUTO-DÉTECTION DES MODÈLES (Pour éviter la 404)
-        async function detectModel() {
-            log("Scan des modèles disponibles...");
-            const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${API_KEY}`;
-            
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                
-                if (data.models) {
-                    // On cherche en priorité Flash, sinon Pro
-                    const flash = data.models.find(m => m.name.includes('gemini-1.5-flash'));
-                    const pro = data.models.find(m => m.name.includes('gemini-1.5-pro'));
-                    
-                    activeModel = flash ? flash.name : (pro ? pro.name : data.models[0].name);
-                    
-                    log(`Modèle trouvé : ${activeModel}`);
-                    enableApp();
-                } else {
-                    log("Aucun modèle trouvé. Ta clé est peut-être restreinte.", true);
-                    document.getElementById('status').innerText = "Clé invalide ou restreinte.";
-                }
-            } catch (e) {
-                log("Erreur de connexion à Google.", true);
-                document.getElementById('status').innerText = "Vérifie ta connexion.";
-            }
-        }
+        // 1. GESTION DU MICRO
+        function startMagic() {
+            const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!Speech) return alert("Micro non supporté sur ce navigateur.");
 
-        function enableApp() {
-            const btn = document.getElementById('recordBtn');
-            btn.classList.remove('opacity-50', 'cursor-not-allowed');
-            btn.disabled = false;
-            document.getElementById('status').innerText = "L'IA est prête ! Parle-moi.";
-            initSpeech();
-        }
-
-        function initSpeech() {
-            try {
-                const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-                recognition = new Speech();
-                recognition.lang = 'fr-FR';
-                recognition.onstart = () => {
-                    document.getElementById('recordBtn').classList.add('pulsate');
-                    document.getElementById('status').innerText = "Je t'écoute...";
-                };
-                recognition.onresult = (e) => {
-                    const text = e.results[0][0].transcript;
-                    log(`Entendu : ${text}`);
-                    generateStory(text);
-                };
-                recognition.onend = () => document.getElementById('recordBtn').classList.remove('pulsate');
-            } catch (e) { log("Micro non supporté.", true); }
-        }
-
-        function toggleListening() {
             synth.cancel();
+            recognition = new Speech();
+            recognition.lang = 'fr-FR';
+
+            recognition.onstart = () => {
+                document.getElementById('micBtn').classList.add('pulsate');
+                document.getElementById('status').innerText = "Je t'écoute...";
+                log("Micro : ACTIF");
+            };
+
+            recognition.onresult = (e) => {
+                const text = e.results[0][0].transcript;
+                log("Entendu : " + text);
+                document.getElementById('micBtn').classList.remove('pulsate');
+                demanderIA(text);
+            };
+
+            recognition.onerror = (e) => {
+                log("Erreur Micro : " + e.error, true);
+                document.getElementById('micBtn').classList.remove('pulsate');
+            };
+
             recognition.start();
         }
 
-        async function generateStory(promptText) {
-            document.getElementById('status').innerText = "L'IA réfléchit...";
-            log(`Envoi au modèle : ${activeModel}`);
+        // 2. TEST SANS MICRO (Pour vérifier si l'IA fonctionne)
+        function testSansMicro() {
+            const sujet = "un petit chat dans l'espace";
+            log("Test automatique lancé...");
+            demanderIA(sujet);
+        }
 
-            // URL dynamique basée sur l'auto-détection
-            const url = `https://generativelanguage.googleapis.com/v1beta/${activeModel}:generateContent?key=${API_KEY}`;
+        // 3. APPEL IA (Version STABLE v1)
+        async function demanderIA(sujet) {
+            document.getElementById('status').innerText = "La magie opère...";
+            
+            // CORRECTION : On utilise /v1/ au lieu de /v1beta/
+            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
             
             try {
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: "Raconte une histoire très courte et joyeuse pour enfant sur : " + promptText }] }]
+                        contents: [{ parts: [{ text: "Raconte une histoire magique très courte (3 phrases) pour un enfant sur : " + sujet }] }]
                     })
                 });
 
                 const data = await response.json();
-                
-                if (data.candidates) {
-                    const story = data.candidates[0].content.parts[0].text;
-                    log("Histoire générée avec succès !");
-                    showStory(story);
-                } else {
-                    log("Erreur lors de la génération.", true);
-                    log(JSON.stringify(data));
+
+                if (data.error) {
+                    log("Erreur Google : " + data.error.message, true);
+                    alert("ERREUR : " + data.error.message);
+                    return;
                 }
-            } catch (error) {
-                log("Erreur réseau.", true);
+
+                if (data.candidates && data.candidates[0].content) {
+                    const histoire = data.candidates[0].content.parts[0].text;
+                    log("Succès IA !");
+                    afficherResultat(histoire, sujet);
+                } else {
+                    log("Réponse vide de l'IA.", true);
+                }
+
+            } catch (e) {
+                log("Erreur réseau : " + e.message, true);
             }
         }
 
-        function showStory(text) {
+        function afficherResultat(texte, sujet) {
             document.getElementById('status').innerText = "Il était une fois...";
-            document.getElementById('story-box').classList.remove('hidden');
-            document.getElementById('story-text').innerText = text;
-            const utter = new SpeechSynthesisUtterance(text);
+            document.getElementById('story-card').classList.remove('hidden');
+            document.getElementById('story-text').innerText = texte;
+            
+            const img = document.getElementById('img-container');
+            document.getElementById('story-img').src = `https://image.pollinations.ai/prompt/children_book_illustration_${encodeURIComponent(sujet)}`;
+            img.classList.remove('hidden');
+
+            const utter = new SpeechSynthesisUtterance(texte);
             utter.lang = 'fr-FR';
             synth.speak(utter);
         }
 
-        // Lancement auto du scan
-        detectModel();
+        function reset() {
+            localStorage.clear();
+            location.reload();
+        }
     </script>
 </body>
 </html>
