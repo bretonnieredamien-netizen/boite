@@ -11,7 +11,6 @@
         .hidden { display: none !important; }
         #story-card::-webkit-scrollbar { width: 8px; }
         #story-card::-webkit-scrollbar-thumb { background: #fcd34d; border-radius: 10px; }
-        /* Animation quand la boîte parle */
         .speaking-glow { box-shadow: 0 0 30px #fbbf24; border: 4px solid #fbbf24; transition: all 0.5s ease; }
     </style>
 </head>
@@ -47,4 +46,114 @@
 
     <script>
         const API_KEY = localStorage.getItem('BOITE_FINAL_KEY_2026');
-        const MODEL_ID = "models/gemini-2.
+        const MODEL_ID = "models/gemini-2.5-flash"; 
+        const synth = window.speechSynthesis;
+        
+        let speechQueue = [];
+        let isSpeaking = false;
+        let currentSentence = "";
+        let selectedVoice = null;
+
+        // --- TROUVER LA MEILLEURE VOIX ---
+        function getBestVoice() {
+            const voices = synth.getVoices();
+            return voices.find(v => v.lang.includes('fr') && (v.name.includes('Siri') || v.name.includes('Premium') || v.name.includes('Google')))
+                   || voices.find(v => v.lang.includes('fr'));
+        }
+        window.speechSynthesis.onvoiceschanged = () => { selectedVoice = getBestVoice(); };
+
+        function unlockAudio() {
+            const utter = new SpeechSynthesisUtterance("");
+            utter.volume = 0;
+            synth.speak(utter);
+            synth.resume();
+        }
+
+        async function appelIA(sujet) {
+            if (!API_KEY) {
+                alert("Oups ! La clé magique (API Key) a disparu. Merci de l'ajouter dans les réglages.");
+                return;
+            }
+
+            unlockAudio();
+            stopAudio();
+            
+            document.getElementById('status').innerText = "La magie se tisse...";
+            document.getElementById('story-text').innerText = ""; 
+            document.getElementById('story-card').classList.remove('hidden', 'speaking-glow');
+            
+            const randomSeed = Math.floor(Math.random() * 1000000);
+            document.getElementById('image-box').classList.remove('hidden');
+            document.getElementById('story-img').src = `https://image.pollinations.ai/prompt/fairytale_illustration_pastel_${encodeURIComponent(sujet)}?nologo=true&seed=${randomSeed}`;
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${API_KEY}`;
+            
+            const consigne = `Raconte une TRÈS TRÈS LONGUE épopée magique pour un enfant sur le thème : "${sujet}". 
+            Décris longuement les paysages, les odeurs et les émotions. 
+            L'histoire doit être très riche en détails et en rebondissements. 
+            Utilise un ton très doux, poétique et féérique. Prends ton temps.`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: consigne }] }],
+                        generationConfig: { temperature: 0.9, maxOutputTokens: 4000 }
+                    })
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let fullText = "";
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) {
+                        if (currentSentence.trim()) { speechQueue.push(currentSentence.trim()); processQueue(); }
+                        break;
+                    }
+                    
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split("\n");
+                    
+                    for (const line of lines) {
+                        if (line.startsWith("data: ")) {
+                            try {
+                                const json = JSON.parse(line.substring(6));
+                                const textChunk = json.candidates[0].content.parts[0].text;
+                                fullText += textChunk;
+                                currentSentence += textChunk;
+                                
+                                document.getElementById('story-text').innerText = fullText;
+                                document.getElementById('story-card').scrollTop = document.getElementById('story-card').scrollHeight;
+
+                                if (/[.!?\n]/.test(textChunk)) {
+                                    const parts = currentSentence.split(/([.!?\n])/);
+                                    for (let i = 0; i < parts.length - 1; i += 2) {
+                                        const sentence = parts[i] + (parts[i+1] || "");
+                                        if (sentence.trim().length > 2) {
+                                            speechQueue.push(sentence.trim());
+                                            processQueue();
+                                        }
+                                    }
+                                    currentSentence = parts[parts.length - 1];
+                                }
+                            } catch(e) {}
+                        }
+                    }
+                }
+                document.getElementById('status').innerText = "Fin de l'aventure ✨";
+            } catch (e) {
+                console.error(e);
+                alert("Désolé, la connexion magique a été coupée. Vérifie internet !");
+            }
+        }
+
+        function processQueue() {
+            if (isSpeaking || speechQueue.length === 0) return;
+            isSpeaking = true;
+            document.getElementById('story-card').classList.add('speaking-glow');
+            
+            const textToSpeak = speechQueue.shift();
+            const utter = new SpeechSynthesisUtterance(textToSpeak);
