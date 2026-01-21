@@ -3,32 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>La Boîte Magique - Fix Final ✨</title>
+    <title>La Boîte Magique ✨</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Short+Stack&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Short Stack', cursive; background: #fffdf2; touch-action: manipulation; }
         .pulsate { animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-        .hidden { display: none !important; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center p-6">
+<body class="min-h-screen flex flex-col items-center p-6 select-none">
 
     <header class="text-center my-6">
-        <h1 class="text-3xl font-bold text-amber-600">Ma Boîte Magique ✨</h1>
-        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Initialisation...</p>
+        <h1 class="text-4xl font-bold text-amber-600 drop-shadow-sm">Ma Boîte Magique ✨</h1>
+        <p id="status" class="text-amber-800 mt-2 opacity-80 italic">Prêt pour l'aventure ?</p>
     </header>
 
-    <div id="image-box" class="w-full max-w-md aspect-video bg-white rounded-[2rem] shadow-2xl border-4 border-white overflow-hidden mb-8 hidden">
+    <div id="image-box" class="w-full max-w-md aspect-video bg-white rounded-[2rem] shadow-2xl border-4 border-white overflow-hidden mb-8 hidden transition-all duration-1000">
         <img id="story-img" src="" class="w-full h-full object-cover">
     </div>
 
     <div class="w-full max-w-md flex flex-col items-center gap-6">
         <div class="w-full flex gap-2 bg-amber-100/50 p-2 rounded-2xl border border-amber-200">
-            <input type="text" id="manualInput" placeholder="Écris un thème..." 
-                   class="flex-1 bg-white p-3 rounded-xl outline-none text-sm">
-            <button onclick="envoyerManuel()" class="bg-amber-500 text-white px-4 py-3 rounded-xl font-bold">OK</button>
+            <input type="text" id="manualInput" placeholder="Tape un mot ici..." class="flex-1 bg-white p-3 rounded-xl outline-none shadow-inner">
+            <button onclick="envoyerTexte()" class="bg-amber-500 text-white px-5 py-3 rounded-xl font-bold active:scale-95 transition-all">OK</button>
         </div>
 
         <button id="mic-btn" onclick="ecouter()" class="bg-amber-400 p-12 rounded-full shadow-2xl border-8 border-white opacity-50 cursor-not-allowed" disabled>
@@ -36,53 +34,37 @@
         </button>
     </div>
 
-    <div id="story-card" class="bg-white w-full max-w-md rounded-[2rem] shadow-xl border-4 border-amber-100 p-8 mt-8 hidden">
-        <div id="story-text" class="text-lg leading-relaxed text-gray-800 italic"></div>
+    <div id="story-card" class="bg-white w-full max-w-md rounded-[2.5rem] shadow-xl border-4 border-amber-100 p-8 mt-8 hidden">
+        <div id="story-text" class="text-xl leading-relaxed text-gray-800 italic"></div>
     </div>
 
-    <div id="debug" class="mt-auto w-full max-w-md bg-black text-[9px] text-green-400 p-3 rounded-lg font-mono opacity-70 overflow-auto max-h-28">
-        > Scan de ton compte Gemini Plus...
+    <div id="debug" class="mt-auto w-full max-w-md bg-black text-[9px] text-green-500 p-2 rounded font-mono opacity-50 overflow-auto max-h-20">
+        > Initialisation...
     </div>
 
     <script>
-        const KEY = localStorage.getItem('GEMINI_FINAL_2026') || prompt("Entre ta clé API Gemini :");
-        if(KEY) localStorage.setItem('GEMINI_FINAL_2026', KEY);
-
-        let activeModel = ""; 
+        const KEY = localStorage.getItem('BOITE_MAGIQUE_FINAL_2026');
+        let activeModel = "";
         const synth = window.speechSynthesis;
         let recognition = null;
 
-        function log(msg, err = false) {
-            const d = document.getElementById('debug');
-            d.innerHTML += `<div class="${err ? 'text-red-400' : ''}">> ${msg}</div>`;
-            d.scrollTop = d.scrollHeight;
-        }
+        function log(msg) { document.getElementById('debug').innerHTML += `<div>> ${msg}</div>`; }
 
-        // 1. AUTO-DÉTECTION DU MODÈLE (C'est ici qu'on règle ton problème)
-        async function detecterModele() {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${KEY}`;
+        // 1. Détection du modèle au lancement
+        async function init() {
             try {
-                const response = await fetch(url);
-                const data = await response.json();
-                
-                if (data.models) {
-                    // On cherche le nom EXACT que Google a donné à ton compte
-                    const model = data.models.find(m => m.name.includes('gemini-1.5-pro')) || 
-                                  data.models.find(m => m.name.includes('gemini-1.5-flash')) ||
-                                  data.models[0];
-                    
-                    activeModel = model.name;
-                    log(`Modèle trouvé : ${activeModel}`, false);
-                    document.getElementById('status').innerText = "La boîte est prête !";
-                    document.getElementById('mic-btn').disabled = false;
-                    document.getElementById('mic-btn').classList.remove('opacity-50', 'cursor-not-allowed');
-                } else {
-                    log("Aucun modèle trouvé. Vérifie l'activation de l'API.", true);
-                }
-            } catch (e) { log("Erreur de scan : " + e.message, true); }
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${KEY}`);
+                const data = await res.json();
+                const model = data.models.find(m => m.name.includes('gemini-1.5-pro')) || data.models[0];
+                activeModel = model.name;
+                log("Modèle prêt : " + activeModel);
+                document.getElementById('mic-btn').disabled = false;
+                document.getElementById('mic-btn').classList.remove('opacity-50', 'cursor-not-allowed');
+                document.getElementById('status').innerText = "Je suis prête !";
+            } catch(e) { log("Erreur init"); }
         }
 
-        // 2. LOGIQUE MICRO
+        // 2. Micro
         const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (Speech) {
             recognition = new Speech();
@@ -93,62 +75,3 @@
             };
             recognition.onresult = (e) => {
                 document.getElementById('mic-btn').classList.remove('pulsate');
-                genererHistoire(e.results[0][0].transcript);
-            };
-            recognition.onerror = () => document.getElementById('mic-btn').classList.remove('pulsate');
-        }
-
-        function ecouter() { synth.cancel(); recognition.start(); }
-        function envoyerManuel() { 
-            const val = document.getElementById('manualInput').value;
-            if(val) genererHistoire(val);
-        }
-
-        // 3. GÉNÉRATION DE L'HISTOIRE
-        async function genererHistoire(sujet) {
-            document.getElementById('status').innerText = "Création de la magie...";
-            const url = `https://generativelanguage.googleapis.com/v1beta/${activeModel}:generateContent?key=${KEY}`;
-            
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: "Raconte une histoire très courte et merveilleuse pour un enfant sur : " + sujet }] }],
-                        safetySettings: [
-                            { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-                            { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-                            { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-                            { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
-                        ]
-                    })
-                });
-
-                const data = await response.json();
-                if (data.candidates && data.candidates[0].content) {
-                    const texte = data.candidates[0].content.parts[0].text;
-                    afficher(texte, sujet);
-                } else {
-                    alert("Google a bloqué l'histoire. Essaie un sujet plus doux !");
-                    document.getElementById('status').innerText = "Oups, essaie encore !";
-                }
-            } catch (e) { log("Erreur génération : " + e.message, true); }
-        }
-
-        function afficher(texte, theme) {
-            document.getElementById('status').innerText = "Il était une fois...";
-            document.getElementById('image-box').classList.remove('hidden');
-            document.getElementById('story-img').src = `https://image.pollinations.ai/prompt/drawing_child_illustration_${encodeURIComponent(theme)}?nologo=true`;
-            document.getElementById('story-card').classList.remove('hidden');
-            document.getElementById('story-text').innerText = texte;
-
-            const utter = new SpeechSynthesisUtterance(texte);
-            utter.lang = 'fr-FR';
-            synth.speak(utter);
-        }
-
-        // Lancement auto du scan au démarrage
-        detecterModele();
-    </script>
-</body>
-</html>
