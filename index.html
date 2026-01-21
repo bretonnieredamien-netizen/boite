@@ -8,7 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Short+Stack&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Short Stack', cursive; background: linear-gradient(135deg, #fef9c3 0%, #fef3c7 100%); }
-        .hidden { display: none !important; }
         .pulsate { animation: pulse 1.5s infinite; }
         @keyframes pulse { 
             0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7); } 
@@ -22,7 +21,7 @@
     <div id="setup" class="bg-white p-8 rounded-3xl shadow-xl mt-10 w-full max-w-md border-4 border-yellow-400">
         <h2 class="text-2xl font-bold text-yellow-600 mb-4 text-center">🔑 Activation</h2>
         <input type="text" id="apiKeyInput" placeholder="Colle ta clé AIza..." class="w-full p-4 border-2 border-yellow-100 rounded-2xl mb-4 outline-none focus:border-yellow-400">
-        <button onclick="saveKey()" class="w-full bg-yellow-400 text-white font-bold py-4 rounded-2xl shadow-lg">LANCER LA BOÎTE</button>
+        <button onclick="saveKey()" class="w-full bg-yellow-400 text-white font-bold py-4 rounded-2xl shadow-lg">Lancer la Boîte</button>
     </div>
 
     <div id="main" class="hidden w-full max-w-2xl flex flex-col items-center">
@@ -37,87 +36,63 @@
         </button>
         <p id="status" class="text-yellow-800 text-xl font-medium mb-8 text-center">Appuie pour parler</p>
 
-        <div id="story-box" class="bg-white p-8 rounded-3xl shadow-lg border-4 border-yellow-200 w-full hidden mb-10">
-            <p id="story-text" class="text-xl leading-relaxed text-gray-800"></p>
-            <button onclick="resetKey()" class="mt-6 text-xs text-gray-400 underline block mx-auto">Changer la clé</button>
+        <div id="story-box" class="bg-white p-8 rounded-3xl shadow-lg border-4 border-yellow-200 w-full hidden mb-10 text-center">
+            <p id="story-text" class="text-xl leading-relaxed text-gray-800 text-left"></p>
+            <button onclick="resetKey()" class="mt-8 text-xs text-gray-400 underline">Changer la clé</button>
         </div>
     </div>
 
     <script>
-        // Initialisation sécurisée
-        let apiKey = localStorage.getItem('gemini_key_v2');
-        let recognition = null;
+        let apiKey = localStorage.getItem('gemini_key_v3');
         const synth = window.speechSynthesis;
+        let recognition = null;
 
-        // On essaie d'initialiser le micro proprement
+        // Init micro
         try {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (SpeechRecognition) {
-                recognition = new SpeechRecognition();
-                recognition.lang = 'fr-FR';
-            }
-        } catch (e) {
-            console.error("Micro non supporté", e);
-        }
+            recognition = new SpeechRecognition();
+            recognition.lang = 'fr-FR';
+        } catch (e) { console.error("Micro non supporté"); }
 
         window.onload = () => {
-            if (apiKey && apiKey.length > 5) {
-                showMain();
-            }
+            if (apiKey) document.getElementById('setup').classList.add('hidden'), document.getElementById('main').classList.remove('hidden');
         };
 
         function saveKey() {
             const val = document.getElementById('apiKeyInput').value.trim();
-            if (val.length > 5) {
-                localStorage.setItem('gemini_key_v2', val);
+            if (val) {
+                localStorage.setItem('gemini_key_v3', val);
                 apiKey = val;
-                showMain();
-            } else {
-                alert("La clé semble trop courte ou vide !");
+                location.reload();
             }
         }
 
         function resetKey() {
-            localStorage.removeItem('gemini_key_v2');
+            localStorage.removeItem('gemini_key_v3');
             location.reload();
         }
 
-        function showMain() {
-            document.getElementById('setup').classList.add('hidden');
-            document.getElementById('main').classList.remove('hidden');
-        }
-
         function toggleListening() {
-            if (!recognition) {
-                alert("Oups ! Ton navigateur ne supporte pas la reconnaissance vocale. Essaie avec Chrome.");
-                return;
-            }
-            try {
-                synth.cancel();
-                recognition.start();
-                document.getElementById('recordBtn').classList.add('pulsate');
-                document.getElementById('status').innerText = "Je t'écoute...";
-            } catch(e) { 
-                console.log("Déjà en cours..."); 
-            }
+            if (!recognition) return alert("Micro non supporté sur ce navigateur.");
+            synth.cancel();
+            recognition.start();
+            document.getElementById('recordBtn').classList.add('pulsate');
+            document.getElementById('status').innerText = "Je t'écoute...";
         }
 
         if (recognition) {
             recognition.onresult = (event) => {
-                const userPrompt = event.results[0][0].transcript;
+                const prompt = event.results[0][0].transcript;
                 document.getElementById('recordBtn').classList.remove('pulsate');
                 document.getElementById('status').innerText = "Je réfléchis...";
-                generateStory(userPrompt);
-            };
-
-            recognition.onerror = (event) => {
-                document.getElementById('recordBtn').classList.remove('pulsate');
-                document.getElementById('status').innerText = "Erreur de micro (vérifie les autorisations)";
+                generateStory(prompt);
             };
         }
 
         async function generateStory(prompt) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+            // Changement ici : on utilise v1 et le modèle flash
+            // Si v1 échoue encore, nous essaierons gemini-1.5-pro
+            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
             
             try {
                 const response = await fetch(url, {
@@ -129,26 +104,46 @@
                 });
 
                 const data = await response.json();
-                if (!response.ok) throw new Error(data.error.message);
+                
+                // Si erreur, on tente le fallback sur la version beta automatiquement
+                if (!response.ok) {
+                    console.log("Tentative sur v1beta...");
+                    return generateStoryBeta(prompt);
+                }
 
                 const story = data.candidates[0].content.parts[0].text;
-                
-                // Affichage
-                document.getElementById('story-box').classList.remove('hidden');
-                document.getElementById('story-text').innerText = story;
-                document.getElementById('story-image').src = `https://image.pollinations.ai/prompt/child_book_illustration_${encodeURIComponent(prompt)}`;
-                document.getElementById('image-container').classList.remove('hidden');
-                document.getElementById('status').innerText = "Et voilà !";
-
-                // Parole
-                const utter = new SpeechSynthesisUtterance(story);
-                utter.lang = 'fr-FR';
-                synth.speak(utter);
+                showStory(story, prompt);
 
             } catch (error) {
                 alert("Erreur : " + error.message);
-                document.getElementById('status').innerText = "Appuie pour réessayer";
             }
+        }
+
+        // Fonction de secours si la v1 échoue
+        async function generateStoryBeta(prompt) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: "Raconte une histoire courte pour enfant sur : " + prompt }] }]
+                })
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error.message);
+            showStory(data.candidates[0].content.parts[0].text, prompt);
+        }
+
+        function showStory(story, prompt) {
+            document.getElementById('story-box').classList.remove('hidden');
+            document.getElementById('story-text').innerText = story;
+            document.getElementById('story-image').src = `https://image.pollinations.ai/prompt/child_book_illustration_${encodeURIComponent(prompt)}`;
+            document.getElementById('image-container').classList.remove('hidden');
+            document.getElementById('status').innerText = "Il était une fois...";
+            
+            const utter = new SpeechSynthesisUtterance(story);
+            utter.lang = 'fr-FR';
+            synth.speak(utter);
         }
     </script>
 </body>
