@@ -11,14 +11,15 @@
         .hidden { display: none !important; }
         #story-card::-webkit-scrollbar { width: 8px; }
         #story-card::-webkit-scrollbar-thumb { background: #fcd34d; border-radius: 10px; }
-        .speaking-glow { box-shadow: 0 0 40px #fbbf24; border-color: #fbbf24; transition: all 0.5s ease; border-width: 4px; }
+        /* Animation quand la boîte parle */
+        .speaking-glow { box-shadow: 0 0 30px #fbbf24; border: 4px solid #fbbf24; transition: all 0.5s ease; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center p-6 select-none">
 
     <header class="text-center my-6">
-        <h1 class="text-4xl font-bold text-amber-600 drop-shadow-sm">Ma Boîte Magique ✨</h1>
-        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Chut... la magie commence.</p>
+        <h1 class="text-4xl font-bold text-amber-600 drop-shadow-sm">Ma Boîte Magique ⚡</h1>
+        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Prêt pour une aventure géante !</p>
     </header>
 
     <div id="image-box" class="w-full max-w-md aspect-video bg-white rounded-[2rem] shadow-2xl border-4 border-white overflow-hidden mb-6 hidden">
@@ -37,89 +38,13 @@
         </button>
     </div>
 
-    <div id="story-card" class="bg-white w-full max-w-md rounded-[2.5rem] shadow-xl border-2 border-amber-50 p-8 mt-8 hidden max-h-[500px] overflow-y-auto">
+    <div id="story-card" class="bg-white w-full max-w-md rounded-[2.5rem] shadow-xl border-4 border-amber-50 p-8 mt-8 hidden max-h-[500px] overflow-y-auto">
         <div id="audio-controls" class="flex justify-center gap-4 mb-4 sticky top-0 bg-white/90 py-2">
-            <button onclick="stopAudio()" class="bg-red-100 text-red-700 px-6 py-2 rounded-full text-[10px] font-bold shadow-sm uppercase">Arrêter l'histoire</button>
+            <button onclick="stopAudio()" class="bg-red-100 text-red-700 px-6 py-2 rounded-full text-xs font-bold shadow-sm">⏹ Arrêter l'histoire</button>
         </div>
         <div id="story-text" class="text-lg leading-relaxed text-gray-800 italic whitespace-pre-line"></div>
     </div>
 
     <script>
         const API_KEY = localStorage.getItem('BOITE_FINAL_KEY_2026');
-        const MODEL_ID = "models/gemini-2.5-flash"; 
-        const synth = window.speechSynthesis;
-        
-        let speechQueue = [];
-        let isSpeaking = false;
-        let currentSentence = "";
-        let bestVoice = null;
-
-        // --- CHOIX DE LA MEILLEURE VOIX ---
-        function loadVoices() {
-            const voices = synth.getVoices();
-            // On cherche une voix Premium, Siri, ou Google en français
-            bestVoice = voices.find(v => v.lang.includes('fr') && (v.name.includes('Premium') || v.name.includes('Siri') || v.name.includes('Google'))) 
-                      || voices.find(v => v.lang.includes('fr'));
-        }
-        synth.onvoiceschanged = loadVoices;
-        loadVoices();
-
-        function unlockAudio() {
-            const silent = new SpeechSynthesisUtterance(" ");
-            silent.volume = 0;
-            synth.speak(silent);
-            synth.resume();
-        }
-
-        async function appelIA(sujet) {
-            unlockAudio();
-            stopAudio();
-            
-            document.getElementById('status').innerText = "✨ Tissage de l'histoire...";
-            document.getElementById('story-text').innerText = "";
-            document.getElementById('story-card').classList.remove('hidden', 'speaking-glow');
-            
-            const randomSeed = Math.floor(Math.random() * 1000000);
-            document.getElementById('image-box').classList.remove('hidden');
-            document.getElementById('story-img').src = `https://pollinations.ai/p/${encodeURIComponent("watercolor fairytale illustration, " + sujet)}?width=1024&height=768&seed=${randomSeed}&model=flux&nologo=true`;
-
-            const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${API_KEY}`;
-            
-            // CONSIGNES POUR UNE HISTOIRE TRÈS LONGUE ET POÉTIQUE
-            const consigne = `Raconte une TRÈS TRÈS LONGUE épopée magique pour un enfant sur le thème : "${sujet}". 
-            Utilise un ton doux, féérique et poétique. Décris longuement les décors enchanteurs. 
-            L'histoire doit comporter de nombreuses étapes et une fin merveilleuse.`;
-
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: consigne }] }],
-                        generationConfig: { temperature: 0.9, maxOutputTokens: 4000 }
-                    })
-                });
-
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder("utf-8");
-                let fullText = "";
-
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) {
-                        if (currentSentence.trim()) { speechQueue.push(currentSentence.trim()); processQueue(); }
-                        break;
-                    }
-                    
-                    const chunk = decoder.decode(value);
-                    const lines = chunk.split("\n");
-                    
-                    for (const line of lines) {
-                        if (line.startsWith("data: ")) {
-                            try {
-                                const json = JSON.parse(line.substring(6));
-                                const textChunk = json.candidates[0].content.parts[0].text;
-                                fullText += textChunk;
-                                currentSentence += textChunk;
-                                
-                                document.getElementById('story-text').innerText = fullText;
+        const MODEL_ID = "models/gemini-2.
