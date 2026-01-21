@@ -9,128 +9,51 @@
     <style>
         body { font-family: 'Short Stack', cursive; background: #fffdf2; }
         .hidden { display: none !important; }
-        #debug-log { background: #000; color: #0f0; font-family: monospace; font-size: 10px; padding: 10px; border-radius: 10px; margin-top: 20px; max-height: 100px; overflow-y: auto; width: 100%; }
+        #console { background: #1a1a1a; color: #5ef75e; font-family: monospace; font-size: 10px; padding: 10px; border-radius: 12px; margin-top: 20px; max-height: 100px; overflow-y: auto; width: 100%; border: 1px solid #333; }
     </style>
 </head>
 <body class="flex flex-col items-center p-6 min-h-screen">
 
-    <h1 class="text-3xl font-bold text-amber-600 mb-8">Ma Boîte Magique ✨</h1>
+    <h1 class="text-3xl font-bold text-amber-600 mb-6">Boîte Magique ✨</h1>
 
-    <div id="status-box" class="w-full max-w-md bg-white p-4 rounded-2xl shadow-md border-2 border-amber-100 text-center mb-6">
-        <p id="status-text" class="text-amber-900">En attente de ton idée...</p>
+    <div class="w-full max-w-md bg-white p-4 rounded-2xl shadow-sm border border-amber-100 text-center mb-6">
+        <p id="status-text" class="text-amber-900 font-bold">Prêt pour l'aventure !</p>
     </div>
 
-    <div class="w-full max-w-md flex gap-2 mb-10">
-        <input type="text" id="manualInput" placeholder="Ex: Un petit robot..." 
-               class="flex-1 border-2 border-amber-200 p-3 rounded-xl outline-none focus:border-amber-500">
-        <button id="ok-btn" onclick="validerSaisie()" class="bg-amber-500 text-white px-6 py-3 rounded-xl font-bold shadow-lg active:scale-90">OK</button>
+    <div class="w-full max-w-md flex gap-2 mb-6">
+        <input type="text" id="userInput" placeholder="Ex: Un petit chat bleu..." 
+               class="flex-1 border-2 border-amber-200 p-4 rounded-2xl outline-none focus:border-amber-500 shadow-inner">
+        <button onclick="lancerMagie()" class="bg-amber-500 text-white px-6 py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all">OK</button>
     </div>
 
-    <button id="mic-btn" onclick="ecouter()" class="bg-amber-400 p-12 rounded-full shadow-2xl border-8 border-white mb-8 opacity-50" disabled>
-        <span class="text-5xl">🎤</span>
+    <button id="mic-btn" onclick="lancerMicro()" class="bg-amber-400 p-12 rounded-full shadow-2xl border-8 border-white mb-8 opacity-50 transition-all" disabled>
+        <span class="text-6xl">🎤</span>
     </button>
 
-    <div id="result-card" class="bg-white w-full max-w-md rounded-3xl shadow-xl p-6 hidden">
-        <div id="story-display" class="text-lg text-gray-800 leading-relaxed italic mb-4"></div>
-        <img id="story-img" class="w-full rounded-2xl shadow-inner hidden">
+    <div id="result-card" class="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl p-8 hidden border-2 border-amber-50">
+        <div id="story-text" class="text-xl leading-relaxed text-gray-800 italic mb-6"></div>
+        <img id="story-img" class="w-full rounded-3xl shadow-lg hidden">
     </div>
 
-    <div id="debug-log">> Système prêt.</div>
+    <div id="console">> Initialisation...</div>
 
     <script>
-        const API_KEY = localStorage.getItem('BOITE_MAGIQUE_KEY_2026');
-        let modelFound = "";
+        const API_KEY = localStorage.getItem('BOITE_MAGIQUE_ULTIMATE');
+        let currentModel = "";
 
         function log(msg) {
-            const div = document.getElementById('debug-log');
-            div.innerHTML += `<div>> ${msg}</div>`;
-            div.scrollTop = div.scrollHeight;
+            const c = document.getElementById('console');
+            c.innerHTML += `<div>> ${msg}</div>`;
+            c.scrollTop = c.scrollHeight;
         }
 
-        // 1. Initialisation : Trouver le modèle
+        // 1. DÉTECTION DU MODÈLE PRO
         async function init() {
-            log("Recherche du modèle...");
+            log("Scan des modèles autorisés...");
             try {
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${API_KEY}`);
                 const data = await res.json();
+                // On cherche Pro, sinon Flash
                 const m = data.models.find(m => m.name.includes('gemini-1.5-pro')) || data.models[0];
-                modelFound = m.name;
-                log("Modèle OK : " + modelFound);
-                document.getElementById('mic-btn').disabled = false;
-                document.getElementById('mic-btn').classList.remove('opacity-50');
-                document.getElementById('status-text').innerText = "C'est prêt ! Tape un mot ou parle.";
-            } catch (e) { log("Erreur Init : Clé API peut-être invalide."); }
-        }
-
-        // 2. Fonction de validation (Appelée par le bouton OK)
-        function validerSaisie() {
-            const input = document.getElementById('manualInput');
-            const theme = input.value.trim();
-            
-            if (!theme) {
-                alert("Écris quelque chose d'abord !");
-                return;
-            }
-
-            log("Bouton OK cliqué : " + theme);
-            document.getElementById('status-text').innerText = "Analyse de ton idée...";
-            genererMagie(theme);
-        }
-
-        // 3. Appel IA (Simplifié au maximum)
-        async function genererMagie(sujet) {
-            log("Appel Google en cours...");
-            const url = `https://generativelanguage.googleapis.com/v1beta/${modelFound}:generateContent?key=${API_KEY}`;
-            
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [{ text: `Raconte une histoire très courte (3 lignes), magique et gentille pour un enfant sur : ${sujet}.` }]
-                        }]
-                    })
-                });
-
-                const data = await response.json();
-                log("Réponse reçue.");
-
-                if (data.candidates && data.candidates[0].content) {
-                    const texte = data.candidates[0].content.parts[0].text;
-                    afficher(texte, sujet);
-                } else {
-                    log("Erreur : Google a renvoyé une réponse vide.", true);
-                    alert("Google refuse de répondre à ce sujet. Essaie autre chose !");
-                }
-            } catch (error) {
-                log("Erreur réseau ou API.");
-                alert("La connexion a échoué.");
-            }
-        }
-
-        function afficher(texte, sujet) {
-            document.getElementById('status-text').innerText = "Il était une fois...";
-            document.getElementById('result-card').classList.remove('hidden');
-            document.getElementById('story-display').innerText = texte;
-            
-            const img = document.getElementById('story-img');
-            img.src = `https://image.pollinations.ai/prompt/fairytale_illustration_${encodeURIComponent(sujet)}?nologo=true`;
-            img.classList.remove('hidden');
-
-            const utter = new SpeechSynthesisUtterance(texte);
-            utter.lang = 'fr-FR';
-            window.speechSynthesis.speak(utter);
-        }
-
-        // Lancement
-        if (!API_KEY) {
-            const key = prompt("Entre ta clé API Gemini :");
-            localStorage.setItem('BOITE_MAGIQUE_KEY_2026', key);
-            location.reload();
-        } else {
-            init();
-        }
-    </script>
-</body>
-</html>
+                currentModel = m.name;
+                log
