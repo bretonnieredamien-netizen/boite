@@ -2,15 +2,14 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>La Boîte à Histoires ✨</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Boîte Magique - Fix Micro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Short+Stack&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Short Stack', cursive; background: #fffdf2; touch-action: manipulation; }
+        body { font-family: 'Short Stack', cursive; background: #fffdf2; }
         .pulsate { animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); } 70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(245, 158, 11, 0); } 100% { transform: scale(1); } }
-        .hidden { display: none !important; }
+        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); } 70% { transform: scale(1.1); box-shadow: 0 0 0 20px rgba(245, 158, 11, 0); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body class="p-4 flex flex-col items-center min-h-screen">
@@ -19,107 +18,114 @@
         <h1 class="text-3xl font-bold text-amber-600 text-center my-6">Ma Boîte Magique ✨</h1>
         
         <div class="bg-white p-6 rounded-3xl shadow-xl mb-6 text-center border-4 border-yellow-200">
-            <p id="status" class="text-amber-900 text-lg">Prêt pour l'aventure ?</p>
-            <div id="image-container" class="mt-4 w-full aspect-video rounded-xl overflow-hidden hidden">
-                <img id="story-image" src="" class="w-full h-full object-cover">
-            </div>
+            <p id="status" class="text-amber-900 text-lg">Appuie sur le micro pour parler</p>
         </div>
 
         <div class="flex flex-col items-center mb-8">
-            <button id="recordBtn" onclick="toggleListening()" class="bg-amber-400 p-10 rounded-full shadow-2xl border-8 border-white active:scale-90 transition-all">
+            <button id="micBtn" onclick="initAction()" class="bg-amber-400 p-12 rounded-full shadow-2xl border-8 border-white active:scale-95 transition-all">
                 <span id="mic-icon" class="text-6xl">🎤</span>
             </button>
         </div>
 
-        <div id="story-box" class="bg-white p-6 rounded-2xl shadow-lg border-2 border-yellow-200 hidden mb-10">
+        <div id="story-box" class="bg-white p-6 rounded-2xl shadow-lg border-2 border-yellow-200 hidden mb-6">
             <p id="story-text" class="text-lg text-gray-800 leading-relaxed"></p>
         </div>
 
-        <div id="debug" class="bg-black text-green-400 p-3 rounded-lg font-mono text-[10px] overflow-auto max-h-24 opacity-50">
-            > Système en attente...
+        <div id="console" class="bg-black text-green-400 p-3 rounded-lg font-mono text-[10px] overflow-auto max-h-32 opacity-80">
+            > Système prêt.
         </div>
-        
-        <button onclick="localStorage.clear(); location.reload();" class="mt-4 text-[10px] text-gray-400 underline block mx-auto">Changer la clé API</button>
     </div>
 
     <script>
-        let API_KEY = localStorage.getItem('BOITE_MAGIQUE_FINAL_KEY') || prompt("Entre ta clé API Gemini :");
-        if(API_KEY) localStorage.setItem('BOITE_MAGIQUE_FINAL_KEY', API_KEY);
+        const API_KEY = localStorage.getItem('BOITE_KEY_2026') || prompt("Entre ta clé API Gemini :");
+        if(API_KEY) localStorage.setItem('BOITE_KEY_2026', API_KEY);
 
         const synth = window.speechSynthesis;
         let recognition = null;
-        let storyContent = "";
 
-        // Liste des combinaisons [Version API, Modèle] à tester
-        const VERSIONS = [
-            { v: "v1", m: "gemini-1.5-flash" },
-            { v: "v1beta", m: "gemini-1.5-flash" },
-            { v: "v1", m: "gemini-pro" },
-            { v: "v1beta", m: "gemini-pro" }
-        ];
-
-        try {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            recognition = new SpeechRecognition();
-            recognition.lang = 'fr-FR';
-            
-            recognition.onstart = () => {
-                document.getElementById('recordBtn').classList.add('pulsate');
-                document.getElementById('status').innerText = "Je t'écoute...";
-            };
-
-            recognition.onresult = (e) => {
-                const text = e.results[0][0].transcript;
-                document.getElementById('recordBtn').classList.remove('pulsate');
-                findTheStory(text);
-            };
-        } catch(e) { alert("Micro non supporté."); }
-
-        function toggleListening() {
-            synth.cancel();
-            recognition.start();
+        function log(msg, err = false) {
+            const c = document.getElementById('console');
+            c.innerHTML += `<div class="${err ? 'text-red-500' : ''}">> ${msg}</div>`;
+            c.scrollTop = c.scrollHeight;
         }
 
-        async function findTheStory(promptText) {
-            document.getElementById('status').innerText = "Je cherche l'histoire...";
-            const debug = document.getElementById('debug');
+        // Initialisation du micro
+        function initAction() {
+            synth.cancel(); // Arrête toute voix en cours
             
-            // On boucle sur les versions jusqu'à ce qu'une réponde 200 OK
-            for (let combo of VERSIONS) {
-                debug.innerHTML += `<div>Test : ${combo.v} / ${combo.m}</div>`;
-                const url = `https://generativelanguage.googleapis.com/${combo.v}/models/${combo.m}:generateContent?key=${API_KEY}`;
-                
+            if (!recognition) {
+                const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (!Speech) {
+                    log("ERREUR : Navigateur non compatible.", true);
+                    alert("Ton navigateur ne supporte pas le micro. Utilise Chrome ou Safari.");
+                    return;
+                }
+                recognition = new Speech();
+                recognition.lang = 'fr-FR';
+                recognition.continuous = false;
+
+                recognition.onstart = () => {
+                    log("Micro : ACTIF");
+                    document.getElementById('micBtn').classList.add('pulsate');
+                    document.getElementById('status').innerText = "Je t'écoute...";
+                };
+
+                recognition.onresult = (e) => {
+                    const text = e.results[0][0].transcript;
+                    log("Entendu : " + text);
+                    generateStory(text);
+                };
+
+                recognition.onerror = (e) => {
+                    log("Erreur Micro : " + e.error, true);
+                    document.getElementById('micBtn').classList.remove('pulsate');
+                    document.getElementById('status').innerText = "Erreur micro. Réessaie.";
+                    if(e.error === 'not-allowed') alert("Tu dois autoriser le micro dans les réglages de ton navigateur !");
+                };
+
+                recognition.onend = () => {
+                    document.getElementById('micBtn').classList.remove('pulsate');
+                };
+            }
+
+            try {
+                recognition.start();
+            } catch(e) {
+                log("Déjà en écoute...");
+            }
+        }
+
+        async function generateStory(userText) {
+            document.getElementById('status').innerText = "L'IA réfléchit...";
+            log("Appel Gemini...");
+            
+            // On teste les deux versions v1 et v1beta pour éviter la 404
+            const models = [
+                `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
+                `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`
+            ];
+
+            for (let url of models) {
                 try {
-                    const response = await fetch(url, {
+                    const res = await fetch(url, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type' : 'application/json' },
                         body: JSON.stringify({
-                            contents: [{ parts: [{ text: "Raconte une histoire très courte pour enfant sur : " + promptText }] }]
+                            contents: [{ parts: [{ text: "Raconte une histoire magique très courte pour enfant sur : " + userText }] }]
                         })
                     });
-
-                    const data = await response.json();
-
-                    if (response.ok && data.candidates) {
-                        debug.innerHTML += `<div class="text-white">SUCCÈS !</div>`;
-                        storyContent = data.candidates[0].content.parts[0].text;
-                        showStory(storyContent, promptText);
-                        return; // ON ARRÊTE TOUT, ÇA MARCHE !
-                    } else {
-                        debug.innerHTML += `<div class="text-red-500">Erreur : ${data.error ? data.error.message.substring(0,30) : 'Inconnue'}</div>`;
+                    
+                    if (res.ok) {
+                        const data = await res.json();
+                        const story = data.candidates[0].content.parts[0].text;
+                        log("Succès IA !");
+                        showStory(story);
+                        return;
                     }
-                } catch (err) {
-                    debug.innerHTML += `<div class="text-red-500">Erreur réseau</div>`;
-                }
+                } catch(e) { log("Echec modèle..."); }
             }
-            
-            document.getElementById('status').innerText = "Désolé, l'IA ne répond pas.";
-            alert("Aucun modèle n'est disponible pour ta clé. Vérifie si l'API est activée sur Google Cloud.");
+            log("Erreur : Aucun modèle n'a répondu.", true);
         }
 
-        function showStory(text, prompt) {
-            document.getElementById('status').innerText = "Il était une fois...";
-            document.getElementById('story-box').classList.remove('hidden');
-            document.getElementById('story-text').innerText = text;
-            document.getElementById('image-container').classList.remove('hidden');
-            document.getElementById('story-image').src =
+        function showStory(text) {
+            document.getElementById('status').innerText
