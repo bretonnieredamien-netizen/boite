@@ -11,13 +11,16 @@
         .pulsate { animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         .hidden { display: none !important; }
+        /* Style pour la barre de défilement */
+        #story-card::-webkit-scrollbar { width: 8px; }
+        #story-card::-webkit-scrollbar-thumb { background: #fcd34d; border-radius: 10px; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center p-6 select-none">
 
     <header class="text-center my-6">
         <h1 class="text-4xl font-bold text-amber-600 drop-shadow-sm">Ma Boîte Magique 2.5 ✨</h1>
-        <p id="status" class="text-amber-800 mt-2 opacity-80 italic">La puissance du Pro à ton service</p>
+        <p id="status" class="text-amber-800 mt-2 opacity-80 italic">Prêt pour une grande aventure ?</p>
     </header>
 
     <div id="image-box" class="w-full max-w-md aspect-video bg-white rounded-[2rem] shadow-2xl border-4 border-white overflow-hidden mb-8 hidden transition-all duration-1000">
@@ -26,7 +29,7 @@
 
     <div class="w-full max-w-md flex flex-col items-center gap-6">
         <div class="w-full flex gap-2 bg-amber-100/50 p-2 rounded-2xl border border-amber-200">
-            <input type="text" id="manualInput" placeholder="Sujet (ex: un dragon dodo)..." 
+            <input type="text" id="manualInput" placeholder="Sujet (ex: le voyage d'un doudou)..." 
                    class="flex-1 bg-white p-4 rounded-xl outline-none shadow-inner text-sm">
             <button onclick="lancerMagieDepuisTexte()" class="bg-amber-500 text-white px-6 py-4 rounded-xl font-bold active:scale-95 shadow-md">OK</button>
         </div>
@@ -36,22 +39,25 @@
         </button>
     </div>
 
-    <div id="story-card" class="bg-white w-full max-w-md rounded-[2.5rem] shadow-xl border-4 border-amber-50 p-8 mt-10 hidden">
-        <div id="story-text" class="text-xl leading-relaxed text-gray-800 italic"></div>
+    <div id="story-card" class="bg-white w-full max-w-md rounded-[2.5rem] shadow-xl border-4 border-amber-50 p-8 mt-10 hidden max-h-[500px] overflow-y-auto">
+        
+        <div id="audio-controls" class="flex justify-center gap-4 mb-6 sticky top-0 bg-white/90 py-2">
+            <button onclick="toggleAudio()" id="btn-pause" class="bg-amber-100 text-amber-700 px-4 py-2 rounded-full text-xs font-bold shadow-sm">⏸ Pause</button>
+            <button onclick="stopAudio()" class="bg-red-100 text-red-700 px-4 py-2 rounded-full text-xs font-bold shadow-sm">⏹ Stop</button>
+        </div>
+
+        <div id="story-text" class="text-lg leading-relaxed text-gray-800 italic whitespace-pre-line"></div>
     </div>
 
-    <div id="logs" class="mt-auto w-full max-w-md bg-zinc-900 text-green-400 p-3 rounded-xl font-mono text-[9px] opacity-50 overflow-auto max-h-20">
+    <div id="logs" class="mt-auto w-full max-w-md bg-zinc-900 text-green-400 p-3 rounded-xl font-mono text-[9px] opacity-40 overflow-auto max-h-20">
         > Prêt avec Gemini 2.5 Pro.
     </div>
 
     <script>
-        // RÉCUPÉRATION DE TA CLÉ
         const API_KEY = localStorage.getItem('BOITE_FINAL_KEY_2026');
-        
-        // LE MODÈLE DE TON ABONNEMENT PLUS
         const MODEL_ID = "models/gemini-2.5-pro"; 
-        
         const synth = window.speechSynthesis;
+        let speechInstance = null;
 
         function log(msg) {
             const d = document.getElementById('logs');
@@ -60,19 +66,28 @@
         }
 
         async function appelIA(sujet) {
-            document.getElementById('status').innerText = "Gemini 2.5 Pro réfléchit...";
-            log("Appel de " + MODEL_ID);
+            stopAudio(); // On arrête l'ancienne voix
+            document.getElementById('status').innerText = "Gemini 2.5 Pro écrit ton livre...";
+            log("Génération d'une histoire longue...");
 
             const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:generateContent?key=${API_KEY}`;
             
+            // CONSIGNES POUR UNE HISTOIRE LONGUE
+            const consigne = `Raconte une magnifique histoire magique et riche en détails pour enfant sur le thème : "${sujet}". 
+            L'histoire doit être longue (environ 4 à 6 paragraphes bien développés). 
+            Structure-la avec une introduction, des péripéties passionnantes, des descriptions merveilleuses et une conclusion douce. 
+            Utilise un ton chaleureux. Ne sois pas pressé, prends le temps de décrire les lieux et les émotions.`;
+
             try {
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ 
-                            parts: [{ text: "Raconte une histoire magique, courte (max 4 lignes) et joyeuse pour un enfant sur : " + sujet }] 
-                        }],
+                        contents: [{ parts: [{ text: consigne }] }],
+                        generationConfig: {
+                            temperature: 0.8,
+                            maxOutputTokens: 1500 // Augmenté pour autoriser plus de texte
+                        },
                         safetySettings: [
                             { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
                             { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
@@ -88,27 +103,56 @@
                     const texte = data.candidates[0].content.parts[0].text;
                     afficher(texte, sujet);
                 } else {
-                    log("Erreur ou blocage Google");
-                    alert("Oups, Google a bloqué ce sujet. Essaie autre chose !");
+                    log("Erreur Google");
+                    alert("Oups, l'IA est timide. Réessaie !");
                 }
-            } catch (e) {
-                log("Erreur réseau");
-            }
+            } catch (e) { log("Erreur réseau"); }
         }
 
         function afficher(texte, theme) {
-            document.getElementById('status').innerText = "Il était une fois...";
+            document.getElementById('status').innerText = "Installe-toi confortablement...";
             document.getElementById('image-box').classList.remove('hidden');
             document.getElementById('story-img').src = `https://image.pollinations.ai/prompt/fairytale_illustration_pastel_${encodeURIComponent(theme)}?nologo=true`;
-            document.getElementById('story-card').classList.remove('hidden');
+            
+            const card = document.getElementById('story-card');
+            card.classList.remove('hidden');
+            card.scrollTop = 0; // Remonter en haut
+            
             document.getElementById('story-text').innerText = texte;
             
-            synth.cancel();
-            const utter = new SpeechSynthesisUtterance(texte);
-            utter.lang = 'fr-FR';
-            synth.speak(utter);
+            // Lancer la lecture
+            lireHistoire(texte);
         }
 
+        // --- GESTION DE LA VOIX ---
+        function lireHistoire(texte) {
+            synth.cancel();
+            speechInstance = new SpeechSynthesisUtterance(texte);
+            speechInstance.lang = 'fr-FR';
+            speechInstance.rate = 0.9; // Un peu plus lent pour que ce soit bien compréhensible
+            speechInstance.pitch = 1.1; // Voix un peu plus douce
+            
+            speechInstance.onend = () => { document.getElementById('status').innerText = "Fin de l'histoire ✨"; };
+            
+            synth.speak(speechInstance);
+        }
+
+        function toggleAudio() {
+            if (synth.paused) {
+                synth.resume();
+                document.getElementById('btn-pause').innerText = "⏸ Pause";
+            } else {
+                synth.pause();
+                document.getElementById('btn-pause').innerText = "▶️ Reprendre";
+            }
+        }
+
+        function stopAudio() {
+            synth.cancel();
+            document.getElementById('btn-pause').innerText = "⏸ Pause";
+        }
+
+        // --- ENTRÉES ---
         function lancerMagieDepuisTexte() {
             const val = document.getElementById('manualInput').value;
             if(val) appelIA(val);
