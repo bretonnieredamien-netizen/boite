@@ -2,50 +2,156 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>La Boîte à Histoires Magique</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>La Boîte Magique ✨</title>
+    
+    <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Short+Stack&display=swap" rel="stylesheet">
+    
     <style>
         body { font-family: 'Short Stack', cursive; background: #fffbeb; }
+        .magic-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .magic-btn:active { transform: scale(0.9); }
         .pulsate { animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7); } 70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(251, 191, 36, 0); } 100% { transform: scale(1); } }
-        .hidden { display: none !important; }
+        @keyframes pulse { 
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 20px rgba(245, 158, 11, 0); }
+            100% { transform: scale(1); }
+        }
+        .story-gradient { background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%); }
     </style>
 </head>
-<body class="p-4 flex flex-col items-center min-h-screen">
+<body class="min-h-screen flex flex-col items-center select-none overflow-x-hidden">
 
-    <div class="w-full max-w-md">
-        <h1 class="text-3xl font-bold text-amber-600 text-center my-8">Ma Boîte Magique ✨</h1>
+    <div id="setup-screen" class="fixed inset-0 z-50 bg-amber-50 flex flex-col items-center justify-center p-6 hidden">
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl border-4 border-amber-200 w-full max-w-md">
+            <h2 class="text-3xl font-bold text-amber-600 mb-6 text-center">🔑 Activation</h2>
+            <p class="text-amber-800 mb-6 text-center">Colle ta clé Gemini pour réveiller la magie.</p>
+            <input type="text" id="api-key-input" placeholder="AIza..." class="w-full p-4 rounded-2xl border-2 border-amber-100 mb-6 outline-none focus:border-amber-500 text-center text-lg">
+            <button onclick="saveApiKey()" class="w-full bg-amber-500 text-white font-bold py-5 rounded-2xl shadow-lg hover:bg-amber-600 transition-colors">DÉMARRER LA BOÎTE</button>
+        </div>
+    </div>
+
+    <main id="main-app" class="w-full max-w-2xl flex flex-col items-center p-4">
         
-        <div id="setup-screen" class="bg-white p-6 rounded-3xl shadow-xl border-4 border-amber-200">
-            <p class="text-amber-800 mb-4 text-center">Entre ta clé pour commencer :</p>
-            <input type="text" id="api-key-input" placeholder="AIza..." class="w-full p-4 rounded-xl border-2 border-amber-100 mb-4 outline-none focus:border-amber-400">
-            <button onclick="saveApiKey()" class="w-full bg-amber-400 text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-transform">LANCER LA MAGIE</button>
+        <header class="w-full flex justify-between items-center py-6">
+            <h1 class="text-3xl font-bold text-amber-600 tracking-tight">Ma Boîte Magique ✨</h1>
+            <button onclick="resetApp()" class="p-2 text-amber-300 hover:text-amber-600">⚙️</button>
+        </header>
+
+        <div id="image-display" class="w-full aspect-[16/9] bg-white rounded-[2rem] shadow-2xl border-8 border-white overflow-hidden mb-8 hidden transition-all duration-700">
+            <img id="story-img" src="" class="w-full h-full object-cover">
         </div>
 
-        <div id="main-screen" class="hidden">
-            <div class="bg-white p-6 rounded-3xl shadow-xl border-4 border-amber-200 mb-6 text-center">
-                <p id="status" class="text-amber-900 text-lg font-medium">Prêt pour une aventure ?</p>
-                
-                <div id="image-container" class="mt-4 w-full aspect-video rounded-2xl overflow-hidden hidden border-2 border-amber-50">
-                    <img id="story-image" src="" class="w-full h-full object-cover">
+        <div class="text-center mb-10">
+            <p id="status-msg" class="text-2xl text-amber-900 font-medium">Appuie et raconte ton vœu...</p>
+        </div>
+
+        <div class="relative mb-12">
+            <button id="mic-btn" onclick="toggleListening()" class="magic-btn bg-amber-400 p-14 rounded-full shadow-[0_20px_50px_rgba(245,158,11,0.3)] border-8 border-white relative z-10">
+                <span id="mic-icon" class="text-7xl">🎤</span>
+            </button>
+        </div>
+
+        <div id="story-card" class="bg-white w-full rounded-[2.5rem] shadow-xl border-4 border-amber-100 p-8 mb-10 hidden transition-all duration-500">
+            <div id="story-content" class="text-xl leading-relaxed text-gray-800 first-letter:text-5xl first-letter:font-bold first-letter:text-amber-500 first-letter:mr-3 first-letter:float-left">
                 </div>
-            </div>
-
-            <div class="flex flex-col items-center gap-6">
-                <button id="mic-btn" onclick="startMic()" class="bg-amber-400 p-12 rounded-full shadow-2xl border-8 border-white active:scale-90 transition-all">
-                    <span id="mic-icon" class="text-6xl">🎤</span>
-                </button>
-                <p class="text-amber-700 text-sm">Appuie sur le micro et parle</p>
-            </div>
-
-            <div id="story-box" class="mt-8 bg-white p-6 rounded-2xl shadow-lg border-2 border-amber-100 hidden">
-                <p id="story-text" class="text-gray-800 leading-relaxed text-lg"></p>
-                <button onclick="replayAudio()" class="mt-4 text-amber-600 font-bold flex items-center gap-2 mx-auto">
-                    <span>🔈</span> Réécouter l'histoire
+            <div class="mt-8 flex justify-center border-t border-amber-50 pt-6">
+                <button onclick="replayAudio()" class="bg-amber-100 text-amber-700 px-8 py-3 rounded-full font-bold flex items-center gap-3 active:bg-amber-200">
+                    <span>🔈</span> RÉÉCOUTER
                 </button>
             </div>
-
-            <button onclick="resetApp()" class="mt-10 text-[10px] text-gray-400 underline block mx-auto">Réinitialiser ma clé</button>
         </div>
+    </main>
+
+    <script>
+        let API_KEY = localStorage.getItem('BOITE_MAGIQUE_KEY_2026');
+        let currentStory = "";
+        const synth = window.speechSynthesis;
+        let recognition = null;
+
+        // Initialisation de la reconnaissance vocale
+        try {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'fr-FR';
+            recognition.onstart = () => {
+                document.getElementById('mic-btn').classList.add('pulsate');
+                document.getElementById('status-msg').innerText = "Je t'écoute...";
+            };
+            recognition.onresult = (e) => {
+                const text = e.results[0][0].transcript;
+                document.getElementById('mic-btn').classList.remove('pulsate');
+                handleStoryRequest(text);
+            };
+            recognition.onerror = () => {
+                document.getElementById('mic-btn').classList.remove('pulsate');
+                document.getElementById('status-msg').innerText = "Oups, je n'ai pas entendu !";
+            };
+        } catch(e) { console.error("Navigateur non compatible"); }
+
+        window.onload = () => {
+            if (!API_KEY) {
+                document.getElementById('setup-screen').classList.remove('hidden');
+            }
+        };
+
+        function saveApiKey() {
+            const val = document.getElementById('api-key-input').value.trim();
+            if (val) {
+                localStorage.setItem('BOITE_MAGIQUE_KEY_2026', val);
+                API_KEY = val;
+                location.reload();
+            }
+        }
+
+        function resetApp() {
+            if(confirm("Veux-tu changer la clé ou réinitialiser la boîte ?")) {
+                localStorage.removeItem('BOITE_MAGIQUE_KEY_2026');
+                location.reload();
+            }
+        }
+
+        function toggleListening() {
+            synth.cancel();
+            try { recognition.start(); } catch(e) { recognition.stop(); }
+        }
+
+        async function handleStoryRequest(prompt) {
+            document.getElementById('status-msg').innerText = "Je prépare ta surprise...";
+            
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+            
+            const payload = {
+                contents: [{ parts: [{ text: `Tu es un conteur merveilleux. Raconte une histoire magique, courte (120 mots max) et joyeuse pour un enfant sur le thème : ${prompt}. Termine par une question douce.` }] }],
+                safetySettings: [
+                    { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+                    { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+                    { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+                    { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
+                ]
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (data.candidates && data.candidates[0].content) {
+                    currentStory = data.candidates[0].content.parts[0].text;
+                    renderStory(currentStory, prompt);
+                } else {
+                    document.getElementById('status-msg').innerText = "La magie est timide aujourd'hui. Réessaie !";
+                }
+            } catch (error) {
+                document.getElementById('status-msg').innerText = "Vérifie ta connexion internet !";
+            }
+        }
+
+        function renderStory(text, prompt) {
+            document.getElementById('status-msg').
