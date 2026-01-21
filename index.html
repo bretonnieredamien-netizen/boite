@@ -1,123 +1,32 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>La Boîte Magique ✨</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Short+Stack&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Short Stack', cursive; background: #fffdf2; touch-action: manipulation; }
-        .pulsate { animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); } 70% { transform: scale(1.1); box-shadow: 0 0 0 20px rgba(245, 158, 11, 0); } 100% { transform: scale(1); } }
-        .hidden { display: none !important; }
-    </style>
-</head>
-<body class="min-h-screen flex flex-col items-center p-4 select-none">
+async function generateStory(userText) {
+    document.getElementById('status').innerText = "Demande en cours...";
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+    
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: "Raconte une histoire très courte pour enfant sur : " + userText }] }]
+            })
+        });
 
-    <div id="setup" class="fixed inset-0 z-50 bg-amber-50/90 backdrop-blur-md flex items-center justify-center p-6 hidden">
-        <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl border-4 border-amber-300 w-full max-w-md text-center">
-            <h2 class="text-3xl font-bold text-amber-600 mb-6">✨ Activation ✨</h2>
-            <input type="password" id="api-key" placeholder="Colle ta clé API" class="w-full p-4 rounded-2xl border-2 border-amber-100 mb-6 text-center text-lg outline-none focus:border-amber-500">
-            <button onclick="saveKey()" class="w-full bg-amber-500 text-white font-bold py-5 rounded-2xl shadow-lg active:scale-95 transition-all">RÉVEILLER LA MAGIE</button>
-        </div>
-    </div>
+        const data = await response.json();
 
-    <main class="w-full max-w-xl flex flex-col items-center py-8">
-        <header class="mb-8 text-center">
-            <h1 class="text-4xl font-bold text-amber-600 mb-2">Boîte Magique ✨</h1>
-            <p id="status" class="text-amber-800 text-lg italic opacity-80">Prêt pour une aventure ?</p>
-        </header>
-
-        <div id="img-container" class="w-full aspect-video rounded-[2rem] shadow-2xl border-8 border-white overflow-hidden mb-10 hidden">
-            <img id="story-img" src="" class="w-full h-full object-cover">
-        </div>
-
-        <button id="mic-btn" onclick="startRecognition()" class="bg-amber-400 p-14 rounded-full shadow-2xl border-8 border-white active:scale-90 transition-all">
-            <span class="text-7xl">🎤</span>
-        </button>
-
-        <div id="story-card" class="bg-white w-full rounded-[2.5rem] shadow-xl border-4 border-amber-100 p-8 mt-10 hidden">
-            <p id="story-text" class="text-xl leading-relaxed text-gray-800 mb-8"></p>
-            <button onclick="speakStory()" class="bg-amber-100 text-amber-700 px-8 py-3 rounded-full font-bold mx-auto block">🔈 RÉÉCOUTER</button>
-        </div>
-
-        <button onclick="resetApp()" class="mt-12 text-[10px] text-gray-400 underline uppercase tracking-widest">Réinitialiser la clé</button>
-    </main>
-
-    <script>
-        let API_KEY = localStorage.getItem('MAGICAL_BOX_V1');
-        let currentStory = "";
-        const synth = window.speechSynthesis;
-
-        window.onload = () => { if (!API_KEY) document.getElementById('setup').classList.remove('hidden'); };
-        function saveKey() { const val = document.getElementById('api-key').value.trim(); if (val) { localStorage.setItem('MAGICAL_BOX_V1', val); location.reload(); } }
-        function resetApp() { localStorage.removeItem('MAGICAL_BOX_V1'); location.reload(); }
-
-        function startRecognition() {
-            const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!Speech) return alert("Micro non supporté sur ce navigateur.");
-            
-            synth.cancel();
-            const rec = new Speech();
-            rec.lang = 'fr-FR';
-            
-            rec.onstart = () => {
-                document.getElementById('mic-btn').classList.add('pulsate');
-                document.getElementById('status').innerText = "Je t'écoute...";
-            };
-
-            rec.onresult = (e) => {
-                const text = e.results[0][0].transcript;
-                document.getElementById('mic-btn').classList.remove('pulsate');
-                generateStory(text);
-            };
-
-            rec.start();
+        if (data.error) {
+            // C'EST ICI QUE LE SECRET SERA RÉVÉLÉ
+            console.error(data.error);
+            alert("MESSAGE DE GOOGLE : " + data.error.message);
+            document.getElementById('status').innerText = "Erreur : " + data.error.status;
+            return;
         }
 
-        async function generateStory(userText) {
-            document.getElementById('status').innerText = "L'IA réfléchit...";
-            // CHANGEMENT CRUCIAL : Passage en v1 stable pour corriger l'erreur 404
-            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-            
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: "Raconte une histoire très courte et magique pour enfant sur : " + userText }] }]
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.candidates && data.candidates[0].content) {
-                    currentStory = data.candidates[0].content.parts[0].text;
-                    displayResult(currentStory, userText);
-                } else {
-                    console.error("Détails :", data);
-                    document.getElementById('status').innerText = "Erreur de configuration de la clé.";
-                }
-            } catch (e) {
-                document.getElementById('status').innerText = "Problème de connexion.";
-            }
+        if (data.candidates && data.candidates[0].content) {
+            currentStory = data.candidates[0].content.parts[0].text;
+            displayResult(currentStory, userText);
         }
 
-        function displayResult(story, theme) {
-            document.getElementById('status').innerText = "Il était une fois...";
-            document.getElementById('img-container').classList.remove('hidden');
-            document.getElementById('story-img').src = `https://image.pollinations.ai/prompt/children_book_illustration_${encodeURIComponent(theme)}?nologo=true`;
-            document.getElementById('story-card').classList.remove('hidden');
-            document.getElementById('story-text').innerText = story;
-            speakStory();
-        }
-
-        function speakStory() {
-            const utter = new SpeechSynthesisUtterance(currentStory);
-            utter.lang = 'fr-FR';
-            synth.speak(utter);
-        }
-    </script>
-</body>
-</html>
+    } catch (e) {
+        alert("Erreur réseau : " + e.message);
+    }
+}
