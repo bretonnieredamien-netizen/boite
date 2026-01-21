@@ -3,131 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>La Boîte à Histoires</title>
+    <title>Boîte Magique Debug</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Short+Stack&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Short Stack', cursive; background: linear-gradient(135deg, #fef9c3 0%, #fef3c7 100%); }
-        .pulsate { animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { transform: scale(1.1); } 50% { transform: scale(1); } 100% { transform: scale(1.1); } }
+        body { font-family: 'Short Stack', cursive; background: #fefce8; }
         .hidden { display: none !important; }
+        #debug-zone { font-family: monospace; font-size: 10px; color: #991b1b; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center p-4">
+<body class="p-4 flex flex-col items-center">
 
-    <div id="setup" class="bg-white p-8 rounded-3xl shadow-xl mt-10 w-full max-w-md border-4 border-yellow-400">
-        <h2 class="text-2xl font-bold text-yellow-600 mb-4 text-center">🔑 Activation</h2>
-        <input type="text" id="apiKeyInput" placeholder="Colle ta clé AIza..." class="w-full p-4 border-2 border-yellow-100 rounded-2xl mb-4 outline-none">
-        <button onclick="saveKey()" class="w-full bg-yellow-400 text-white font-bold py-4 rounded-2xl shadow-lg">LANCER</button>
-    </div>
-
-    <div id="main" class="hidden w-full max-w-2xl flex flex-col items-center">
-        <h1 class="text-3xl font-bold text-yellow-600 my-6">Ma Boîte Magique ✨</h1>
+    <div id="main" class="w-full max-w-md">
+        <h1 class="text-2xl font-bold text-yellow-600 text-center my-6">La Boîte Magique ✨</h1>
         
-        <div id="image-container" class="w-full aspect-video bg-white rounded-3xl shadow-2xl border-8 border-white overflow-hidden mb-8 hidden">
+        <div id="image-container" class="w-full aspect-video rounded-2xl overflow-hidden mb-6 hidden border-4 border-white shadow-lg">
             <img id="story-image" src="" class="w-full h-full object-cover">
         </div>
 
-        <button id="recordBtn" onclick="toggleListening()" class="bg-yellow-400 p-12 rounded-full shadow-2xl mb-6 border-8 border-white transition-all">
-            <span id="mic-icon" class="text-6xl">🎤</span>
-        </button>
-        <p id="status" class="text-yellow-800 text-xl font-medium mb-8 text-center">Appuie pour me parler</p>
+        <div class="flex flex-col items-center">
+            <button id="recordBtn" onclick="toggleListening()" class="bg-yellow-400 p-10 rounded-full shadow-xl mb-4 border-4 border-white">
+                <span class="text-5xl">🎤</span>
+            </button>
+            <p id="status" class="text-yellow-800 font-medium mb-6">Appuie et parle</p>
+        </div>
 
-        <div id="story-box" class="bg-white p-8 rounded-3xl shadow-lg border-4 border-yellow-200 w-full hidden mb-10">
-            <p id="story-text" class="text-xl leading-relaxed text-gray-800 mb-6"></p>
-            <button id="replayBtn" onclick="retrySpeak()" class="bg-blue-400 text-white px-6 py-2 rounded-full text-sm mx-auto block mb-4">🔈 Réécouter</button>
-            <button onclick="resetKey()" class="text-xs text-gray-400 underline block mx-auto">Changer la clé</button>
+        <div id="story-box" class="bg-white p-6 rounded-2xl shadow-md border-2 border-yellow-200 hidden mb-6">
+            <p id="story-text" class="text-lg text-gray-800"></p>
+        </div>
+
+        <div id="debug-zone" class="bg-red-50 p-2 rounded border border-red-200 mt-10">
+            Journal de bord : <span id="debug-msg">Prêt.</span>
         </div>
     </div>
 
     <script>
         let apiKey = localStorage.getItem('gemini_key_final');
-        let currentStory = "";
+        if (!apiKey) {
+            apiKey = prompt("Entre ta clé API Gemini :");
+            localStorage.setItem('gemini_key_final', apiKey);
+        }
+
         const synth = window.speechSynthesis;
         let recognition = null;
-
         try {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRecognition();
             recognition.lang = 'fr-FR';
-        } catch (e) { alert("Navigateur non supporté (utilise Chrome)"); }
+        } catch (e) { alert("Micro non supporté"); }
 
-        window.onload = () => { if (apiKey) showMain(); };
-
-        function saveKey() {
-            const val = document.getElementById('apiKeyInput').value.trim();
-            if (val) { localStorage.setItem('gemini_key_final', val); apiKey = val; showMain(); }
-        }
-
-        function showMain() {
-            document.getElementById('setup').classList.add('hidden');
-            document.getElementById('main').classList.remove('hidden');
-        }
-
-        function resetKey() { localStorage.removeItem('gemini_key_final'); location.reload(); }
+        function log(msg) { document.getElementById('debug-msg').innerText = msg; console.log(msg); }
 
         function toggleListening() {
             synth.cancel();
             recognition.start();
-            document.getElementById('recordBtn').classList.add('pulsate');
-            document.getElementById('status').innerText = "Je t'écoute...";
+            log("Micro activé...");
         }
 
         recognition.onresult = (event) => {
-            const prompt = event.results[0][0].transcript;
-            document.getElementById('recordBtn').classList.remove('pulsate');
-            document.getElementById('status').innerText = "Je réfléchis...";
-            generateStory(prompt);
+            const promptText = event.results[0][0].transcript;
+            log("Entendu : " + promptText);
+            generateStory(promptText);
         };
 
         async function generateStory(promptText) {
-            // URL v1beta avec paramètres de sécurité désactivés
+            log("Appel Gemini en cours...");
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
             
-            const requestBody = {
-                contents: [{ parts: [{ text: "Raconte une histoire très courte pour enfant sur : " + promptText }] }],
-                safetySettings: [
-                    { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-                    { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-                    { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-                    { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
-                ]
-            };
-
             try {
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(requestBody)
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: "Raconte une histoire très courte pour enfant sur : " + promptText }] }]
+                        // Suppression des safetySettings pour le test (plus stable)
+                    })
                 });
 
                 const data = await response.json();
                 
+                // ANALYSE DE LA RÉPONSE
                 if (data.candidates && data.candidates[0].content) {
-                    currentStory = data.candidates[0].content.parts[0].text;
-                    displayResult(currentStory, promptText);
+                    const story = data.candidates[0].content.parts[0].text;
+                    log("Histoire reçue !");
+                    showStory(story, promptText);
                 } else {
-                    document.getElementById('status').innerText = "L'IA n'a pas pu répondre. Réessaie.";
+                    // Si l'IA refuse, on cherche pourquoi
+                    const reason = data.candidates[0].finishReason || "Inconnue";
+                    log("Refus de l'IA. Raison : " + reason);
+                    alert("L'IA a bloqué l'histoire. Raison : " + reason);
                 }
             } catch (error) {
-                alert("Erreur réseau : " + error.message);
+                log("Erreur : " + error.message);
             }
         }
 
-        function displayResult(text, prompt) {
+        function showStory(story, prompt) {
             document.getElementById('story-box').classList.remove('hidden');
-            document.getElementById('story-text').innerText = text;
+            document.getElementById('story-text').innerText = story;
             document.getElementById('image-container').classList.remove('hidden');
-            document.getElementById('story-image').src = `https://image.pollinations.ai/prompt/child_illustration_${encodeURIComponent(prompt)}`;
-            document.getElementById('status').innerText = "Il était une fois...";
-            retrySpeak(); // Lance la voix
-        }
-
-        function retrySpeak() {
-            synth.cancel();
-            const utter = new SpeechSynthesisUtterance(currentStory);
+            document.getElementById('story-image').src = `https://image.pollinations.ai/prompt/child_draw_${encodeURIComponent(prompt)}`;
+            
+            const utter = new SpeechSynthesisUtterance(story);
             utter.lang = 'fr-FR';
-            utter.rate = 0.9;
             synth.speak(utter);
         }
     </script>
