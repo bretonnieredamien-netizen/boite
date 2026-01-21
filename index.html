@@ -7,85 +7,25 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Short+Stack&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Short Stack', cursive; background: #fffdf2; touch-action: manipulation; }
-        .pulsate { animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        body { font-family: 'Short Stack', cursive; background: #fffdf2; }
         .hidden { display: none !important; }
-        #console { background: #1a1a1a; color: #5ef75e; font-family: monospace; font-size: 10px; padding: 10px; border-radius: 12px; margin-top: 20px; max-height: 120px; overflow-y: auto; width: 100%; border: 1px solid #333; }
+        #debug-log { background: #000; color: #0f0; font-family: monospace; font-size: 11px; padding: 15px; border-radius: 15px; margin-top: 20px; width: 100%; border: 2px solid #333; }
     </style>
 </head>
 <body class="flex flex-col items-center p-6 min-h-screen">
 
-    <h1 class="text-4xl font-bold text-amber-600 mb-6 drop-shadow-sm">Boîte Magique ✨</h1>
+    <h1 class="text-3xl font-bold text-amber-600 mb-8">Ma Boîte Magique ✨</h1>
 
-    <div class="w-full max-w-md bg-white p-5 rounded-3xl shadow-xl border-4 border-amber-50 text-center mb-6">
-        <p id="status-text" class="text-amber-900 font-bold">Prêt pour l'aventure !</p>
+    <div class="w-full max-w-md bg-white p-4 rounded-2xl shadow-md border-2 border-amber-100 text-center mb-6">
+        <p id="status-text" class="text-amber-900 font-bold">Appuie sur OK pour tester</p>
     </div>
 
-    <div class="w-full max-w-md flex gap-2 mb-6">
-        <input type="text" id="userInput" placeholder="Ex: Un pirate sur la lune..." 
-               class="flex-1 border-4 border-amber-50 p-4 rounded-2xl outline-none focus:border-amber-400 shadow-inner bg-white">
-        <button id="btn-ok" onclick="lancerMagie()" class="bg-amber-500 text-white px-6 py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all">OK</button>
+    <div class="w-full max-w-md flex flex-col gap-4 mb-8">
+        <div class="flex gap-2">
+            <input type="text" id="manualInput" placeholder="Ex: Un petit chat..." 
+                   class="flex-1 border-2 border-amber-200 p-4 rounded-xl outline-none focus:border-amber-500 bg-white">
+            <button id="ok-btn" class="bg-amber-500 text-white px-8 py-4 rounded-xl font-bold shadow-lg active:scale-95 transition-all">OK</button>
+        </div>
     </div>
 
-    <button id="mic-btn" onclick="lancerMicro()" class="bg-amber-400 p-14 rounded-full shadow-2xl border-8 border-white mb-8 active:scale-90 transition-all">
-        <span class="text-7xl">🎤</span>
-    </button>
-
-    <div id="result-card" class="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl p-8 hidden border-2 border-amber-50">
-        <div id="story-text" class="text-xl leading-relaxed text-gray-800 italic mb-8"></div>
-        <img id="story-img" class="w-full rounded-3xl shadow-lg border-4 border-amber-50 hidden">
-    </div>
-
-    <div id="console">> Prêt (Compte Gemini Plus détecté)</div>
-
-    <script>
-        const API_KEY = localStorage.getItem('BOITE_MAGIQUE_ULTIMATE_2026') || prompt("Entre ta clé API Gemini :");
-        if(API_KEY) localStorage.setItem('BOITE_MAGIQUE_ULTIMATE_2026', API_KEY);
-
-        // LISTE DES MODÈLES À TESTER (On essaie le Pro en premier)
-        const MODELS = ["gemini-1.5-pro", "gemini-1.5-pro-002", "gemini-1.5-flash"];
-        
-        const log = (msg, isErr = false) => {
-            const c = document.getElementById('console');
-            c.innerHTML += `<div class="${isErr ? 'text-red-400' : ''}">> ${msg}</div>`;
-            c.scrollTop = c.scrollHeight;
-        };
-
-        async function lancerMagie() {
-            const theme = document.getElementById('userInput').value.trim();
-            if (!theme) return;
-
-            document.getElementById('status-text').innerText = "La magie réfléchit...";
-            log(`Démarrage : ${theme}`);
-
-            // BOUCLE DE TENTATIVES SUR LES MODÈLES
-            for (let modelID of MODELS) {
-                log(`Essai avec le modèle : ${modelID}...`);
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelID}:generateContent?key=${API_KEY}`;
-                
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{
-                                parts: [{ text: "Raconte une histoire très courte (3 lignes) et joyeuse pour un enfant sur : " + theme }]
-                            }],
-                            safetySettings: [
-                                { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-                                { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-                                { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-                                { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
-                            ]
-                        })
-                    });
-
-                    const data = await response.json();
-
-                    if (data.candidates && data.candidates[0].content) {
-                        log(`SUCCÈS avec ${modelID} !`);
-                        afficher(data.candidates[0].content.parts[0].text, theme);
-                        return; // ON ARRÊTE LA BOUCLE DÈS QUE ÇA MARCHE
-                    } else {
-                        log(`Modèle ${modelID
+    <div id="result-card" class="bg-white w
