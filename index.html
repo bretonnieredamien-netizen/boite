@@ -3,146 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>La Boîte Magique PRO ✨</title>
+    <title>La Boîte Magique - Fix Final ✨</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Short+Stack&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Short Stack', cursive; background: #fffdf2; touch-action: manipulation; }
-        .magic-btn:active { transform: scale(0.9); }
         .pulsate { animation: pulse 1.5s infinite; }
-        @keyframes pulse { 
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
-            70% { transform: scale(1.1); box-shadow: 0 0 0 20px rgba(245, 158, 11, 0); }
-            100% { transform: scale(1); }
-        }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         .hidden { display: none !important; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center p-6 select-none">
+<body class="min-h-screen flex flex-col items-center p-6">
 
-    <main class="w-full max-w-lg flex flex-col items-center">
-        <header class="text-center my-6">
-            <h1 class="text-4xl font-bold text-amber-600 drop-shadow-sm">Ma Boîte Magique ✨</h1>
-            <p id="status" class="text-amber-800 mt-2 opacity-80 italic">Prêt pour une histoire magique ?</p>
-        </header>
+    <header class="text-center my-6">
+        <h1 class="text-3xl font-bold text-amber-600">Ma Boîte Magique ✨</h1>
+        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Initialisation...</p>
+    </header>
 
-        <div id="image-box" class="w-full aspect-video bg-white rounded-[2rem] shadow-2xl border-4 border-white overflow-hidden mb-6 hidden">
-            <img id="story-img" src="" class="w-full h-full object-cover">
+    <div id="image-box" class="w-full max-w-md aspect-video bg-white rounded-[2rem] shadow-2xl border-4 border-white overflow-hidden mb-8 hidden">
+        <img id="story-img" src="" class="w-full h-full object-cover">
+    </div>
+
+    <div class="w-full max-w-md flex flex-col items-center gap-6">
+        <div class="w-full flex gap-2 bg-amber-100/50 p-2 rounded-2xl border border-amber-200">
+            <input type="text" id="manualInput" placeholder="Écris un thème..." 
+                   class="flex-1 bg-white p-3 rounded-xl outline-none text-sm">
+            <button onclick="envoyerManuel()" class="bg-amber-500 text-white px-4 py-3 rounded-xl font-bold">OK</button>
         </div>
 
-        <div class="w-full flex gap-2 mb-8 bg-amber-100/50 p-2 rounded-2xl border border-amber-200">
-            <input type="text" id="manualInput" placeholder="Écris un thème (ex: un dragon)..." 
-                   class="flex-1 bg-white p-3 rounded-xl outline-none focus:ring-2 focus:ring-amber-400 text-sm">
-            <button onclick="envoyerTexte()" class="bg-amber-500 text-white px-4 py-3 rounded-xl font-bold active:scale-95 transition-all">OK</button>
-        </div>
-
-        <button id="mic-btn" onclick="ecouterEnfant()" class="bg-amber-400 p-12 rounded-full shadow-2xl border-8 border-white mb-10">
+        <button id="mic-btn" onclick="ecouter()" class="bg-amber-400 p-12 rounded-full shadow-2xl border-8 border-white opacity-50 cursor-not-allowed" disabled>
             <span class="text-6xl">🎤</span>
         </button>
+    </div>
 
-        <div id="story-card" class="bg-white w-full rounded-[2.5rem] shadow-xl border-4 border-amber-100 p-8 mb-10 hidden">
-            <div id="story-text" class="text-xl leading-relaxed text-gray-800 italic"></div>
-        </div>
+    <div id="story-card" class="bg-white w-full max-w-md rounded-[2rem] shadow-xl border-4 border-amber-100 p-8 mt-8 hidden">
+        <div id="story-text" class="text-lg leading-relaxed text-gray-800 italic"></div>
+    </div>
 
-        <button onclick="localStorage.clear(); location.reload();" class="text-[10px] text-gray-300 underline uppercase">Réinitialiser la clé</button>
-    </main>
+    <div id="debug" class="mt-auto w-full max-w-md bg-black text-[9px] text-green-400 p-3 rounded-lg font-mono opacity-70 overflow-auto max-h-28">
+        > Scan de ton compte Gemini Plus...
+    </div>
 
     <script>
-        // RÉCUPÉRATION DE LA CLÉ
-        const API_KEY = localStorage.getItem('BOITE_MAGIQUE_PRO_KEY') || prompt("Entre ta clé API Gemini :");
-        if(API_KEY) localStorage.setItem('BOITE_MAGIQUE_PRO_KEY', API_KEY);
+        const KEY = localStorage.getItem('GEMINI_FINAL_2026') || prompt("Entre ta clé API Gemini :");
+        if(KEY) localStorage.setItem('GEMINI_FINAL_2026', KEY);
 
-        // CONFIGURATION DU MODÈLE PRO (Validé par ton scan)
-        const MODEL_PATH = "models/gemini-1.5-pro-latest"; 
+        let activeModel = ""; 
         const synth = window.speechSynthesis;
         let recognition = null;
 
-        // Init Reconnaissance Vocale
-        try {
-            const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (Speech) {
-                recognition = new Speech();
-                recognition.lang = 'fr-FR';
-                recognition.onstart = () => {
-                    document.getElementById('mic-btn').classList.add('pulsate');
-                    document.getElementById('status').innerText = "Je t'écoute...";
-                };
-                recognition.onresult = (e) => {
-                    const phrase = e.results[0][0].transcript;
-                    document.getElementById('mic-btn').classList.remove('pulsate');
-                    lancerMagiePro(phrase);
-                };
-                recognition.onerror = () => document.getElementById('mic-btn').classList.remove('pulsate');
-            }
-        } catch(e) { console.error("Micro non supporté"); }
-
-        function ecouterEnfant() {
-            synth.cancel();
-            if(!recognition) return alert("Micro non supporté sur ce navigateur.");
-            recognition.start();
+        function log(msg, err = false) {
+            const d = document.getElementById('debug');
+            d.innerHTML += `<div class="${err ? 'text-red-400' : ''}">> ${msg}</div>`;
+            d.scrollTop = d.scrollHeight;
         }
 
-        function envoyerTexte() {
-            const val = document.getElementById('manualInput').value.trim();
-            if(val) lancerMagiePro(val);
+        // 1. AUTO-DÉTECTION DU MODÈLE (C'est ici qu'on règle ton problème)
+        async function detecterModele() {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${KEY}`;
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.models) {
+                    // On cherche le nom EXACT que Google a donné à ton compte
+                    const model = data.models.find(m => m.name.includes('gemini-1.5-pro')) || 
+                                  data.models.find(m => m.name.includes('gemini-1.5-flash')) ||
+                                  data.models[0];
+                    
+                    activeModel = model.name;
+                    log(`Modèle trouvé : ${activeModel}`, false);
+                    document.getElementById('status').innerText = "La boîte est prête !";
+                    document.getElementById('mic-btn').disabled = false;
+                    document.getElementById('mic-btn').classList.remove('opacity-50', 'cursor-not-allowed');
+                } else {
+                    log("Aucun modèle trouvé. Vérifie l'activation de l'API.", true);
+                }
+            } catch (e) { log("Erreur de scan : " + e.message, true); }
         }
 
-        async function lancerMagiePro(sujet) {
-            document.getElementById('status').innerText = "Le modèle PRO réfléchit...";
-            
-            // URL configurée sur GEMINI PRO
-            const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_PATH}:generateContent?key=${API_KEY}`;
-            
-            const payload = {
-                contents: [{ 
-                    parts: [{ text: `Tu es un conteur merveilleux. Raconte une histoire très courte (100 mots max) et magique pour un enfant sur le thème : ${sujet}.` }] 
-                }],
-                safetySettings: [
-                    { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-                    { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-                    { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-                    { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
-                ]
+        // 2. LOGIQUE MICRO
+        const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (Speech) {
+            recognition = new Speech();
+            recognition.lang = 'fr-FR';
+            recognition.onstart = () => {
+                document.getElementById('mic-btn').classList.add('pulsate');
+                document.getElementById('status').innerText = "Je t'écoute...";
             };
+            recognition.onresult = (e) => {
+                document.getElementById('mic-btn').classList.remove('pulsate');
+                genererHistoire(e.results[0][0].transcript);
+            };
+            recognition.onerror = () => document.getElementById('mic-btn').classList.remove('pulsate');
+        }
 
+        function ecouter() { synth.cancel(); recognition.start(); }
+        function envoyerManuel() { 
+            const val = document.getElementById('manualInput').value;
+            if(val) genererHistoire(val);
+        }
+
+        // 3. GÉNÉRATION DE L'HISTOIRE
+        async function genererHistoire(sujet) {
+            document.getElementById('status').innerText = "Création de la magie...";
+            const url = `https://generativelanguage.googleapis.com/v1beta/${activeModel}:generateContent?key=${KEY}`;
+            
             try {
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: "Raconte une histoire très courte et merveilleuse pour un enfant sur : " + sujet }] }],
+                        safetySettings: [
+                            { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+                            { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+                            { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+                            { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
+                        ]
+                    })
                 });
 
                 const data = await response.json();
-
-                if (data.error) {
-                    alert("ERREUR GOOGLE PRO : " + data.error.message);
-                    return;
-                }
-
                 if (data.candidates && data.candidates[0].content) {
                     const texte = data.candidates[0].content.parts[0].text;
                     afficher(texte, sujet);
                 } else {
-                    alert("Google a bloqué l'histoire. Essaie un autre sujet !");
+                    alert("Google a bloqué l'histoire. Essaie un sujet plus doux !");
+                    document.getElementById('status').innerText = "Oups, essaie encore !";
                 }
-            } catch (e) {
-                alert("Erreur de connexion magique.");
-            }
+            } catch (e) { log("Erreur génération : " + e.message, true); }
         }
 
         function afficher(texte, theme) {
             document.getElementById('status').innerText = "Il était une fois...";
             document.getElementById('image-box').classList.remove('hidden');
-            document.getElementById('story-img').src = `https://image.pollinations.ai/prompt/illustration_for_kids_fairytale_magical_style_${encodeURIComponent(theme)}?width=800&height=450&nologo=true`;
+            document.getElementById('story-img').src = `https://image.pollinations.ai/prompt/drawing_child_illustration_${encodeURIComponent(theme)}?nologo=true`;
             document.getElementById('story-card').classList.remove('hidden');
             document.getElementById('story-text').innerText = texte;
 
-            // Lecture audio
             const utter = new SpeechSynthesisUtterance(texte);
             utter.lang = 'fr-FR';
-            utter.pitch = 1.1;
             synth.speak(utter);
         }
+
+        // Lancement auto du scan au démarrage
+        detecterModele();
     </script>
 </body>
 </html>
