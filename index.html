@@ -76,32 +76,36 @@
         };
 
         async function generateStory(prompt) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-            
-            const payload = {
-                contents: [{
-                    parts: [{ text: `Tu es un conteur magique. Raconte une histoire très courte (100 mots max) pour un enfant sur le thème suivant : ${prompt}. Termine par une petite morale.` }]
-                }]
-            };
+    const cleanKey = apiKey.trim();
+    // Nous utilisons la version v1 qui est la plus compatible
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${cleanKey}`;
+    
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: `Tu es un conteur. Raconte une mini histoire pour enfant sur : ${prompt}` }] }]
+            })
+        });
 
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                
-                const data = await response.json();
-                const story = data.candidates[0].content.parts[0].text;
+        const data = await response.json();
 
-                // Affichage et Image
-                displayResult(story, prompt);
-                // Parole
-                speak(story);
-            } catch (error) {
-                alert("Erreur avec la clé API ou la connexion.");
-            }
+        if (!response.ok) {
+            // C'est ce message qui nous donnera la clé du problème
+            console.error("ERREUR DETAILLEE :", data);
+            alert("CODE ERREUR : " + response.status + "\nMESSAGE : " + data.error.message);
+            return;
         }
+
+        const story = data.candidates[0].content.parts[0].text;
+        displayResult(story, prompt);
+        speak(story);
+
+    } catch (error) {
+        alert("Erreur de connexion : " + error.message);
+    }
+}
 
         function displayResult(text, prompt) {
             document.getElementById('story-box').classList.remove('hidden');
