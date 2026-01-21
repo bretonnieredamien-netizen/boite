@@ -7,150 +7,138 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Short+Stack&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Short Stack', cursive; background: #fffdf2; }
+        body { font-family: 'Short Stack', cursive; background: #fffdf2; touch-action: manipulation; }
+        .magic-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .magic-btn:active { transform: scale(0.9); }
         .pulsate { animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        @keyframes pulse { 
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 20px rgba(245, 158, 11, 0); }
+            100% { transform: scale(1); }
+        }
         .hidden { display: none !important; }
     </style>
 </head>
-<body class="p-6 flex flex-col items-center min-h-screen">
+<body class="min-h-screen flex flex-col items-center p-6 select-none">
 
-    <h1 class="text-3xl font-bold text-amber-600 text-center mb-6">Ma Boîte Magique ✨</h1>
-    
-    <div class="w-full max-w-md bg-white p-6 rounded-[2.5rem] shadow-xl border-4 border-amber-200 text-center mb-8">
-        <p id="status" class="text-amber-900 text-lg mb-2">Initialisation...</p>
-        <p id="model-name" class="text-[10px] text-amber-400 uppercase font-mono mb-4">Recherche du modèle...</p>
-        <div id="img-container" class="w-full aspect-video rounded-2xl overflow-hidden hidden border-2 border-amber-50">
+    <main class="w-full max-w-lg flex flex-col items-center">
+        <header class="text-center my-8">
+            <h1 class="text-4xl font-bold text-amber-600 drop-shadow-sm">Ma Boîte Magique ✨</h1>
+            <p id="status" class="text-amber-800 mt-2 opacity-80">Prêt pour une grande aventure ?</p>
+        </header>
+
+        <div id="image-box" class="w-full aspect-[4/3] bg-white rounded-[2.5rem] shadow-2xl border-8 border-white overflow-hidden mb-10 hidden transition-all duration-700">
             <img id="story-img" src="" class="w-full h-full object-cover">
         </div>
-    </div>
 
-    <div class="flex flex-col items-center gap-6 mb-10">
-        <button id="micBtn" onclick="startMagic()" class="bg-amber-400 p-12 rounded-full shadow-2xl border-8 border-white active:scale-90 transition-all opacity-50 cursor-not-allowed" disabled>
-            <span class="text-6xl">🎤</span>
-        </button>
-        <p class="text-xs text-amber-700">Appuie sur le micro une fois allumé</p>
-    </div>
+        <div class="relative mb-12">
+            <button id="mic-btn" onclick="ecouterEnfant()" class="magic-btn bg-amber-400 p-14 rounded-full shadow-[0_20px_50px_rgba(245,158,11,0.3)] border-8 border-white relative z-10">
+                <span id="mic-icon" class="text-7xl">🎤</span>
+            </button>
+        </div>
 
-    <div id="story-card" class="bg-white w-full max-w-md rounded-[2rem] shadow-lg border-2 border-amber-100 p-6 hidden">
-        <p id="story-text" class="text-gray-800 text-lg leading-relaxed italic"></p>
-    </div>
+        <div id="story-card" class="bg-white w-full rounded-[2.5rem] shadow-xl border-4 border-amber-100 p-8 mb-10 hidden transition-all">
+            <div id="story-text" class="text-xl leading-relaxed text-gray-800 italic"></div>
+            <button onclick="rejouerVoix()" class="mt-8 bg-amber-50 text-amber-700 px-8 py-3 rounded-full font-bold flex items-center gap-2 mx-auto active:bg-amber-100">
+                <span>🔈</span> RÉÉCOUTER
+            </button>
+        </div>
 
-    <div class="mt-auto w-full max-w-md bg-black text-[10px] text-green-400 p-3 rounded-lg font-mono opacity-80 overflow-auto max-h-32">
-        <p class="border-b border-zinc-800 mb-1 pb-1 text-blue-300">RAPPORT SYSTÈME</p>
-        <div id="logs">> Connexion établie...</div>
-    </div>
+        <button onclick="resetKey()" class="text-[10px] text-gray-300 underline uppercase tracking-widest mt-auto">Changer de clé API</button>
+    </main>
 
     <script>
-        let API_KEY = localStorage.getItem('GEMINI_AUTO_KEY_2026') || prompt("Entre ta clé API Gemini :");
-        if(API_KEY) localStorage.setItem('GEMINI_AUTO_KEY_2026', API_KEY);
-
-        let bestModel = ""; // Sera trouvé par le script
+        // Configuration
+        const API_KEY = localStorage.getItem('BOITE_MAGIQUE_KEY_FINAL') || prompt("Entre ta clé API Gemini :");
+        if(API_KEY) localStorage.setItem('BOITE_MAGIQUE_KEY_FINAL', API_KEY);
+        
+        // MODÈLE DÉTECTÉ : GEMINI-PRO
+        const MODEL_PATH = "models/gemini-1.5-pro-latest"; 
+        
         const synth = window.speechSynthesis;
+        let recognition = null;
+        let texteHistoire = "";
 
-        function log(msg, color = "") {
-            const l = document.getElementById('logs');
-            l.innerHTML += `<div class="${color}">> ${msg}</div>`;
-            l.scrollTop = l.scrollHeight;
-        }
-
-        // --- ÉTAPE 1 : TROUVER LE MODÈLE DISPONIBLE ---
-        async function autoDetectModel() {
-            log("Scan des modèles autorisés...");
-            const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${API_KEY}`;
+        // Initialisation du micro
+        function setupMicro() {
+            const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!Speech) return alert("Navigateur non compatible (Utilise Chrome ou Safari)");
             
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-
-                if (data.models) {
-                    // On cherche Flash en priorité, sinon Pro, sinon le premier de la liste
-                    const flash = data.models.find(m => m.name.includes('gemini-1.5-flash') && m.supportedGenerationMethods.includes('generateContent'));
-                    const pro = data.models.find(m => m.name.includes('gemini-pro') || m.name.includes('gemini-1.5-pro'));
-                    
-                    const found = flash || pro || data.models[0];
-                    bestModel = found.name; // Format: "models/gemini-1.5-flash"
-
-                    log(`SUCCÈS : Modèle "${bestModel}" prêt !`, "text-white");
-                    document.getElementById('model-name').innerText = "Mode : " + bestModel.split('/')[1];
-                    document.getElementById('status').innerText = "Prêt pour l'aventure !";
-                    
-                    const btn = document.getElementById('micBtn');
-                    btn.disabled = false;
-                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
-                } else {
-                    log("ERREUR : Aucun modèle trouvé pour cette clé.", "text-red-500");
-                    document.getElementById('status').innerText = "Clé non autorisée.";
-                }
-            } catch (e) {
-                log("ERREUR RÉSEAU lors du scan.", "text-red-500");
-            }
-        }
-
-        // --- ÉTAPE 2 : ACTION MAGIQUE ---
-        function startMagic() {
-            const Speech = window.webkitSpeechRecognition || window.SpeechRecognition;
-            if (!Speech) return alert("Navigateur non compatible.");
-
-            synth.cancel();
-            const recognition = new Speech();
+            recognition = new Speech();
             recognition.lang = 'fr-FR';
-
+            
             recognition.onstart = () => {
-                document.getElementById('micBtn').classList.add('pulsate');
+                document.getElementById('mic-btn').classList.add('pulsate');
                 document.getElementById('status').innerText = "Je t'écoute...";
             };
 
             recognition.onresult = (e) => {
-                const text = e.results[0][0].transcript;
-                document.getElementById('micBtn').classList.remove('pulsate');
-                genererHistoire(text);
+                const phrase = e.results[0][0].transcript;
+                document.getElementById('mic-btn').classList.remove('pulsate');
+                genererHistoire(phrase);
             };
 
-            recognition.start();
+            recognition.onerror = (e) => {
+                document.getElementById('mic-btn').classList.remove('pulsate');
+                document.getElementById('status').innerText = "Oups, je n'ai pas entendu !";
+            };
+        }
+
+        function ecouterEnfant() {
+            synth.cancel();
+            if(!recognition) setupMicro();
+            try { recognition.start(); } catch(e) { console.log("Déjà actif"); }
         }
 
         async function genererHistoire(sujet) {
-            document.getElementById('status').innerText = "L'IA réfléchit...";
-            log(`Appel de ${bestModel}...`);
-            
-            // URL dynamique basée sur le modèle détecté
-            const url = `https://generativelanguage.googleapis.com/v1beta/${bestModel}:generateContent?key=${API_KEY}`;
+            document.getElementById('status').innerText = "La magie prépare l'histoire...";
+            const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_PATH}:generateContent?key=${API_KEY}`;
             
             try {
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: "Raconte une histoire très courte et magique pour enfant sur : " + sujet }] }]
+                        contents: [{ parts: [{ text: "Raconte une histoire magique et courte (100 mots maximum) pour un enfant sur le thème : " + sujet }] }]
                     })
                 });
 
                 const data = await response.json();
-                if (data.candidates) {
-                    const conte = data.candidates[0].content.parts[0].text;
-                    afficher(conte, sujet);
+                if (data.candidates && data.candidates[0].content) {
+                    texteHistoire = data.candidates[0].content.parts[0].text;
+                    afficherTout(texteHistoire, sujet);
                 } else {
-                    log("L'IA a refusé de répondre.", "text-red-400");
-                    log(JSON.stringify(data.error || data));
+                    document.getElementById('status').innerText = "La magie a eu un petit hoquet. Réessaie !";
                 }
-            } catch (e) { log("Erreur de connexion.", "text-red-500"); }
+            } catch (e) {
+                document.getElementById('status').innerText = "Problème de connexion magique.";
+            }
         }
 
-        function afficher(texte, sujet) {
+        function afficherTout(histoire, sujet) {
             document.getElementById('status').innerText = "Il était une fois...";
-            document.getElementById('story-card').classList.remove('hidden');
-            document.getElementById('story-text').innerText = texte;
-            document.getElementById('img-container').classList.remove('hidden');
-            document.getElementById('story-img').src = `https://image.pollinations.ai/prompt/drawing_child_style_${encodeURIComponent(sujet)}`;
             
-            const utter = new SpeechSynthesisUtterance(texte);
+            // Image
+            const imgBox = document.getElementById('image-box');
+            document.getElementById('story-img').src = `https://image.pollinations.ai/prompt/children_illustration_fairytale_style_${encodeURIComponent(sujet)}?width=800&height=600&nologo=true`;
+            imgBox.classList.remove('hidden');
+
+            // Texte
+            const card = document.getElementById('story-card');
+            document.getElementById('story-text').innerText = histoire;
+            card.classList.remove('hidden');
+
+            rejouerVoix();
+        }
+
+        function rejouerVoix() {
+            synth.cancel();
+            const utter = new SpeechSynthesisUtterance(texteHistoire);
             utter.lang = 'fr-FR';
+            utter.pitch = 1.1; // Voix un peu plus enfantine/conteuse
+            utter.rate = 0.9;  // Un peu plus lent pour bien comprendre
             synth.speak(utter);
         }
 
-        // Lancement du scan au chargement
-        autoDetectModel();
-    </script>
-</body>
-</html>
+        function resetKey() {
+            localStorage.removeItem('BOITE_MAGIQUE_KEY_FINAL');
