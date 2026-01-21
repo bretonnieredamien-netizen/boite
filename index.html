@@ -8,52 +8,54 @@
     <link href="https://fonts.googleapis.com/css2?family=Short+Stack&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Short Stack', cursive; background: #fffdf2; touch-action: manipulation; }
-        .magic-btn:active { transform: scale(0.9); }
         .pulsate { animation: pulse 1.5s infinite; }
-        @keyframes pulse { 
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
-            70% { transform: scale(1.1); box-shadow: 0 0 0 20px rgba(245, 158, 11, 0); }
-            100% { transform: scale(1); }
-        }
+        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); } 70% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(245, 158, 11, 0); } 100% { transform: scale(1); } }
         .hidden { display: none !important; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center p-6 select-none">
+<body class="min-h-screen flex flex-col items-center p-6">
 
-    <main class="w-full max-w-lg flex flex-col items-center">
-        <header class="text-center my-6">
-            <h1 class="text-4xl font-bold text-amber-600">Ma Boîte Magique ✨</h1>
-            <p id="status" class="text-amber-800 mt-2 opacity-80 italic">Prêt pour une histoire ?</p>
-        </header>
+    <header class="text-center my-6">
+        <h1 class="text-4xl font-bold text-amber-600">Ma Boîte Magique ✨</h1>
+        <p id="status" class="text-amber-800 mt-2 opacity-80">Raconte une histoire...</p>
+    </header>
 
-        <div id="image-box" class="w-full aspect-video bg-white rounded-[2rem] shadow-2xl border-4 border-white overflow-hidden mb-6 hidden">
-            <img id="story-img" src="" class="w-full h-full object-cover">
-        </div>
+    <div id="image-box" class="w-full max-w-md aspect-video bg-white rounded-[2rem] shadow-2xl border-4 border-white overflow-hidden mb-6 hidden">
+        <img id="story-img" src="" class="w-full h-full object-cover">
+    </div>
 
-        <div class="w-full flex gap-2 mb-8 bg-amber-100/50 p-2 rounded-2xl border border-amber-200">
-            <input type="text" id="manualInput" placeholder="Écris ici (ex: un petit chat)..." 
-                   class="flex-1 bg-white p-3 rounded-xl outline-none focus:ring-2 focus:ring-amber-400 text-sm">
-            <button onclick="envoyerTexte()" class="bg-amber-500 text-white px-4 py-3 rounded-xl font-bold active:scale-95 transition-all">OK</button>
-        </div>
+    <div class="w-full max-w-md flex gap-2 mb-8 bg-amber-100/50 p-2 rounded-2xl border border-amber-200">
+        <input type="text" id="manualInput" placeholder="Écris un thème (ex: un lion)..." 
+               class="flex-1 bg-white p-3 rounded-xl outline-none focus:ring-2 focus:ring-amber-400 text-sm">
+        <button onclick="envoyerManuel()" class="bg-amber-500 text-white px-4 py-3 rounded-xl font-bold active:scale-95 transition-all">OK</button>
+    </div>
 
-        <button id="mic-btn" onclick="ecouterEnfant()" class="bg-amber-400 p-12 rounded-full shadow-2xl border-8 border-white mb-10">
-            <span class="text-6xl">🎤</span>
-        </button>
+    <button id="mic-btn" onclick="ecouter()" class="bg-amber-400 p-12 rounded-full shadow-2xl border-8 border-white mb-10">
+        <span class="text-6xl">🎤</span>
+    </button>
 
-        <div id="story-card" class="bg-white w-full rounded-[2.5rem] shadow-xl border-4 border-amber-100 p-8 mb-10 hidden">
-            <div id="story-text" class="text-xl leading-relaxed text-gray-800 italic"></div>
-        </div>
+    <div id="story-card" class="bg-white w-full max-w-md rounded-[2rem] shadow-xl border-4 border-amber-100 p-8 mb-10 hidden">
+        <div id="story-text" class="text-xl leading-relaxed text-gray-800 italic"></div>
+    </div>
 
-        <button onclick="localStorage.clear(); location.reload();" class="text-[10px] text-gray-300 underline uppercase">Réinitialiser la clé</button>
-    </main>
+    <div id="debug" class="w-full max-w-md bg-black text-[10px] text-green-500 p-2 rounded font-mono opacity-60 overflow-auto max-h-24">
+        > Système prêt.
+    </div>
 
     <script>
-        const API_KEY = localStorage.getItem('BOITE_MAGIQUE_ULTIMATE_2026');
-        const MODEL_PATH = "models/gemini-1.5-pro-latest"; 
+        const KEY = localStorage.getItem('BOITE_KEY_FINAL_2026') || prompt("Entre ta clé API Gemini :");
+        if(KEY) localStorage.setItem('BOITE_KEY_FINAL_2026', KEY);
+
         const synth = window.speechSynthesis;
         let recognition = null;
 
-        // Configuration du Micro
+        function log(msg) {
+            const d = document.getElementById('debug');
+            d.innerHTML += `<div>> ${msg}</div>`;
+            d.scrollTop = d.scrollHeight;
+        }
+
+        // Configuration Micro
         const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (Speech) {
             recognition = new Speech();
@@ -63,82 +65,66 @@
                 document.getElementById('status').innerText = "Je t'écoute...";
             };
             recognition.onresult = (e) => {
-                const phrase = e.results[0][0].transcript;
                 document.getElementById('mic-btn').classList.remove('pulsate');
-                lancerLaMagie(phrase);
+                lancerTentatives(e.results[0][0].transcript);
             };
-            recognition.onerror = () => {
-                document.getElementById('mic-btn').classList.remove('pulsate');
-                document.getElementById('status').innerText = "Oups, je n'ai pas entendu !";
-            };
+            recognition.onerror = () => document.getElementById('mic-btn').classList.remove('pulsate');
         }
 
-        function ecouterEnfant() {
-            synth.cancel();
-            if(!recognition) return alert("Micro non supporté.");
-            recognition.start();
+        function ecouter() { synth.cancel(); recognition.start(); }
+        function envoyerManuel() { 
+            const val = document.getElementById('manualInput').value;
+            if(val) lancerTentatives(val);
         }
 
-        function envoyerTexte() {
-            const val = document.getElementById('manualInput').value.trim();
-            if(val) lancerLaMagie(val);
-        }
+        // SYSTÈME DE TENTATIVES MULTIPLES
+        async function lancerTentatives(sujet) {
+            document.getElementById('status').innerText = "La magie cherche une route...";
+            log(`Demande pour : ${sujet}`);
 
-        async function lancerLaMagie(sujet) {
-            document.getElementById('status').innerText = "La magie réfléchit...";
-            
-            // On utilise v1beta pour avoir accès aux réglages de sécurité BLOCK_NONE
-            const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_PATH}:generateContent?key=${API_KEY}`;
-            
-            const payload = {
-                contents: [{ 
-                    parts: [{ text: `Tu es un conteur pour enfants. Raconte une histoire courte, joyeuse et merveilleuse sur : ${sujet}. Ne parle jamais de violence ou de choses tristes.` }] 
-                }],
-                // ON FORCE TOUS LES FILTRES À "BLOCK_NONE"
-                safetySettings: [
-                    { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-                    { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-                    { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-                    { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" },
-                    { category: "HARM_CATEGORY_CIVIC_INTEGRITY", threshold: "BLOCK_NONE" }
-                ]
-            };
+            // Liste des URLs à tester (v1 stable et v1beta)
+            const tests = [
+                `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent?key=${KEY}`,
+                `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=${KEY}`,
+                `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${KEY}`
+            ];
 
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+            for (let url of tests) {
+                log(`Tentative sur : ${url.split('/')[4]}...`);
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: "Raconte une histoire de 3 lignes pour un enfant sur : " + sujet }] }]
+                            // On laisse les safetySettings par défaut pour maximiser la compatibilité
+                        })
+                    });
 
-                const data = await response.json();
-
-                // SI GOOGLE BLOQUE QUAND MÊME
-                if (data.promptFeedback && data.promptFeedback.blockReason) {
-                    alert("Désolé, Google trouve ce sujet trop délicat. Essaie quelque chose de plus doux !");
-                    document.getElementById('status').innerText = "Sujet bloqué par Google.";
-                    return;
-                }
-
-                if (data.candidates && data.candidates[0].content) {
-                    const texte = data.candidates[0].content.parts[0].text;
-                    afficher(texte, sujet);
-                } else {
-                    alert("L'IA n'a pas pu répondre. Essaie un autre mot !");
-                }
-            } catch (e) {
-                alert("Problème de connexion.");
+                    const data = await response.json();
+                    
+                    if (data.candidates && data.candidates[0].content) {
+                        const texte = data.candidates[0].content.parts[0].text;
+                        log("SUCCÈS !");
+                        afficher(texte, sujet);
+                        return; // ON ARRÊTE LES TESTS ICI
+                    } else {
+                        log(`Échec : ${data.error ? data.error.status : 'Réponse vide'}`);
+                    }
+                } catch (e) { log("Erreur réseau"); }
             }
+
+            document.getElementById('status').innerText = "Aucun chemin trouvé.";
+            alert("L'IA est bloquée. Vérifie si l'API est bien ACTIVÉE dans ta console Google Cloud.");
         }
 
         function afficher(texte, theme) {
             document.getElementById('status').innerText = "Il était une fois...";
             document.getElementById('image-box').classList.remove('hidden');
-            document.getElementById('story-img').src = `https://image.pollinations.ai/prompt/illustration_for_kids_fairytale_style_${encodeURIComponent(theme)}?width=800&height=450&nologo=true`;
+            document.getElementById('story-img').src = `https://image.pollinations.ai/prompt/drawing_child_illustration_${encodeURIComponent(theme)}?nologo=true`;
             document.getElementById('story-card').classList.remove('hidden');
             document.getElementById('story-text').innerText = texte;
 
-            synth.cancel();
             const utter = new SpeechSynthesisUtterance(texte);
             utter.lang = 'fr-FR';
             synth.speak(utter);
