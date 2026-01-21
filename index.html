@@ -77,17 +77,40 @@
 
         async function generateStory(prompt) {
     const cleanKey = apiKey.trim();
-    // Nous utilisons la version v1 qui est la plus compatible
-    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${cleanKey}`;
+    // CHANGEMENT ICI : On utilise v1beta au lieu de v1
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${cleanKey}`;
     
     try {
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                contents: [{ parts: [{ text: `Tu es un conteur. Raconte une mini histoire pour enfant sur : ${prompt}` }] }]
+                contents: [{ parts: [{ text: `Tu es un conteur. Raconte une mini histoire pour enfant sur : ${prompt}. Termine par une question.` }] }]
             })
         });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            console.error("Détails de l'erreur:", data);
+            alert(`Erreur Google (${response.status}): ${data.error ? data.error.message : 'Erreur inconnue'}`);
+            return;
+        }
+
+        // Extraction du texte de l'histoire
+        if (data.candidates && data.candidates[0].content) {
+            const story = data.candidates[0].content.parts[0].text;
+            displayResult(story, prompt);
+            speak(story);
+        } else {
+            alert("L'IA n'a pas pu générer d'histoire. Réessaie !");
+        }
+
+    } catch (error) {
+        console.error("Erreur de connexion :", error);
+        alert("Problème de connexion internet.");
+    }
+}
 
         const data = await response.json();
 
