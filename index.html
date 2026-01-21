@@ -3,84 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>La Boîte Magique PRO ✨</title>
+    <title>La Boîte Magique ✨</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Short+Stack&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Short Stack', cursive; background: #fffdf2; }
-        .pulsate { animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         .hidden { display: none !important; }
-        #logs { background: #1a1a1a; color: #5ef75e; font-family: monospace; font-size: 10px; padding: 12px; border-radius: 15px; margin-top: 20px; width: 100%; max-height: 120px; overflow-y: auto; border: 1px solid #333; }
+        #logs { background: #000; color: #0f0; font-family: monospace; font-size: 10px; padding: 10px; border-radius: 12px; margin-top: 20px; width: 100%; max-height: 100px; overflow-y: auto; }
     </style>
 </head>
 <body class="flex flex-col items-center p-6 min-h-screen">
 
-    <h1 class="text-3xl font-bold text-amber-600 mb-6 drop-shadow-sm">Boîte Magique ✨</h1>
+    <h1 class="text-3xl font-bold text-amber-600 mb-6">Boîte Magique ✨</h1>
 
-    <div class="w-full max-w-md bg-white p-5 rounded-3xl shadow-xl border-4 border-amber-50 text-center mb-6">
-        <p id="status-text" class="text-amber-900 font-bold">Initialisation de ton accès Plus...</p>
+    <div class="w-full max-w-md bg-white p-4 rounded-2xl shadow-md border-2 border-amber-50 text-center mb-6">
+        <p id="status-text" class="text-amber-900 font-bold">Prêt pour l'aventure !</p>
     </div>
 
     <div class="w-full max-w-md flex flex-col gap-6 mb-8">
-        <div class="flex gap-2 bg-amber-100/30 p-2 rounded-2xl border border-amber-200 shadow-inner">
-            <input type="text" id="userInput" placeholder="Ex: Un dragon bleu..." 
+        <div class="flex gap-2 bg-amber-100/30 p-2 rounded-2xl border border-amber-200">
+            <input type="text" id="userInput" placeholder="Ex: Un pirate rigolo..." 
                    class="flex-1 p-4 rounded-xl outline-none bg-white text-sm">
-            <button id="ok-btn" class="bg-amber-500 text-white px-8 py-4 rounded-xl font-bold shadow-lg active:scale-95 transition-all opacity-50" disabled>OK</button>
+            <button onclick="lancer()" class="bg-amber-500 text-white px-8 py-4 rounded-xl font-bold shadow-lg active:scale-95 transition-all">OK</button>
         </div>
 
-        <button id="mic-btn" class="bg-amber-400 p-12 rounded-full shadow-2xl border-8 border-white self-center opacity-50" disabled>
+        <button onclick="lancerMicro()" class="bg-amber-400 p-12 rounded-full shadow-2xl border-8 border-white self-center active:scale-90">
             <span class="text-6xl">🎤</span>
         </button>
     </div>
 
     <div id="result-card" class="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl p-8 hidden">
         <div id="story-display" class="text-xl text-gray-800 leading-relaxed italic mb-8"></div>
-        <img id="story-img" class="w-full rounded-3xl shadow-lg hidden">
+        <img id="story-img" class="w-full rounded-3xl shadow-lg hidden border-4 border-amber-50">
     </div>
 
-    <div id="logs">> Connexion en cours...</div>
-
-    <button onclick="localStorage.clear(); location.reload();" class="mt-8 text-xs text-gray-400 underline uppercase tracking-widest">Changer de clé API</button>
+    <div id="logs">> Système prêt (Mode Direct).</div>
 
     <script>
-        // 1. CONFIGURATION
-        let API_KEY = localStorage.getItem('BOITE_MAGIQUE_PLUS_2026');
-        if (!API_KEY) {
-            API_KEY = prompt("Colle ta clé API Gemini (AIza...) :");
-            if(API_KEY) localStorage.setItem('BOITE_MAGIQUE_PLUS_2026', API_KEY);
-        }
-
-        let modelProId = ""; // Sera trouvé automatiquement
+        // 1. CLE API
+        const API_KEY = localStorage.getItem('MAGIE_2026_KEY') || prompt("Entre ta clé API (AIza...) :");
+        if(API_KEY) localStorage.setItem('MAGIE_2026_KEY', API_KEY);
 
         const log = (msg, err = false) => {
-            const div = document.getElementById('logs');
-            div.innerHTML += `<div style="color: ${err ? '#ff6b6b' : '#5ef75e'}">> ${msg}</div>`;
-            div.scrollTop = div.scrollHeight;
+            const d = document.getElementById('logs');
+            d.innerHTML += `<div style="color: ${err ? 'red' : '#0f0'}">> ${msg}</div>`;
+            d.scrollTop = d.scrollHeight;
         };
 
-        // 2. AUTO-DÉTECTION DU MODÈLE (Utilise ton accès Plus)
-        async function detecterMeilleurModele() {
-            log("Scan des modèles autorisés pour ton compte...");
-            try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${API_KEY}`);
-                const data = await response.json();
+        // 2. FONCTION DE TENTATIVES
+        async function lancer() {
+            const theme = document.getElementById('userInput').value.trim() || "Un petit chat";
+            document.getElementById('status-text').innerText = "La magie opère...";
+            log("Démarrage : " + theme);
 
-                if (data.models) {
-                    // On cherche le modèle Pro le plus récent dans ta liste
-                    const proModel = data.models.find(m => m.name.includes('gemini-1.5-pro') && m.supportedGenerationMethods.includes('generateContent'));
-                    const flashModel = data.models.find(m => m.name.includes('gemini-1.5-flash'));
-                    
-                    const finalChoice = proModel || flashModel || data.models[0];
-                    modelProId = finalChoice.name; // Exemple: "models/gemini-1.5-pro-002"
+            // Liste des modèles à tester dans l'ordre
+            const modeles = ["gemini-1.5-pro", "gemini-1.5-flash", "gemini-pro"];
 
-                    log(`SUCCÈS : Modèle identifié : ${modelProId}`);
-                    document.getElementById('status-text').innerText = "Prêt (Mode PRO activé) !";
-                    
-                    // On active les boutons
-                    document.querySelectorAll('button').forEach(b => {
-                        b.disabled = false;
-                        b.classList.remove('opacity-50');
+            for (let m of modeles) {
+                log("Essai du modèle : " + m);
+                try {
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${API_KEY}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: "Raconte une histoire très courte (3 lignes) pour enfant sur : " + theme }] }]
+                        })
                     });
-                } else {
-                    log("ERREUR : Ta clé ne renvoie aucun modèle. Vérifie l'activation de l'API.", true
+
+                    const data = await response.json();
+
+                    if (data.candidates && data.candidates[0].content) {
+                        log("SUCCÈS !");
+                        afficher(data.candidates[0].content.parts[0].text, theme);
+                        return; // On a réussi, on s'arrête là
+                    } else {
+                        log("Modèle " + m + " refusé.");
+                    }
+                } catch (e) {
+                    log("Erreur sur " + m);
+                }
+            }
+
+            alert("Désolé, Google bloque l'accès. Vérifie que ta clé est bien une clé 'API Key' créée sur Google AI Studio.");
+            document.getElementById('status-text').innerText = "Erreur de connexion.";
+        }
+
+        function afficher(texte, sujet) {
+            document.getElementById('status-text').innerText = "Il était une fois...";
+            document.getElementById('result-card').classList.remove('hidden');
+            document.getElementById('story-display').innerText = texte;
+            document.getElementById('story-img').src = `https://image.pollinations.ai/prompt/fairytale_illustration_${encodeURIComponent(sujet)}?nologo=true`;
+            document.getElementById('story-img').classList.remove('hidden');
+
+            const utter = new SpeechSynthesisUtterance(texte);
+            utter.lang = 'fr-FR';
+            window.speechSynthesis.speak(utter);
+        }
+
+        function lancerMicro() {
+            const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if(!Speech) return alert("Micro non supporté.");
+            const rec = new Speech();
+            rec.lang = 'fr-FR';
+            rec.onstart = () => document.getElementById('status-text').innerText = "Je t'écoute...";
+            rec.onresult = (e) => {
+                document.getElementById('userInput').value = e.results[0][0].transcript;
+                lancer();
+            };
+            rec.start();
+        }
+    </script>
+</body>
+</html>
