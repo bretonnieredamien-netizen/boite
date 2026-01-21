@@ -17,21 +17,21 @@
 
     <header class="text-center my-6">
         <h1 class="text-4xl font-bold text-amber-600 drop-shadow-sm">Ma Boîte Magique ✨</h1>
-        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Initialisation du compte Plus...</p>
+        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Prêt pour la magie !</p>
     </header>
 
-    <div id="image-box" class="w-full max-w-md aspect-video bg-white rounded-[2rem] shadow-2xl border-4 border-white overflow-hidden mb-8 hidden">
+    <div id="image-box" class="w-full max-w-md aspect-video bg-white rounded-[2rem] shadow-2xl border-4 border-white overflow-hidden mb-8 hidden transition-all duration-700">
         <img id="story-img" src="" class="w-full h-full object-cover">
     </div>
 
     <div class="w-full max-w-md flex flex-col items-center gap-6">
-        <div class="w-full flex gap-2 bg-amber-100/50 p-2 rounded-2xl border border-amber-200">
-            <input type="text" id="manualInput" placeholder="Écris un thème (ex: un dinosaure)..." 
-                   class="flex-1 bg-white p-4 rounded-xl outline-none shadow-inner text-sm">
-            <button onclick="envoyerTexte()" class="bg-amber-500 text-white px-6 py-4 rounded-xl font-bold shadow-md">OK</button>
+        <div class="w-full flex gap-2 bg-amber-100/50 p-2 rounded-2xl border border-amber-200 shadow-inner">
+            <input type="text" id="manualInput" placeholder="Sujet de l'histoire..." 
+                   class="flex-1 bg-white p-4 rounded-xl outline-none text-sm">
+            <button onclick="envoyerTexte()" class="bg-amber-500 text-white px-6 py-4 rounded-xl font-bold active:scale-95 transition-all shadow-md">OK</button>
         </div>
 
-        <button id="mic-btn" onclick="lancerMicro()" class="bg-amber-400 p-12 rounded-full shadow-2xl border-8 border-white opacity-50 cursor-not-allowed" disabled>
+        <button id="mic-btn" onclick="lancerMicro()" class="bg-amber-400 p-12 rounded-full shadow-2xl border-8 border-white transition-all active:scale-90">
             <span class="text-7xl">🎤</span>
         </button>
     </div>
@@ -41,16 +41,16 @@
     </div>
 
     <div id="console" class="mt-auto w-full max-w-md bg-zinc-900 text-green-400 p-3 rounded-xl font-mono text-[9px] opacity-70 overflow-auto max-h-24">
-        > Connexion en cours...
+        > Connexion stable...
     </div>
 
-    <button onclick="localStorage.clear(); location.reload();" class="mt-6 text-[10px] text-gray-400 underline uppercase">Réinitialiser la clé</button>
+    <button onclick="localStorage.clear(); location.reload();" class="mt-6 text-[10px] text-gray-400 underline uppercase tracking-widest">Réinitialiser la clé</button>
 
     <script>
-        let API_KEY = localStorage.getItem('MAGIE_KEY_2026') || prompt("Entre ta clé API Gemini (AIza...) :");
-        if(API_KEY) localStorage.setItem('MAGIE_KEY_2026', API_KEY);
+        const API_KEY = localStorage.getItem('MAGIE_PRO_2026') || prompt("Entre ta clé API Gemini (AIza...) :");
+        if(API_KEY) localStorage.setItem('MAGIE_PRO_2026', API_KEY);
 
-        let activeModel = ""; // Sera rempli par l'auto-détection
+        const MODEL = "gemini-1.5-pro"; // On force le modèle Pro
         const synth = window.speechSynthesis;
 
         function log(msg, err = false) {
@@ -59,105 +59,8 @@
             c.scrollTop = c.scrollHeight;
         }
 
-        // --- ÉTAPE 1 : AUTO-DÉTECTION (C'est le cerveau du code) ---
-        async function detectModel() {
-            log("Scan des modèles autorisés pour ta clé...");
-            try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${API_KEY}`);
-                const data = await response.json();
-
-                if (data.models) {
-                    // On cherche Pro, puis Flash, puis n'importe quel Gemini
-                    const pro = data.models.find(m => m.name.includes('gemini-1.5-pro') && m.supportedGenerationMethods.includes('generateContent'));
-                    const flash = data.models.find(m => m.name.includes('gemini-1.5-flash'));
-                    
-                    const choice = pro || flash || data.models[0];
-                    activeModel = choice.name;
-
-                    log(`SUCCÈS : Modèle utilisé : ${activeModel}`);
-                    document.getElementById('status').innerText = "Prêt (Mode " + (activeModel.includes('pro') ? "PRO" : "FLASH") + ")";
-                    document.getElementById('mic-btn').disabled = false;
-                    document.getElementById('mic-btn').classList.remove('opacity-50', 'cursor-not-allowed');
-                } else {
-                    log("ERREUR : Clé invalide ou API non activée.", true);
-                }
-            } catch (e) {
-                log("Erreur réseau lors de l'initialisation.", true);
-            }
-        }
-
-        // --- ÉTAPE 2 : APPEL IA ---
         async function appelIA(sujet) {
-            if(!activeModel) return alert("Attends que l'initialisation soit finie !");
-            
             document.getElementById('status').innerText = "La magie réfléchit...";
-            log(`Envoi à ${activeModel}...`);
+            log(`Création de l'histoire : ${sujet}`);
 
-            const url = `https://generativelanguage.googleapis.com/v1beta/${activeModel}:generateContent?key=${API_KEY}`;
-            
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: "Raconte une histoire magique très courte (3 lignes) pour enfant sur : " + sujet }] }],
-                        safetySettings: [
-                            { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-                            { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-                            { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-                            { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
-                        ]
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.candidates) {
-                    const texte = data.candidates[0].content.parts[0].text;
-                    afficher(texte, sujet);
-                } else {
-                    log("Blocage de sécurité ou erreur.", true);
-                    alert("Google refuse de répondre. Essaie un sujet plus doux !");
-                }
-            } catch (e) {
-                log("Erreur de connexion.", true);
-            }
-        }
-
-        function envoyerTexte() {
-            const val = document.getElementById('manualInput').value;
-            if(val) appelIA(val);
-        }
-
-        function lancerMicro() {
-            const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if(!Speech) return;
-            const rec = new Speech();
-            rec.lang = 'fr-FR';
-            rec.onstart = () => {
-                document.getElementById('mic-btn').classList.add('pulsate');
-                document.getElementById('status').innerText = "Je t'écoute...";
-            }
-            rec.onresult = (e) => {
-                document.getElementById('mic-btn').classList.remove('pulsate');
-                appelIA(e.results[0][0].transcript);
-            }
-            rec.start();
-        }
-
-        function afficher(texte, theme) {
-            document.getElementById('status').innerText = "Il était une fois...";
-            document.getElementById('image-box').classList.remove('hidden');
-            document.getElementById('story-img').src = `https://image.pollinations.ai/prompt/fairytale_illustration_${encodeURIComponent(theme)}?nologo=true`;
-            document.getElementById('story-card').classList.remove('hidden');
-            document.getElementById('story-text').innerText = texte;
-            const utter = new SpeechSynthesisUtterance(texte);
-            utter.lang = 'fr-FR';
-            synth.speak(utter);
-        }
-
-        // Lancement
-        detectModel();
-    </script>
-</body>
-</html>
+            const url = `https://
