@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boîte Magique Debug</title>
+    <title>Boîte Magique - Fix Final</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Short+Stack&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Short Stack', cursive; background: #fefce8; }
         .hidden { display: none !important; }
-        #debug-zone { font-family: monospace; font-size: 10px; color: #991b1b; }
     </style>
 </head>
 <body class="p-4 flex flex-col items-center">
@@ -25,24 +24,21 @@
             <button id="recordBtn" onclick="toggleListening()" class="bg-yellow-400 p-10 rounded-full shadow-xl mb-4 border-4 border-white">
                 <span class="text-5xl">🎤</span>
             </button>
-            <p id="status" class="text-yellow-800 font-medium mb-6">Appuie et parle</p>
+            <p id="status" class="text-yellow-800 font-medium mb-6 text-center">Appuie et demande une histoire de petit chat</p>
         </div>
 
         <div id="story-box" class="bg-white p-6 rounded-2xl shadow-md border-2 border-yellow-200 hidden mb-6">
             <p id="story-text" class="text-lg text-gray-800"></p>
         </div>
 
-        <div id="debug-zone" class="bg-red-50 p-2 rounded border border-red-200 mt-10">
-            Journal de bord : <span id="debug-msg">Prêt.</span>
+        <div id="debug-zone" class="bg-gray-800 text-green-400 p-3 rounded text-[10px] overflow-auto max-h-40 w-full mt-10">
+            LOGS : <span id="debug-msg">En attente...</span>
         </div>
     </div>
 
     <script>
-        let apiKey = localStorage.getItem('gemini_key_final');
-        if (!apiKey) {
-            apiKey = prompt("Entre ta clé API Gemini :");
-            localStorage.setItem('gemini_key_final', apiKey);
-        }
+        let apiKey = localStorage.getItem('gemini_key_final') || prompt("Entre ta clé API Gemini :");
+        localStorage.setItem('gemini_key_final', apiKey);
 
         const synth = window.speechSynthesis;
         let recognition = null;
@@ -50,9 +46,12 @@
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRecognition();
             recognition.lang = 'fr-FR';
-        } catch (e) { alert("Micro non supporté"); }
+        } catch (e) { alert("Navigateur non compatible"); }
 
-        function log(msg) { document.getElementById('debug-msg').innerText = msg; console.log(msg); }
+        function log(msg) { 
+            document.getElementById('debug-msg').innerText = typeof msg === 'object' ? JSON.stringify(msg) : msg;
+            console.log(msg);
+        }
 
         function toggleListening() {
             synth.cancel();
@@ -67,31 +66,39 @@
         };
 
         async function generateStory(promptText) {
-            log("Appel Gemini en cours...");
+            log("Appel Gemini...");
+            // On utilise v1beta qui est plus souple sur les filtres
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
             
+            const payload = {
+                contents: [{ parts: [{ text: "Raconte une histoire joyeuse et courte pour enfant : " + promptText }] }],
+                // ON DÉSACTIVE TOUS LES FILTRES ICI
+                safetySettings: [
+                    { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+                    { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+                    { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+                    { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
+                ]
+            };
+
             try {
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: "Raconte une histoire très courte pour enfant sur : " + promptText }] }]
-                        // Suppression des safetySettings pour le test (plus stable)
-                    })
+                    body: JSON.stringify(payload)
                 });
 
                 const data = await response.json();
-                
-                // ANALYSE DE LA RÉPONSE
+                log(data); // On affiche TOUTE la réponse dans le log noir
+
                 if (data.candidates && data.candidates[0].content) {
                     const story = data.candidates[0].content.parts[0].text;
-                    log("Histoire reçue !");
                     showStory(story, promptText);
+                } else if (data.promptFeedback) {
+                    log("Bloqué par Google : " + JSON.stringify(data.promptFeedback));
+                    alert("Google a bloqué le sujet. Essaie un autre thème.");
                 } else {
-                    // Si l'IA refuse, on cherche pourquoi
-                    const reason = data.candidates[0].finishReason || "Inconnue";
-                    log("Refus de l'IA. Raison : " + reason);
-                    alert("L'IA a bloqué l'histoire. Raison : " + reason);
+                    log("Réponse vide ou format inconnu.");
                 }
             } catch (error) {
                 log("Erreur : " + error.message);
@@ -102,7 +109,7 @@
             document.getElementById('story-box').classList.remove('hidden');
             document.getElementById('story-text').innerText = story;
             document.getElementById('image-container').classList.remove('hidden');
-            document.getElementById('story-image').src = `https://image.pollinations.ai/prompt/child_draw_${encodeURIComponent(prompt)}`;
+            document.getElementById('story-image').src = `https://image.pollinations.ai/prompt/drawing_child_style_${encodeURIComponent(prompt)}`;
             
             const utter = new SpeechSynthesisUtterance(story);
             utter.lang = 'fr-FR';
