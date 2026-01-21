@@ -3,119 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boîte Magique - Diagnostic Final</title>
+    <title>La Boîte Magique - Fix 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Short+Stack&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Short Stack', cursive; background: #fefce8; }
-        .hidden { display: none !important; }
+        .pulsate { animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(1.05); } 50% { transform: scale(1); } 100% { transform: scale(1.05); } }
     </style>
 </head>
-<body class="p-4 flex flex-col items-center">
+<body class="p-4 flex flex-col items-center min-h-screen">
 
     <div class="w-full max-w-md">
-        <h1 class="text-2xl font-bold text-yellow-600 text-center my-6">La Boîte Magique ✨</h1>
+        <h1 class="text-3xl font-bold text-yellow-600 text-center my-8">Ma Boîte Magique ✨</h1>
         
-        <div class="flex flex-col items-center">
-            <button onclick="toggleListening()" class="bg-yellow-400 p-10 rounded-full shadow-xl mb-4 border-4 border-white active:scale-95 transition-transform">
-                <span class="text-5xl">🎤</span>
-            </button>
-            <p id="status" class="text-yellow-800 font-medium mb-6">Appuie et dis "Bonjour"</p>
-        </div>
-
-        <div id="story-box" class="bg-white p-6 rounded-2xl shadow-md border-2 border-yellow-200 hidden mb-6">
-            <p id="story-text" class="text-lg text-gray-800"></p>
-        </div>
-
-        <div class="mt-10 w-full bg-black rounded-lg p-4 shadow-2xl">
-            <p class="text-blue-400 text-[10px] font-mono mb-2 uppercase tracking-widest border-b border-blue-900 pb-1">Analyseur de flux Google API</p>
-            <div id="debug-zone" class="text-green-500 text-[11px] font-mono overflow-auto max-h-64 leading-tight">
-                > Système prêt. En attente du micro...
+        <div id="status-card" class="bg-white p-6 rounded-3xl shadow-xl mb-6 text-center border-4 border-yellow-200">
+            <p id="status" class="text-yellow-800 text-lg font-medium">Initialisation...</p>
+            <div id="image-container" class="mt-4 w-full aspect-video rounded-xl overflow-hidden hidden border-2 border-yellow-100">
+                <img id="story-image" src="" class="w-full h-full object-cover">
             </div>
         </div>
+
+        <div class="flex flex-col items-center mb-8">
+            <button id="recordBtn" onclick="toggleListening()" class="bg-yellow-400 p-12 rounded-full shadow-2xl border-8 border-white active:scale-90 transition-all">
+                <span id="mic-icon" class="text-6xl">🎤</span>
+            </button>
+        </div>
+
+        <div id="story-box" class="bg-white p-6 rounded-2xl shadow-lg border-2 border-yellow-200 hidden mb-10">
+            <p id="story-text" class="text-lg text-gray-800 leading-relaxed"></p>
+        </div>
+
+        <div class="bg-black text-green-400 p-4 rounded-xl font-mono text-[10px] shadow-inner">
+            <p class="border-b border-green-900 pb-1 mb-2 text-blue-400 uppercase">Console de Diagnostic</p>
+            <div id="debug-log" class="overflow-auto max-h-40"></div>
+        </div>
         
-        <button onclick="localStorage.clear(); location.reload();" class="mt-4 text-[10px] text-gray-400 underline block mx-auto">Réinitialiser l'application</button>
+        <button onclick="localStorage.clear(); location.reload();" class="mt-4 text-[10px] text-gray-400 underline block mx-auto">Réinitialiser la clé API</button>
     </div>
 
     <script>
-        let apiKey = localStorage.getItem('gemini_key_v2026') || prompt("Entre ta clé API Gemini :");
-        if(apiKey) localStorage.setItem('gemini_key_v2026', apiKey);
+        let apiKey = localStorage.getItem('gemini_key_v4') || prompt("Entre ta clé API Gemini :");
+        if(apiKey) localStorage.setItem('gemini_key_v4', apiKey);
 
         const synth = window.speechSynthesis;
         let recognition = null;
+        
         try {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRecognition();
             recognition.lang = 'fr-FR';
-        } catch (e) { alert("Navigateur non compatible (utilise Chrome)"); }
+        } catch (e) { alert("Micro non supporté"); }
 
-        function log(msg, color = "text-green-500") {
-            const zone = document.getElementById('debug-zone');
+        function log(msg, isError = false) {
+            const logDiv = document.getElementById('debug-log');
             const line = document.createElement('div');
-            line.className = "mb-1 " + color;
-            line.innerHTML = `<span class="opacity-50">[${new Date().toLocaleTimeString()}]</span> > ${msg}`;
-            zone.appendChild(line);
-            zone.scrollTop = zone.scrollHeight;
+            line.className = isError ? "text-red-400" : "text-green-400";
+            line.innerHTML = `> ${msg}`;
+            logDiv.appendChild(line);
+            logDiv.scrollTop = logDiv.scrollHeight;
         }
+
+        window.onload = () => log("Système prêt. Attente du micro.");
 
         function toggleListening() {
             synth.cancel();
             recognition.start();
-            log("Micro activé. Parle maintenant...");
+            document.getElementById('recordBtn').classList.add('pulsate');
+            document.getElementById('status').innerText = "Je t'écoute...";
+            log("Micro activé.");
         }
 
         recognition.onresult = (event) => {
-            const promptText = event.results[0][0].transcript;
-            log("Entendu : " + promptText, "text-white");
-            generateStory(promptText);
+            const text = event.results[0][0].transcript;
+            document.getElementById('recordBtn').classList.remove('pulsate');
+            document.getElementById('status').innerText = "Je cherche l'histoire...";
+            log("Entendu : " + text);
+            tryAllModels(text);
         };
 
-        async function generateStory(promptText) {
-            log("Envoi de la requête à Google...");
-            // Test du point de terminaison v1 avec le modèle flash-latest
-            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
-            
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: "Raconte une histoire très courte pour enfant sur : " + promptText }] }]
-                    })
-                });
+        // CETTE FONCTION TESTE TOUTES LES URL POSSIBLES POUR ÉVITER LA 404
+        async function tryAllModels(promptText) {
+            const endpoints = [
+                "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
+                "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent",
+                "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent"
+            ];
 
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    log("ERREUR SERVEUR : " + response.status, "text-red-500");
-                    log(JSON.stringify(data), "text-red-300");
-                    return;
+            for (let url of endpoints) {
+                log(`Test de l'URL : ${url.split('/')[5]}...`);
+                try {
+                    const response = await fetch(`${url}?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: "Raconte une histoire très courte pour enfant sur : " + promptText }] }]
+                        })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.candidates && data.candidates[0].content) {
+                            log("SUCCÈS ! Modèle trouvé.");
+                            showStory(data.candidates[0].content.parts[0].text, promptText);
+                            return; // On arrête de chercher si ça marche
+                        }
+                    } else {
+                        log(`Échec ${response.status} sur ce modèle.`, true);
+                    }
+                } catch (e) {
+                    log("Erreur réseau sur ce modèle.", true);
                 }
-
-                log("Réponse brute reçue :", "text-blue-300");
-                log(JSON.stringify(data, null, 1), "text-yellow-200");
-
-                if (data.candidates && data.candidates[0].content) {
-                    const story = data.candidates[0].content.parts[0].text;
-                    showStory(story);
-                } else {
-                    log("ATTENTION : Liste 'candidates' vide.", "text-orange-500");
-                    if(data.promptFeedback) log("Blocage Sécurité : " + JSON.stringify(data.promptFeedback), "text-red-400");
-                }
-
-            } catch (error) {
-                log("ERREUR RESEAU : " + error.message, "text-red-500");
             }
-        }
-
-        function showStory(story) {
-            document.getElementById('story-box').classList.remove('hidden');
-            document.getElementById('story-text').innerText = story;
-            const utter = new SpeechSynthesisUtterance(story);
-            utter.lang = 'fr-FR';
-            synth.speak(utter);
-            log("Histoire affichée et lue !", "text-white font-bold");
-        }
-    </script>
-</body>
-</html>
+            document.getElementById('status').innerText = "Erreur : Impossible de trouver un modèle actif.";
+            alert("Aucun modèle Gemini n'a répon
