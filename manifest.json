@@ -1,0 +1,15 @@
+{
+  "name": "La Boîte à Histoires",
+  "short_name": "Histoires",
+  "start_url": "boite-magique.html",
+  "display": "standalone",
+  "background_color": "#fef9c3",
+  "theme_color": "#facc15",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3845/3845808.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
