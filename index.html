@@ -11,15 +11,14 @@
         .hidden { display: none !important; }
         #story-card::-webkit-scrollbar { width: 8px; }
         #story-card::-webkit-scrollbar-thumb { background: #fcd34d; border-radius: 10px; }
-        .toggle-active { background-color: #f59e0b !important; color: white !important; }
-        .speaking-glow { box-shadow: 0 0 20px #fbbf24; border-color: #fbbf24; }
+        .speaking-glow { box-shadow: 0 0 30px #fbbf24; border-color: #fbbf24; transition: all 0.5s ease; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center p-6 select-none">
 
     <header class="text-center my-6">
         <h1 class="text-4xl font-bold text-amber-600 drop-shadow-sm">Ma Boîte Magique ⚡</h1>
-        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Prêt pour une aventure parlante !</p>
+        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Prêt pour une grande aventure !</p>
     </header>
 
     <div id="image-box" class="w-full max-w-md aspect-video bg-white rounded-[2rem] shadow-2xl border-4 border-white overflow-hidden mb-6 hidden">
@@ -27,16 +26,15 @@
     </div>
 
     <div class="w-full max-w-md flex flex-col items-center gap-6">
-        <div class="flex bg-amber-100/50 p-1 rounded-2xl w-full border border-amber-200">
-            <button id="btn-court" onclick="setLength('court')" class="flex-1 py-3 rounded-xl text-sm font-bold transition-all toggle-active">Petite</button>
-            <button id="btn-long" onclick="setLength('long')" class="flex-1 py-3 rounded-xl text-sm font-bold transition-all text-amber-800">Grande</button>
-        </div>
-
         <div class="w-full flex gap-2 bg-amber-100/50 p-2 rounded-2xl border border-amber-200">
-            <input type="text" id="manualInput" placeholder="Sujet de l'histoire..." class="flex-1 bg-white p-4 rounded-xl outline-none text-sm">
+            <input type="text" id="manualInput" placeholder="De quoi doit parler l'aventure ?" 
+                   class="flex-1 bg-white p-4 rounded-xl outline-none text-sm shadow-inner">
             <button onclick="lancerMagieDepuisTexte()" class="bg-amber-500 text-white px-6 py-4 rounded-xl font-bold active:scale-95 shadow-md">OK</button>
         </div>
 
         <button id="mic-btn" onclick="lancerMicro()" class="bg-amber-400 p-10 rounded-full shadow-2xl border-8 border-white active:scale-90 transition-all">
             <span class="text-6xl">🎤</span>
         </button>
+    </div>
+
+    <div id="story-card" class="bg-white w-full max
