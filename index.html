@@ -11,14 +11,13 @@
         .hidden { display: none !important; }
         #story-card::-webkit-scrollbar { width: 8px; }
         #story-card::-webkit-scrollbar-thumb { background: #fcd34d; border-radius: 10px; }
-        .toggle-active { background-color: #f59e0b !important; color: white !important; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center p-6 select-none">
 
     <header class="text-center my-6">
         <h1 class="text-4xl font-bold text-amber-600 drop-shadow-sm">Ma Boîte Magique ⚡</h1>
-        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Vitesse éclair activée !</p>
+        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Prêt pour une grande aventure !</p>
     </header>
 
     <div id="image-box" class="w-full max-w-md aspect-video bg-white rounded-[2rem] shadow-2xl border-4 border-white overflow-hidden mb-6 hidden">
@@ -26,13 +25,9 @@
     </div>
 
     <div class="w-full max-w-md flex flex-col items-center gap-6">
-        <div class="flex bg-amber-100/50 p-1 rounded-2xl w-full border border-amber-200">
-            <button id="btn-court" onclick="setLength('court')" class="flex-1 py-3 rounded-xl text-sm font-bold transition-all toggle-active">Petite</button>
-            <button id="btn-long" onclick="setLength('long')" class="flex-1 py-3 rounded-xl text-sm font-bold transition-all text-amber-800">Grande</button>
-        </div>
-
         <div class="w-full flex gap-2 bg-amber-100/50 p-2 rounded-2xl border border-amber-200">
-            <input type="text" id="manualInput" placeholder="Sujet de l'histoire..." class="flex-1 bg-white p-4 rounded-xl outline-none text-sm">
+            <input type="text" id="manualInput" placeholder="Sujet de l'aventure (ex: un voyage sur Mars)..." 
+                   class="flex-1 bg-white p-4 rounded-xl outline-none text-sm shadow-inner">
             <button onclick="lancerMagieDepuisTexte()" class="bg-amber-500 text-white px-6 py-4 rounded-xl font-bold active:scale-95 shadow-md">OK</button>
         </div>
 
@@ -43,42 +38,35 @@
 
     <div id="story-card" class="bg-white w-full max-w-md rounded-[2.5rem] shadow-xl border-4 border-amber-50 p-8 mt-8 hidden max-h-[500px] overflow-y-auto">
         <div id="audio-controls" class="flex justify-center gap-4 mb-4 sticky top-0 bg-white/90 py-2 hidden">
-            <button onclick="toggleAudio()" id="btn-pause" class="bg-amber-100 text-amber-700 px-4 py-2 rounded-full text-xs font-bold">⏸ Pause</button>
-            <button onclick="stopAudio()" class="bg-red-100 text-red-700 px-4 py-2 rounded-full text-xs font-bold">⏹ Stop</button>
+            <button onclick="toggleAudio()" id="btn-pause" class="bg-amber-100 text-amber-700 px-4 py-2 rounded-full text-xs font-bold shadow-sm">⏸ Pause</button>
+            <button onclick="stopAudio()" class="bg-red-100 text-red-700 px-4 py-2 rounded-full text-xs font-bold shadow-sm">⏹ Stop</button>
         </div>
         <div id="story-text" class="text-lg leading-relaxed text-gray-800 italic whitespace-pre-line"></div>
     </div>
 
     <script>
         const API_KEY = localStorage.getItem('BOITE_FINAL_KEY_2026');
-        // CHANGEMENT DE MODÈLE : FLASH POUR LA RAPIDITÉ
-        const MODEL_ID = "models/gemini-2.5-flash"; 
+        const MODEL_ID = "models/gemini-2.5-flash"; // Utilise la puissance du dernier modèle
         const synth = window.speechSynthesis;
-        let storyLength = 'court';
-
-        function setLength(len) {
-            storyLength = len;
-            document.getElementById('btn-court').className = `flex-1 py-3 rounded-xl text-sm font-bold transition-all ${len === 'court' ? 'toggle-active' : 'text-amber-800'}`;
-            document.getElementById('btn-long').className = `flex-1 py-3 rounded-xl text-sm font-bold transition-all ${len === 'long' ? 'toggle-active' : 'text-amber-800'}`;
-        }
 
         async function appelIA(sujet) {
             stopAudio();
-            document.getElementById('status').innerText = "Magie instantanée...";
-            document.getElementById('story-text').innerText = ""; // On vide le texte
+            document.getElementById('status').innerText = "La magie opère...";
+            document.getElementById('story-text').innerText = ""; 
             document.getElementById('story-card').classList.remove('hidden');
-            document.getElementById('audio-controls').classList.add('hidden'); // On cache l'audio pendant l'écriture
+            document.getElementById('audio-controls').classList.add('hidden'); 
             
-            // On lance l'image en parallèle
+            // Lancement de l'illustration
             document.getElementById('image-box').classList.remove('hidden');
             document.getElementById('story-img').src = `https://image.pollinations.ai/prompt/fairytale_illustration_pastel_${encodeURIComponent(sujet)}?nologo=true`;
 
-            // Utilisation du mode STREAM pour l'affichage en temps réel
+            // Utilisation du mode STREAM (affichage progressif)
             const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${API_KEY}`;
             
-            let consigne = storyLength === 'court' 
-                ? `Raconte une histoire magique très courte (max 5 lignes) pour enfant sur : "${sujet}".`
-                : `Raconte une longue et riche histoire magique pour enfant sur : "${sujet}". Utilise 5 paragraphes détaillés.`;
+            // Consigne fixe pour une histoire longue et détaillée
+            const consigne = `Raconte une magnifique histoire magique et longue pour enfant sur le thème : "${sujet}". 
+            L'histoire doit être riche en détails, avec environ 5 à 7 paragraphes. 
+            Développe bien les décors, les émotions et les péripéties. Finis par une conclusion douce et joyeuse.`;
 
             try {
                 const response = await fetch(url, {
@@ -86,7 +74,10 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         contents: [{ parts: [{ text: consigne }] }],
-                        generationConfig: { temperature: 0.8 }
+                        generationConfig: { 
+                            temperature: 0.8,
+                            maxOutputTokens: 2000 // Augmenté pour ne pas couper l'histoire
+                        }
                     })
                 });
 
@@ -108,33 +99,49 @@
                                 const textChunk = json.candidates[0].content.parts[0].text;
                                 fullText += textChunk;
                                 document.getElementById('story-text').innerText = fullText;
+                                // Scroll automatique vers le bas
                                 document.getElementById('story-card').scrollTop = document.getElementById('story-card').scrollHeight;
                             } catch(e) {}
                         }
                     }
                 }
 
-                // Une fois fini, on affiche les contrôles audio et on lit l'histoire
+                // Une fois le texte fini, on active l'audio
                 document.getElementById('audio-controls').classList.remove('hidden');
-                document.getElementById('status').innerText = "Écoute l'histoire...";
+                document.getElementById('status').innerText = "Écoute ton aventure...";
                 lireHistoire(fullText);
 
-            } catch (e) { alert("Erreur de rapidité."); }
+            } catch (e) { alert("Petit souci technique magique."); }
         }
 
         function lireHistoire(texte) {
             synth.cancel();
             const speech = new SpeechSynthesisUtterance(texte);
             speech.lang = 'fr-FR';
-            speech.rate = 1.0;
+            speech.rate = 0.95; // Rythme calme pour les histoires longues
             synth.speak(speech);
         }
 
-        function toggleAudio() { synth.paused ? synth.resume() : synth.pause(); document.getElementById('btn-pause').innerText = synth.paused ? "▶️ Reprendre" : "⏸ Pause"; }
+        function toggleAudio() { 
+            if (synth.paused) {
+                synth.resume();
+                document.getElementById('btn-pause').innerText = "⏸ Pause";
+            } else {
+                synth.pause();
+                document.getElementById('btn-pause').innerText = "▶️ Reprendre";
+            }
+        }
+
         function stopAudio() { synth.cancel(); }
-        function lancerMagieDepuisTexte() { const val = document.getElementById('manualInput').value; if(val) appelIA(val); }
+
+        function lancerMagieDepuisTexte() { 
+            const val = document.getElementById('manualInput').value.trim(); 
+            if(val) appelIA(val); 
+        }
+
         function lancerMicro() {
             const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if(!Speech) return alert("Micro non supporté.");
             const rec = new Speech();
             rec.lang = 'fr-FR';
             rec.onresult = (e) => appelIA(e.results[0][0].transcript);
