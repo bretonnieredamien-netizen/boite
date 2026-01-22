@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>La Boîte Magique Turbo ✨</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Short+Stack&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Short Stack', cursive; background: #fffdf2; touch-action: manipulation; }
@@ -37,9 +38,10 @@
     </div>
 
     <div id="story-card" class="bg-white w-full max-w-md rounded-[2.5rem] shadow-xl border-4 border-amber-50 p-8 mt-8 hidden max-h-[600px] overflow-y-auto">
-        <div id="audio-controls" class="flex justify-center gap-4 mb-4 sticky top-0 bg-white/90 py-2 hidden">
+        <div id="audio-controls" class="flex flex-wrap justify-center gap-2 mb-4 sticky top-0 bg-white/90 py-2 hidden">
             <button onclick="toggleAudio()" id="btn-pause" class="bg-amber-100 text-amber-700 px-4 py-2 rounded-full text-xs font-bold shadow-sm">⏸ Pause</button>
             <button onclick="stopAudio()" class="bg-red-100 text-red-700 px-4 py-2 rounded-full text-xs font-bold shadow-sm">⏹ Stop</button>
+            <button onclick="telechargerPDF()" class="bg-blue-500 text-white px-4 py-2 rounded-full text-xs font-bold shadow-sm shadow-blue-200">💾 PDF</button>
         </div>
         <div id="story-text" class="text-lg leading-relaxed text-gray-800 italic whitespace-pre-line"></div>
     </div>
@@ -48,8 +50,10 @@
         const API_KEY = localStorage.getItem('BOITE_FINAL_KEY_2026');
         const MODEL_ID = "models/gemini-2.5-flash"; 
         const synth = window.speechSynthesis;
+        let dernierTitre = "Mon Aventure Magique";
 
         async function appelIA(sujet) {
+            dernierTitre = sujet;
             stopAudio();
             document.getElementById('status').innerText = "La magie opère longuement...";
             document.getElementById('story-text').innerText = ""; 
@@ -61,7 +65,6 @@
 
             const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${API_KEY}`;
             
-            // CONSIGNES DE LONGUEUR ACCRUE
             const consigne = `Raconte une TRÈS longue et captivante aventure magique pour enfant sur le thème : "${sujet}". 
             L'histoire doit être riche, immersive et durer longtemps à la lecture.
             Structure impérative :
@@ -81,7 +84,7 @@
                         contents: [{ parts: [{ text: consigne }] }],
                         generationConfig: { 
                             temperature: 0.9,
-                            maxOutputTokens: 4000 // Augmenté pour éviter les coupures
+                            maxOutputTokens: 4000 
                         }
                     })
                 });
@@ -115,6 +118,28 @@
                 lireHistoire(fullText);
 
             } catch (e) { alert("Petit souci technique magique."); }
+        }
+
+        function telechargerPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const texte = document.getElementById('story-text').innerText;
+            
+            // Configuration du document
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(18);
+            doc.setTextColor(180, 83, 9); // Couleur ambre
+            doc.text(dernierTitre.toUpperCase(), 20, 20);
+            
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(12);
+            doc.setTextColor(40, 40, 40);
+            
+            // Découpage du texte pour qu'il tienne dans la page
+            const lignes = doc.splitTextToSize(texte, 170);
+            doc.text(lignes, 20, 35);
+            
+            doc.save(`aventure-${dernierTitre.replace(/\s+/g, '-').toLowerCase()}.pdf`);
         }
 
         function lireHistoire(texte) {
