@@ -41,7 +41,7 @@
         <div id="audio-controls" class="flex flex-wrap justify-center gap-2 mb-4 sticky top-0 bg-white/90 py-2 hidden">
             <button onclick="toggleAudio()" id="btn-pause" class="bg-amber-100 text-amber-700 px-4 py-2 rounded-full text-xs font-bold shadow-sm">⏸ Pause</button>
             <button onclick="stopAudio()" class="bg-red-100 text-red-700 px-4 py-2 rounded-full text-xs font-bold shadow-sm">⏹ Stop</button>
-            <button onclick="telechargerPDF()" class="bg-blue-500 text-white px-4 py-2 rounded-full text-xs font-bold shadow-sm shadow-blue-200">💾 PDF</button>
+            <button onclick="telechargerPDF()" class="bg-blue-600 text-white px-4 py-2 rounded-full text-xs font-bold shadow-sm flex items-center gap-1"><span>💾</span> PDF Magique</button>
         </div>
         <div id="story-text" class="text-lg leading-relaxed text-gray-800 italic whitespace-pre-line"></div>
     </div>
@@ -50,7 +50,7 @@
         const API_KEY = localStorage.getItem('BOITE_FINAL_KEY_2026');
         const MODEL_ID = "models/gemini-2.5-flash"; 
         const synth = window.speechSynthesis;
-        let dernierTitre = "Mon Aventure Magique";
+        let dernierTitre = "Mon Aventure";
 
         async function appelIA(sujet) {
             dernierTitre = sujet;
@@ -107,74 +107,4 @@
                                 const textChunk = json.candidates[0].content.parts[0].text;
                                 fullText += textChunk;
                                 document.getElementById('story-text').innerText = fullText;
-                                document.getElementById('story-card').scrollTop = document.getElementById('story-card').scrollHeight;
-                            } catch(e) {}
-                        }
-                    }
-                }
-
-                document.getElementById('audio-controls').classList.remove('hidden');
-                document.getElementById('status').innerText = "Écoute ta grande aventure...";
-                lireHistoire(fullText);
-
-            } catch (e) { alert("Petit souci technique magique."); }
-        }
-
-        function telechargerPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const texte = document.getElementById('story-text').innerText;
-            
-            // Configuration du document
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(18);
-            doc.setTextColor(180, 83, 9); // Couleur ambre
-            doc.text(dernierTitre.toUpperCase(), 20, 20);
-            
-            doc.setFont("helvetica", "normal");
-            doc.setFontSize(12);
-            doc.setTextColor(40, 40, 40);
-            
-            // Découpage du texte pour qu'il tienne dans la page
-            const lignes = doc.splitTextToSize(texte, 170);
-            doc.text(lignes, 20, 35);
-            
-            doc.save(`aventure-${dernierTitre.replace(/\s+/g, '-').toLowerCase()}.pdf`);
-        }
-
-        function lireHistoire(texte) {
-            synth.cancel();
-            const speech = new SpeechSynthesisUtterance(texte);
-            speech.lang = 'fr-FR';
-            speech.rate = 0.95; 
-            synth.speak(speech);
-        }
-
-        function toggleAudio() { 
-            if (synth.paused) {
-                synth.resume();
-                document.getElementById('btn-pause').innerText = "⏸ Pause";
-            } else {
-                synth.pause();
-                document.getElementById('btn-pause').innerText = "▶️ Reprendre";
-            }
-        }
-
-        function stopAudio() { synth.cancel(); }
-
-        function lancerMagieDepuisTexte() { 
-            const val = document.getElementById('manualInput').value.trim(); 
-            if(val) appelIA(val); 
-        }
-
-        function lancerMicro() {
-            const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if(!Speech) return alert("Micro non supporté.");
-            const rec = new Speech();
-            rec.lang = 'fr-FR';
-            rec.onresult = (e) => appelIA(e.results[0][0].transcript);
-            rec.start();
-        }
-    </script>
-</body>
-</html>
+                                document.getElementById('story-card').scrollTop
