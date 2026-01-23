@@ -25,102 +25,38 @@
         }
 
         /* --- Poussière d'étoiles (Canvas) --- */
-        #starfield {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-        }
-
+        #starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
         .hidden { display: none !important; }
         .content-layer { position: relative; z-index: 10; width: 100%; display: flex; flex-direction: column; align-items: center; }
 
-        /* --- LOGO HAUT-GAUCHE --- */
-        .brand-header {
-            position: absolute;
-            top: 1.5rem;
-            left: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            z-index: 20;
-        }
-        .mini-logo-text {
-            font-weight: 900;
-            font-size: 1.2rem;
-            background: linear-gradient(135deg, #22d3ee, #818cf8, #c084fc, #34d399);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-transform: lowercase;
-        }
-
-        /* --- NOUVEAU LOGO GRAPHIQUE CENTRAL --- */
-        .logo-container {
-            width: 220px; /* Taille du logo */
-            height: 220px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            /* Animation identique au texte précédent */
-            opacity: 0;
-            animation: introFade 2s ease-out forwards, slowBeat 5s ease-in-out infinite 2s;
-            filter: drop-shadow(0 10px 25px rgba(129, 140, 248, 0.5));
-        }
-
+        /* --- LOGO --- */
+        .brand-header { position: absolute; top: 1.5rem; left: 1.5rem; display: flex; align-items: center; gap: 0.5rem; z-index: 20; }
+        .mini-logo-text { font-weight: 900; font-size: 1.2rem; background: linear-gradient(135deg, #22d3ee, #818cf8, #c084fc, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: lowercase; }
+        .logo-container { width: 220px; height: 220px; display: flex; justify-content: center; align-items: center; opacity: 0; animation: introFade 2s ease-out forwards, slowBeat 5s ease-in-out infinite 2s; filter: drop-shadow(0 10px 25px rgba(129, 140, 248, 0.5)); }
         @keyframes introFade { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
         @keyframes slowBeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
 
         /* --- ORBES --- */
-        .orbe-base {
-            position: relative;
-            width: 120px; height: 120px;
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(15px);
-            border-radius: 50%;
-            border: 2px solid rgba(255, 255, 255, 0.8);
-            display: flex; align-items: center; justify-content: center;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-        }
+        .orbe-base { position: relative; width: 120px; height: 120px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(15px); border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.8); display: flex; align-items: center; justify-content: center; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
         .orbe-base svg { width: 45px; height: 45px; fill: #6366f1; }
-
-        .mic-listening {
-            background: rgba(99, 102, 241, 0.15) !important;
-            box-shadow: 0 0 50px rgba(99, 102, 241, 0.6) !important;
-            transform: scale(1.1);
-        }
-
+        .mic-listening { background: rgba(99, 102, 241, 0.15) !important; box-shadow: 0 0 50px rgba(99, 102, 241, 0.6) !important; transform: scale(1.1); }
         #btn-stop svg { fill: #f87171; }
-        #stop-container.opacity-100 #btn-stop {
-            background: rgba(248, 113, 113, 0.15);
-            border-color: #f87171;
-            box-shadow: 0 0 30px rgba(248, 113, 113, 0.4);
-        }
+        #stop-container.opacity-100 #btn-stop { background: rgba(248, 113, 113, 0.15); border-color: #f87171; box-shadow: 0 0 30px rgba(248, 113, 113, 0.4); }
 
-        .status-box {
-            background: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(10px);
-            padding: 0.6rem 1.8rem;
-            border-radius: 9999px;
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            margin-top: 1rem;
-        }
-
-        .understood-flash {
-            animation: success-pulse 0.8s ease-out !important;
-            background: rgba(16, 185, 129, 0.2) !important;
-            border-color: #10b981 !important;
-        }
-        @keyframes success-pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); box-shadow: 0 0 60px #10b981; }
-            100% { transform: scale(1); }
-        }
-        
+        /* --- UI --- */
+        .status-box { background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px); padding: 0.6rem 1.8rem; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.5); margin-top: 1rem; }
+        .understood-flash { animation: success-pulse 0.8s ease-out !important; background: rgba(16, 185, 129, 0.2) !important; border-color: #10b981 !important; }
+        @keyframes success-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); box-shadow: 0 0 60px #10b981; } 100% { transform: scale(1); } }
         .glass-ui { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px); border: 1px solid white; }
+
+        /* --- NOUVEAU : Styles Image --- */
+        #story-card { padding: 1.5rem !important; } /* Moins de padding pour l'image */
+        .image-container { width: 100%; aspect-ratio: 1 / 1; position: relative; border-radius: 2rem; overflow: hidden; background: rgba(255,255,255,0.5); }
+        #story-image { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1s ease-in-out; }
+        #story-image.loaded { opacity: 1; }
+        #image-loader { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; }
+        .loader-svg { width: 50px; height: 50px; animation: spin 2s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="p-6">
@@ -147,45 +83,26 @@
                              <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
                         </linearGradient>
                     </defs>
-                    
                     <path d="M70 80 L50 20 L90 20 Z" fill="url(#lightBeam)" opacity="0.6"/>
                     <path d="M100 85 L100 10 L120 10 Z" fill="url(#lightBeam)" opacity="0.8"/>
                     <path d="M130 80 L150 20 L110 20 Z" fill="url(#lightBeam)" opacity="0.6"/>
-
                     <path d="M50 80 L150 80 L140 160 L60 160 Z" fill="url(#auroraFill)" stroke="white" stroke-width="3" stroke-linejoin="round"/>
-                    
                     <path d="M50 80 L20 60 L60 60 L80 80 Z" fill="#818cf8" stroke="white" stroke-width="2" opacity="0.9"/>
-                    
                     <path d="M150 80 L180 60 L140 60 L120 80 Z" fill="#c084fc" stroke="white" stroke-width="2" opacity="0.9"/>
-                    
                     <path d="M60 80 L140 80 L120 60 L80 60 Z" fill="#34d399" opacity="0.7"/>
-
                     <path d="M50 80 L150 80 L170 100 L30 100 Z" fill="url(#auroraFill)" stroke="white" stroke-width="2" opacity="0.8"/>
-
-                    <circle cx="100" cy="50" r="5" fill="#fff" filter="drop-shadow(0 0 5px #fff)">
-                        <animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite"/>
-                    </circle>
-                    <circle cx="60" cy="40" r="3" fill="#22d3ee">
-                        <animate attributeName="cy" values="40;30;40" dur="3s" repeatCount="indefinite"/>
-                    </circle>
-                    <circle cx="140" cy="45" r="4" fill="#c084fc">
-                        <animate attributeName="cy" values="45;35;45" dur="2.5s" repeatCount="indefinite"/>
-                    </circle>
-                    
-                    <path d="M100 30 L103 40 L113 40 L105 48 L108 58 L100 52 L92 58 L95 48 L87 40 L97 40 Z" fill="#fef08a" filter="drop-shadow(0 0 8px #fbbf24)">
-                         <animateTransform attributeName="transform" type="scale" values="1;1.2;1" dur="1.5s" repeatCount="indefinite" additive="sum" transform-origin="100 45"/>
-                         <animateTransform attributeName="transform" type="rotate" values="0 100 45; 360 100 45" dur="10s" repeatCount="indefinite" additive="sum"/>
-                    </path>
+                    <circle cx="100" cy="50" r="5" fill="#fff" filter="drop-shadow(0 0 5px #fff)"><animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite"/></circle>
+                    <circle cx="60" cy="40" r="3" fill="#22d3ee"><animate attributeName="cy" values="40;30;40" dur="3s" repeatCount="indefinite"/></circle>
+                    <circle cx="140" cy="45" r="4" fill="#c084fc"><animate attributeName="cy" values="45;35;45" dur="2.5s" repeatCount="indefinite"/></circle>
+                    <path d="M100 30 L103 40 L113 40 L105 48 L108 58 L100 52 L92 58 L95 48 L87 40 L97 40 Z" fill="#fef08a" filter="drop-shadow(0 0 8px #fbbf24)"><animateTransform attributeName="transform" type="scale" values="1;1.2;1" dur="1.5s" repeatCount="indefinite" additive="sum" transform-origin="100 45"/><animateTransform attributeName="transform" type="rotate" values="0 100 45; 360 100 45" dur="10s" repeatCount="indefinite" additive="sum"/></path>
                 </svg>
             </div>
-
             <div class="status-box">
                 <p id="status" class="text-indigo-900/60 font-semibold italic text-sm">Dis-moi ton idée pour une histoire...</p>
             </div>
         </header>
 
         <main class="w-full max-w-md flex flex-col items-center gap-14 mt-8">
-            
             <div class="flex items-center justify-center gap-12 w-full">
                 <div class="flex flex-col items-center gap-4">
                     <button id="btn-mic" class="orbe-base shadow-2xl">
@@ -193,7 +110,6 @@
                     </button>
                     <span class="text-indigo-900/40 text-[11px] font-bold uppercase tracking-widest">Écouter</span>
                 </div>
-
                 <div id="stop-container" class="flex flex-col items-center gap-4 opacity-20 pointer-events-none transition-all duration-500">
                     <button id="btn-stop" class="orbe-base shadow-xl">
                         <svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" /></svg>
@@ -211,9 +127,16 @@
                 <span class="text-2xl">⌨️</span>
             </button>
 
-            <div id="story-card" class="bg-white/95 w-full rounded-[3rem] shadow-2xl border-4 border-white p-10 hidden max-h-[50vh] overflow-y-auto">
-                <div id="story-text" class="text-lg leading-relaxed text-gray-800 font-light whitespace-pre-line"></div>
-            </div>
+            <div id="story-card" class="bg-white/95 w-full rounded-[3rem] shadow-2xl border-4 border-white hidden">
+                <div class="image-container">
+                    <div id="image-loader">
+                        <svg class="loader-svg" viewBox="0 0 50 50">
+                            <circle cx="25" cy="25" r="20" fill="none" stroke="url(#auroraFill)" stroke-width="4" stroke-linecap="round" stroke-dasharray="30 90"></circle>
+                        </svg>
+                    </div>
+                    <img id="story-image" src="" alt="Illustration de l'histoire">
+                </div>
+                </div>
 
         </main>
 
@@ -224,84 +147,30 @@
     </div>
 
     <script>
-        /* --- SYSTÈME DE POUSSIÈRE D'ÉTOILES --- */
-        const canvas = document.getElementById('starfield');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
+        /* --- CANVAS STARS --- */
+        const canvas = document.getElementById('starfield'); const ctx = canvas.getContext('2d'); let particles = [];
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        class Particle { constructor() { this.reset(); } reset() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 2 + 0.5; this.speed = Math.random() * 0.02 + 0.01; this.opacity = Math.random() * 0.8; this.color = Math.random() > 0.5 ? "251, 191, 36" : "129, 140, 248"; } update() { this.y -= this.speed; this.x += Math.sin(this.y * 0.01) * 0.2; if (this.y < 0) this.reset(); } draw() { ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); } }
+        function initParticles() { particles = []; for (let i = 0; i < 100; i++) particles.push(new Particle()); }
+        function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
+        window.addEventListener('resize', resize); resize(); initParticles(); animate();
 
-        function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-
-        class Particle {
-            constructor() {
-                this.reset();
-            }
-            reset() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2 + 0.5;
-                this.speed = Math.random() * 0.02 + 0.01;
-                this.opacity = Math.random() * 0.8;
-                this.color = Math.random() > 0.5 ? "251, 191, 36" : "129, 140, 248";
-                this.direction = Math.random() > 0.5 ? 1 : -1;
-            }
-            update() {
-                this.y -= this.speed; 
-                this.x += Math.sin(this.y * 0.01) * 0.2; 
-                if (this.y < 0) this.reset();
-            }
-            draw() {
-                ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-
-        function initParticles() {
-            particles = [];
-            for (let i = 0; i < 100; i++) particles.push(new Particle());
-        }
-
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(p => {
-                p.update();
-                p.draw();
-            });
-            requestAnimationFrame(animate);
-        }
-
-        window.addEventListener('resize', resize);
-        resize();
-        initParticles();
-        animate();
-
-        /* --- LOGIQUE APPLICATIVE --- */
+        /* --- APP LOGIC --- */
         let API_KEY = localStorage.getItem('BOITE_FINAL_KEY_2026');
         const MODEL_ID = "models/gemini-2.5-flash"; 
         const synth = window.speechSynthesis;
         let speechQueue = [];
         let isSpeaking = false;
-        let currentSentence = "";
         let bestVoice = null;
         let audioCtx = null;
 
         function playChime() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(1244.51, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(1567.98, audioCtx.currentTime + 0.1);
-            gain.gain.setValueAtTime(0, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.05);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.type = 'triangle'; osc.frequency.setValueAtTime(1244.51, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(1567.98, audioCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.05); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.5);
         }
 
         function loadVoices() {
@@ -312,19 +181,34 @@
 
         function toggleStopButton(active) {
             const container = document.getElementById('stop-container');
-            if (active) {
-                container.classList.remove('opacity-20', 'pointer-events-none');
-                container.classList.add('opacity-100');
-            } else {
-                container.classList.add('opacity-20', 'pointer-events-none');
-                container.classList.remove('opacity-100');
-            }
+            if (active) { container.classList.remove('opacity-20', 'pointer-events-none'); container.classList.add('opacity-100'); } else { container.classList.add('opacity-20', 'pointer-events-none'); container.classList.remove('opacity-100'); }
         }
 
         function stopAudio() {
-            synth.cancel(); speechQueue = []; isSpeaking = false; currentSentence = "";
+            synth.cancel(); speechQueue = []; isSpeaking = false;
             document.getElementById('status').classList.remove('status-animating');
             toggleStopButton(false);
+        }
+
+        // NOUVEAU : Fonction pour générer l'image
+        function generateImage(sujet) {
+            const img = document.getElementById('story-image');
+            const loader = document.getElementById('image-loader');
+            img.classList.remove('loaded');
+            loader.classList.remove('hidden');
+
+            // Utilisation d'un service de démo public (Pollinations) - Pas besoin de clé API pour la démo
+            const prompt = `Children's book illustration, magical style, cute, colorful, ${sujet}`;
+            const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=512&height=512&nologo=true&model=turbo`;
+
+            // Préchargement pour une transition fluide
+            const tempImg = new Image();
+            tempImg.onload = () => {
+                img.src = url;
+                img.classList.add('loaded');
+                loader.classList.add('hidden');
+            }
+            tempImg.src = url;
         }
 
         async function appelIA(sujet) {
@@ -341,48 +225,36 @@
                 btnMic.classList.remove('understood-flash');
                 document.getElementById('story-card').classList.remove('hidden');
                 toggleStopButton(true);
+                // NOUVEAU : Lancer la génération d'image
+                generateImage(sujet);
             }, 800);
             
-            document.getElementById('story-text').innerText = "";
+            // SUPPRIMÉ : document.getElementById('story-text').innerText = "";
 
             const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${API_KEY}`;
             const promptIA = `Raconte une aventure réaliste pour un enfant sur : "${sujet}". Pas de magie. Fin positive. Termine par "FIN".`;
 
             try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: promptIA }] }] })
-                });
-
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder("utf-8");
-                let fullText = "";
-
+                const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: promptIA }] }] }) });
+                const reader = response.body.getReader(); const decoder = new TextDecoder("utf-8"); let currentSentence = "";
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) {
-                        statusLabel.classList.remove('status-animating');
-                        statusLabel.innerText = "L'aventure est prête !";
+                        statusLabel.classList.remove('status-animating'); statusLabel.innerText = "L'aventure est prête !";
                         if (currentSentence.trim()) { speechQueue.push(currentSentence.trim()); parler(); }
                         break;
                     }
-                    const chunk = decoder.decode(value);
-                    const lines = chunk.split("\n");
+                    const chunk = decoder.decode(value); const lines = chunk.split("\n");
                     for (const line of lines) {
                         if (line.startsWith("data: ")) {
                             try {
                                 const json = JSON.parse(line.substring(6));
                                 const chunkText = json.candidates[0].content.parts[0].text;
-                                fullText += chunkText; currentSentence += chunkText;
-                                document.getElementById('story-text').innerText = fullText;
-                                document.getElementById('story-card').scrollTop = document.getElementById('story-card').scrollHeight;
+                                currentSentence += chunkText;
+                                // SUPPRIMÉ : Mise à jour du texte visuel
                                 if (/[.!?\n]/.test(chunkText)) {
                                     const parts = currentSentence.split(/([.!?\n])/);
-                                    for (let i = 0; i < parts.length - 1; i += 2) {
-                                        const p = (parts[i] + (parts[i+1] || "")).trim();
-                                        if (p.length > 2) { speechQueue.push(p); parler(); }
-                                    }
+                                    for (let i = 0; i < parts.length - 1; i += 2) { const p = (parts[i] + (parts[i+1] || "")).trim(); if (p.length > 2) { speechQueue.push(p); parler(); } }
                                     currentSentence = parts[parts.length - 1];
                                 }
                             } catch(e) {}
@@ -394,9 +266,7 @@
 
         function parler() {
             if (isSpeaking || speechQueue.length === 0) return;
-            isSpeaking = true;
-            let txt = speechQueue.shift();
-            const utter = new SpeechSynthesisUtterance(txt);
+            isSpeaking = true; let txt = speechQueue.shift(); const utter = new SpeechSynthesisUtterance(txt);
             utter.voice = bestVoice; utter.lang = 'fr-FR'; utter.pitch = 1.05; utter.rate = 0.83; 
             utter.onend = () => { isSpeaking = false; if(speechQueue.length === 0) toggleStopButton(false); parler(); };
             synth.speak(utter);
@@ -404,34 +274,19 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('toggle-input').onclick = () => document.getElementById('keyboard-area').classList.toggle('hidden');
-            document.getElementById('btn-ok').onclick = () => {
-                const val = document.getElementById('manualInput').value.trim();
-                if(val) appelIA(val);
-            };
+            document.getElementById('btn-ok').onclick = () => { const val = document.getElementById('manualInput').value.trim(); if(val) appelIA(val); };
             document.getElementById('btn-mic').onclick = () => {
-                const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-                if (!Speech) return alert("Micro non supporté.");
+                const Speech = window.SpeechRecognition || window.webkitSpeechRecognition; if (!Speech) return alert("Micro non supporté.");
                 const rec = new Speech(); rec.lang = 'fr-FR';
-                rec.onstart = () => {
-                    document.getElementById('btn-mic').classList.add('mic-listening');
-                    document.getElementById('status').innerText = "Je t'écoute...";
-                };
-                rec.onresult = (e) => {
-                    const p = e.results[0][0].transcript;
-                    document.getElementById('manualInput').value = p;
-                    appelIA(p);
-                };
+                rec.onstart = () => { document.getElementById('btn-mic').classList.add('mic-listening'); document.getElementById('status').innerText = "Je t'écoute..."; };
+                rec.onresult = (e) => { const p = e.results[0][0].transcript; document.getElementById('manualInput').value = p; appelIA(p); };
                 rec.onend = () => document.getElementById('btn-mic').classList.remove('mic-listening');
                 rec.onerror = () => document.getElementById('status').innerText = "Je n'ai pas entendu...";
                 try { rec.start(); } catch (e) {}
             };
             document.getElementById('btn-stop').onclick = stopAudio;
         });
-
-        if (!API_KEY) {
-            const k = prompt("Entre ta clé API Gemini :");
-            if (k) { localStorage.setItem('BOITE_FINAL_KEY_2026', k); API_KEY = k; location.reload(); }
-        }
+        if (!API_KEY) { const k = prompt("Entre ta clé API Gemini :"); if (k) { localStorage.setItem('BOITE_FINAL_KEY_2026', k); API_KEY = k; location.reload(); } }
         function reinitialiserCle() { localStorage.removeItem('BOITE_FINAL_KEY_2026'); location.reload(); }
     </script>
 </body>
