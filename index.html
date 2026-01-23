@@ -61,19 +61,22 @@
 
         .mic-listening { background: rgba(99, 102, 241, 0.15) !important; border-color: #818cf8 !important; box-shadow: 0 0 50px rgba(99, 102, 241, 0.6) !important; transform: scale(1.1); }
         
-        /* --- ÉCRAN D'IMAGE FIXE --- */
+        /* --- ÉCRAN D'IMAGE --- */
         #story-display {
             width: 100%; max-width: 500px; aspect-ratio: 1/1;
-            background: rgba(255, 255, 255, 0.3); backdrop-filter: blur(20px);
+            /* Fond de secours coloré pendant le chargement */
+            background: linear-gradient(135deg, #e0e7ff, #f5f3ff);
+            backdrop-filter: blur(20px);
             border-radius: 3rem; border: 4px solid white;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
             overflow: hidden; position: relative; margin-top: 2rem;
+            display: flex; align-items: center; justify-content: center;
         }
 
         #story-image {
-            width: 100%; height: 100%; object-cover: cover;
+            width: 100%; height: 100%; object-fit: cover;
+            opacity: 0;
             transition: opacity 1s ease-in-out;
-            /* Léger zoom lent pour donner de la vie sans recharger */
             animation: slowZoom 60s linear infinite;
         }
 
@@ -82,7 +85,7 @@
             100% { transform: scale(1.1); }
         }
 
-        .image-loading { filter: blur(20px); opacity: 0.8; }
+        .image-visible { opacity: 1 !important; }
 
         /* --- UI --- */
         .status-box { background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px); padding: 0.6rem 1.8rem; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.5); margin-top: 1.5rem; }
@@ -133,7 +136,7 @@
             </div>
 
             <div id="story-display" class="hidden">
-                <img id="story-image" src="" alt="Illustration de l'aventure" class="image-loading">
+                <img id="story-image" src="" alt="Illustration de l'aventure">
             </div>
 
             <div id="keyboard-area" class="w-full flex gap-2 glass-ui p-2 rounded-2xl shadow-xl hidden">
@@ -174,20 +177,32 @@
             osc.start(); osc.stop(audioCtx.currentTime + 0.5);
         }
 
+        function loadVoices() {
+            const voices = synth.getVoices();
+            bestVoice = voices.find(v => v.lang.includes('fr') && (v.name.includes('Siri') || v.name.includes('Premium') || v.name.includes('Google')))
+                       || voices.find(v => v.lang.includes('fr'));
+        }
+        synth.onvoiceschanged = loadVoices; loadVoices();
+
         async function genererImage(sujet) {
             const imgEl = document.getElementById('story-image');
-            imgEl.classList.add('image-loading'); // Flou de chargement
+            imgEl.classList.remove('image-visible');
             
-            const promptImage = `Cinematic 3d digital art for children, vivid aurora colors, soft lighting, magical atmosphere, detailed environment, ${sujet}`;
+            // On nettoie le sujet pour l'URL
+            const cleanSujet = sujet.replace(/[^\w\s]/gi, '').trim();
+            const promptImage = `Cinematic 3d digital art for children, vivid aurora colors, soft lighting, magical atmosphere, high definition, ${cleanSujet}`;
             const seed = Math.floor(Math.random() * 1000000);
+            
+            // URL Directe
             const url = `https://pollinations.ai/p/${encodeURIComponent(promptImage)}?width=1024&height=1024&seed=${seed}&model=flux&nologo=true`;
             
-            // Préchargement de l'image avant affichage
-            const tempImg = new Image();
-            tempImg.src = url;
-            tempImg.onload = () => {
-                imgEl.src = url;
-                imgEl.classList.remove('image-loading');
+            imgEl.src = url;
+            imgEl.onload = () => {
+                imgEl.classList.add('image-visible');
+            };
+            imgEl.onerror = () => {
+                console.error("Erreur de chargement d'image");
+                document.getElementById('story-display').style.background = "linear-gradient(45deg, #818cf8, #34d399)";
             };
         }
 
@@ -195,7 +210,6 @@
             synth.cancel(); speechQueue = []; isSpeaking = false;
             document.getElementById('status').classList.remove('status-animating');
             toggleStopButton(false);
-            // Masquer l'image à l'arrêt
             document.getElementById('story-display').classList.add('hidden');
         }
 
@@ -217,20 +231,20 @@
             statusLabel.innerText = "Je tisse ton aventure...";
             statusLabel.classList.add('status-animating');
             
-            // Préparer l'image fixe
+            // Afficher et lancer l'image
             display.classList.remove('hidden');
             genererImage(sujet);
 
             setTimeout(() => { btnMic.classList.remove('understood-flash'); toggleStopButton(true); }, 800);
 
             const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${API_KEY}`;
-            const promptIA = `Raconte une aventure réaliste et captivante pour un enfant sur : "${sujet}". Pas de magie. Pas de texte spécial. STRUCTURE : Début, milieu, fin positive. Termine par le mot "FIN".`;
+            const promptIA = `Raconte une aventure réaliste et captivante pour un enfant sur : "${sujet}". Pas de magie. STRUCTURE : Début, milieu, fin positive. Termine par le mot "FIN".`;
 
             try {
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: promptIA }] }] })
+                    body: JSON.stringify({ contents: [{ parts: [{ text: promptIA }] }], generationConfig: { temperature: 0.7 } })
                 });
 
                 const reader = response.body.getReader();
@@ -239,7 +253,11 @@
 
                 while (true) {
                     const { done, value } = await reader.read();
-                    if (done) { if (currentSentence.trim()) speechQueue.push(currentSentence.trim()); parler(); break; }
+                    if (done) { 
+                        if (currentSentence.trim()) speechQueue.push(currentSentence.trim()); 
+                        parler(); 
+                        break; 
+                    }
                     const chunk = decoder.decode(value);
                     const lines = chunk.split("\n");
                     for (const line of lines) {
@@ -248,7 +266,7 @@
                                 const json = JSON.parse(line.substring(6));
                                 const text = json.candidates[0].content.parts[0].text;
                                 currentSentence += text;
-                                if (/[.!?]/.test(text)) {
+                                if (/[.!?\n]/.test(text)) {
                                     speechQueue.push(currentSentence.trim());
                                     currentSentence = "";
                                     parler();
@@ -266,7 +284,15 @@
             let txt = speechQueue.shift().replace(/[#*`_]/g, '');
             const utter = new SpeechSynthesisUtterance(txt);
             utter.lang = 'fr-FR'; utter.pitch = 1.05; utter.rate = 0.83; 
-            utter.onend = () => { isSpeaking = false; if(speechQueue.length === 0) { toggleStopButton(false); document.getElementById('status').innerText = "Histoire terminée ✨"; } parler(); };
+            utter.onend = () => { 
+                isSpeaking = false; 
+                if(speechQueue.length === 0) { 
+                    toggleStopButton(false); 
+                    document.getElementById('status').innerText = "Histoire terminée ✨"; 
+                    document.getElementById('status').classList.remove('status-animating');
+                } 
+                parler(); 
+            };
             window.speechSynthesis.speak(utter);
         }
 
@@ -284,6 +310,7 @@
             };
             document.getElementById('btn-stop').onclick = stopAudio;
         });
+        function reinitialiserCle() { localStorage.removeItem('BOITE_FINAL_KEY_2026'); location.reload(); }
     </script>
 </body>
 </html>
