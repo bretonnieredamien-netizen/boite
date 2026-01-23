@@ -31,12 +31,11 @@
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none; /* Important pour cliquer au travers */
+            pointer-events: none;
             z-index: 1;
         }
 
         .hidden { display: none !important; }
-        /* Contenu au-dessus des étoiles (z-index 10) */
         .content-layer { position: relative; z-index: 10; width: 100%; display: flex; flex-direction: column; align-items: center; }
 
         /* --- LOGO HAUT-GAUCHE --- */
@@ -58,19 +57,19 @@
             text-transform: lowercase;
         }
 
-        /* --- LOGO CENTRAL --- */
-        .modern-logo {
-            font-weight: 900;
-            font-size: 3.2rem;
-            background: linear-gradient(135deg, #22d3ee, #818cf8, #c084fc, #34d399);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 4px 15px rgba(129, 140, 248, 0.4));
-            letter-spacing: -0.04em;
-            text-transform: lowercase;
+        /* --- NOUVEAU LOGO GRAPHIQUE CENTRAL --- */
+        .logo-container {
+            width: 220px; /* Taille du logo */
+            height: 220px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Animation identique au texte précédent */
             opacity: 0;
             animation: introFade 2s ease-out forwards, slowBeat 5s ease-in-out infinite 2s;
+            filter: drop-shadow(0 10px 25px rgba(129, 140, 248, 0.5));
         }
+
         @keyframes introFade { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
         @keyframes slowBeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
 
@@ -107,7 +106,7 @@
             padding: 0.6rem 1.8rem;
             border-radius: 9999px;
             border: 1px solid rgba(255, 255, 255, 0.5);
-            margin-top: 1.5rem;
+            margin-top: 1rem;
         }
 
         .understood-flash {
@@ -134,14 +133,58 @@
             <span class="mini-logo-text">tbm.</span>
         </div>
 
-        <header class="text-center flex flex-col items-center mt-12">
-            <h1 class="modern-logo">ta boite magique</h1>
+        <header class="text-center flex flex-col items-center mt-6">
+            <div class="logo-container">
+                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="auroraFill" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#22d3ee;stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:#818cf8;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#c084fc;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="lightBeam" x1="0.5" y1="1" x2="0.5" y2="0">
+                             <stop offset="0%" stop-color="#fff" stop-opacity="0.6"/>
+                             <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+                        </linearGradient>
+                    </defs>
+                    
+                    <path d="M70 80 L50 20 L90 20 Z" fill="url(#lightBeam)" opacity="0.6"/>
+                    <path d="M100 85 L100 10 L120 10 Z" fill="url(#lightBeam)" opacity="0.8"/>
+                    <path d="M130 80 L150 20 L110 20 Z" fill="url(#lightBeam)" opacity="0.6"/>
+
+                    <path d="M50 80 L150 80 L140 160 L60 160 Z" fill="url(#auroraFill)" stroke="white" stroke-width="3" stroke-linejoin="round"/>
+                    
+                    <path d="M50 80 L20 60 L60 60 L80 80 Z" fill="#818cf8" stroke="white" stroke-width="2" opacity="0.9"/>
+                    
+                    <path d="M150 80 L180 60 L140 60 L120 80 Z" fill="#c084fc" stroke="white" stroke-width="2" opacity="0.9"/>
+                    
+                    <path d="M60 80 L140 80 L120 60 L80 60 Z" fill="#34d399" opacity="0.7"/>
+
+                    <path d="M50 80 L150 80 L170 100 L30 100 Z" fill="url(#auroraFill)" stroke="white" stroke-width="2" opacity="0.8"/>
+
+                    <circle cx="100" cy="50" r="5" fill="#fff" filter="drop-shadow(0 0 5px #fff)">
+                        <animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite"/>
+                    </circle>
+                    <circle cx="60" cy="40" r="3" fill="#22d3ee">
+                        <animate attributeName="cy" values="40;30;40" dur="3s" repeatCount="indefinite"/>
+                    </circle>
+                    <circle cx="140" cy="45" r="4" fill="#c084fc">
+                        <animate attributeName="cy" values="45;35;45" dur="2.5s" repeatCount="indefinite"/>
+                    </circle>
+                    
+                    <path d="M100 30 L103 40 L113 40 L105 48 L108 58 L100 52 L92 58 L95 48 L87 40 L97 40 Z" fill="#fef08a" filter="drop-shadow(0 0 8px #fbbf24)">
+                         <animateTransform attributeName="transform" type="scale" values="1;1.2;1" dur="1.5s" repeatCount="indefinite" additive="sum" transform-origin="100 45"/>
+                         <animateTransform attributeName="transform" type="rotate" values="0 100 45; 360 100 45" dur="10s" repeatCount="indefinite" additive="sum"/>
+                    </path>
+                </svg>
+            </div>
+
             <div class="status-box">
                 <p id="status" class="text-indigo-900/60 font-semibold italic text-sm">Dis-moi ton idée pour une histoire...</p>
             </div>
         </header>
 
-        <main class="w-full max-w-md flex flex-col items-center gap-14 mt-12">
+        <main class="w-full max-w-md flex flex-col items-center gap-14 mt-8">
             
             <div class="flex items-center justify-center gap-12 w-full">
                 <div class="flex flex-col items-center gap-4">
@@ -181,7 +224,7 @@
     </div>
 
     <script>
-        /* --- SYSTÈME DE POUSSIÈRE D'ÉTOILES (CORRIGÉ) --- */
+        /* --- SYSTÈME DE POUSSIÈRE D'ÉTOILES --- */
         const canvas = document.getElementById('starfield');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -201,14 +244,12 @@
                 this.size = Math.random() * 2 + 0.5;
                 this.speed = Math.random() * 0.02 + 0.01;
                 this.opacity = Math.random() * 0.8;
-                // COULEUR CORRIGÉE : Or ou Indigo (visible sur fond clair)
                 this.color = Math.random() > 0.5 ? "251, 191, 36" : "129, 140, 248";
                 this.direction = Math.random() > 0.5 ? 1 : -1;
             }
             update() {
-                this.y -= this.speed; // Monte doucement
-                this.x += Math.sin(this.y * 0.01) * 0.2; // Léger flottement
-
+                this.y -= this.speed; 
+                this.x += Math.sin(this.y * 0.01) * 0.2; 
                 if (this.y < 0) this.reset();
             }
             draw() {
