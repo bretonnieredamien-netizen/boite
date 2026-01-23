@@ -12,7 +12,7 @@
         #story-card::-webkit-scrollbar { width: 8px; }
         #story-card::-webkit-scrollbar-thumb { background: #fcd34d; border-radius: 10px; }
         
-        /* Étoiles magiques */
+        /* Effet d'étoiles magiques */
         .star { position: absolute; color: #fbbf24; animation: blink 1.5s infinite; pointer-events: none; z-index: 50; }
         @keyframes blink { 0%, 100% { opacity: 0; transform: scale(0.5); } 50% { opacity: 1; transform: scale(1.2); } }
         
@@ -24,7 +24,7 @@
 
     <header class="text-center my-6">
         <h1 class="text-4xl font-bold text-amber-600 drop-shadow-sm">Ma Boîte Magique ✨</h1>
-        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Prêt pour une aventure complète !</p>
+        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Une voix douce pour de beaux rêves...</p>
     </header>
 
     <div id="image-box" class="w-full max-w-md aspect-square bg-white rounded-[2.5rem] shadow-2xl border-4 border-white overflow-hidden mb-6 hidden">
@@ -61,6 +61,21 @@
         let isSpeaking = false;
         let currentSentence = "";
         let magicInterval;
+        let bestVoice = null;
+
+        // --- SÉLECTION DE LA MEILLEURE VOIX DISPONIBLE ---
+        function selectBestVoice() {
+            const voices = synth.getVoices();
+            // On cherche en priorité les voix "humaines" de haute qualité
+            bestVoice = voices.find(v => v.lang.includes('fr') && (v.name.includes('Siri') || v.name.includes('Premium') || v.name.includes('Enhanced') || v.name.includes('Google')))
+                       || voices.find(v => v.lang.includes('fr'));
+        }
+        
+        // Certains navigateurs chargent les voix de manière asynchrone
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = selectBestVoice;
+        }
+        selectBestVoice();
 
         function verifierCle() {
             if (!API_KEY) {
@@ -94,21 +109,15 @@
             document.getElementById('story-text').innerText = ""; 
             document.getElementById('story-card').classList.remove('hidden', 'speaking-glow');
             
-            // Image améliorée avec style précis
             document.getElementById('image-box').classList.remove('hidden');
             const styleImg = "breathtaking watercolor illustration, professional children storybook style, vibrant pastel, magical light, fairy tale, ";
             document.getElementById('story-img').src = `https://pollinations.ai/p/${encodeURIComponent(styleImg + sujet)}?width=1024&height=1024&seed=${Math.floor(Math.random()*1000)}&model=flux&nologo=true`;
 
             const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${API_KEY}`;
             
-            // PROMPT AVEC CONTRÔLE DE FIN STRICT
             const consigne = `Raconte une épopée magique longue et merveilleuse pour un enfant sur : "${sujet}".
-            PLAN OBLIGATOIRE QUE TU DOIS FINIR :
-            1. Une introduction qui pose le décor magique.
-            2. Trois chapitres d'aventures riches en détails et émotions.
-            3. Une CONCLUSION claire, douce et joyeuse qui termine l'histoire.
-            IMPORTANT : Tu as une limite de place. Tu DOIS avoir terminé et écrit le mot "FIN" avant d'être coupé. Surveille ton avancement pour ne pas t'arrêter au milieu de l'action.
-            Ton ton est calme, posé et très féérique.`;
+            L'histoire doit être complète (Début, Aventures, Fin heureuse).
+            Utilise un vocabulaire riche, doux et poétique. Ne coupe pas l'histoire brusquement.`;
 
             try {
                 const response = await fetch(url, {
@@ -144,6 +153,7 @@
                                 document.getElementById('story-text').innerText = fullText;
                                 document.getElementById('story-card').scrollTop = document.getElementById('story-card').scrollHeight;
 
+                                // On découpe par phrases pour une intonation plus naturelle
                                 if (/[.!?\n]/.test(textChunk)) {
                                     const parts = currentSentence.split(/([.!?\n])/);
                                     for (let i = 0; i < parts.length - 1; i += 2) {
@@ -159,31 +169,31 @@
                         }
                     }
                 }
-                document.getElementById('status').innerText = "L'aventure est complète ✨";
             } catch (e) { clearInterval(magicInterval); alert("La magie a besoin de repos."); }
         }
 
+        // --- LA VOIX FÉÉRIQUE ET HUMAINE ---
         function parler() {
             if (isSpeaking || speechQueue.length === 0) return;
             isSpeaking = true;
             document.getElementById('story-card').classList.add('speaking-glow');
             
             const utter = new SpeechSynthesisUtterance(speechQueue.shift());
-            const voices = synth.getVoices();
-            // Sélection de la meilleure voix
-            const douce = voices.find(v => v.lang.includes('fr') && (v.name.includes('Google') || v.name.includes('Siri') || v.name.includes('Premium'))) || voices.find(v => v.lang.includes('fr'));
             
-            if (douce) utter.voice = douce;
+            if (!bestVoice) selectBestVoice();
+            utter.voice = bestVoice;
             utter.lang = 'fr-FR';
             
-            // RÉGLAGES FÉÉRIQUES (DOUX ET CALMES)
-            utter.pitch = 1.35; // Voix cristalline
-            utter.rate = 0.83;  // Calme et posé
-            
+            // PARAMÈTRES POUR UN EFFET "DOUX ET CALME"
+            utter.pitch = 1.15; // Un peu plus haut pour la féérie (mais pas trop pour rester humain)
+            utter.rate = 0.88;  // Un peu plus lent que la parole normale pour le côté "conte"
+            utter.volume = 1;
+
             utter.onend = () => {
                 isSpeaking = false;
                 document.getElementById('story-card').classList.remove('speaking-glow');
-                parler();
+                // Petite pause entre les phrases pour laisser respirer l'histoire
+                setTimeout(parler, 300); 
             };
             synth.speak(utter);
         }
