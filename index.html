@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Short+Stack&display=swap" rel="stylesheet">
     <style>
-        /* Fond Aurore Boréale Animé */
+        /* Fond Moderne Animé */
         body { 
             font-family: 'Short Stack', cursive; 
             background: linear-gradient(-45deg, #fff7ed, #fef9c3, #ede9fe, #fae8ff);
@@ -15,7 +15,6 @@
             animation: gradientBG 15s ease infinite;
             touch-action: manipulation; 
             overflow-x: hidden; 
-            min-height: 100vh;
         }
         @keyframes gradientBG {
             0% { background-position: 0% 50%; }
@@ -24,44 +23,211 @@
         }
 
         .hidden { display: none !important; }
+        #story-card::-webkit-scrollbar { width: 8px; }
+        #story-card::-webkit-scrollbar-thumb { background: #fcd34d; border-radius: 10px; }
         
-        /* --- PARTICULES LUMINEUSES --- */
-        .particle { 
-            position: absolute; background: #fbbf24; border-radius: 50%; 
-            box-shadow: 0 0 10px 2px rgba(251, 191, 36, 0.6); pointer-events: none; 
-            z-index: 50; opacity: 0; animation: floatUp ease-out forwards;
-        }
-        @keyframes floatUp {
-            0% { opacity: 0; transform: translateY(20px) scale(0.3); }
-            20% { opacity: 0.8; }
-            100% { opacity: 0; transform: translateY(-80px) scale(0); }
-        }
-
-        /* --- EFFET COUVERTURE DE LIVRE 3D --- */
-        #book-container { perspective: 1000px; }
-        #image-box {
-            position: relative; aspect-ratio: 3 / 4; background: #fff;
-            border-radius: 4px 15px 15px 4px;
-            box-shadow: 15px 15px 40px rgba(0,0,0,0.3);
-            border-left: 12px solid #92400e; /* Tranche du livre */
-            overflow: hidden; transform: rotateY(-8deg); 
-            border: 5px solid white; transition: all 1s ease;
-        }
+        /* Étoiles magiques */
+        .star { position: absolute; color: #fbbf24; animation: blink 1.5s infinite; pointer-events: none; z-index: 50; }
+        @keyframes blink { 0%, 100% { opacity: 0; transform: scale(0.5); } 50% { opacity: 1; transform: scale(1.2); } }
         
         /* Aura de la boîte qui parle */
         .speaking-glow { box-shadow: 0 0 35px #fbbf24; border: 4px solid #fbbf24 !important; transition: all 0.5s ease; }
 
-        /* BOUTON MICRO ORBE */
+        /* NOUVEAU BOUTON MICRO : ORBE MAGIQUE */
         #btn-mic {
             background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-            border: 4px solid rgba(255, 255, 255, 0.5);
+            border: 4px solid rgba(255, 255, 255, 0.4);
             box-shadow: 0 10px 25px -5px rgba(251, 191, 36, 0.5);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
         }
+
+        #btn-mic:hover { transform: scale(1.05); box-shadow: 0 15px 35px -5px rgba(251, 191, 36, 0.6); }
+
+        /* Animation quand le micro écoute (Bioluminescence) */
         .mic-listening {
             animation: pulse-mic 1.5s infinite ease-in-out !important;
             background: linear-gradient(135deg, #f87171 0%, #ef4444 100%) !important;
             box-shadow: 0 0 40px 10px rgba(239, 68, 68, 0.5) !important;
+            border-color: rgba(255, 255, 255, 0.8) !important;
         }
-        @keyframes pulse-mic { 0%, 100% { transform:
+
+        @keyframes pulse-mic {
+            0%, 100% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.1); filter: brightness(1.2); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-6 select-none relative">
+
+    <header class="text-center my-6">
+        <h1 class="text-4xl font-bold text-amber-600 drop-shadow-sm">Ma Boîte Magique ✨</h1>
+        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Prête pour une épopée complète !</p>
+    </header>
+
+    <div id="image-box" class="w-full max-w-md aspect-square bg-white rounded-[2.5rem] shadow-2xl border-4 border-white overflow-hidden mb-6 hidden">
+        <img id="story-img" src="" class="w-full h-full object-cover transition-opacity duration-1000" style="opacity:0">
+    </div>
+
+    <div class="w-full max-w-md flex flex-col items-center gap-6">
+        <div class="w-full flex gap-2 bg-white/60 backdrop-blur-md p-2 rounded-2xl border border-amber-200 shadow-sm">
+            <input type="text" id="manualInput" placeholder="Sujet de l'aventure..." 
+                   class="flex-1 bg-white/80 p-4 rounded-xl outline-none text-sm shadow-inner">
+            <button id="btn-ok" class="bg-amber-500 text-white px-6 py-4 rounded-xl font-bold active:scale-95 shadow-md">OK</button>
+        </div>
+
+        <button id="btn-mic" class="p-10 rounded-full backdrop-blur-sm active:scale-90">
+            <span id="mic-icon" class="text-6xl drop-shadow-md">🎤</span>
+        </button>
+    </div>
+
+    <div id="story-card" class="bg-white w-full max-w-md rounded-[2.5rem] shadow-xl border-4 border-amber-50 p-8 mt-10 hidden max-h-[500px] overflow-y-auto">
+        <div id="audio-controls" class="flex justify-center gap-4 mb-4 sticky top-0 bg-white/90 py-2">
+            <button id="btn-stop" class="bg-red-100 text-red-700 px-6 py-2 rounded-full text-xs font-bold shadow-sm uppercase">⏹ Arrêter</button>
+        </div>
+        <div id="story-text" class="text-lg leading-relaxed text-gray-800 italic whitespace-pre-line"></div>
+    </div>
+
+    <button onclick="reinitialiserCle()" class="mt-20 text-gray-400 text-[10px] uppercase underline tracking-widest">Réinitialiser la clé API</button>
+
+    <script>
+        let API_KEY = localStorage.getItem('BOITE_FINAL_KEY_2026');
+        const MODEL_ID = "models/gemini-2.5-flash"; 
+        const synth = window.speechSynthesis;
+        let speechQueue = [];
+        let isSpeaking = false;
+        let currentSentence = "";
+        let magicInterval;
+        let bestVoice = null;
+
+        function loadVoices() {
+            const voices = synth.getVoices();
+            bestVoice = voices.find(v => v.lang.includes('fr') && (v.name.includes('Siri') || v.name.includes('Premium') || v.name.includes('Google')))
+                       || voices.find(v => v.lang.includes('fr'));
+        }
+        synth.onvoiceschanged = loadVoices;
+        loadVoices();
+
+        function reinitialiserCle() { localStorage.removeItem('BOITE_FINAL_KEY_2026'); location.reload(); }
+        if (!API_KEY) {
+            const k = prompt("Entre ta clé API Gemini :");
+            if (k) { localStorage.setItem('BOITE_FINAL_KEY_2026', k); API_KEY = k; location.reload(); }
+        }
+
+        function creerEtoile() {
+            const star = document.createElement('div');
+            star.className = 'star'; star.innerHTML = '✨';
+            star.style.left = Math.random() * 100 + 'vw'; star.style.top = Math.random() * 100 + 'vh';
+            document.body.appendChild(star);
+            setTimeout(() => star.remove(), 1500);
+        }
+
+        function stopAudio() {
+            synth.cancel(); speechQueue = []; isSpeaking = false; currentSentence = "";
+            document.getElementById('story-card').classList.remove('speaking-glow');
+        }
+
+        async function appelIA(sujet) {
+            if (!API_KEY) return alert("Pas de clé !");
+            stopAudio();
+            magicInterval = setInterval(creerEtoile, 250);
+            
+            document.getElementById('status').innerText = "✨ Tissage du conte...";
+            document.getElementById('story-text').innerText = ""; 
+            document.getElementById('story-card').classList.remove('hidden');
+            
+            const imgEl = document.getElementById('story-img');
+            document.getElementById('image-box').classList.remove('hidden');
+            imgEl.style.opacity = "0";
+            imgEl.src = `https://pollinations.ai/p/${encodeURIComponent("soft watercolor fairytale illustration, book style, vibrant pastel, magical light, " + sujet)}?width=1024&height=1024&seed=${Math.random()}&model=flux&nologo=true`;
+            imgEl.onload = () => imgEl.style.opacity = "1";
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${API_KEY}`;
+            const promptIA = `Raconte une épopée magique riche et merveilleuse sur : "${sujet}". 
+            STRUCTURE : Intro féérique, voyage avec rebondissements, et FIN complète joyeuse. 
+            IMPORTANT : Termine par le mot "FIN". N'utilise AUCUN symbole (#, *, **). Uniquement du texte pur. Voix douce.`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: promptIA }] }], generationConfig: { temperature: 0.8, maxOutputTokens: 3800 } })
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let fullText = "";
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) {
+                        if (currentSentence.trim()) { speechQueue.push(currentSentence.trim()); parler(); }
+                        clearInterval(magicInterval); break;
+                    }
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split("\n");
+                    for (const line of lines) {
+                        if (line.startsWith("data: ")) {
+                            try {
+                                const json = JSON.parse(line.substring(6));
+                                const chunkText = json.candidates[0].content.parts[0].text;
+                                fullText += chunkText; currentSentence += chunkText;
+                                document.getElementById('story-text').innerText = fullText;
+                                document.getElementById('story-card').scrollTop = document.getElementById('story-card').scrollHeight;
+                                if (/[.!?\n]/.test(chunkText)) {
+                                    const parts = currentSentence.split(/([.!?\n])/);
+                                    for (let i = 0; i < parts.length - 1; i += 2) {
+                                        const p = (parts[i] + (parts[i+1] || "")).trim();
+                                        if (p.length > 2) { speechQueue.push(p); parler(); }
+                                    }
+                                    currentSentence = parts[parts.length - 1];
+                                }
+                            } catch(e) {}
+                        }
+                    }
+                }
+            } catch (e) { clearInterval(magicInterval); alert("Erreur magique."); }
+        }
+
+        function parler() {
+            if (isSpeaking || speechQueue.length === 0) return;
+            isSpeaking = true;
+            document.getElementById('story-card').classList.add('speaking-glow');
+            let txt = speechQueue.shift().replace(/[#*`_]/g, '');
+            const utter = new SpeechSynthesisUtterance(txt);
+            if (!bestVoice) loadVoices();
+            utter.voice = bestVoice; utter.lang = 'fr-FR'; utter.pitch = 1.35; utter.rate = 0.83; 
+            utter.onend = () => { isSpeaking = false; document.getElementById('story-card').classList.remove('speaking-glow'); setTimeout(parler, 250); };
+            synth.speak(utter);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('btn-ok').addEventListener('click', () => {
+                const val = document.getElementById('manualInput').value.trim();
+                if(val) appelIA(val);
+            });
+
+            document.getElementById('btn-mic').addEventListener('click', () => {
+                const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (!Speech) return alert("Micro non supporté.");
+                const rec = new Speech();
+                rec.lang = 'fr-FR';
+                rec.onstart = () => {
+                    document.getElementById('btn-mic').classList.add('mic-listening');
+                    document.getElementById('status').innerText = "✨ Je t'écoute...";
+                };
+                rec.onresult = (e) => {
+                    const p = e.results[0][0].transcript;
+                    document.getElementById('manualInput').value = p;
+                    appelIA(p);
+                };
+                rec.onend = () => document.getElementById('btn-mic').classList.remove('mic-listening');
+                rec.onerror = () => document.getElementById('btn-mic').classList.remove('mic-listening');
+                try { rec.start(); } catch (e) {}
+            });
+
+            document.getElementById('btn-stop').addEventListener('click', stopAudio);
+        });
+    </script>
+</body>
+</html>
