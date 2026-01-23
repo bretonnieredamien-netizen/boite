@@ -41,6 +41,10 @@
             box-shadow: 0 10px 25px -5px rgba(251, 191, 36, 0.5);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer;
+            /* Ajout d'un display flex pour bien centrer la nouvelle icône SVG */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         /* Animation quand le micro écoute (Bioluminescence) */
@@ -48,4 +52,8 @@
             animation: pulse-mic 1.5s infinite ease-in-out !important;
             background: linear-gradient(135deg, #f87171 0%, #ef4444 100%) !important;
             box-shadow: 0 0 40px 10px rgba(239, 68, 68, 0.5) !important;
-            border-color: rgba(255, 255, 2
+            border-color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        @keyframes pulse-mic {
+            0%, 100% { transform: scale(1); filter
