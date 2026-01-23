@@ -3,33 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>La Boîte Magique - Mode Conte Long ✨</title>
+    <title>La Boîte Magique Turbo ✨</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Short+Stack&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Short Stack', cursive; background: #fffdf2; touch-action: manipulation; }
+        body { font-family: 'Short Stack', cursive; background: #fffdf2; touch-action: manipulation; overflow-x: hidden; }
         .hidden { display: none !important; }
         #story-card::-webkit-scrollbar { width: 8px; }
         #story-card::-webkit-scrollbar-thumb { background: #fcd34d; border-radius: 10px; }
-        .speaking-glow { box-shadow: 0 0 30px #fbbf24; border: 4px solid #fbbf24 !important; transition: all 0.5s ease; }
+        
+        /* Étoiles magiques */
+        .star { position: absolute; color: #fbbf24; animation: blink 1.5s infinite; pointer-events: none; z-index: 50; }
+        @keyframes blink { 0%, 100% { opacity: 0; transform: scale(0.5); } 50% { opacity: 1; transform: scale(1.2); } }
+        
+        /* Aura de la boîte qui parle */
+        .speaking-glow { box-shadow: 0 0 35px #fbbf24; border: 4px solid #fbbf24 !important; transition: all 0.5s ease; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center p-6 select-none">
+<body class="min-h-screen flex flex-col items-center p-6 select-none relative">
 
     <header class="text-center my-6">
-        <h1 class="text-4xl font-bold text-amber-600 drop-shadow-sm">Ma Boîte Magique ⚡</h1>
-        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Prêt pour une grande aventure...</p>
+        <h1 class="text-4xl font-bold text-amber-600 drop-shadow-sm">Ma Boîte Magique ✨</h1>
+        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Prêt pour une aventure complète !</p>
     </header>
 
-    <div id="image-box" class="w-full max-w-md aspect-video bg-white rounded-[2rem] shadow-2xl border-4 border-white overflow-hidden mb-6 hidden">
+    <div id="image-box" class="w-full max-w-md aspect-square bg-white rounded-[2.5rem] shadow-2xl border-4 border-white overflow-hidden mb-6 hidden">
         <img id="story-img" src="" class="w-full h-full object-cover">
     </div>
 
     <div class="w-full max-w-md flex flex-col items-center gap-6">
-        <div class="w-full flex gap-2 bg-amber-100/50 p-2 rounded-2xl border border-amber-200">
-            <input type="text" id="manualInput" placeholder="De quoi doit parler l'histoire ?" 
+        <div class="w-full flex gap-2 bg-amber-100/50 p-2 rounded-2xl border border-amber-200 shadow-sm">
+            <input type="text" id="manualInput" placeholder="Sujet de l'aventure..." 
                    class="flex-1 bg-white p-4 rounded-xl outline-none text-sm shadow-inner">
-            <button id="btn-ok" class="bg-amber-500 text-white px-6 py-4 rounded-xl font-bold active:scale-95 shadow-md">CONTER</button>
+            <button id="btn-ok" class="bg-amber-500 text-white px-6 py-4 rounded-xl font-bold active:scale-95 shadow-md">OK</button>
         </div>
 
         <button id="mic-btn" class="bg-amber-400 p-10 rounded-full shadow-2xl border-8 border-white active:scale-90 transition-all">
@@ -44,57 +50,73 @@
         <div id="story-text" class="text-lg leading-relaxed text-gray-800 italic whitespace-pre-line"></div>
     </div>
 
+    <button onclick="reinitialiserCle()" class="mt-20 text-gray-400 text-[10px] uppercase underline tracking-widest">Réinitialiser la clé API</button>
+
     <script>
-        const API_KEY = localStorage.getItem('BOITE_FINAL_KEY_2026');
-        const MODEL_ID = "models/gemini-2.0-flash"; 
+        let API_KEY = localStorage.getItem('BOITE_FINAL_KEY_2026');
+        const MODEL_ID = "models/gemini-2.5-flash"; 
         const synth = window.speechSynthesis;
         
         let speechQueue = [];
         let isSpeaking = false;
         let currentSentence = "";
+        let magicInterval;
 
-        function unlockAudio() {
-            const utter = new SpeechSynthesisUtterance("");
-            synth.speak(utter);
-            synth.resume();
+        function verifierCle() {
+            if (!API_KEY) {
+                const key = prompt("Entrez votre clé API Gemini :");
+                if (key) {
+                    localStorage.setItem('BOITE_FINAL_KEY_2026', key);
+                    API_KEY = key;
+                    location.reload();
+                }
+            }
+        }
+        verifierCle();
+
+        function reinitialiserCle() { localStorage.removeItem('BOITE_FINAL_KEY_2026'); location.reload(); }
+
+        function creerEtoile() {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.innerHTML = '✨';
+            star.style.left = Math.random() * 100 + 'vw';
+            star.style.top = Math.random() * 100 + 'vh';
+            document.body.appendChild(star);
+            setTimeout(() => star.remove(), 1500);
         }
 
         async function appelIA(sujet) {
-            if (!API_KEY) return alert("Clé API manquante !");
-            
-            unlockAudio();
             stopAudio();
+            magicInterval = setInterval(creerEtoile, 250);
             
-            document.getElementById('status').innerText = "✨ L'IA prépare un grand conte...";
+            document.getElementById('status').innerText = "✨ Tissage du conte...";
             document.getElementById('story-text').innerText = ""; 
             document.getElementById('story-card').classList.remove('hidden', 'speaking-glow');
+            
+            // Image améliorée avec style précis
             document.getElementById('image-box').classList.remove('hidden');
-
-            const styleImg = "watercolor fairytale illustration, vibrant, magical, ";
-            document.getElementById('story-img').src = `https://pollinations.ai/p/${encodeURIComponent(styleImg + sujet)}?width=1024&height=768&seed=${Math.random()}&model=flux&nologo=true`;
-
-            // INSTRUCTIONS DE NARRATION LONGUE ET SANS CHOIX
-            const promptLong = `Agis comme un conteur professionnel pour enfants. 
-            Raconte une histoire TRÈS LONGUE, riche en détails et en rebondissements sur le thème : "${sujet}".
-            RÈGLES DE FORMATAGE :
-            1. Utilise UNIQUEMENT des mots simples. 
-            2. INTERDICTION ABSOLUE d'utiliser du gras (**), de l'italique, des listes ou des symboles.
-            3. NE POSE AUCUNE QUESTION à la fin.
-            4. NE PROPOSE AUCUN CHOIX. L'histoire doit avoir une conclusion ferme et douce.
-            5. Développe bien les descriptions pour que l'histoire dure longtemps.`;
+            const styleImg = "breathtaking watercolor illustration, professional children storybook style, vibrant pastel, magical light, fairy tale, ";
+            document.getElementById('story-img').src = `https://pollinations.ai/p/${encodeURIComponent(styleImg + sujet)}?width=1024&height=1024&seed=${Math.floor(Math.random()*1000)}&model=flux&nologo=true`;
 
             const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${API_KEY}`;
             
+            // PROMPT AVEC CONTRÔLE DE FIN STRICT
+            const consigne = `Raconte une épopée magique longue et merveilleuse pour un enfant sur : "${sujet}".
+            PLAN OBLIGATOIRE QUE TU DOIS FINIR :
+            1. Une introduction qui pose le décor magique.
+            2. Trois chapitres d'aventures riches en détails et émotions.
+            3. Une CONCLUSION claire, douce et joyeuse qui termine l'histoire.
+            IMPORTANT : Tu as une limite de place. Tu DOIS avoir terminé et écrit le mot "FIN" avant d'être coupé. Surveille ton avancement pour ne pas t'arrêter au milieu de l'action.
+            Ton ton est calme, posé et très féérique.`;
+
             try {
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: promptLong }] }],
-                        generationConfig: {
-                            maxOutputTokens: 2500, // Augmenté pour permettre une histoire longue
-                            temperature: 0.8
-                        }
+                        contents: [{ parts: [{ text: consigne }] }],
+                        generationConfig: { temperature: 0.8, maxOutputTokens: 3800 }
                     })
                 });
 
@@ -106,10 +128,84 @@
                     const { done, value } = await reader.read();
                     if (done) {
                         if (currentSentence.trim()) { speechQueue.push(currentSentence.trim()); parler(); }
+                        clearInterval(magicInterval);
                         break;
                     }
                     
                     const chunk = decoder.decode(value);
                     const lines = chunk.split("\n");
-                    
-                    for (
+                    for (const line of lines) {
+                        if (line.startsWith("data: ")) {
+                            try {
+                                const json = JSON.parse(line.substring(6));
+                                const textChunk = json.candidates[0].content.parts[0].text;
+                                fullText += textChunk;
+                                currentSentence += textChunk;
+                                document.getElementById('story-text').innerText = fullText;
+                                document.getElementById('story-card').scrollTop = document.getElementById('story-card').scrollHeight;
+
+                                if (/[.!?\n]/.test(textChunk)) {
+                                    const parts = currentSentence.split(/([.!?\n])/);
+                                    for (let i = 0; i < parts.length - 1; i += 2) {
+                                        const phrase = parts[i] + (parts[i+1] || "");
+                                        if (phrase.trim().length > 2) {
+                                            speechQueue.push(phrase.trim());
+                                            parler();
+                                        }
+                                    }
+                                    currentSentence = parts[parts.length - 1];
+                                }
+                            } catch(e) {}
+                        }
+                    }
+                }
+                document.getElementById('status').innerText = "L'aventure est complète ✨";
+            } catch (e) { clearInterval(magicInterval); alert("La magie a besoin de repos."); }
+        }
+
+        function parler() {
+            if (isSpeaking || speechQueue.length === 0) return;
+            isSpeaking = true;
+            document.getElementById('story-card').classList.add('speaking-glow');
+            
+            const utter = new SpeechSynthesisUtterance(speechQueue.shift());
+            const voices = synth.getVoices();
+            // Sélection de la meilleure voix
+            const douce = voices.find(v => v.lang.includes('fr') && (v.name.includes('Google') || v.name.includes('Siri') || v.name.includes('Premium'))) || voices.find(v => v.lang.includes('fr'));
+            
+            if (douce) utter.voice = douce;
+            utter.lang = 'fr-FR';
+            
+            // RÉGLAGES FÉÉRIQUES (DOUX ET CALMES)
+            utter.pitch = 1.35; // Voix cristalline
+            utter.rate = 0.83;  // Calme et posé
+            
+            utter.onend = () => {
+                isSpeaking = false;
+                document.getElementById('story-card').classList.remove('speaking-glow');
+                parler();
+            };
+            synth.speak(utter);
+        }
+
+        function stopAudio() { synth.cancel(); speechQueue = []; isSpeaking = false; currentSentence = ""; document.getElementById('story-card').classList.remove('speaking-glow'); }
+
+        document.getElementById('btn-ok').addEventListener('click', () => {
+            const val = document.getElementById('manualInput').value.trim();
+            if(val) appelIA(val);
+        });
+
+        document.getElementById('mic-btn').addEventListener('click', () => {
+            const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if(!Speech) return alert("Micro non supporté.");
+            const rec = new Speech();
+            rec.lang = 'fr-FR';
+            rec.onresult = (e) => {
+                document.getElementById('manualInput').value = e.results[0][0].transcript;
+                appelIA(e.results[0][0].transcript);
+            };
+            rec.start();
+        });
+    </script>
+</body>
+</html>
