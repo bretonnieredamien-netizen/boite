@@ -27,44 +27,45 @@
         .hidden { display: none !important; }
         .content-layer { position: relative; z-index: 10; width: 100%; display: flex; flex-direction: column; align-items: center; }
 
-        /* --- LOGO HEADER AURORE --- */
-        .header-logo-container {
-            margin-top: 2.5rem;
-            margin-bottom: 2rem;
-            padding: 1rem 2.5rem;
-            background: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(15px);
-            border-radius: 3rem;
-            border: 2px solid rgba(255, 255, 255, 0.6);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
-            animation: floatLogo 4s ease-in-out infinite;
-            display: inline-block;
-        }
-
-        @keyframes floatLogo {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
+        /* --- LOGO SANS CAPSULE AVEC ANIMATIONS --- */
         .modern-logo {
             font-weight: 900;
-            font-size: 2.8rem;
+            font-size: 3.2rem;
             background: linear-gradient(135deg, #22d3ee, #818cf8, #c084fc, #34d399);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 4px 10px rgba(129, 140, 248, 0.3));
+            filter: drop-shadow(0 4px 15px rgba(129, 140, 248, 0.4));
             letter-spacing: -0.04em;
-            line-height: 1;
-            text-transform: lowercase; /* Style logo moderne */
+            text-transform: lowercase;
+            line-height: 1.2;
+            
+            /* Séquence d'animations : Fondu d'entrée puis Battement lent */
+            opacity: 0;
+            animation: 
+                introFade 2s ease-out forwards, 
+                slowBeat 5s ease-in-out infinite 2s;
+        }
+
+        /* Animation 1 : Apparition douce */
+        @keyframes introFade {
+            0% { opacity: 0; transform: translateY(15px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Animation 2 : Battement léger (respiration) */
+        @keyframes slowBeat {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 4px 15px rgba(129, 140, 248, 0.4)); }
+            50% { transform: scale(1.04); filter: drop-shadow(0 8px 25px rgba(129, 140, 248, 0.6)); }
         }
 
         .status-box {
-            background: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.4);
             backdrop-filter: blur(10px);
             padding: 0.6rem 1.8rem;
             border-radius: 9999px;
-            border: 1px solid rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.5);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            margin-top: 1.5rem;
         }
 
         .status-animating {
@@ -111,24 +112,22 @@
 
     <div class="content-layer min-h-screen">
         
-        <header class="text-center flex flex-col items-center">
-            <div class="header-logo-container">
-                <h1 class="modern-logo">ta boite magique</h1>
-            </div>
+        <header class="text-center flex flex-col items-center mt-12">
+            <h1 class="modern-logo">ta boite magique</h1>
             
             <div class="status-box">
                 <p id="status" class="text-indigo-900/60 font-semibold italic text-sm">Dis-moi ton idée pour une histoire...</p>
             </div>
         </header>
 
-        <main class="w-full max-w-md flex flex-col items-center gap-14 mt-8">
+        <main class="w-full max-w-md flex flex-col items-center gap-14 mt-12">
             
             <div class="flex items-center justify-center gap-10 w-full">
                 <div class="flex flex-col items-center gap-3">
                     <button id="btn-mic" class="control-orbe active:scale-90 shadow-2xl">
                         <span id="mic-icon" class="text-6xl drop-shadow-sm">🎤</span>
                     </button>
-                    <span class="text-indigo-900/30 text-[11px] font-bold uppercase tracking-widest">Écouter</span>
+                    <span class="text-indigo-900/30 text-[11px] font-bold uppercase tracking-widest">Parler</span>
                 </div>
 
                 <div id="stop-container" class="flex flex-col items-center gap-3 opacity-20 pointer-events-none transition-all duration-500">
