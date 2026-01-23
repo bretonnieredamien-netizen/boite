@@ -29,109 +29,57 @@
 
         /* --- LOGO SANS CAPSULE --- */
         .modern-logo {
-            font-weight: 900;
-            font-size: 3.2rem;
+            font-weight: 900; font-size: 3.2rem;
             background: linear-gradient(135deg, #22d3ee, #818cf8, #c084fc, #34d399);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             filter: drop-shadow(0 4px 15px rgba(129, 140, 248, 0.4));
-            letter-spacing: -0.04em;
-            text-transform: lowercase;
-            line-height: 1.2;
-            opacity: 0;
-            animation: introFade 2s ease-out forwards, slowBeat 5s ease-in-out infinite 2s;
+            letter-spacing: -0.04em; text-transform: lowercase; line-height: 1.2;
+            opacity: 0; animation: introFade 2s ease-out forwards, slowBeat 5s ease-in-out infinite 2s;
         }
+        @keyframes introFade { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
+        @keyframes slowBeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
 
-        @keyframes introFade {
-            0% { opacity: 0; transform: translateY(15px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes slowBeat {
-            0%, 100% { transform: scale(1); filter: drop-shadow(0 4px 15px rgba(129, 140, 248, 0.4)); }
-            50% { transform: scale(1.04); filter: drop-shadow(0 8px 25px rgba(129, 140, 248, 0.6)); }
-        }
-
-        /* --- BOUTON MICRO : L'ORBE DE CRISTAL --- */
-        #btn-mic {
+        /* --- STYLE COMMUN DES ORBES --- */
+        .orbe-base {
             position: relative;
-            width: 120px;
-            height: 120px;
+            width: 120px; height: 120px;
             background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(15px);
             border-radius: 50%;
             border: 2px solid rgba(255, 255, 255, 0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 10px 30px rgba(129, 140, 248, 0.2), inset 0 0 20px rgba(255, 255, 255, 0.5);
             cursor: pointer;
         }
+        .orbe-base svg { width: 45px; height: 45px; transition: all 0.5s ease; }
 
-        #btn-mic svg {
-            width: 45px;
-            height: 45px;
-            fill: #6366f1; /* Indigo moderne */
-            filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.4));
-            transition: all 0.5s ease;
+        /* --- ORBE MICRO (INDIGO) --- */
+        #btn-mic { box-shadow: 0 10px 30px rgba(129, 140, 248, 0.2), inset 0 0 20px rgba(255, 255, 255, 0.5); }
+        #btn-mic svg { fill: #6366f1; filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.4)); }
+        #btn-mic::after { content: ''; position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px solid #818cf8; opacity: 0; animation: ripple 3s infinite; }
+        @keyframes ripple { 0% { transform: scale(1); opacity: 0.5; } 100% { transform: scale(1.6); opacity: 0; } }
+
+        /* MODE ÉCOUTE BIOLUMINESCENT */
+        .mic-listening { background: rgba(99, 102, 241, 0.15) !important; border-color: #818cf8 !important; box-shadow: 0 0 50px rgba(99, 102, 241, 0.6) !important; transform: scale(1.1); }
+        .mic-listening svg { animation: mic-pulse 1s infinite alternate; }
+        @keyframes mic-pulse { from { transform: scale(1); filter: drop-shadow(0 0 15px #818cf8); } to { transform: scale(1.2); filter: drop-shadow(0 0 25px #c084fc); } }
+
+        /* --- ORBE STOP (ROUGE/ROSE) --- */
+        #btn-stop { 
+            box-shadow: 0 10px 30px rgba(248, 113, 113, 0.1), inset 0 0 20px rgba(255, 255, 255, 0.5); 
+            border-color: rgba(248, 113, 113, 0.4);
+        }
+        #btn-stop svg { fill: #f87171; filter: drop-shadow(0 0 8px rgba(248, 113, 113, 0.4)); }
+        
+        /* Quand actif (IA parle) */
+        #stop-container.opacity-100 #btn-stop {
+            background: rgba(248, 113, 113, 0.15);
+            border-color: #f87171;
+            box-shadow: 0 0 30px rgba(248, 113, 113, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.5);
         }
 
-        /* Animation d'onde au repos */
-        #btn-mic::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 2px solid #818cf8;
-            opacity: 0;
-            animation: ripple 3s infinite;
-        }
-
-        @keyframes ripple {
-            0% { transform: scale(1); opacity: 0.5; }
-            100% { transform: scale(1.6); opacity: 0; }
-        }
-
-        /* ÉTAT ÉCOUTE : BIOLUMINESCENT */
-        .mic-listening {
-            background: rgba(99, 102, 241, 0.15) !important;
-            border-color: #818cf8 !important;
-            box-shadow: 0 0 50px rgba(99, 102, 241, 0.6), inset 0 0 30px rgba(99, 102, 241, 0.4) !important;
-            transform: scale(1.1);
-        }
-
-        .mic-listening svg {
-            fill: #818cf8 !important;
-            animation: mic-pulse 1s infinite alternate;
-        }
-
-        @keyframes mic-pulse {
-            from { transform: scale(1); filter: drop-shadow(0 0 15px #818cf8); }
-            to { transform: scale(1.2); filter: drop-shadow(0 0 25px #c084fc); }
-        }
-
-        /* --- ORBE STOP --- */
-        #btn-stop {
-            width: 100px; height: 100px; border-radius: 50%;
-            background: rgba(248, 113, 113, 0.1);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(248, 113, 113, 0.5);
-            display: flex; align-items: center; justify-content: center;
-            transition: all 0.4s ease;
-        }
-        #btn-stop span { color: #ef4444; font-size: 2.5rem; filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.3)); }
-
-        /* Styles annexes */
-        .status-box {
-            background: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(10px);
-            padding: 0.6rem 1.8rem;
-            border-radius: 9999px;
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            margin-top: 1.5rem;
-        }
+        /* --- AUTRES ÉLÉMENTS --- */
+        .status-box { background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px); padding: 0.6rem 1.8rem; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.5); margin-top: 1.5rem; }
         .status-animating { animation: status-glow 1.5s infinite ease-in-out; color: #6366f1 !important; }
         @keyframes status-glow { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; transform: scale(1.02); } }
         
@@ -157,7 +105,7 @@
             
             <div class="flex items-center justify-center gap-12 w-full">
                 <div class="flex flex-col items-center gap-4">
-                    <button id="btn-mic" class="shadow-2xl">
+                    <button id="btn-mic" class="orbe-base shadow-2xl">
                         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
                             <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
@@ -167,8 +115,10 @@
                 </div>
 
                 <div id="stop-container" class="flex flex-col items-center gap-4 opacity-20 pointer-events-none transition-all duration-500">
-                    <button id="btn-stop" class="active:scale-95 shadow-xl">
-                        <span>⏹</span>
+                    <button id="btn-stop" class="orbe-base shadow-xl">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="6" y="6" width="12" height="12" rx="2" />
+                        </svg>
                     </button>
                     <span class="text-red-900/40 text-[11px] font-bold uppercase tracking-widest">Arrêter</span>
                 </div>
