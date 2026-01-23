@@ -101,4 +101,118 @@
         function creerEtoile() {
             const star = document.createElement('div');
             star.className = 'star'; star.innerHTML = '✨';
-            star.style.left = Math.random() * 100 + 'vw'; star.style.top = Math.random
+            star.style.left = Math.random() * 100 + 'vw'; star.style.top = Math.random() * 100 + 'vh';
+            document.body.appendChild(star);
+            setTimeout(() => star.remove(), 1500);
+        }
+
+        function stopAudio() {
+            synth.cancel(); speechQueue = []; isSpeaking = false; currentSentence = "";
+            document.getElementById('story-card').classList.remove('speaking-glow');
+        }
+
+        async function appelIA(sujet) {
+            if (!API_KEY) return alert("Pas de clé !");
+            stopAudio();
+            magicInterval = setInterval(creerEtoile, 250);
+            
+            document.getElementById('status').innerText = "✨ Tissage du conte...";
+            document.getElementById('story-text').innerText = ""; 
+            document.getElementById('story-card').classList.remove('hidden');
+            
+            const imgEl = document.getElementById('story-img');
+            document.getElementById('image-box').classList.remove('hidden');
+            imgEl.style.opacity = "0";
+            imgEl.src = `https://pollinations.ai/p/${encodeURIComponent("watercolor fairytale illustration, vibrant pastel, " + sujet)}?width=1024&height=1024&seed=${Math.random()}&model=flux&nologo=true`;
+            imgEl.onload = () => imgEl.style.opacity = "1";
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${API_KEY}`;
+            const promptIA = `Raconte une épopée magique riche et merveilleuse sur : "${sujet}". 
+            STRUCTURE : Intro féérique, voyage avec rebondissements, et FIN complète joyeuse. 
+            IMPORTANT : Termine par le mot "FIN". N'utilise AUCUN symbole (#, *, **). Uniquement du texte pur. Voix douce.`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: promptIA }] }], generationConfig: { temperature: 0.8, maxOutputTokens: 3800 } })
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let fullText = "";
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) {
+                        if (currentSentence.trim()) { speechQueue.push(currentSentence.trim()); parler(); }
+                        clearInterval(magicInterval); break;
+                    }
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split("\n");
+                    for (const line of lines) {
+                        if (line.startsWith("data: ")) {
+                            try {
+                                const json = JSON.parse(line.substring(6));
+                                const chunkText = json.candidates[0].content.parts[0].text;
+                                fullText += chunkText; currentSentence += chunkText;
+                                document.getElementById('story-text').innerText = fullText;
+                                document.getElementById('story-card').scrollTop = document.getElementById('story-card').scrollHeight;
+                                if (/[.!?\n]/.test(chunkText)) {
+                                    const parts = currentSentence.split(/([.!?\n])/);
+                                    for (let i = 0; i < parts.length - 1; i += 2) {
+                                        const p = (parts[i] + (parts[i+1] || "")).trim();
+                                        if (p.length > 2) { speechQueue.push(p); parler(); }
+                                    }
+                                    currentSentence = parts[parts.length - 1];
+                                }
+                            } catch(e) {}
+                        }
+                    }
+                }
+            } catch (e) { clearInterval(magicInterval); alert("Erreur magique."); }
+        }
+
+        function parler() {
+            if (isSpeaking || speechQueue.length === 0) return;
+            isSpeaking = true;
+            document.getElementById('story-card').classList.add('speaking-glow');
+            let txt = speechQueue.shift().replace(/[#*`_]/g, '');
+            const utter = new SpeechSynthesisUtterance(txt);
+            if (!bestVoice) loadVoices();
+            utter.voice = bestVoice; utter.lang = 'fr-FR'; utter.pitch = 1.35; utter.rate = 0.83; 
+            utter.onend = () => { isSpeaking = false; document.getElementById('story-card').classList.remove('speaking-glow'); setTimeout(parler, 250); };
+            synth.speak(utter);
+        }
+
+        // --- BRANCHEMENT DES BOUTONS (SÉCURISÉ) ---
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('btn-ok').addEventListener('click', () => {
+                const val = document.getElementById('manualInput').value.trim();
+                if(val) appelIA(val);
+            });
+
+            document.getElementById('btn-mic').addEventListener('click', () => {
+                const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (!Speech) return alert("Micro non supporté.");
+                const rec = new Speech();
+                rec.lang = 'fr-FR';
+                rec.onstart = () => {
+                    document.getElementById('btn-mic').classList.add('mic-listening');
+                    document.getElementById('status').innerText = "✨ Je t'écoute...";
+                };
+                rec.onresult = (e) => {
+                    const p = e.results[0][0].transcript;
+                    document.getElementById('manualInput').value = p;
+                    appelIA(p);
+                };
+                rec.onend = () => document.getElementById('btn-mic').classList.remove('mic-listening');
+                rec.onerror = () => document.getElementById('btn-mic').classList.remove('mic-listening');
+                try { rec.start(); } catch (e) {}
+            });
+
+            document.getElementById('btn-stop').addEventListener('click', stopAudio);
+        });
+    </script>
+</body>
+</html>
