@@ -12,14 +12,12 @@
         #story-card::-webkit-scrollbar { width: 8px; }
         #story-card::-webkit-scrollbar-thumb { background: #fcd34d; border-radius: 10px; }
         
-        /* Étoiles magiques */
         .star { position: absolute; color: #fbbf24; animation: blink 1.5s infinite; pointer-events: none; z-index: 50; }
         @keyframes blink { 0%, 100% { opacity: 0; transform: scale(0.5); } 50% { opacity: 1; transform: scale(1.2); } }
         
-        /* Aura de la boîte qui parle */
         .speaking-glow { box-shadow: 0 0 35px #fbbf24; border: 4px solid #fbbf24 !important; transition: all 0.5s ease; }
 
-        /* Animation quand le micro écoute */
+        /* Animation Micro */
         .mic-listening { animation: pulse-red 1.5s infinite; border: 8px solid #f87171 !important; background-color: #fee2e2 !important; }
         @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.7); } 70% { box-shadow: 0 0 0 20px rgba(248, 113, 113, 0); } 100% { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0); } }
     </style>
@@ -28,7 +26,7 @@
 
     <header class="text-center my-6">
         <h1 class="text-4xl font-bold text-amber-600 drop-shadow-sm">Ma Boîte Magique ✨</h1>
-        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Dis-moi un secret pour une histoire...</p>
+        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Prêt pour une épopée complète !</p>
     </header>
 
     <div id="image-box" class="w-full max-w-md aspect-square bg-white rounded-[2.5rem] shadow-2xl border-4 border-white overflow-hidden mb-6 hidden">
@@ -69,177 +67,4 @@
 
         function selectBestVoice() {
             const voices = synth.getVoices();
-            bestVoice = voices.find(v => v.lang.includes('fr') && (v.name.includes('Siri') || v.name.includes('Premium') || v.name.includes('Google')))
-                       || voices.find(v => v.lang.includes('fr'));
-        }
-        if (speechSynthesis.onvoiceschanged !== undefined) { speechSynthesis.onvoiceschanged = selectBestVoice; }
-        selectBestVoice();
-
-        function verifierCle() {
-            if (!API_KEY) {
-                const key = prompt("Entrez votre clé API Gemini :");
-                if (key) { localStorage.setItem('BOITE_FINAL_KEY_2026', key); API_KEY = key; location.reload(); }
-            }
-        }
-        verifierCle();
-
-        function reinitialiserCle() { localStorage.removeItem('BOITE_FINAL_KEY_2026'); location.reload(); }
-
-        function creerEtoile() {
-            const star = document.createElement('div');
-            star.className = 'star';
-            star.innerHTML = '✨';
-            star.style.left = Math.random() * 100 + 'vw'; star.style.top = Math.random() * 100 + 'vh';
-            document.body.appendChild(star);
-            setTimeout(() => star.remove(), 1500);
-        }
-
-        async function appelIA(sujet) {
-            stopAudio();
-            magicInterval = setInterval(creerEtoile, 250);
-            
-            document.getElementById('status').innerText = "✨ Tissage du conte...";
-            document.getElementById('story-text').innerText = ""; 
-            document.getElementById('story-card').classList.remove('hidden', 'speaking-glow');
-            
-            const imgElement = document.getElementById('story-img');
-            document.getElementById('image-box').classList.remove('hidden');
-            imgElement.style.opacity = "0";
-            
-            const styleImg = "breathtaking soft watercolor fairytale illustration, professional children book style, vibrant pastel, magical light, ";
-            imgElement.src = `https://pollinations.ai/p/${encodeURIComponent(styleImg + sujet)}?width=1024&height=1024&seed=${Math.floor(Math.random()*1000)}&model=flux&nologo=true`;
-            imgElement.onload = () => imgElement.style.opacity = "1";
-
-            const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${API_KEY}`;
-            const consigne = `Raconte une épopée magique longue et merveilleuse pour un enfant sur : "${sujet}".
-            STRUCTURE : Intro poétique, 3 chapitres d'aventures avec rebondissements, Conclusion joyeuse avec le mot FIN.
-            IMPORTANT : N'utilise AUCUN symbole Markdown (#, *, **). Uniquement du texte pur. Ton ton est très doux et féérique.`;
-
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: consigne }] }],
-                        generationConfig: { temperature: 0.8, maxOutputTokens: 3800 }
-                    })
-                });
-
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder("utf-8");
-                let fullText = "";
-
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) {
-                        if (currentSentence.trim()) { speechQueue.push(currentSentence.trim()); parler(); }
-                        clearInterval(magicInterval);
-                        break;
-                    }
-                    
-                    const chunk = decoder.decode(value);
-                    const lines = chunk.split("\n");
-                    for (const line of lines) {
-                        if (line.startsWith("data: ")) {
-                            try {
-                                const json = JSON.parse(line.substring(6));
-                                const textChunk = json.candidates[0].content.parts[0].text;
-                                fullText += textChunk;
-                                currentSentence += textChunk;
-                                document.getElementById('story-text').innerText = fullText;
-                                document.getElementById('story-card').scrollTop = document.getElementById('story-card').scrollHeight;
-
-                                if (/[.!?\n]/.test(textChunk)) {
-                                    const parts = currentSentence.split(/([.!?\n])/);
-                                    for (let i = 0; i < parts.length - 1; i += 2) {
-                                        const phrase = parts[i] + (parts[i+1] || "");
-                                        if (phrase.trim().length > 2) {
-                                            speechQueue.push(phrase.trim());
-                                            parler();
-                                        }
-                                    }
-                                    currentSentence = parts[parts.length - 1];
-                                }
-                            } catch(e) {}
-                        }
-                    }
-                }
-                document.getElementById('status').innerText = "Fin de l'aventure ✨";
-            } catch (e) { clearInterval(magicInterval); alert("La magie se repose."); }
-        }
-
-        function parler() {
-            if (isSpeaking || speechQueue.length === 0) return;
-            isSpeaking = true;
-            document.getElementById('story-card').classList.add('speaking-glow');
-            
-            let rawText = speechQueue.shift();
-            // Nettoyage des symboles au cas où
-            let cleanedText = rawText.replace(/[#*`_]/g, '');
-
-            const utter = new SpeechSynthesisUtterance(cleanedText);
-            if (!bestVoice) selectBestVoice();
-            utter.voice = bestVoice;
-            utter.lang = 'fr-FR';
-            utter.pitch = 1.35; 
-            utter.rate = 0.83; 
-
-            utter.onend = () => {
-                isSpeaking = false;
-                document.getElementById('story-card').classList.remove('speaking-glow');
-                setTimeout(parler, 200); 
-            };
-            synth.speak(utter);
-        }
-
-        function stopAudio() { synth.cancel(); speechQueue = []; isSpeaking = false; currentSentence = ""; document.getElementById('story-card').classList.remove('speaking-glow'); }
-        
-        function lancerMagieDepuisTexte() { 
-            const val = document.getElementById('manualInput').value.trim(); 
-            if(val) appelIA(val); 
-        }
-
-        // --- MOTEUR MICRO RÉPARÉ ---
-        function lancerMicro() {
-            const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!Speech) return alert("Désolé, ton appareil ne supporte pas le micro magique.");
-
-            const rec = new Speech();
-            rec.lang = 'fr-FR';
-            rec.interimResults = false; // On attend la phrase complète
-            rec.maxAlternatives = 1;
-
-            const btn = document.getElementById('mic-btn');
-            const status = document.getElementById('status');
-
-            rec.onstart = () => {
-                btn.classList.add('mic-listening');
-                status.innerText = "✨ Je t'écoute, dis-moi tout...";
-            };
-
-            rec.onresult = (e) => {
-                const phrase = e.results[0][0].transcript;
-                document.getElementById('manualInput').value = phrase;
-                appelIA(phrase);
-            };
-
-            rec.onerror = (e) => {
-                console.error("Erreur micro:", e.error);
-                btn.classList.remove('mic-listening');
-                status.innerText = "Oups, je n'ai pas bien entendu...";
-            };
-
-            rec.onend = () => {
-                btn.classList.remove('mic-listening');
-            };
-
-            // On lance le micro
-            try {
-                rec.start();
-            } catch (e) {
-                console.log("Le micro est déjà actif");
-            }
-        }
-    </script>
-</body>
-</html>
+            bestVoice = voices.find(v => v.lang.
