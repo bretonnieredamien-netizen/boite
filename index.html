@@ -61,7 +61,7 @@
 
         .mic-listening { background: rgba(99, 102, 241, 0.15) !important; border-color: #818cf8 !important; box-shadow: 0 0 50px rgba(99, 102, 241, 0.6) !important; transform: scale(1.1); }
         
-        /* --- DIAPORAMA D'IMAGES --- */
+        /* --- ÉCRAN D'IMAGE FIXE --- */
         #story-display {
             width: 100%; max-width: 500px; aspect-ratio: 1/1;
             background: rgba(255, 255, 255, 0.3); backdrop-filter: blur(20px);
@@ -72,10 +72,17 @@
 
         #story-image {
             width: 100%; height: 100%; object-cover: cover;
-            transition: opacity 1.5s ease-in-out, transform 10s linear;
+            transition: opacity 1s ease-in-out;
+            /* Léger zoom lent pour donner de la vie sans recharger */
+            animation: slowZoom 60s linear infinite;
         }
 
-        .image-loading { filter: blur(10px) grayscale(1); opacity: 0.5; }
+        @keyframes slowZoom {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+
+        .image-loading { filter: blur(20px); opacity: 0.8; }
 
         /* --- UI --- */
         .status-box { background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px); padding: 0.6rem 1.8rem; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.5); margin-top: 1.5rem; }
@@ -126,7 +133,7 @@
             </div>
 
             <div id="story-display" class="hidden">
-                <img id="story-image" src="" alt="Illustration de l'aventure">
+                <img id="story-image" src="" alt="Illustration de l'aventure" class="image-loading">
             </div>
 
             <div id="keyboard-area" class="w-full flex gap-2 glass-ui p-2 rounded-2xl shadow-xl hidden">
@@ -150,7 +157,6 @@
         const synth = window.speechSynthesis;
         let speechQueue = [];
         let isSpeaking = false;
-        let slideInterval;
         let audioCtx = null;
 
         function playChime() {
@@ -170,25 +176,26 @@
 
         async function genererImage(sujet) {
             const imgEl = document.getElementById('story-image');
-            imgEl.classList.add('image-loading');
+            imgEl.classList.add('image-loading'); // Flou de chargement
             
-            // On enrichit le prompt pour un style "magique/aurore" cohérent
             const promptImage = `Cinematic 3d digital art for children, vivid aurora colors, soft lighting, magical atmosphere, detailed environment, ${sujet}`;
             const seed = Math.floor(Math.random() * 1000000);
             const url = `https://pollinations.ai/p/${encodeURIComponent(promptImage)}?width=1024&height=1024&seed=${seed}&model=flux&nologo=true`;
             
-            imgEl.src = url;
-            imgEl.onload = () => {
+            // Préchargement de l'image avant affichage
+            const tempImg = new Image();
+            tempImg.src = url;
+            tempImg.onload = () => {
+                imgEl.src = url;
                 imgEl.classList.remove('image-loading');
-                imgEl.style.transform = "scale(1.1) translate(" + (Math.random()*10-5) + "px)";
             };
         }
 
         function stopAudio() {
             synth.cancel(); speechQueue = []; isSpeaking = false;
-            clearInterval(slideInterval);
             document.getElementById('status').classList.remove('status-animating');
             toggleStopButton(false);
+            // Masquer l'image à l'arrêt
             document.getElementById('story-display').classList.add('hidden');
         }
 
@@ -210,12 +217,9 @@
             statusLabel.innerText = "Je tisse ton aventure...";
             statusLabel.classList.add('status-animating');
             
-            // Lancer la première image
+            // Préparer l'image fixe
             display.classList.remove('hidden');
             genererImage(sujet);
-            
-            // Diaporama : nouvelle image toutes les 15 secondes
-            slideInterval = setInterval(() => { if(isSpeaking) genererImage(sujet); }, 15000);
 
             setTimeout(() => { btnMic.classList.remove('understood-flash'); toggleStopButton(true); }, 800);
 
@@ -262,7 +266,7 @@
             let txt = speechQueue.shift().replace(/[#*`_]/g, '');
             const utter = new SpeechSynthesisUtterance(txt);
             utter.lang = 'fr-FR'; utter.pitch = 1.05; utter.rate = 0.83; 
-            utter.onend = () => { isSpeaking = false; if(speechQueue.length === 0) { toggleStopButton(false); document.getElementById('status').innerText = "Histoire terminée ✨"; clearInterval(slideInterval); } parler(); };
+            utter.onend = () => { isSpeaking = false; if(speechQueue.length === 0) { toggleStopButton(false); document.getElementById('status').innerText = "Histoire terminée ✨"; } parler(); };
             window.speechSynthesis.speak(utter);
         }
 
