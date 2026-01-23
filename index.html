@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>La Boîte Magique Turbo ✨</title>
+    <title>La Boîte Magique - Mode Conte Long ✨</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Short+Stack&display=swap" rel="stylesheet">
     <style>
@@ -18,7 +18,7 @@
 
     <header class="text-center my-6">
         <h1 class="text-4xl font-bold text-amber-600 drop-shadow-sm">Ma Boîte Magique ⚡</h1>
-        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Quelle aventure allons-nous écouter ?</p>
+        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Prêt pour une grande aventure...</p>
     </header>
 
     <div id="image-box" class="w-full max-w-md aspect-video bg-white rounded-[2rem] shadow-2xl border-4 border-white overflow-hidden mb-6 hidden">
@@ -27,9 +27,9 @@
 
     <div class="w-full max-w-md flex flex-col items-center gap-6">
         <div class="w-full flex gap-2 bg-amber-100/50 p-2 rounded-2xl border border-amber-200">
-            <input type="text" id="manualInput" placeholder="Sujet de l'histoire (ex: Un dragon bleu)..." 
+            <input type="text" id="manualInput" placeholder="De quoi doit parler l'histoire ?" 
                    class="flex-1 bg-white p-4 rounded-xl outline-none text-sm shadow-inner">
-            <button id="btn-ok" class="bg-amber-500 text-white px-6 py-4 rounded-xl font-bold active:scale-95 shadow-md">ÉCOUTER</button>
+            <button id="btn-ok" class="bg-amber-500 text-white px-6 py-4 rounded-xl font-bold active:scale-95 shadow-md">CONTER</button>
         </div>
 
         <button id="mic-btn" class="bg-amber-400 p-10 rounded-full shadow-2xl border-8 border-white active:scale-90 transition-all">
@@ -65,7 +65,7 @@
             unlockAudio();
             stopAudio();
             
-            document.getElementById('status').innerText = "✨ La magie commence...";
+            document.getElementById('status').innerText = "✨ L'IA prépare un grand conte...";
             document.getElementById('story-text').innerText = ""; 
             document.getElementById('story-card').classList.remove('hidden', 'speaking-glow');
             document.getElementById('image-box').classList.remove('hidden');
@@ -73,8 +73,43 @@
             const styleImg = "watercolor fairytale illustration, vibrant, magical, ";
             document.getElementById('story-img').src = `https://pollinations.ai/p/${encodeURIComponent(styleImg + sujet)}?width=1024&height=768&seed=${Math.random()}&model=flux&nologo=true`;
 
-            // PROMPT OPTIMISÉ POUR UNE HISTOIRE COMPLÈTE ET LINÉAIRE
-            const promptComplet = `Raconte une magnifique et longue histoire magique pour enfant sur le thème : "${sujet}". 
-            RÈGLES CRUCIALES :
-            1. Utilise UNIQUEMENT des mots. Jamais de gras (**), jamais d'italique, jamais de symboles, jamais de titres (#).
-            2. L'histoire doit être
+            // INSTRUCTIONS DE NARRATION LONGUE ET SANS CHOIX
+            const promptLong = `Agis comme un conteur professionnel pour enfants. 
+            Raconte une histoire TRÈS LONGUE, riche en détails et en rebondissements sur le thème : "${sujet}".
+            RÈGLES DE FORMATAGE :
+            1. Utilise UNIQUEMENT des mots simples. 
+            2. INTERDICTION ABSOLUE d'utiliser du gras (**), de l'italique, des listes ou des symboles.
+            3. NE POSE AUCUNE QUESTION à la fin.
+            4. NE PROPOSE AUCUN CHOIX. L'histoire doit avoir une conclusion ferme et douce.
+            5. Développe bien les descriptions pour que l'histoire dure longtemps.`;
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${API_KEY}`;
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: promptLong }] }],
+                        generationConfig: {
+                            maxOutputTokens: 2500, // Augmenté pour permettre une histoire longue
+                            temperature: 0.8
+                        }
+                    })
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let fullText = "";
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) {
+                        if (currentSentence.trim()) { speechQueue.push(currentSentence.trim()); parler(); }
+                        break;
+                    }
+                    
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split("\n");
+                    
+                    for (
