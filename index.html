@@ -7,22 +7,27 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Short+Stack&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Short Stack', cursive; background: #fffdf2; touch-action: manipulation; }
+        body { font-family: 'Short Stack', cursive; background: #fffdf2; touch-action: manipulation; overflow-x: hidden; }
         .hidden { display: none !important; }
         #story-card::-webkit-scrollbar { width: 8px; }
         #story-card::-webkit-scrollbar-thumb { background: #fcd34d; border-radius: 10px; }
+        
+        /* Effet d'étoiles scintillantes */
+        .star { position: absolute; color: #fbbf24; animation: blink 1.5s infinite; pointer-events: none; z-index: 50; }
+        @keyframes blink { 0%, 100% { opacity: 0; transform: scale(0.5) rotate(0deg); } 50% { opacity: 1; transform: scale(1.2) rotate(180deg); } }
+        
         /* Aura magique quand la boîte parle */
-        .speaking-glow { box-shadow: 0 0 30px #fbbf24; border: 4px solid #fbbf24 !important; transition: all 0.5s ease; }
+        .speaking-glow { box-shadow: 0 0 40px #fbbf24; border: 4px solid #fbbf24 !important; transition: all 0.5s ease; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center p-6 select-none">
+<body class="min-h-screen flex flex-col items-center p-6 select-none relative">
 
     <header class="text-center my-6">
         <h1 class="text-4xl font-bold text-amber-600 drop-shadow-sm">Ma Boîte Magique ⚡</h1>
-        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Prêt pour une grande aventure !</p>
+        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Prêt pour une aventure géante !</p>
     </header>
 
-    <div id="image-box" class="w-full max-w-md aspect-video bg-white rounded-[2.5rem] shadow-2xl border-4 border-white overflow-hidden mb-6 hidden">
+    <div id="image-box" class="w-full max-w-md aspect-square bg-white rounded-[2.5rem] shadow-2xl border-4 border-white overflow-hidden mb-6 hidden">
         <img id="story-img" src="" class="w-full h-full object-cover">
     </div>
 
@@ -40,52 +45,75 @@
 
     <div id="story-card" class="bg-white w-full max-w-md rounded-[2.5rem] shadow-xl border-4 border-amber-50 p-8 mt-10 hidden max-h-[500px] overflow-y-auto">
         <div id="audio-controls" class="flex justify-center gap-4 mb-4 sticky top-0 bg-white/90 py-2">
-            <button onclick="stopAudio()" class="bg-red-100 text-red-700 px-6 py-2 rounded-full text-xs font-bold shadow-sm uppercase">⏹ Arrêter</button>
+            <button onclick="stopAudio()" class="bg-red-100 text-red-700 px-6 py-2 rounded-full text-[10px] font-bold shadow-sm uppercase">⏹ Arrêter</button>
         </div>
         <div id="story-text" class="text-lg leading-relaxed text-gray-800 italic whitespace-pre-line"></div>
     </div>
 
+    <button onclick="reinitialiserCle()" class="mt-20 text-gray-400 text-[10px] uppercase underline tracking-widest">Réinitialiser la clé API</button>
+
     <script>
-        const API_KEY = localStorage.getItem('BOITE_FINAL_KEY_2026');
+        let API_KEY = localStorage.getItem('BOITE_FINAL_KEY_2026');
         const MODEL_ID = "models/gemini-2.5-flash"; 
         const synth = window.speechSynthesis;
         
         let speechQueue = [];
         let isSpeaking = false;
         let currentSentence = "";
+        let magicInterval;
 
-        // Réveil audio pour mobiles
-        function unlockAudio() {
-            const utter = new SpeechSynthesisUtterance("");
-            synth.speak(utter);
-            synth.resume();
+        // --- GESTION DE LA CLÉ ---
+        function verifierCle() {
+            if (!API_KEY) {
+                const key = prompt("Entrez votre clé API Gemini (AIza...) :");
+                if (key) {
+                    localStorage.setItem('BOITE_FINAL_KEY_2026', key);
+                    API_KEY = key;
+                    location.reload();
+                }
+            }
+        }
+        verifierCle();
+
+        function reinitialiserCle() {
+            localStorage.removeItem('BOITE_FINAL_KEY_2026');
+            location.reload();
+        }
+
+        // --- EFFET ÉTOILES ---
+        function creerEtoile() {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.innerHTML = '✨';
+            star.style.left = Math.random() * 100 + 'vw';
+            star.style.top = Math.random() * 100 + 'vh';
+            document.body.appendChild(star);
+            setTimeout(() => star.remove(), 1500);
         }
 
         async function appelIA(sujet) {
-            if (!API_KEY) return alert("Clé API manquante !");
-            
-            unlockAudio();
             stopAudio();
+            magicInterval = setInterval(creerEtoile, 250);
             
             document.getElementById('status').innerText = "✨ Tissage de l'épopée...";
             document.getElementById('story-text').innerText = ""; 
             document.getElementById('story-card').classList.remove('hidden', 'speaking-glow');
             
-            // Image améliorée (Modèle Flux + Seed)
+            // --- IMAGE AMÉLIORÉE (STYLE LIVRE DE CONTES) ---
             document.getElementById('image-box').classList.remove('hidden');
-            const styleImg = "soft watercolor fairytale illustration, vibrant pastel, magical light, ";
-            document.getElementById('story-img').src = `https://pollinations.ai/p/${encodeURIComponent(styleImg + sujet)}?width=1024&height=768&seed=${Math.floor(Math.random()*1000)}&model=flux&nologo=true`;
+            const styleImg = "breathtaking watercolor illustration, professional children storybook style, vibrant pastel, magical lighting, detailed, ";
+            document.getElementById('story-img').src = `https://pollinations.ai/p/${encodeURIComponent(styleImg + sujet)}?width=1024&height=1024&seed=${Math.floor(Math.random()*1000)}&model=flux&nologo=true`;
 
             const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${API_KEY}`;
             
-            // CONSIGNES DE STRUCTURE NARRATIVE STRICTE
-            const consigne = `Raconte une TRÈS LONGUE histoire magique pour enfant sur : "${sujet}".
-            CONSIGNE DE STRUCTURE :
-            1. Commence par une introduction immersive.
-            2. Développe une grande aventure avec plusieurs rebondissements détaillés.
-            3. Tu DOIS impérativement inclure une conclusion complète et joyeuse avant d'avoir terminé ta réponse.
-            4. Ne laisse jamais l'histoire en suspens. Gère ton débit de texte pour que la fin soit magnifique et satisfaisante.
-            Ton ton doit être doux, calme et féérique.`;
+            // --- PROMPT AVEC STRUCTURE DE FIN FORCÉE ---
+            const consigne = `Raconte une épopée magique IMMENSE pour un enfant sur : "${sujet}".
+            TU DOIS SUIVRE CE PLAN :
+            1. Une introduction poétique et longue.
+            2. Trois grands chapitres d'aventures remplis de détails et de rebondissements.
+            3. Une conclusion finale complète et joyeuse.
+            IMPORTANT : Surveille ta longueur ! Tu DOIS avoir terminé et clos l'histoire avant d'atteindre la limite de texte. L'histoire ne doit jamais s'arrêter brusquement.
+            Ton ton est doux, calme et merveilleux.`;
 
             try {
                 const response = await fetch(url, {
@@ -93,10 +121,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         contents: [{ parts: [{ text: consigne }] }],
-                        generationConfig: { 
-                            temperature: 0.8,
-                            maxOutputTokens: 3500 // Un peu moins que le max pour laisser une marge de sécurité à l'IA
-                        }
+                        generationConfig: { temperature: 0.85, maxOutputTokens: 4000 }
                     })
                 });
 
@@ -108,12 +133,12 @@
                     const { done, value } = await reader.read();
                     if (done) {
                         if (currentSentence.trim()) { speechQueue.push(currentSentence.trim()); parler(); }
+                        clearInterval(magicInterval);
                         break;
                     }
                     
                     const chunk = decoder.decode(value);
                     const lines = chunk.split("\n");
-                    
                     for (const line of lines) {
                         if (line.startsWith("data: ")) {
                             try {
@@ -121,11 +146,10 @@
                                 const textChunk = json.candidates[0].content.parts[0].text;
                                 fullText += textChunk;
                                 currentSentence += textChunk;
-                                
                                 document.getElementById('story-text').innerText = fullText;
                                 document.getElementById('story-card').scrollTop = document.getElementById('story-card').scrollHeight;
 
-                                // On lit les phrases au fur et à mesure
+                                // On parle phrase par phrase
                                 if (/[.!?\n]/.test(textChunk)) {
                                     const parts = currentSentence.split(/([.!?\n])/);
                                     for (let i = 0; i < parts.length - 1; i += 2) {
@@ -141,8 +165,8 @@
                         }
                     }
                 }
-                document.getElementById('status').innerText = "Fin de l'aventure ✨";
-            } catch (e) { alert("Erreur magique."); }
+                document.getElementById('status').innerText = "L'histoire est finie ✨";
+            } catch (e) { clearInterval(magicInterval); alert("La magie a besoin de repos (vérifie internet)."); }
         }
 
         // --- VOIX FÉÉRIQUE (DOUCE ET CALME) ---
@@ -151,19 +175,15 @@
             isSpeaking = true;
             document.getElementById('story-card').classList.add('speaking-glow');
             
-            const texte = speechQueue.shift();
-            const utter = new SpeechSynthesisUtterance(texte);
-            
+            const utter = new SpeechSynthesisUtterance(speechQueue.shift());
             const voices = synth.getVoices();
-            // On cherche une voix humaine de qualité
+            // Sélection de la meilleure voix française
             const douce = voices.find(v => v.lang.includes('fr') && (v.name.includes('Google') || v.name.includes('Siri') || v.name.includes('Premium'))) || voices.find(v => v.lang.includes('fr'));
             
             if (douce) utter.voice = douce;
             utter.lang = 'fr-FR';
-            
-            // RÉGLAGES FÉÉRIQUES
-            utter.pitch = 1.3; // Voix cristalline
-            utter.rate = 0.82;  // Très calme et posée
+            utter.pitch = 1.35; // Cristallin
+            utter.rate = 0.8;   // Très calme et doux
             
             utter.onend = () => {
                 isSpeaking = false;
@@ -173,14 +193,9 @@
             synth.speak(utter);
         }
 
-        function stopAudio() {
-            synth.cancel();
-            speechQueue = [];
-            currentSentence = "";
-            isSpeaking = false;
-            document.getElementById('story-card').classList.remove('speaking-glow');
-        }
+        function stopAudio() { synth.cancel(); speechQueue = []; isSpeaking = false; currentSentence = ""; document.getElementById('story-card').classList.remove('speaking-glow'); }
 
+        // --- BOUTONS ---
         document.getElementById('btn-ok').addEventListener('click', () => {
             const val = document.getElementById('manualInput').value.trim();
             if(val) appelIA(val);
@@ -192,9 +207,8 @@
             const rec = new Speech();
             rec.lang = 'fr-FR';
             rec.onresult = (e) => {
-                const phrase = e.results[0][0].transcript;
-                document.getElementById('manualInput').value = phrase;
-                appelIA(phrase);
+                document.getElementById('manualInput').value = e.results[0][0].transcript;
+                appelIA(e.results[0][0].transcript);
             };
             rec.start();
         });
