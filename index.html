@@ -11,6 +11,7 @@
         .hidden { display: none !important; }
         #story-card::-webkit-scrollbar { width: 8px; }
         #story-card::-webkit-scrollbar-thumb { background: #fcd34d; border-radius: 10px; }
+        /* Aura magique quand la boîte parle */
         .speaking-glow { box-shadow: 0 0 30px #fbbf24; border: 4px solid #fbbf24 !important; transition: all 0.5s ease; }
     </style>
 </head>
@@ -21,13 +22,13 @@
         <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Prêt pour une grande aventure !</p>
     </header>
 
-    <div id="image-box" class="w-full max-w-md aspect-video bg-white rounded-[2rem] shadow-2xl border-4 border-white overflow-hidden mb-6 hidden">
+    <div id="image-box" class="w-full max-w-md aspect-video bg-white rounded-[2.5rem] shadow-2xl border-4 border-white overflow-hidden mb-6 hidden">
         <img id="story-img" src="" class="w-full h-full object-cover">
     </div>
 
     <div class="w-full max-w-md flex flex-col items-center gap-6">
         <div class="w-full flex gap-2 bg-amber-100/50 p-2 rounded-2xl border border-amber-200">
-            <input type="text" id="manualInput" placeholder="Sujet de l'aventure..." 
+            <input type="text" id="manualInput" placeholder="Sujet de l'aventure épique..." 
                    class="flex-1 bg-white p-4 rounded-xl outline-none text-sm shadow-inner">
             <button id="btn-ok" class="bg-amber-500 text-white px-6 py-4 rounded-xl font-bold active:scale-95 shadow-md">OK</button>
         </div>
@@ -53,7 +54,7 @@
         let isSpeaking = false;
         let currentSentence = "";
 
-        // Réveil de l'audio pour les mobiles
+        // Réveil audio pour mobiles
         function unlockAudio() {
             const utter = new SpeechSynthesisUtterance("");
             synth.speak(utter);
@@ -66,20 +67,25 @@
             unlockAudio();
             stopAudio();
             
-            document.getElementById('status').innerText = "✨ La magie se prépare...";
+            document.getElementById('status').innerText = "✨ Tissage de l'épopée...";
             document.getElementById('story-text').innerText = ""; 
             document.getElementById('story-card').classList.remove('hidden', 'speaking-glow');
             
+            // Image améliorée (Modèle Flux + Seed)
             document.getElementById('image-box').classList.remove('hidden');
-            const styleImg = "watercolor fairytale illustration, vibrant pastel, magical atmosphere, ";
-            document.getElementById('story-img').src = `https://pollinations.ai/p/${encodeURIComponent(styleImg + sujet)}?width=1024&height=768&seed=${Math.random()}&model=flux&nologo=true`;
+            const styleImg = "soft watercolor fairytale illustration, vibrant pastel, magical light, ";
+            document.getElementById('story-img').src = `https://pollinations.ai/p/${encodeURIComponent(styleImg + sujet)}?width=1024&height=768&seed=${Math.floor(Math.random()*1000)}&model=flux&nologo=true`;
 
             const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${API_KEY}`;
             
-            // PROMPT AMÉLIORÉ POUR UNE STRUCTURE COMPLÈTE
-            const consigne = `Raconte une TRÈS LONGUE et magnifique histoire magique pour enfant sur le thème : "${sujet}". 
-            IMPORTANT : L'histoire doit avoir une structure complète : une introduction immersive, un voyage rempli de péripéties détaillées, et une conclusion claire, douce et joyeuse. 
-            Prends ton temps pour les descriptions. Ne coupe pas l'histoire avant d'avoir atteint la fin.`;
+            // CONSIGNES DE STRUCTURE NARRATIVE STRICTE
+            const consigne = `Raconte une TRÈS LONGUE histoire magique pour enfant sur : "${sujet}".
+            CONSIGNE DE STRUCTURE :
+            1. Commence par une introduction immersive.
+            2. Développe une grande aventure avec plusieurs rebondissements détaillés.
+            3. Tu DOIS impérativement inclure une conclusion complète et joyeuse avant d'avoir terminé ta réponse.
+            4. Ne laisse jamais l'histoire en suspens. Gère ton débit de texte pour que la fin soit magnifique et satisfaisante.
+            Ton ton doit être doux, calme et féérique.`;
 
             try {
                 const response = await fetch(url, {
@@ -89,7 +95,7 @@
                         contents: [{ parts: [{ text: consigne }] }],
                         generationConfig: { 
                             temperature: 0.8,
-                            maxOutputTokens: 4000 // Limite augmentée pour éviter les coupures
+                            maxOutputTokens: 3500 // Un peu moins que le max pour laisser une marge de sécurité à l'IA
                         }
                     })
                 });
@@ -119,7 +125,7 @@
                                 document.getElementById('story-text').innerText = fullText;
                                 document.getElementById('story-card').scrollTop = document.getElementById('story-card').scrollHeight;
 
-                                // Découpage par phrases pour la voix
+                                // On lit les phrases au fur et à mesure
                                 if (/[.!?\n]/.test(textChunk)) {
                                     const parts = currentSentence.split(/([.!?\n])/);
                                     for (let i = 0; i < parts.length - 1; i += 2) {
@@ -139,7 +145,7 @@
             } catch (e) { alert("Erreur magique."); }
         }
 
-        // --- FONCTION DE VOIX FÉÉRIQUE ---
+        // --- VOIX FÉÉRIQUE (DOUCE ET CALME) ---
         function parler() {
             if (isSpeaking || speechQueue.length === 0) return;
             isSpeaking = true;
@@ -149,12 +155,15 @@
             const utter = new SpeechSynthesisUtterance(texte);
             
             const voices = synth.getVoices();
+            // On cherche une voix humaine de qualité
             const douce = voices.find(v => v.lang.includes('fr') && (v.name.includes('Google') || v.name.includes('Siri') || v.name.includes('Premium'))) || voices.find(v => v.lang.includes('fr'));
             
             if (douce) utter.voice = douce;
             utter.lang = 'fr-FR';
-            utter.pitch = 1.3; // Voix cristalline (féérique)
-            utter.rate = 0.85;  // Rythme calme et doux
+            
+            // RÉGLAGES FÉÉRIQUES
+            utter.pitch = 1.3; // Voix cristalline
+            utter.rate = 0.82;  // Très calme et posée
             
             utter.onend = () => {
                 isSpeaking = false;
@@ -172,7 +181,6 @@
             document.getElementById('story-card').classList.remove('speaking-glow');
         }
 
-        // Utilisation de addEventListener pour plus de fiabilité
         document.getElementById('btn-ok').addEventListener('click', () => {
             const val = document.getElementById('manualInput').value.trim();
             if(val) appelIA(val);
