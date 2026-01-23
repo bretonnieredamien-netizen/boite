@@ -12,19 +12,19 @@
         #story-card::-webkit-scrollbar { width: 8px; }
         #story-card::-webkit-scrollbar-thumb { background: #fcd34d; border-radius: 10px; }
         
-        /* Étoiles magiques */
+        /* Étoiles magiques qui apparaissent pendant la création */
         .star { position: absolute; color: #fbbf24; animation: blink 1.5s infinite; pointer-events: none; z-index: 50; }
         @keyframes blink { 0%, 100% { opacity: 0; transform: scale(0.5); } 50% { opacity: 1; transform: scale(1.2); } }
         
-        /* Aura de la boîte qui parle */
+        /* Aura lumineuse quand la boîte raconte l'histoire */
         .speaking-glow { box-shadow: 0 0 35px #fbbf24; border: 4px solid #fbbf24 !important; transition: all 0.5s ease; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center p-6 select-none relative">
 
     <header class="text-center my-6">
-        <h1 class="text-4xl font-bold text-amber-600 drop-shadow-sm">Ma Boîte Magique ✨</h1>
-        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Une histoire pure, sans bruits de robot...</p>
+        <h1 class="text-4xl font-bold text-amber-600 drop-shadow-sm">Ma Boîte Magique ⚡</h1>
+        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Prêt pour une aventure complète et féérique !</p>
     </header>
 
     <div id="image-box" class="w-full max-w-md aspect-square bg-white rounded-[2.5rem] shadow-2xl border-4 border-white overflow-hidden mb-6 hidden">
@@ -33,9 +33,9 @@
 
     <div class="w-full max-w-md flex flex-col items-center gap-6">
         <div class="w-full flex gap-2 bg-amber-100/50 p-2 rounded-2xl border border-amber-200 shadow-sm">
-            <input type="text" id="manualInput" placeholder="Sujet de l'aventure..." 
+            <input type="text" id="manualInput" placeholder="Sujet de l'aventure épique..." 
                    class="flex-1 bg-white p-4 rounded-xl outline-none text-sm shadow-inner">
-            <button id="btn-ok" onclick="lancerMagieDepuisTexte()" class="bg-amber-500 text-white px-6 py-4 rounded-xl font-bold active:scale-95 shadow-md">OK</button>
+            <button onclick="lancerMagieDepuisTexte()" class="bg-amber-500 text-white px-6 py-4 rounded-xl font-bold active:scale-95 shadow-md">OK</button>
         </div>
 
         <button id="mic-btn" onclick="lancerMicro()" class="bg-amber-400 p-10 rounded-full shadow-2xl border-8 border-white active:scale-90 transition-all">
@@ -63,6 +63,7 @@
         let magicInterval;
         let bestVoice = null;
 
+        // --- RECHERCHE DE LA MEILLEURE VOIX ---
         function selectBestVoice() {
             const voices = synth.getVoices();
             bestVoice = voices.find(v => v.lang.includes('fr') && (v.name.includes('Siri') || v.name.includes('Premium') || v.name.includes('Google')))
@@ -71,37 +72,76 @@
         if (speechSynthesis.onvoiceschanged !== undefined) { speechSynthesis.onvoiceschanged = selectBestVoice; }
         selectBestVoice();
 
-        function verifierCle() {
-            if (!API_KEY) {
-                const key = prompt("Entrez votre clé API Gemini :");
-                if (key) { localStorage.setItem('BOITE_FINAL_KEY_2026', key); API_KEY = key; location.reload(); }
-            }
-        }
-        verifierCle();
-
         function reinitialiserCle() { localStorage.removeItem('BOITE_FINAL_KEY_2026'); location.reload(); }
 
         function creerEtoile() {
             const star = document.createElement('div');
-            star.className = 'star';
-            star.innerHTML = '✨';
+            star.className = 'star'; star.innerHTML = '✨';
             star.style.left = Math.random() * 100 + 'vw'; star.style.top = Math.random() * 100 + 'vh';
             document.body.appendChild(star);
             setTimeout(() => star.remove(), 1500);
         }
 
         async function appelIA(sujet) {
+            if (!API_KEY) {
+                const key = prompt("Entrez votre clé API Gemini :");
+                if (key) { localStorage.setItem('BOITE_FINAL_KEY_2026', key); location.reload(); }
+                return;
+            }
+
             stopAudio();
             magicInterval = setInterval(creerEtoile, 250);
             
-            document.getElementById('status').innerText = "✨ Tissage du conte...";
+            document.getElementById('status').innerText = "✨ Tissage de l'épopée...";
             document.getElementById('story-text').innerText = ""; 
             document.getElementById('story-card').classList.remove('hidden', 'speaking-glow');
             
+            // --- IMAGE AMÉLIORÉE (STYLE AQUARELLE CONTE) ---
             const imgElement = document.getElementById('story-img');
             const imgBox = document.getElementById('image-box');
             imgBox.classList.remove('hidden');
             imgElement.style.opacity = "0";
             
             const styleImg = "breathtaking soft watercolor fairytale illustration, professional children book style, vibrant pastel, magical light, ";
-            imgElement.src = `https://pollinations.ai/p/${encodeURIComponent(styleImg + sujet)}?width=1024&height=1024&seed=${Math.floor(Math.random()*100
+            imgElement.src = `https://pollinations.ai/p/${encodeURIComponent(styleImg + sujet)}?width=1024&height=1024&seed=${Math.floor(Math.random()*1000)}&model=flux&nologo=true`;
+            imgElement.onload = () => imgElement.style.opacity = "1";
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${API_KEY}`;
+            
+            // CONSIGNE STRICTE : PAS DE SYMBOLES ET FIN OBLIGATOIRE
+            const consigne = `Raconte une épopée magique longue et merveilleuse pour un enfant sur : "${sujet}".
+            CONSIGNE : Écris environ 8 à 10 paragraphes. Tu DOIS inclure une conclusion douce et terminer par le mot "FIN".
+            IMPORTANT : N'utilise AUCUN symbole comme # ou *. Pas de texte en gras ou de titres. Écris uniquement du texte pur. 
+            Ton ton est calme, doux et féérique.`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: consigne }] }],
+                        generationConfig: { temperature: 0.8, maxOutputTokens: 3800 }
+                    })
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let fullText = "";
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) {
+                        if (currentSentence.trim()) { speechQueue.push(currentSentence.trim()); parler(); }
+                        clearInterval(magicInterval);
+                        break;
+                    }
+                    
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split("\n");
+                    for (const line of lines) {
+                        if (line.startsWith("data: ")) {
+                            try {
+                                const json = JSON.parse(line.substring(6));
+                                const textChunk = json.candidates[0].content.parts[0].text;
+                                fullText += textChunk;
+                                currentSentence += textChunk;
