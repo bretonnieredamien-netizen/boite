@@ -24,21 +24,22 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* --- SYSTÈME DE POUSSIÈRE D'ÉTOILES --- */
+        /* --- Poussière d'étoiles (Canvas) --- */
         #starfield {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none;
+            pointer-events: none; /* Important pour cliquer au travers */
             z-index: 1;
         }
 
         .hidden { display: none !important; }
+        /* Contenu au-dessus des étoiles (z-index 10) */
         .content-layer { position: relative; z-index: 10; width: 100%; display: flex; flex-direction: column; align-items: center; }
 
-        /* --- LOGO BRANDING HAUT-GAUCHE --- */
+        /* --- LOGO HAUT-GAUCHE --- */
         .brand-header {
             position: absolute;
             top: 1.5rem;
@@ -57,7 +58,7 @@
             text-transform: lowercase;
         }
 
-        /* --- TITRE CENTRAL ANIME --- */
+        /* --- LOGO CENTRAL --- */
         .modern-logo {
             font-weight: 900;
             font-size: 3.2rem;
@@ -70,17 +71,10 @@
             opacity: 0;
             animation: introFade 2s ease-out forwards, slowBeat 5s ease-in-out infinite 2s;
         }
+        @keyframes introFade { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
+        @keyframes slowBeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
 
-        @keyframes introFade {
-            0% { opacity: 0; transform: translateY(15px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes slowBeat {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.04); }
-        }
-
-        /* --- ORBES DE CONTRÔLE --- */
+        /* --- ORBES --- */
         .orbe-base {
             position: relative;
             width: 120px; height: 120px;
@@ -115,7 +109,7 @@
             border: 1px solid rgba(255, 255, 255, 0.5);
             margin-top: 1.5rem;
         }
-        
+
         .understood-flash {
             animation: success-pulse 0.8s ease-out !important;
             background: rgba(16, 185, 129, 0.2) !important;
@@ -131,9 +125,11 @@
     </style>
 </head>
 <body class="p-6">
+
     <canvas id="starfield"></canvas>
 
     <div class="content-layer min-h-screen">
+        
         <div class="brand-header">
             <span class="mini-logo-text">tbm.</span>
         </div>
@@ -146,6 +142,7 @@
         </header>
 
         <main class="w-full max-w-md flex flex-col items-center gap-14 mt-12">
+            
             <div class="flex items-center justify-center gap-12 w-full">
                 <div class="flex flex-col items-center gap-4">
                     <button id="btn-mic" class="orbe-base shadow-2xl">
@@ -174,64 +171,71 @@
             <div id="story-card" class="bg-white/95 w-full rounded-[3rem] shadow-2xl border-4 border-white p-10 hidden max-h-[50vh] overflow-y-auto">
                 <div id="story-text" class="text-lg leading-relaxed text-gray-800 font-light whitespace-pre-line"></div>
             </div>
+
         </main>
 
         <footer class="mt-auto py-10">
             <button onclick="reinitialiserCle()" class="text-gray-400 text-[10px] uppercase underline tracking-widest opacity-30">Réinitialiser la clé API</button>
         </footer>
+
     </div>
 
     <script>
-        /* --- SCRIPT POUSSIÈRE D'ÉTOILES --- */
+        /* --- SYSTÈME DE POUSSIÈRE D'ÉTOILES (CORRIGÉ) --- */
         const canvas = document.getElementById('starfield');
         const ctx = canvas.getContext('2d');
-        let stars = [];
+        let particles = [];
 
         function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         }
 
-        class Star {
+        class Particle {
             constructor() {
                 this.reset();
             }
             reset() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 1.5;
-                this.opacity = Math.random();
-                this.speed = Math.random() * 0.05;
+                this.size = Math.random() * 2 + 0.5;
+                this.speed = Math.random() * 0.02 + 0.01;
+                this.opacity = Math.random() * 0.8;
+                // COULEUR CORRIGÉE : Or ou Indigo (visible sur fond clair)
+                this.color = Math.random() > 0.5 ? "251, 191, 36" : "129, 140, 248";
+                this.direction = Math.random() > 0.5 ? 1 : -1;
             }
             update() {
-                this.opacity += this.speed;
-                if (this.opacity > 1 || this.opacity < 0) this.speed = -this.speed;
+                this.y -= this.speed; // Monte doucement
+                this.x += Math.sin(this.y * 0.01) * 0.2; // Léger flottement
+
+                if (this.y < 0) this.reset();
             }
             draw() {
-                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`;
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
             }
         }
 
-        function initStars() {
-            stars = [];
-            for (let i = 0; i < 150; i++) stars.push(new Star());
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < 100; i++) particles.push(new Particle());
         }
 
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            stars.forEach(star => {
-                star.update();
-                star.draw();
+            particles.forEach(p => {
+                p.update();
+                p.draw();
             });
             requestAnimationFrame(animate);
         }
 
         window.addEventListener('resize', resize);
         resize();
-        initStars();
+        initParticles();
         animate();
 
         /* --- LOGIQUE APPLICATIVE --- */
@@ -278,6 +282,7 @@
 
         function stopAudio() {
             synth.cancel(); speechQueue = []; isSpeaking = false; currentSentence = "";
+            document.getElementById('status').classList.remove('status-animating');
             toggleStopButton(false);
         }
 
@@ -289,12 +294,15 @@
             playChime();
             btnMic.classList.add('understood-flash');
             statusLabel.innerText = "Je tisse ton aventure...";
+            statusLabel.classList.add('status-animating');
             
             setTimeout(() => {
                 btnMic.classList.remove('understood-flash');
                 document.getElementById('story-card').classList.remove('hidden');
                 toggleStopButton(true);
             }, 800);
+            
+            document.getElementById('story-text').innerText = "";
 
             const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${API_KEY}`;
             const promptIA = `Raconte une aventure réaliste pour un enfant sur : "${sujet}". Pas de magie. Fin positive. Termine par "FIN".`;
@@ -313,6 +321,8 @@
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) {
+                        statusLabel.classList.remove('status-animating');
+                        statusLabel.innerText = "L'aventure est prête !";
                         if (currentSentence.trim()) { speechQueue.push(currentSentence.trim()); parler(); }
                         break;
                     }
@@ -325,6 +335,7 @@
                                 const chunkText = json.candidates[0].content.parts[0].text;
                                 fullText += chunkText; currentSentence += chunkText;
                                 document.getElementById('story-text').innerText = fullText;
+                                document.getElementById('story-card').scrollTop = document.getElementById('story-card').scrollHeight;
                                 if (/[.!?\n]/.test(chunkText)) {
                                     const parts = currentSentence.split(/([.!?\n])/);
                                     for (let i = 0; i < parts.length - 1; i += 2) {
@@ -358,14 +369,19 @@
             };
             document.getElementById('btn-mic').onclick = () => {
                 const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-                if (!Speech) return;
+                if (!Speech) return alert("Micro non supporté.");
                 const rec = new Speech(); rec.lang = 'fr-FR';
                 rec.onstart = () => {
                     document.getElementById('btn-mic').classList.add('mic-listening');
                     document.getElementById('status').innerText = "Je t'écoute...";
                 };
-                rec.onresult = (e) => appelIA(e.results[0][0].transcript);
+                rec.onresult = (e) => {
+                    const p = e.results[0][0].transcript;
+                    document.getElementById('manualInput').value = p;
+                    appelIA(p);
+                };
                 rec.onend = () => document.getElementById('btn-mic').classList.remove('mic-listening');
+                rec.onerror = () => document.getElementById('status').innerText = "Je n'ai pas entendu...";
                 try { rec.start(); } catch (e) {}
             };
             document.getElementById('btn-stop').onclick = stopAudio;
