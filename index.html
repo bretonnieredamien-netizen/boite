@@ -12,19 +12,19 @@
         #story-card::-webkit-scrollbar { width: 8px; }
         #story-card::-webkit-scrollbar-thumb { background: #fcd34d; border-radius: 10px; }
         
-        /* Effet visuel des étoiles magiques */
-        .star { position: absolute; color: #fbbf24; animation: blink 1.5s infinite; pointer-events: none; z-index: 50; }
+        /* Effet visuel : Pluie d'étoiles */
+        .star { position: absolute; color: #fbbf24; animation: blink 1.5s infinite; pointer-events: none; z-index: 60; }
         @keyframes blink { 0%, 100% { opacity: 0; transform: scale(0.5); } 50% { opacity: 1; transform: scale(1.2); } }
         
-        /* Aura lumineuse quand la boîte parle */
-        .speaking-glow { box-shadow: 0 0 35px #fbbf24; border: 4px solid #fbbf24 !important; transition: all 0.5s ease; }
+        /* Aura quand la boîte parle */
+        .speaking-glow { box-shadow: 0 0 30px #fbbf24; border: 4px solid #fbbf24 !important; transition: all 0.5s ease; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center p-6 select-none relative">
 
     <header class="text-center my-6">
         <h1 class="text-4xl font-bold text-amber-600 drop-shadow-sm">Ma Boîte Magique ⚡</h1>
-        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Une grande aventure féérique...</p>
+        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Prêt pour une épopée géante...</p>
     </header>
 
     <div id="image-box" class="w-full max-w-md aspect-square bg-white rounded-[2.5rem] shadow-2xl border-4 border-white overflow-hidden mb-6 hidden">
@@ -33,19 +33,19 @@
 
     <div class="w-full max-w-md flex flex-col items-center gap-6">
         <div class="w-full flex gap-2 bg-amber-100/50 p-2 rounded-2xl border border-amber-200 shadow-sm">
-            <input type="text" id="manualInput" placeholder="Sujet de l'histoire..." 
-                   class="flex-1 bg-white p-4 rounded-xl outline-none text-sm shadow-inner">
-            <button onclick="lancerMagieDepuisTexte()" class="bg-amber-500 text-white px-6 py-4 rounded-xl font-bold active:scale-95 shadow-md">OK</button>
+            <input type="text" id="manualInput" placeholder="Sujet de l'aventure..." 
+                   class="flex-1 bg-white p-4 rounded-xl outline-none text-sm">
+            <button id="btn-ok" class="bg-amber-500 text-white px-6 py-4 rounded-xl font-bold active:scale-95">OK</button>
         </div>
 
-        <button onclick="lancerMicro()" class="bg-amber-400 p-10 rounded-full shadow-2xl border-8 border-white active:scale-90 transition-all">
+        <button id="btn-mic" class="bg-amber-400 p-10 rounded-full shadow-2xl border-8 border-white active:scale-90 transition-all">
             <span class="text-6xl">🎤</span>
         </button>
     </div>
 
     <div id="story-card" class="bg-white w-full max-w-md rounded-[2.5rem] shadow-xl border-4 border-amber-50 p-8 mt-10 hidden max-h-[500px] overflow-y-auto">
         <div id="audio-controls" class="flex justify-center gap-4 mb-4 sticky top-0 bg-white/90 py-2">
-            <button onclick="stopAudio()" class="bg-red-100 text-red-700 px-6 py-2 rounded-full text-xs font-bold shadow-sm uppercase">⏹ Arrêter</button>
+            <button onclick="stopAudio()" class="bg-red-100 text-red-700 px-6 py-2 rounded-full text-xs font-bold uppercase shadow-sm">⏹ Arrêter</button>
         </div>
         <div id="story-text" class="text-lg leading-relaxed text-gray-800 italic whitespace-pre-line"></div>
     </div>
@@ -60,17 +60,16 @@
         let speechQueue = [];
         let isSpeaking = false;
         let currentSentence = "";
-        let magicInterval;
-        let bestVoice = null;
+        let starInterval;
+        let selectedVoice = null;
 
         // --- TROUVER LA MEILLEURE VOIX ---
-        function loadVoices() {
+        function getBestVoice() {
             const voices = synth.getVoices();
-            bestVoice = voices.find(v => v.lang.includes('fr') && (v.name.includes('Siri') || v.name.includes('Google') || v.name.includes('Premium'))) 
-                        || voices.find(v => v.lang.includes('fr'));
+            return voices.find(v => v.lang.includes('fr') && (v.name.includes('Siri') || v.name.includes('Premium') || v.name.includes('Google')))
+                   || voices.find(v => v.lang.includes('fr'));
         }
-        if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = loadVoices;
-        loadVoices();
+        if (speechSynthesis.onvoiceschanged !== undefined) { speechSynthesis.onvoiceschanged = () => { selectedVoice = getBestVoice(); }; }
 
         // --- GESTION DE LA CLÉ ---
         function reinitialiserCle() {
@@ -79,8 +78,8 @@
         }
 
         if (!API_KEY) {
-            const m = prompt("Entre ta clé API Gemini pour activer la magie :");
-            if (m) { localStorage.setItem('BOITE_FINAL_KEY_2026', m); location.reload(); }
+            const k = prompt("Entre ta clé API Gemini :");
+            if (k) { localStorage.setItem('BOITE_FINAL_KEY_2026', k); location.reload(); }
         }
 
         // --- ÉTOILES ---
@@ -93,28 +92,26 @@
         }
 
         async function appelIA(sujet) {
-            if (!API_KEY) return alert("Il manque la clé API !");
-            
+            if (!API_KEY) return alert("Pas de clé !");
             stopAudio();
-            magicInterval = setInterval(creerEtoile, 250);
+            starInterval = setInterval(creerEtoile, 250);
             
             document.getElementById('status').innerText = "✨ Tissage de l'épopée...";
             document.getElementById('story-text').innerText = ""; 
             document.getElementById('story-card').classList.remove('hidden', 'speaking-glow');
             
-            const imgElement = document.getElementById('story-img');
-            document.getElementById('image-box').classList.remove('hidden');
-            imgElement.style.opacity = "0";
+            const imgBox = document.getElementById('image-box');
+            const imgEl = document.getElementById('story-img');
+            imgBox.classList.remove('hidden'); imgEl.style.opacity = "0";
             
-            // Image améliorée
-            const style = "soft watercolor fairytale illustration, book style, pastel, magical light, ";
-            imgElement.src = `https://pollinations.ai/p/${encodeURIComponent(style + sujet)}?width=1024&height=1024&seed=${Math.random()}&model=flux&nologo=true`;
-            imgElement.onload = () => imgElement.style.opacity = "1";
+            const style = "soft watercolor fairytale illustration, book style, magical light, ";
+            imgEl.src = `https://pollinations.ai/p/${encodeURIComponent(style + sujet)}?width=1024&height=1024&seed=${Math.random()}&model=flux&nologo=true`;
+            imgEl.onload = () => imgEl.style.opacity = "1";
 
             const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${API_KEY}`;
             const consigne = `Raconte une TRÈS LONGUE histoire magique pour enfant sur : "${sujet}".
-            CONSIGNE : Écris environ 10 paragraphes. Tu DOIS impérativement finir l'histoire et écrire le mot "FIN".
-            IMPORTANT : N'utilise AUCUN symbole (# ou *). Pas de gras. Uniquement du texte pur. Ton ton est doux et calme.`;
+            PLAN : Intro, 3 chapitres d'aventures, et une conclusion claire. Tu DOIS finir l'histoire et écrire FIN.
+            IMPORTANT : N'utilise JAMAIS de symboles comme # ou *. Uniquement du texte pur. Ton ton est calme et doux.`;
 
             try {
                 const response = await fetch(url, {
@@ -134,8 +131,7 @@
                     const { done, value } = await reader.read();
                     if (done) {
                         if (currentSentence.trim()) { speechQueue.push(currentSentence.trim()); parler(); }
-                        clearInterval(magicInterval);
-                        break;
+                        clearInterval(starInterval); break;
                     }
                     
                     const chunk = decoder.decode(value);
@@ -144,14 +140,4 @@
                         if (line.startsWith("data: ")) {
                             try {
                                 const json = JSON.parse(line.substring(6));
-                                const textChunk = json.candidates[0].content.parts[0].text;
-                                fullText += textChunk;
-                                currentSentence += textChunk;
-                                document.getElementById('story-text').innerText = fullText;
-                                document.getElementById('story-card').scrollTop = document.getElementById('story-card').scrollHeight;
-
-                                if (/[.!?\n]/.test(textChunk)) {
-                                    const parts = currentSentence.split(/([.!?\n])/);
-                                    for (let i = 0; i < parts.length - 1; i += 2) {
-                                        const p = (parts[i] + (parts[i+1] || "")).trim();
-                                        if (p.length > 2
+                                const textChunk = json
