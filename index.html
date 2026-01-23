@@ -43,12 +43,29 @@
         /* Aura de la boîte qui parle */
         .speaking-glow { box-shadow: 0 0 40px rgba(251, 191, 36, 0.5); border: 4px solid #fbbf24 !important; }
 
-        /* BOUTON MICRO STAR */
+        /* STYLE COMMUN AUX ORBES (Micro et Stop) */
+        .control-orbe {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 5px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        /* ORBE MICRO (AMBRE) */
         #btn-mic {
             background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-            border: 5px solid white;
             box-shadow: 0 15px 35px rgba(245, 158, 11, 0.4);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* ORBE STOP (ROUGE) */
+        #btn-stop {
+            background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+            box-shadow: 0 15px 35px rgba(239, 68, 68, 0.4);
         }
 
         .mic-listening {
@@ -68,16 +85,25 @@
         
         <header class="text-center my-10">
             <h1 class="text-4xl font-bold text-amber-600 drop-shadow-md">La Boîte à Aventures ✨</h1>
-            <p id="status" class="text-amber-800 mt-2 font-medium italic text-sm">Explorons le monde réel ensemble...</p>
+            <p id="status" class="text-amber-800 mt-2 font-medium italic text-sm">Prête pour une nouvelle exploration...</p>
         </header>
 
         <main class="w-full max-w-md flex flex-col items-center gap-10">
             
-            <div class="flex flex-col items-center gap-4">
-                <button id="btn-mic" class="p-16 rounded-full active:scale-90 shadow-2xl">
-                    <span id="mic-icon" class="text-8xl drop-shadow-sm">🎤</span>
-                </button>
-                <span id="mic-label" class="text-amber-900/60 text-xs font-bold uppercase tracking-widest">Appuie pour parler</span>
+            <div class="flex items-center justify-center gap-8 w-full">
+                <div class="flex flex-col items-center gap-3">
+                    <button id="btn-mic" class="control-orbe active:scale-90 shadow-2xl">
+                        <span id="mic-icon" class="text-6xl drop-shadow-sm">🎤</span>
+                    </button>
+                    <span class="text-amber-900/60 text-[10px] font-bold uppercase tracking-widest">Parler</span>
+                </div>
+
+                <div id="stop-container" class="flex flex-col items-center gap-3 opacity-30 pointer-events-none transition-all duration-500">
+                    <button id="btn-stop" class="control-orbe active:scale-90 shadow-2xl">
+                        <span class="text-5xl drop-shadow-sm">⏹</span>
+                    </button>
+                    <span class="text-red-900/60 text-[10px] font-bold uppercase tracking-widest">Arrêter</span>
+                </div>
             </div>
 
             <div id="keyboard-area" class="w-full flex gap-2 glass-ui p-2 rounded-2xl shadow-xl hidden">
@@ -91,9 +117,6 @@
             </button>
 
             <div id="story-card" class="bg-white w-full rounded-[2.5rem] shadow-2xl border-4 border-white p-8 hidden max-h-[60vh] overflow-y-auto">
-                <div class="flex justify-center gap-4 mb-4 sticky top-0 bg-white/95 py-2">
-                    <button id="btn-stop" class="bg-red-100 text-red-700 px-8 py-2 rounded-full text-xs font-bold uppercase active:scale-95">⏹ Arrêter</button>
-                </div>
                 <div id="story-text" class="text-lg leading-relaxed text-gray-800 italic whitespace-pre-line"></div>
             </div>
 
@@ -115,27 +138,19 @@
         let bestVoice = null;
         let audioCtx = null;
 
-        // Fonction pour générer le petit son "Ding" cristallin
         function playChime() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
-
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
-
-            osc.type = 'triangle'; // Son plus doux qu'un carré, plus riche qu'un sinus
-            osc.frequency.setValueAtTime(1244.51, audioCtx.currentTime); // Note Ré#6 (Cristallin)
-            osc.frequency.exponentialRampToValueAtTime(1567.98, audioCtx.currentTime + 0.1); // Glisse vers Sol6
-
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(1244.51, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1567.98, audioCtx.currentTime + 0.1);
             gain.gain.setValueAtTime(0, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.05); // Attaque rapide
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5); // Retombée longue
-
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.5);
+            gain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.5);
         }
 
         function loadVoices() {
@@ -152,32 +167,44 @@
             if (k) { localStorage.setItem('BOITE_FINAL_KEY_2026', k); API_KEY = k; location.reload(); }
         }
 
+        function toggleStopButton(active) {
+            const container = document.getElementById('stop-container');
+            if (active) {
+                container.classList.remove('opacity-30', 'pointer-events-none');
+                container.classList.add('opacity-100');
+            } else {
+                container.classList.add('opacity-30', 'pointer-events-none');
+                container.classList.remove('opacity-100');
+            }
+        }
+
         function stopAudio() {
             synth.cancel(); speechQueue = []; isSpeaking = false; currentSentence = "";
             document.getElementById('story-card').classList.remove('speaking-glow');
+            toggleStopButton(false);
         }
 
         async function appelIA(sujet) {
             if (!API_KEY) return;
             stopAudio();
             
-            const btn = document.getElementById('btn-mic');
+            const btnMic = document.getElementById('btn-mic');
             const statusLabel = document.getElementById('status');
 
-            // --- ACTIVATION SON ET LUMIÈRE ---
             playChime();
-            btn.classList.add('understood-flash');
+            btnMic.classList.add('understood-flash');
             statusLabel.innerText = "✨ Compris ! Je prépare l'aventure...";
             
             setTimeout(() => {
-                btn.classList.remove('understood-flash');
+                btnMic.classList.remove('understood-flash');
                 document.getElementById('story-card').classList.remove('hidden');
+                toggleStopButton(true); // Activer le bouton stop dès que la génération commence
             }, 800);
 
             document.getElementById('story-text').innerText = ""; 
 
             const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${API_KEY}`;
-            const promptIA = `Raconte une aventure réaliste et captivante pour un enfant sur : "${sujet}". Pas de magie. STRUCTURE : Début, péripéties, et fin positive. IMPORTANT : Termine par le mot "FIN". Uniquement texte pur.`;
+            const promptIA = `Raconte une aventure réaliste et concrète pour un enfant sur : "${sujet}". Pas de magie. STRUCTURE : Début, péripéties, et fin positive. IMPORTANT : Termine par le mot "FIN". Uniquement texte pur.`;
 
             try {
                 const response = await fetch(url, {
@@ -225,11 +252,17 @@
             if (isSpeaking || speechQueue.length === 0) return;
             isSpeaking = true;
             document.getElementById('story-card').classList.add('speaking-glow');
+            toggleStopButton(true);
             let txt = speechQueue.shift().replace(/[#*`_]/g, '');
             const utter = new SpeechSynthesisUtterance(txt);
             if (!bestVoice) loadVoices();
             utter.voice = bestVoice; utter.lang = 'fr-FR'; utter.pitch = 1.05; utter.rate = 0.83; 
-            utter.onend = () => { isSpeaking = false; document.getElementById('story-card').classList.remove('speaking-glow'); setTimeout(parler, 250); };
+            utter.onend = () => { 
+                isSpeaking = false; 
+                document.getElementById('story-card').classList.remove('speaking-glow'); 
+                if(speechQueue.length === 0) toggleStopButton(false);
+                setTimeout(parler, 250); 
+            };
             synth.speak(utter);
         }
 
