@@ -32,6 +32,7 @@
         /* --- LOGO --- */
         .brand-header { position: absolute; top: 1.5rem; left: 1.5rem; display: flex; align-items: center; gap: 0.5rem; z-index: 20; }
         .mini-logo-text { font-weight: 900; font-size: 1.2rem; background: linear-gradient(135deg, #22d3ee, #818cf8, #c084fc, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: lowercase; }
+        
         .logo-container { width: 220px; height: 220px; display: flex; justify-content: center; align-items: center; opacity: 0; animation: introFade 2s ease-out forwards, slowBeat 5s ease-in-out infinite 2s; filter: drop-shadow(0 10px 25px rgba(129, 140, 248, 0.5)); }
         @keyframes introFade { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
         @keyframes slowBeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
@@ -49,14 +50,63 @@
         @keyframes success-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); box-shadow: 0 0 60px #10b981; } 100% { transform: scale(1); } }
         .glass-ui { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px); border: 1px solid white; }
 
-        /* --- NOUVEAU : Styles Image --- */
-        #story-card { padding: 1.5rem !important; } /* Moins de padding pour l'image */
-        .image-container { width: 100%; aspect-ratio: 1 / 1; position: relative; border-radius: 2rem; overflow: hidden; background: rgba(255,255,255,0.5); }
-        #story-image { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1s ease-in-out; }
-        #story-image.loaded { opacity: 1; }
-        #image-loader { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; }
-        .loader-svg { width: 50px; height: 50px; animation: spin 2s linear infinite; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+        /* --- THEATRE MAGIQUE (SCÈNE ANIMÉE) --- */
+        #story-card { 
+            padding: 1.5rem !important; 
+            transition: all 0.5s ease;
+        }
+        
+        .magic-stage {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 2rem;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* Dégradé par défaut */
+            background: linear-gradient(135deg, #e0e7ff 0%, #fae8ff 100%);
+            transition: background 1s ease;
+        }
+
+        /* Lueur d'ambiance derrière l'émoji */
+        .stage-glow {
+            position: absolute;
+            width: 70%;
+            height: 70%;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+            border-radius: 50%;
+            animation: pulseGlow 4s infinite alternate;
+        }
+
+        /* L'Emoji Géant */
+        .hero-emoji {
+            font-size: 8rem;
+            z-index: 10;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.15));
+            animation: floatHero 6s ease-in-out infinite;
+            transform-origin: center bottom;
+        }
+
+        /* Animations de la scène */
+        @keyframes floatHero {
+            0%, 100% { transform: translateY(0) scale(1) rotate(-2deg); }
+            50% { transform: translateY(-20px) scale(1.1) rotate(2deg); }
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            100% { transform: scale(1.2); opacity: 0.8; }
+        }
+        
+        /* Animation d'apparition */
+        .pop-in { animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
     </style>
 </head>
 <body class="p-6">
@@ -128,15 +178,11 @@
             </button>
 
             <div id="story-card" class="bg-white/95 w-full rounded-[3rem] shadow-2xl border-4 border-white hidden">
-                <div class="image-container">
-                    <div id="image-loader">
-                        <svg class="loader-svg" viewBox="0 0 50 50">
-                            <circle cx="25" cy="25" r="20" fill="none" stroke="url(#auroraFill)" stroke-width="4" stroke-linecap="round" stroke-dasharray="30 90"></circle>
-                        </svg>
-                    </div>
-                    <img id="story-image" src="" alt="Illustration de l'histoire">
+                <div class="magic-stage" id="magic-stage">
+                    <div class="stage-glow"></div>
+                    <div id="hero-emoji" class="hero-emoji pop-in">✨</div>
                 </div>
-                </div>
+            </div>
 
         </main>
 
@@ -190,26 +236,52 @@
             toggleStopButton(false);
         }
 
-        // NOUVEAU : Fonction pour générer l'image
-        function generateImage(sujet) {
-            const img = document.getElementById('story-image');
-            const loader = document.getElementById('image-loader');
-            img.classList.remove('loaded');
-            loader.classList.remove('hidden');
+        // --- NOUVEAU : MOTEUR D'AMBIANCE INSTANTANÉ ---
+        function setMagicScene(sujet) {
+            const s = sujet.toLowerCase();
+            const stage = document.getElementById('magic-stage');
+            const hero = document.getElementById('hero-emoji');
+            
+            // Logique simple de détection de mots-clés
+            let emoji = "✨";
+            let gradient = "linear-gradient(135deg, #e0e7ff 0%, #fae8ff 100%)"; // Défaut (Clair)
 
-            // Utilisation d'un service de démo public (Pollinations) - Pas besoin de clé API pour la démo
-            const prompt = `Children's book illustration, magical style, cute, colorful, ${sujet}`;
-            const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=512&height=512&nologo=true&model=turbo`;
+            // ANIMAUX
+            if (s.includes('chat') || s.includes('chaton')) { emoji = "🐱"; gradient = "linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%)"; }
+            else if (s.includes('chien') || s.includes('chiot')) { emoji = "🐶"; gradient = "linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)"; }
+            else if (s.includes('dragon')) { emoji = "🐉"; gradient = "linear-gradient(135deg, #dcfce7 0%, #86efac 100%)"; }
+            else if (s.includes('licorne')) { emoji = "🦄"; gradient = "linear-gradient(135deg, #fce7f3 0%, #f9a8d4 100%)"; }
+            else if (s.includes('dino') || s.includes('t-rex')) { emoji = "🦖"; gradient = "linear-gradient(135deg, #d1fae5 0%, #6ee7b7 100%)"; }
+            else if (s.includes('lion')) { emoji = "🦁"; gradient = "linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%)"; }
+            else if (s.includes('ours')) { emoji = "🐻"; gradient = "linear-gradient(135deg, #fff7ed 0%, #fdba74 100%)"; }
+            
+            // FANTASTIQUE & AVENTURE
+            else if (s.includes('princesse') || s.includes('chateau')) { emoji = "🏰"; gradient = "linear-gradient(135deg, #fbcfe8 0%, #f472b6 100%)"; }
+            else if (s.includes('sorcier') || s.includes('magie')) { emoji = "🧙‍♂️"; gradient = "linear-gradient(135deg, #e9d5ff 0%, #c084fc 100%)"; }
+            else if (s.includes('pirate') || s.includes('bateau')) { emoji = "🏴‍☠️"; gradient = "linear-gradient(135deg, #cffafe 0%, #67e8f9 100%)"; }
+            else if (s.includes('chevalier')) { emoji = "⚔️"; gradient = "linear-gradient(135deg, #e5e7eb 0%, #9ca3af 100%)"; }
+            else if (s.includes('fée')) { emoji = "🧚‍♀️"; gradient = "linear-gradient(135deg, #ccfbf1 0%, #5eead4 100%)"; }
+            
+            // ESPACE & NATURE
+            else if (s.includes('espace') || s.includes('lune') || s.includes('etoile')) { emoji = "🚀"; gradient = "linear-gradient(135deg, #312e81 0%, #4338ca 100%)"; stage.style.color = "white"; }
+            else if (s.includes('mer') || s.includes('océan') || s.includes('poisson')) { emoji = "🐠"; gradient = "linear-gradient(135deg, #bae6fd 0%, #38bdf8 100%)"; }
+            else if (s.includes('foret') || s.includes('arbre')) { emoji = "🌳"; gradient = "linear-gradient(135deg, #ecfccb 0%, #a3e635 100%)"; }
+            
+            // VEHICULES
+            else if (s.includes('voiture')) { emoji = "🏎️"; gradient = "linear-gradient(135deg, #fee2e2 0%, #ef4444 100%)"; }
+            else if (s.includes('train')) { emoji = "🚂"; gradient = "linear-gradient(135deg, #ffedd5 0%, #f97316 100%)"; }
+            else if (s.includes('avion')) { emoji = "✈️"; gradient = "linear-gradient(135deg, #e0f2fe 0%, #60a5fa 100%)"; }
 
-            // Préchargement pour une transition fluide
-            const tempImg = new Image();
-            tempImg.onload = () => {
-                img.src = url;
-                img.classList.add('loaded');
-                loader.classList.add('hidden');
-            }
-            tempImg.src = url;
+            // Application instantanée
+            stage.style.background = gradient;
+            hero.innerText = emoji;
+            
+            // Reset animation
+            hero.classList.remove('pop-in');
+            void hero.offsetWidth; // Trigger reflow
+            hero.classList.add('pop-in');
         }
+
 
         async function appelIA(sujet) {
             if (!API_KEY) return;
@@ -221,16 +293,15 @@
             statusLabel.innerText = "Je tisse ton aventure...";
             statusLabel.classList.add('status-animating');
             
+            // MISE EN PLACE DE LA SCÈNE IMMÉDIATE
+            setMagicScene(sujet);
+            
             setTimeout(() => {
                 btnMic.classList.remove('understood-flash');
                 document.getElementById('story-card').classList.remove('hidden');
                 toggleStopButton(true);
-                // NOUVEAU : Lancer la génération d'image
-                generateImage(sujet);
             }, 800);
             
-            // SUPPRIMÉ : document.getElementById('story-text').innerText = "";
-
             const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${API_KEY}`;
             const promptIA = `Raconte une aventure réaliste pour un enfant sur : "${sujet}". Pas de magie. Fin positive. Termine par "FIN".`;
 
@@ -251,7 +322,6 @@
                                 const json = JSON.parse(line.substring(6));
                                 const chunkText = json.candidates[0].content.parts[0].text;
                                 currentSentence += chunkText;
-                                // SUPPRIMÉ : Mise à jour du texte visuel
                                 if (/[.!?\n]/.test(chunkText)) {
                                     const parts = currentSentence.split(/([.!?\n])/);
                                     for (let i = 0; i < parts.length - 1; i += 2) { const p = (parts[i] + (parts[i+1] || "")).trim(); if (p.length > 2) { speechQueue.push(p); parler(); } }
