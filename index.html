@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Short+Stack&display=swap" rel="stylesheet">
     <style>
-        /* Fond Moderne Animé */
+        /* Fond Moderne Animé (Aurore Boréale) */
         body { 
             font-family: 'Short Stack', cursive; 
             background: linear-gradient(-45deg, #fff7ed, #fef9c3, #ede9fe, #fae8ff);
@@ -55,7 +55,6 @@
             50% { transform: scale(1.1); filter: brightness(1.2); }
         }
 
-        /* Bouton Secours discret */
         #btn-toggle-keyboard {
             background: rgba(255, 255, 255, 0.3);
             backdrop-filter: blur(5px);
@@ -68,7 +67,7 @@
 
     <header class="text-center my-6">
         <h1 class="text-4xl font-bold text-amber-600 drop-shadow-sm">Ma Boîte Magique ✨</h1>
-        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Dis-moi un secret pour une histoire...</p>
+        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Dis-moi ton secret...</p>
     </header>
 
     <div id="image-box" class="w-full max-w-md aspect-square bg-white rounded-[2.5rem] shadow-2xl border-4 border-white overflow-hidden mb-8 hidden">
@@ -76,77 +75,19 @@
     </div>
 
     <div class="w-full max-w-md flex flex-col items-center gap-10">
-        
         <button id="btn-mic" class="p-12 rounded-full backdrop-blur-sm active:scale-90 mt-4">
             <span id="mic-icon" class="text-7xl drop-shadow-md">🎤</span>
         </button>
 
         <div id="keyboard-area" class="w-full flex gap-2 bg-white/60 backdrop-blur-md p-2 rounded-2xl border border-amber-200 shadow-sm hidden">
-            <input type="text" id="manualInput" placeholder="Sujet de l'aventure..." 
-                   class="flex-1 bg-white/80 p-4 rounded-xl outline-none text-sm shadow-inner">
+            <input type="text" id="manualInput" placeholder="Sujet de l'aventure..." class="flex-1 bg-white/80 p-4 rounded-xl outline-none text-sm shadow-inner">
             <button id="btn-ok" class="bg-amber-500 text-white px-6 py-4 rounded-xl font-bold active:scale-95 shadow-md">OK</button>
         </div>
 
-        <button id="btn-toggle-keyboard" class="text-amber-900/50 text-xs uppercase tracking-widest py-2 px-4 rounded-full hover:bg-white/40">
-            ⌨️ Utiliser le clavier en secours
+        <button id="btn-toggle-keyboard" class="text-amber-900/50 text-[10px] uppercase tracking-widest py-2 px-4 rounded-full">
+            ⌨️ Clavier de secours
         </button>
     </div>
 
     <div id="story-card" class="bg-white w-full max-w-md rounded-[2.5rem] shadow-xl border-4 border-amber-50 p-8 mt-10 hidden max-h-[500px] overflow-y-auto">
-        <div id="audio-controls" class="flex justify-center gap-4 mb-4 sticky top-0 bg-white/90 py-2">
-            <button id="btn-stop" class="bg-red-100 text-red-700 px-6 py-2 rounded-full text-xs font-bold shadow-sm uppercase">⏹ Arrêter</button>
-        </div>
-        <div id="story-text" class="text-lg leading-relaxed text-gray-800 italic whitespace-pre-line"></div>
-    </div>
-
-    <button onclick="reinitialiserCle()" class="mt-20 text-gray-400 text-[10px] uppercase underline tracking-widest">Réinitialiser la clé API</button>
-
-    <script>
-        let API_KEY = localStorage.getItem('BOITE_FINAL_KEY_2026');
-        const MODEL_ID = "models/gemini-2.5-flash"; 
-        const synth = window.speechSynthesis;
-        let speechQueue = [];
-        let isSpeaking = false;
-        let currentSentence = "";
-        let magicInterval;
-        let bestVoice = null;
-
-        function loadVoices() {
-            const voices = synth.getVoices();
-            bestVoice = voices.find(v => v.lang.includes('fr') && (v.name.includes('Siri') || v.name.includes('Premium') || v.name.includes('Google')))
-                       || voices.find(v => v.lang.includes('fr'));
-        }
-        synth.onvoiceschanged = loadVoices;
-        loadVoices();
-
-        function reinitialiserCle() { localStorage.removeItem('BOITE_FINAL_KEY_2026'); location.reload(); }
-        if (!API_KEY) {
-            const k = prompt("Entre ta clé API Gemini :");
-            if (k) { localStorage.setItem('BOITE_FINAL_KEY_2026', k); API_KEY = k; location.reload(); }
-        }
-
-        function creerEtoile() {
-            const star = document.createElement('div');
-            star.className = 'star'; star.innerHTML = '✨';
-            star.style.left = Math.random() * 100 + 'vw'; star.style.top = Math.random() * 100 + 'vh';
-            document.body.appendChild(star);
-            setTimeout(() => star.remove(), 1500);
-        }
-
-        function stopAudio() {
-            synth.cancel(); speechQueue = []; isSpeaking = false; currentSentence = "";
-            document.getElementById('story-card').classList.remove('speaking-glow');
-        }
-
-        async function appelIA(sujet) {
-            if (!API_KEY) return;
-            stopAudio();
-            magicInterval = setInterval(creerEtoile, 250);
-            
-            document.getElementById('status').innerText = "✨ Tissage du conte...";
-            document.getElementById('story-text').innerText = ""; 
-            document.getElementById('story-card').classList.remove('hidden');
-            
-            const imgEl = document.getElementById('story-img');
-            document.getElementById('image-box').classList.remove('hidden');
-            imgEl.style.
+        <div id="audio-controls" class="
