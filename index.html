@@ -12,7 +12,7 @@
         #story-card::-webkit-scrollbar { width: 8px; }
         #story-card::-webkit-scrollbar-thumb { background: #fcd34d; border-radius: 10px; }
         
-        /* Effet d'étoiles magiques */
+        /* Étoiles magiques */
         .star { position: absolute; color: #fbbf24; animation: blink 1.5s infinite; pointer-events: none; z-index: 50; }
         @keyframes blink { 0%, 100% { opacity: 0; transform: scale(0.5); } 50% { opacity: 1; transform: scale(1.2); } }
         
@@ -24,21 +24,21 @@
 
     <header class="text-center my-6">
         <h1 class="text-4xl font-bold text-amber-600 drop-shadow-sm">Ma Boîte Magique ✨</h1>
-        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Une voix douce pour de beaux rêves...</p>
+        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Une histoire pure, sans bruits de robot...</p>
     </header>
 
     <div id="image-box" class="w-full max-w-md aspect-square bg-white rounded-[2.5rem] shadow-2xl border-4 border-white overflow-hidden mb-6 hidden">
-        <img id="story-img" src="" class="w-full h-full object-cover">
+        <img id="story-img" src="" class="w-full h-full object-cover transition-opacity duration-1000" style="opacity:0">
     </div>
 
     <div class="w-full max-w-md flex flex-col items-center gap-6">
         <div class="w-full flex gap-2 bg-amber-100/50 p-2 rounded-2xl border border-amber-200 shadow-sm">
             <input type="text" id="manualInput" placeholder="Sujet de l'aventure..." 
                    class="flex-1 bg-white p-4 rounded-xl outline-none text-sm shadow-inner">
-            <button id="btn-ok" class="bg-amber-500 text-white px-6 py-4 rounded-xl font-bold active:scale-95 shadow-md">OK</button>
+            <button id="btn-ok" onclick="lancerMagieDepuisTexte()" class="bg-amber-500 text-white px-6 py-4 rounded-xl font-bold active:scale-95 shadow-md">OK</button>
         </div>
 
-        <button id="mic-btn" class="bg-amber-400 p-10 rounded-full shadow-2xl border-8 border-white active:scale-90 transition-all">
+        <button id="mic-btn" onclick="lancerMicro()" class="bg-amber-400 p-10 rounded-full shadow-2xl border-8 border-white active:scale-90 transition-all">
             <span class="text-6xl">🎤</span>
         </button>
     </div>
@@ -63,28 +63,18 @@
         let magicInterval;
         let bestVoice = null;
 
-        // --- SÉLECTION DE LA MEILLEURE VOIX DISPONIBLE ---
         function selectBestVoice() {
             const voices = synth.getVoices();
-            // On cherche en priorité les voix "humaines" de haute qualité
-            bestVoice = voices.find(v => v.lang.includes('fr') && (v.name.includes('Siri') || v.name.includes('Premium') || v.name.includes('Enhanced') || v.name.includes('Google')))
+            bestVoice = voices.find(v => v.lang.includes('fr') && (v.name.includes('Siri') || v.name.includes('Premium') || v.name.includes('Google')))
                        || voices.find(v => v.lang.includes('fr'));
         }
-        
-        // Certains navigateurs chargent les voix de manière asynchrone
-        if (speechSynthesis.onvoiceschanged !== undefined) {
-            speechSynthesis.onvoiceschanged = selectBestVoice;
-        }
+        if (speechSynthesis.onvoiceschanged !== undefined) { speechSynthesis.onvoiceschanged = selectBestVoice; }
         selectBestVoice();
 
         function verifierCle() {
             if (!API_KEY) {
                 const key = prompt("Entrez votre clé API Gemini :");
-                if (key) {
-                    localStorage.setItem('BOITE_FINAL_KEY_2026', key);
-                    API_KEY = key;
-                    location.reload();
-                }
+                if (key) { localStorage.setItem('BOITE_FINAL_KEY_2026', key); API_KEY = key; location.reload(); }
             }
         }
         verifierCle();
@@ -95,8 +85,7 @@
             const star = document.createElement('div');
             star.className = 'star';
             star.innerHTML = '✨';
-            star.style.left = Math.random() * 100 + 'vw';
-            star.style.top = Math.random() * 100 + 'vh';
+            star.style.left = Math.random() * 100 + 'vw'; star.style.top = Math.random() * 100 + 'vh';
             document.body.appendChild(star);
             setTimeout(() => star.remove(), 1500);
         }
@@ -109,113 +98,10 @@
             document.getElementById('story-text').innerText = ""; 
             document.getElementById('story-card').classList.remove('hidden', 'speaking-glow');
             
-            document.getElementById('image-box').classList.remove('hidden');
-            const styleImg = "breathtaking watercolor illustration, professional children storybook style, vibrant pastel, magical light, fairy tale, ";
-            document.getElementById('story-img').src = `https://pollinations.ai/p/${encodeURIComponent(styleImg + sujet)}?width=1024&height=1024&seed=${Math.floor(Math.random()*1000)}&model=flux&nologo=true`;
-
-            const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${API_KEY}`;
+            const imgElement = document.getElementById('story-img');
+            const imgBox = document.getElementById('image-box');
+            imgBox.classList.remove('hidden');
+            imgElement.style.opacity = "0";
             
-            const consigne = `Raconte une épopée magique longue et merveilleuse pour un enfant sur : "${sujet}".
-            L'histoire doit être complète (Début, Aventures, Fin heureuse).
-            Utilise un vocabulaire riche, doux et poétique. Ne coupe pas l'histoire brusquement.`;
-
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: consigne }] }],
-                        generationConfig: { temperature: 0.8, maxOutputTokens: 3800 }
-                    })
-                });
-
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder("utf-8");
-                let fullText = "";
-
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) {
-                        if (currentSentence.trim()) { speechQueue.push(currentSentence.trim()); parler(); }
-                        clearInterval(magicInterval);
-                        break;
-                    }
-                    
-                    const chunk = decoder.decode(value);
-                    const lines = chunk.split("\n");
-                    for (const line of lines) {
-                        if (line.startsWith("data: ")) {
-                            try {
-                                const json = JSON.parse(line.substring(6));
-                                const textChunk = json.candidates[0].content.parts[0].text;
-                                fullText += textChunk;
-                                currentSentence += textChunk;
-                                document.getElementById('story-text').innerText = fullText;
-                                document.getElementById('story-card').scrollTop = document.getElementById('story-card').scrollHeight;
-
-                                // On découpe par phrases pour une intonation plus naturelle
-                                if (/[.!?\n]/.test(textChunk)) {
-                                    const parts = currentSentence.split(/([.!?\n])/);
-                                    for (let i = 0; i < parts.length - 1; i += 2) {
-                                        const phrase = parts[i] + (parts[i+1] || "");
-                                        if (phrase.trim().length > 2) {
-                                            speechQueue.push(phrase.trim());
-                                            parler();
-                                        }
-                                    }
-                                    currentSentence = parts[parts.length - 1];
-                                }
-                            } catch(e) {}
-                        }
-                    }
-                }
-            } catch (e) { clearInterval(magicInterval); alert("La magie a besoin de repos."); }
-        }
-
-        // --- LA VOIX FÉÉRIQUE ET HUMAINE ---
-        function parler() {
-            if (isSpeaking || speechQueue.length === 0) return;
-            isSpeaking = true;
-            document.getElementById('story-card').classList.add('speaking-glow');
-            
-            const utter = new SpeechSynthesisUtterance(speechQueue.shift());
-            
-            if (!bestVoice) selectBestVoice();
-            utter.voice = bestVoice;
-            utter.lang = 'fr-FR';
-            
-            // PARAMÈTRES POUR UN EFFET "DOUX ET CALME"
-            utter.pitch = 1.15; // Un peu plus haut pour la féérie (mais pas trop pour rester humain)
-            utter.rate = 0.88;  // Un peu plus lent que la parole normale pour le côté "conte"
-            utter.volume = 1;
-
-            utter.onend = () => {
-                isSpeaking = false;
-                document.getElementById('story-card').classList.remove('speaking-glow');
-                // Petite pause entre les phrases pour laisser respirer l'histoire
-                setTimeout(parler, 300); 
-            };
-            synth.speak(utter);
-        }
-
-        function stopAudio() { synth.cancel(); speechQueue = []; isSpeaking = false; currentSentence = ""; document.getElementById('story-card').classList.remove('speaking-glow'); }
-
-        document.getElementById('btn-ok').addEventListener('click', () => {
-            const val = document.getElementById('manualInput').value.trim();
-            if(val) appelIA(val);
-        });
-
-        document.getElementById('mic-btn').addEventListener('click', () => {
-            const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if(!Speech) return alert("Micro non supporté.");
-            const rec = new Speech();
-            rec.lang = 'fr-FR';
-            rec.onresult = (e) => {
-                document.getElementById('manualInput').value = e.results[0][0].transcript;
-                appelIA(e.results[0][0].transcript);
-            };
-            rec.start();
-        });
-    </script>
-</body>
-</html>
+            const styleImg = "breathtaking soft watercolor fairytale illustration, professional children book style, vibrant pastel, magical light, ";
+            imgElement.src = `https://pollinations.ai/p/${encodeURIComponent(styleImg + sujet)}?width=1024&height=1024&seed=${Math.floor(Math.random()*100
