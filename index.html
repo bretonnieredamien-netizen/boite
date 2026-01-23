@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>La Boîte à Aventures ✨</title>
+    <title>Ta boite magique ✨</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;500;800&display=swap" rel="stylesheet">
     <style>
@@ -45,10 +45,8 @@
             border-radius: 9999px;
             border: 1px solid rgba(255, 255, 255, 0.5);
             margin-top: 1rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
-        /* Animation du texte de statut */
         .status-animating {
             animation: status-glow 1.5s infinite ease-in-out;
             color: #b45309 !important;
@@ -59,11 +57,10 @@
             50% { opacity: 1; transform: translateY(-2px); }
         }
 
-        /* --- STYLES EXISTANTS PRÉSERVÉS --- */
+        /* --- ORBES DE CONTRÔLE --- */
         .understood-flash {
             animation: success-pulse 0.8s ease-out !important;
             background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-            border-color: #ecfdf5 !important;
         }
 
         @keyframes success-pulse {
@@ -71,8 +68,6 @@
             50% { transform: scale(1.15); box-shadow: 0 0 50px #10b981; }
             100% { transform: scale(1); }
         }
-
-        .speaking-glow { box-shadow: 0 0 40px rgba(251, 191, 36, 0.5); border: 4px solid #fbbf24 !important; }
 
         .control-orbe {
             width: 110px; height: 110px; border-radius: 50%; border: 5px solid white;
@@ -87,8 +82,9 @@
         .mic-listening { animation: pulse-mic 1.5s infinite ease-in-out; background: linear-gradient(135deg, #f87171 0%, #ef4444 100%) !important; }
         @keyframes pulse-mic { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
 
+        .speaking-glow { box-shadow: 0 0 40px rgba(251, 191, 36, 0.5); border: 4px solid #fbbf24 !important; }
+
         .glass-ui { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 1px solid white; }
-        #toggle-input { background: rgba(255, 255, 255, 0.3); border: 1px solid rgba(255, 255, 255, 0.5); }
     </style>
 </head>
 <body class="p-6">
@@ -96,9 +92,9 @@
     <div class="content-layer min-h-screen">
         
         <header class="text-center my-12 flex flex-col items-center">
-            <h1 class="modern-title">L'Aventure Continue</h1>
+            <h1 class="modern-title">Ta boite magique</h1>
             <div class="status-box">
-                <p id="status" class="text-amber-900/80 font-medium italic text-sm">Dis-moi où nous allons aujourd'hui...</p>
+                <p id="status" class="text-amber-900/80 font-medium italic text-sm">Dis-moi ton idée pour une histoire...</p>
             </div>
         </header>
 
@@ -121,8 +117,7 @@
             </div>
 
             <div id="keyboard-area" class="w-full flex gap-2 glass-ui p-2 rounded-2xl shadow-xl hidden">
-                <input type="text" id="manualInput" placeholder="Sujet de l'aventure..." 
-                       class="flex-1 bg-white/50 p-4 rounded-xl outline-none text-sm">
+                <input type="text" id="manualInput" placeholder="Sujet de l'aventure..." class="flex-1 bg-white/50 p-4 rounded-xl outline-none text-sm">
                 <button id="btn-ok" class="bg-amber-500 text-white px-6 py-4 rounded-xl font-bold active:scale-95 shadow-md">OK</button>
             </div>
 
@@ -137,7 +132,7 @@
         </main>
 
         <footer class="mt-auto py-10">
-            <button onclick="reinitialiserCle()" class="text-gray-400 text-[10px] uppercase underline tracking-widest opacity-40 hover:opacity-100 transition-opacity">Réinitialiser la clé API</button>
+            <button onclick="reinitialiserCle()" class="text-gray-400 text-[10px] uppercase underline tracking-widest opacity-40">Réinitialiser la clé API</button>
         </footer>
 
     </div>
@@ -172,8 +167,7 @@
             bestVoice = voices.find(v => v.lang.includes('fr') && (v.name.includes('Siri') || v.name.includes('Premium') || v.name.includes('Google')))
                        || voices.find(v => v.lang.includes('fr'));
         }
-        synth.onvoiceschanged = loadVoices;
-        loadVoices();
+        synth.onvoiceschanged = loadVoices; loadVoices();
 
         function reinitialiserCle() { localStorage.removeItem('BOITE_FINAL_KEY_2026'); location.reload(); }
         if (!API_KEY) {
@@ -202,37 +196,29 @@
         async function appelIA(sujet) {
             if (!API_KEY) return;
             stopAudio();
-            
             const btnMic = document.getElementById('btn-mic');
             const statusLabel = document.getElementById('status');
-
             playChime();
             btnMic.classList.add('understood-flash');
-            statusLabel.innerText = "Je tisse ton aventure...";
+            statusLabel.innerText = "Compris ! Je prépare l'aventure...";
             statusLabel.classList.add('status-animating');
-            
             setTimeout(() => {
                 btnMic.classList.remove('understood-flash');
                 document.getElementById('story-card').classList.remove('hidden');
                 toggleStopButton(true);
             }, 800);
-
             document.getElementById('story-text').innerText = ""; 
-
             const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${API_KEY}`;
             const promptIA = `Raconte une aventure réaliste et captivante pour un enfant sur : "${sujet}". Pas de magie. STRUCTURE : Début, péripéties, et fin positive. IMPORTANT : Termine par le mot "FIN". Uniquement texte pur.`;
-
             try {
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ contents: [{ parts: [{ text: promptIA }] }], generationConfig: { temperature: 0.7, maxOutputTokens: 3800 } })
                 });
-
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder("utf-8");
                 let fullText = "";
-
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) {
@@ -263,7 +249,7 @@
                         }
                     }
                 }
-            } catch (e) { statusLabel.innerText = "Une petite erreur technique..."; }
+            } catch (e) { statusLabel.innerText = "Erreur technique..."; }
         }
 
         function parler() {
@@ -284,26 +270,18 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const kbArea = document.getElementById('keyboard-area');
-            const toggleBtn = document.getElementById('toggle-input');
-
-            toggleBtn.onclick = () => kbArea.classList.toggle('hidden');
-
+            document.getElementById('toggle-input').onclick = () => document.getElementById('keyboard-area').classList.toggle('hidden');
             document.getElementById('btn-ok').onclick = () => {
                 const val = document.getElementById('manualInput').value.trim();
                 if(val) appelIA(val);
             };
-
             document.getElementById('btn-mic').onclick = () => {
                 const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-                if (!Speech) return alert("Désolé, ton micro n'est pas prêt.");
-                const rec = new Speech();
-                rec.lang = 'fr-FR';
-                const statusLabel = document.getElementById('status');
-
+                if (!Speech) return alert("Micro non supporté.");
+                const rec = new Speech(); rec.lang = 'fr-FR';
                 rec.onstart = () => {
                     document.getElementById('btn-mic').classList.add('mic-listening');
-                    statusLabel.innerText = "Je t'écoute...";
+                    document.getElementById('status').innerText = "Je t'écoute...";
                 };
                 rec.onresult = (e) => {
                     const p = e.results[0][0].transcript;
@@ -313,11 +291,10 @@
                 rec.onend = () => document.getElementById('btn-mic').classList.remove('mic-listening');
                 rec.onerror = () => {
                     document.getElementById('btn-mic').classList.remove('mic-listening');
-                    statusLabel.innerText = "Je n'ai pas bien entendu...";
+                    document.getElementById('status').innerText = "Je n'ai pas entendu...";
                 };
                 try { rec.start(); } catch (e) {}
             };
-
             document.getElementById('btn-stop').onclick = stopAudio;
         });
     </script>
