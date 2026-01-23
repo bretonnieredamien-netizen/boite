@@ -12,19 +12,19 @@
         #story-card::-webkit-scrollbar { width: 8px; }
         #story-card::-webkit-scrollbar-thumb { background: #fcd34d; border-radius: 10px; }
         
-        /* Effet d'étoiles scintillantes */
+        /* Étoiles magiques */
         .star { position: absolute; color: #fbbf24; animation: blink 1.5s infinite; pointer-events: none; z-index: 50; }
-        @keyframes blink { 0%, 100% { opacity: 0; transform: scale(0.5) rotate(0deg); } 50% { opacity: 1; transform: scale(1.2) rotate(180deg); } }
+        @keyframes blink { 0%, 100% { opacity: 0; transform: scale(0.5); } 50% { opacity: 1; transform: scale(1.2); } }
         
-        /* Aura magique quand la boîte parle */
-        .speaking-glow { box-shadow: 0 0 40px #fbbf24; border: 4px solid #fbbf24 !important; transition: all 0.5s ease; }
+        /* Aura de la boîte qui parle */
+        .speaking-glow { box-shadow: 0 0 35px #fbbf24; border: 4px solid #fbbf24 !important; transition: all 0.5s ease; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center p-6 select-none relative">
 
     <header class="text-center my-6">
-        <h1 class="text-4xl font-bold text-amber-600 drop-shadow-sm">Ma Boîte Magique ⚡</h1>
-        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Prêt pour une aventure géante !</p>
+        <h1 class="text-4xl font-bold text-amber-600 drop-shadow-sm">Ma Boîte Magique ✨</h1>
+        <p id="status" class="text-amber-800 mt-2 opacity-80 italic text-sm">Prêt pour une aventure complète !</p>
     </header>
 
     <div id="image-box" class="w-full max-w-md aspect-square bg-white rounded-[2.5rem] shadow-2xl border-4 border-white overflow-hidden mb-6 hidden">
@@ -32,8 +32,8 @@
     </div>
 
     <div class="w-full max-w-md flex flex-col items-center gap-6">
-        <div class="w-full flex gap-2 bg-amber-100/50 p-2 rounded-2xl border border-amber-200">
-            <input type="text" id="manualInput" placeholder="Sujet de l'aventure épique..." 
+        <div class="w-full flex gap-2 bg-amber-100/50 p-2 rounded-2xl border border-amber-200 shadow-sm">
+            <input type="text" id="manualInput" placeholder="Sujet de l'aventure..." 
                    class="flex-1 bg-white p-4 rounded-xl outline-none text-sm shadow-inner">
             <button id="btn-ok" class="bg-amber-500 text-white px-6 py-4 rounded-xl font-bold active:scale-95 shadow-md">OK</button>
         </div>
@@ -45,7 +45,7 @@
 
     <div id="story-card" class="bg-white w-full max-w-md rounded-[2.5rem] shadow-xl border-4 border-amber-50 p-8 mt-10 hidden max-h-[500px] overflow-y-auto">
         <div id="audio-controls" class="flex justify-center gap-4 mb-4 sticky top-0 bg-white/90 py-2">
-            <button onclick="stopAudio()" class="bg-red-100 text-red-700 px-6 py-2 rounded-full text-[10px] font-bold shadow-sm uppercase">⏹ Arrêter</button>
+            <button onclick="stopAudio()" class="bg-red-100 text-red-700 px-6 py-2 rounded-full text-xs font-bold shadow-sm uppercase">⏹ Arrêter</button>
         </div>
         <div id="story-text" class="text-lg leading-relaxed text-gray-800 italic whitespace-pre-line"></div>
     </div>
@@ -62,10 +62,9 @@
         let currentSentence = "";
         let magicInterval;
 
-        // --- GESTION DE LA CLÉ ---
         function verifierCle() {
             if (!API_KEY) {
-                const key = prompt("Entrez votre clé API Gemini (AIza...) :");
+                const key = prompt("Entrez votre clé API Gemini :");
                 if (key) {
                     localStorage.setItem('BOITE_FINAL_KEY_2026', key);
                     API_KEY = key;
@@ -75,12 +74,8 @@
         }
         verifierCle();
 
-        function reinitialiserCle() {
-            localStorage.removeItem('BOITE_FINAL_KEY_2026');
-            location.reload();
-        }
+        function reinitialiserCle() { localStorage.removeItem('BOITE_FINAL_KEY_2026'); location.reload(); }
 
-        // --- EFFET ÉTOILES ---
         function creerEtoile() {
             const star = document.createElement('div');
             star.className = 'star';
@@ -95,25 +90,25 @@
             stopAudio();
             magicInterval = setInterval(creerEtoile, 250);
             
-            document.getElementById('status').innerText = "✨ Tissage de l'épopée...";
+            document.getElementById('status').innerText = "✨ Tissage du conte...";
             document.getElementById('story-text').innerText = ""; 
             document.getElementById('story-card').classList.remove('hidden', 'speaking-glow');
             
-            // --- IMAGE AMÉLIORÉE (STYLE LIVRE DE CONTES) ---
+            // Image améliorée avec style précis
             document.getElementById('image-box').classList.remove('hidden');
-            const styleImg = "breathtaking watercolor illustration, professional children storybook style, vibrant pastel, magical lighting, detailed, ";
+            const styleImg = "breathtaking watercolor illustration, professional children storybook style, vibrant pastel, magical light, fairy tale, ";
             document.getElementById('story-img').src = `https://pollinations.ai/p/${encodeURIComponent(styleImg + sujet)}?width=1024&height=1024&seed=${Math.floor(Math.random()*1000)}&model=flux&nologo=true`;
 
             const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${API_KEY}`;
             
-            // --- PROMPT AVEC STRUCTURE DE FIN FORCÉE ---
-            const consigne = `Raconte une épopée magique IMMENSE pour un enfant sur : "${sujet}".
-            TU DOIS SUIVRE CE PLAN :
-            1. Une introduction poétique et longue.
-            2. Trois grands chapitres d'aventures remplis de détails et de rebondissements.
-            3. Une conclusion finale complète et joyeuse.
-            IMPORTANT : Surveille ta longueur ! Tu DOIS avoir terminé et clos l'histoire avant d'atteindre la limite de texte. L'histoire ne doit jamais s'arrêter brusquement.
-            Ton ton est doux, calme et merveilleux.`;
+            // PROMPT AVEC CONTRÔLE DE FIN STRICT
+            const consigne = `Raconte une épopée magique longue et merveilleuse pour un enfant sur : "${sujet}".
+            PLAN OBLIGATOIRE QUE TU DOIS FINIR :
+            1. Une introduction qui pose le décor magique.
+            2. Trois chapitres d'aventures riches en détails et émotions.
+            3. Une CONCLUSION claire, douce et joyeuse qui termine l'histoire.
+            IMPORTANT : Tu as une limite de place. Tu DOIS avoir terminé et écrit le mot "FIN" avant d'être coupé. Surveille ton avancement pour ne pas t'arrêter au milieu de l'action.
+            Ton ton est calme, posé et très féérique.`;
 
             try {
                 const response = await fetch(url, {
@@ -121,7 +116,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         contents: [{ parts: [{ text: consigne }] }],
-                        generationConfig: { temperature: 0.85, maxOutputTokens: 4000 }
+                        generationConfig: { temperature: 0.8, maxOutputTokens: 3800 }
                     })
                 });
 
@@ -149,7 +144,6 @@
                                 document.getElementById('story-text').innerText = fullText;
                                 document.getElementById('story-card').scrollTop = document.getElementById('story-card').scrollHeight;
 
-                                // On parle phrase par phrase
                                 if (/[.!?\n]/.test(textChunk)) {
                                     const parts = currentSentence.split(/([.!?\n])/);
                                     for (let i = 0; i < parts.length - 1; i += 2) {
@@ -165,11 +159,10 @@
                         }
                     }
                 }
-                document.getElementById('status').innerText = "L'histoire est finie ✨";
-            } catch (e) { clearInterval(magicInterval); alert("La magie a besoin de repos (vérifie internet)."); }
+                document.getElementById('status').innerText = "L'aventure est complète ✨";
+            } catch (e) { clearInterval(magicInterval); alert("La magie a besoin de repos."); }
         }
 
-        // --- VOIX FÉÉRIQUE (DOUCE ET CALME) ---
         function parler() {
             if (isSpeaking || speechQueue.length === 0) return;
             isSpeaking = true;
@@ -177,13 +170,15 @@
             
             const utter = new SpeechSynthesisUtterance(speechQueue.shift());
             const voices = synth.getVoices();
-            // Sélection de la meilleure voix française
+            // Sélection de la meilleure voix
             const douce = voices.find(v => v.lang.includes('fr') && (v.name.includes('Google') || v.name.includes('Siri') || v.name.includes('Premium'))) || voices.find(v => v.lang.includes('fr'));
             
             if (douce) utter.voice = douce;
             utter.lang = 'fr-FR';
-            utter.pitch = 1.35; // Cristallin
-            utter.rate = 0.8;   // Très calme et doux
+            
+            // RÉGLAGES FÉÉRIQUES (DOUX ET CALMES)
+            utter.pitch = 1.35; // Voix cristalline
+            utter.rate = 0.83;  // Calme et posé
             
             utter.onend = () => {
                 isSpeaking = false;
@@ -195,7 +190,6 @@
 
         function stopAudio() { synth.cancel(); speechQueue = []; isSpeaking = false; currentSentence = ""; document.getElementById('story-card').classList.remove('speaking-glow'); }
 
-        // --- BOUTONS ---
         document.getElementById('btn-ok').addEventListener('click', () => {
             const val = document.getElementById('manualInput').value.trim();
             if(val) appelIA(val);
