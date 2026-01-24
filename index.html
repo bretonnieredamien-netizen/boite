@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;500;800;900&display=swap" rel="stylesheet">
     <style>
-        /* Fond Moderne Animé */
+        /* Fond Moderne Animé (Partagé par tout le site) */
         body { 
             font-family: 'Lexend', sans-serif; 
             background: linear-gradient(-45deg, #fff7ed, #fef9c3, #ede9fe, #fae8ff);
@@ -80,9 +80,10 @@
         /* --- INTRO ANIMATION --- */
         #intro-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(-45deg, #1e1b4b, #312e81, #4c1d95, #1e1b4b);
+            /* FOND CLAIR IDENTIQUE AU BODY */
+            background: linear-gradient(-45deg, #fff7ed, #fef9c3, #ede9fe, #fae8ff);
             background-size: 400% 400%;
-            animation: gradientBG 10s ease infinite;
+            animation: gradientBG 15s ease infinite;
             z-index: 100;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             transition: opacity 0.8s ease-out, visibility 0.8s;
@@ -90,10 +91,10 @@
         
         .container-box { position: relative; width: 300px; height: 350px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         
-        /* Rayons en arrière plan */
+        /* Rayons adaptés pour fond clair (Or/Blanc/Violet très léger) */
         .god-rays {
             position: absolute; width: 150%; height: 150%;
-            background: conic-gradient(from 0deg, transparent 0deg, rgba(255,255,255,0.1) 20deg, transparent 40deg, rgba(192, 132, 252, 0.2) 60deg, transparent 80deg);
+            background: conic-gradient(from 0deg, transparent 0deg, rgba(251, 191, 36, 0.1) 20deg, transparent 40deg, rgba(139, 92, 246, 0.1) 60deg, transparent 80deg);
             border-radius: 50%; z-index: 0; opacity: 0; transition: opacity 1s;
             top: 50%; left: 50%; transform: translate(-50%, -50%);
         }
@@ -103,7 +104,8 @@
         /* Lumière du trésor */
         #treasure-glow {
             position: absolute; top: 60%; left: 50%; width: 0; height: 0; transform: translate(-50%, -50%);
-            background: radial-gradient(circle, rgba(255, 255, 220, 1) 10%, rgba(253, 224, 71, 0.8) 30%, rgba(255, 255, 255, 0) 70%);
+            /* Dégradé renforcé pour être visible sur le blanc */
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.8) 10%, rgba(251, 191, 36, 0.6) 30%, rgba(255, 255, 255, 0) 70%);
             z-index: 3; opacity: 0; border-radius: 50%; pointer-events: none;
         }
         .treasure-shine-active { animation: treasureShineAnim 1.5s ease-out forwards; }
@@ -190,7 +192,8 @@
                 </svg>
             </div>
         </div>
-        </div>
+        <p class="text-indigo-900/40 text-xs mt-8 font-bold uppercase tracking-widest animate-pulse">Touche le coffre pour l'ouvrir</p>
+    </div>
     <div id="white-flash" class="white-flash"></div>
 
     <div id="main-interface" class="content-layer min-h-screen">
@@ -404,7 +407,6 @@
             if (audioCtx.state === 'suspended') audioCtx.resume();
             const t = audioCtx.currentTime;
 
-            // Buffer allongé à 4 secondes
             const bufferSize = audioCtx.sampleRate * 4.0; 
             const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
             const data = buffer.getChannelData(0);
@@ -417,7 +419,6 @@
             filter.type = 'lowpass';
             filter.Q.value = 1;
             filter.frequency.setValueAtTime(100, t);
-            // Rampes allongées sur 4s
             filter.frequency.exponentialRampToValueAtTime(3000, t + 1.5); 
             filter.frequency.exponentialRampToValueAtTime(100, t + 4.0);  
 
@@ -443,7 +444,7 @@
         const introBox = document.getElementById('intro-box');
         const rays = document.getElementById('god-rays');
         const treasureGlow = document.getElementById('treasure-glow');
-        const arrow = document.querySelector('.arrow-container'); // Sélection de la flèche
+        const arrow = document.querySelector('.arrow-container');
         let opened = false;
 
         introBox.addEventListener('click', () => {
@@ -453,7 +454,7 @@
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
             
-            playSimpleWoosh(); // Son de 4s
+            playSimpleWoosh(); 
             introBox.classList.add('super-shake');
             rays.classList.add('rays-active');
             arrow.classList.add('intro-fade-out'); // La flèche disparaît au clic
