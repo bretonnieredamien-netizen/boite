@@ -30,8 +30,20 @@
         .content-layer { position: relative; z-index: 10; width: 100%; display: flex; flex-direction: column; align-items: center; opacity: 0; transition: opacity 1s ease-in; }
         .content-visible { opacity: 1 !important; }
 
-        /* --- HEADER --- */
-        /* Logo supprimé ici */
+        /* --- HEADER & LOGO --- */
+        .brand-header { position: absolute; top: 1.5rem; left: 1.5rem; z-index: 20; }
+        
+        /* Transition douce pour le mode cinéma */
+        #main-header {
+            transition: opacity 1s ease, transform 1s ease;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .cinema-mode {
+            opacity: 0 !important;
+            transform: translateY(-20px) !important;
+            pointer-events: none;
+        }
 
         .logo-container { width: 220px; height: 220px; display: flex; justify-content: center; align-items: center; opacity: 0; animation: introFade 2s ease-out forwards, slowBeat 5s ease-in-out infinite 2s; filter: drop-shadow(0 10px 25px rgba(129, 140, 248, 0.5)); }
         @keyframes introFade { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
@@ -192,7 +204,7 @@
         
         <div class="brand-header"></div>
 
-        <header class="text-center flex flex-col items-center mt-6">
+        <header id="main-header" class="text-center flex flex-col items-center mt-6">
             <div class="logo-container">
                 <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
                     <defs>
@@ -230,13 +242,11 @@
                     <button id="btn-mic" class="orbe-base shadow-2xl">
                         <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
                     </button>
-                    <span class="text-indigo-900/40 text-[11px] font-bold uppercase tracking-widest">Écouter</span>
                 </div>
                 <div id="stop-container" class="flex flex-col items-center gap-4 opacity-20 pointer-events-none transition-all duration-500">
                     <button id="btn-stop" class="orbe-base shadow-xl">
                         <svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" /></svg>
                     </button>
-                    <span class="text-red-900/40 text-[11px] font-bold uppercase tracking-widest">Arrêter</span>
                 </div>
             </div>
 
@@ -458,7 +468,8 @@
             } else {
                 interactionMode = 'STORY_INPUT';
                 const welcomeMsg = getRandomWelcome(userPrenom, userGenre);
-                document.getElementById('status').innerText = `Te revoilà, ${userPrenom} !`;
+                // MODIFICATION ICI: TEXTE NEUTRE, PAS DE "TE REVOILA + PRENOM"
+                document.getElementById('status').innerText = "Quelle histoire veux-tu ?";
                 speechQueue.push(`${welcomeMsg} Quelle histoire on invente aujourd'hui ?`);
                 parler();
             }
@@ -551,6 +562,10 @@
         function stopAudio() {
             if (currentAudio) { currentAudio.pause(); currentAudio = null; }
             stopVisualizer(); speechQueue = []; isSpeaking = false;
+            
+            // Re-afficher le header si on arrête
+            document.getElementById('main-header').classList.remove('cinema-mode');
+
             document.getElementById('status').classList.remove('hidden');
             document.getElementById('loading-spinner').classList.add('hidden');
             
@@ -644,6 +659,9 @@
             
             toggleStopButton(true);
 
+            // ACTIVATION DU MODE CINEMA (Cache le header)
+            document.getElementById('main-header').classList.add('cinema-mode');
+
             document.getElementById('story-card').classList.remove('hidden');
             let txt = speechQueue.shift().replace(/[#*`_]/g, '');
             const audioBlob = await textToSpeechAzure(txt);
@@ -655,6 +673,8 @@
                 currentAudio.onended = () => {
                     isSpeaking = false;
                     if (speechQueue.length === 0) { 
+                        // FIN DE L'HISTOIRE : ON RÉAFFICHE TOUT
+                        document.getElementById('main-header').classList.remove('cinema-mode');
                         toggleStopButton(false); stopVisualizer(); document.getElementById('story-card').classList.add('hidden');
                         if (['NAME_INPUT', 'GENDER_INPUT', 'AGE_INPUT', 'STORY_INPUT'].includes(interactionMode)) {
                             setTimeout(() => { startListening(); }, 500);
@@ -666,7 +686,7 @@
         }
 
         function verifierCles() {
-            // TEXTES MODIFIÉS ICI POUR CACHER "API"
+            // TEXTES MODIFIÉS POUR "CLES D'ACTIVATION"
             if (!GEMINI_KEY) { const k = prompt("Entre ta clé d'activation magique N°1 (Google) :"); if (k) { localStorage.setItem('BOITE_GEMINI_KEY', k); GEMINI_KEY = k; } }
             if (!AZURE_KEY) { const k = prompt("Entre ta clé d'activation magique N°2 (Azure) :"); const r = prompt("Entre ta région Azure (ex: francecentral) :"); if (k && r) { localStorage.setItem('BOITE_AZURE_KEY', k); localStorage.setItem('BOITE_AZURE_REGION', r); AZURE_KEY = k; AZURE_REGION = r; } }
             if (GEMINI_KEY && AZURE_KEY && AZURE_REGION) location.reload();
