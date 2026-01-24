@@ -77,7 +77,6 @@
             background: transparent; 
             overflow: hidden;
             display: flex; align-items: center; justify-content: center;
-            /* Retour à une taille rectangulaire large pour les barres */
             width: 100%; max-width: 320px; height: 100px; 
             filter: drop-shadow(0 4px 6px rgba(129, 140, 248, 0.3));
         }
@@ -530,9 +529,9 @@
             } else {
                 interactionMode = 'STORY_INPUT';
                 const welcomeMsg = getRandomWelcome(userPrenom, userGenre);
-                // TEXTE NEUTRE, PAS DE "TE REVOILA + PRENOM"
+                // AJOUT DU "Je t'écoute"
                 document.getElementById('status').innerText = "Quelle histoire veux-tu ?";
-                speechQueue.push(`${welcomeMsg} Quelle histoire on invente aujourd'hui ?`);
+                speechQueue.push(`${welcomeMsg} Quelle histoire on invente aujourd'hui ? Je t'écoute.`);
                 parler();
             }
         }
