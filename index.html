@@ -38,13 +38,6 @@
         @keyframes introFade { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
         @keyframes slowBeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
 
-        /* --- ORBES --- */
-        .orbe-base { position: relative; width: 120px; height: 120px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(15px); border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.8); display: flex; align-items: center; justify-content: center; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
-        .orbe-base svg { width: 45px; height: 45px; fill: #6366f1; }
-        .mic-listening { background: rgba(99, 102, 241, 0.15) !important; box-shadow: 0 0 50px rgba(99, 102, 241, 0.6) !important; transform: scale(1.1); }
-        #btn-stop svg { fill: #f87171; }
-        #stop-container.opacity-100 #btn-stop { background: rgba(248, 113, 113, 0.15); border-color: #f87171; box-shadow: 0 0 30px rgba(248, 113, 113, 0.4); }
-
         /* --- UI --- */
         .status-box { 
             background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px); 
@@ -75,43 +68,69 @@
             display: flex; align-items: center; justify-content: center;
             filter: drop-shadow(0 4px 6px rgba(129, 140, 248, 0.3));
         }
-        #visualizer-canvas {
-            width: 100%; height: 100%;
-        }
+        #visualizer-canvas { width: 100%; height: 100%; }
+
+        /* --- BOUTONS --- */
+        .orbe-base { position: relative; width: 120px; height: 120px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(15px); border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.8); display: flex; align-items: center; justify-content: center; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
+        .orbe-base svg { width: 45px; height: 45px; fill: #6366f1; }
+        .mic-listening { background: rgba(99, 102, 241, 0.15) !important; box-shadow: 0 0 50px rgba(99, 102, 241, 0.6) !important; transform: scale(1.1); }
+        #btn-stop svg { fill: #f87171; }
+        #stop-container.opacity-100 #btn-stop { background: rgba(248, 113, 113, 0.15); border-color: #f87171; box-shadow: 0 0 30px rgba(248, 113, 113, 0.4); }
         
-        /* --- INTRO ANIMATION --- */
+        /* --- INTRO ANIMATION EPIC --- */
         #intro-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(-45deg, #fff7ed, #fef9c3, #ede9fe, #fae8ff);
+            background: linear-gradient(-45deg, #1e1b4b, #312e81, #4c1d95, #1e1b4b); /* Fond sombre pour le contraste */
             background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
+            animation: gradientBG 10s ease infinite;
             z-index: 100;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 1s ease-out, visibility 1s;
+            transition: opacity 0.8s ease-out, visibility 0.8s;
         }
-        #intro-box { width: 250px; height: 250px; cursor: pointer; transition: transform 0.2s; }
+        
+        .container-box { position: relative; width: 300px; height: 300px; display: flex; justify-content: center; align-items: center; }
+        
+        /* Rayons Divins */
+        .god-rays {
+            position: absolute; width: 150%; height: 150%;
+            background: conic-gradient(from 0deg, transparent 0deg, rgba(255,255,255,0.1) 20deg, transparent 40deg, rgba(192, 132, 252, 0.2) 60deg, transparent 80deg);
+            border-radius: 50%;
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 1s;
+        }
+        .rays-active { opacity: 1; animation: spinRays 4s linear infinite; }
+        @keyframes spinRays { 100% { transform: rotate(360deg); } }
+
+        #intro-box { width: 220px; height: 220px; cursor: pointer; position: relative; z-index: 2; transition: transform 0.3s; }
         #intro-box:hover { transform: scale(1.05); }
-        .shake-box { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
-        .lid-open { animation: lidFly 0.8s forwards ease-in; }
+
+        /* Animation Violente de charge */
+        .super-shake { animation: violentShake 1.2s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes violentShake {
+            0% { transform: translate(0, 0) rotate(0); }
+            10%, 90% { transform: translate(-3px, 1px) rotate(-3deg); }
+            20%, 80% { transform: translate(3px, -2px) rotate(3deg); }
+            30%, 50%, 70% { transform: translate(-6px, 4px) rotate(-6deg) scale(1.1); }
+            40%, 60% { transform: translate(6px, -4px) rotate(6deg) scale(1.1); }
+            100% { transform: translate(0, 0) scale(1.2); }
+        }
+
+        .lid-open { animation: lidExplode 0.6s forwards cubic-bezier(0.2, 0.8, 0.2, 1); }
+        @keyframes lidExplode {
+            0% { transform: translateY(0) rotate(0); }
+            40% { transform: translateY(-50px) rotate(-10deg); }
+            100% { transform: translateY(-600px) rotate(-45deg) scale(1.5); opacity: 0; }
+        }
+
         .intro-fade-out { opacity: 0; pointer-events: none; }
         .white-flash {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white;
             z-index: 90; opacity: 0; pointer-events: none;
         }
-        .flash-active { animation: flashAnim 1.5s ease-out forwards; }
-
-        @keyframes shake {
-            10%, 90% { transform: translate3d(-2px, 0, 0) rotate(-2deg); }
-            20%, 80% { transform: translate3d(4px, 0, 0) rotate(4deg); }
-            30%, 50%, 70% { transform: translate3d(-8px, 0, 0) rotate(-4deg); }
-            40%, 60% { transform: translate3d(8px, 0, 0) rotate(4deg); }
-        }
-        @keyframes lidFly {
-            0% { transform: translateY(0) rotate(0); opacity: 1; }
-            100% { transform: translateY(-300px) rotate(-20deg); opacity: 0; }
-        }
+        .flash-active { animation: flashAnim 2s ease-out forwards; }
         @keyframes flashAnim {
-            0% { opacity: 0; } 20% { opacity: 1; } 100% { opacity: 0; }
+            0% { opacity: 0; } 10% { opacity: 1; } 100% { opacity: 0; }
         }
 
     </style>
@@ -121,24 +140,31 @@
     <canvas id="starfield"></canvas>
 
     <div id="intro-overlay">
-        <div id="intro-box">
-            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <linearGradient id="auroraFill" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#22d3ee;stop-opacity:1" />
-                        <stop offset="50%" style="stop-color:#818cf8;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#c084fc;stop-opacity:1" />
-                    </linearGradient>
-                </defs>
-                <path d="M50 80 L150 80 L140 160 L60 160 Z" fill="url(#auroraFill)" stroke="white" stroke-width="3" stroke-linejoin="round"/>
-                <g id="intro-lid" style="transform-origin: 100px 80px;">
-                    <path d="M40 60 L160 60 L150 80 L50 80 Z" fill="#818cf8" stroke="white" stroke-width="3" stroke-linejoin="round"/>
-                    <path d="M40 60 L160 60 L140 40 L60 40 Z" fill="#c084fc" stroke="white" stroke-width="3" stroke-linejoin="round" opacity="0.8"/>
-                </g>
-                <text x="100" y="175" text-anchor="middle" fill="#6366f1" font-size="10" font-weight="bold" opacity="0.7" style="text-transform: uppercase; letter-spacing: 1px;">Ouvre ta boîte</text>
-                <text x="100" y="190" text-anchor="middle" fill="#6366f1" font-size="10" font-weight="bold" opacity="0.7" style="text-transform: uppercase; letter-spacing: 1px;">Magique à histoires</text>
-            </svg>
+        <div class="container-box">
+            <div id="god-rays" class="god-rays"></div>
+            <div id="intro-box">
+                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" filter="drop-shadow(0 0 20px rgba(139, 92, 246, 0.4))">
+                    <defs>
+                        <linearGradient id="auroraFill" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#22d3ee;stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:#818cf8;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#c084fc;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <path d="M50 80 L150 80 L140 160 L60 160 Z" fill="url(#auroraFill)" stroke="white" stroke-width="3" stroke-linejoin="round"/>
+                    
+                    <text x="100" y="125" text-anchor="middle" fill="white" font-size="10" font-weight="900" opacity="0.9" style="text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Ouvre ta boîte</text>
+                    <text x="100" y="140" text-anchor="middle" fill="white" font-size="10" font-weight="900" opacity="0.9" style="text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Magique à histoires</text>
+
+                    <g id="intro-lid" style="transform-origin: 100px 80px;">
+                        <path d="M40 60 L160 60 L150 80 L50 80 Z" fill="#818cf8" stroke="white" stroke-width="3" stroke-linejoin="round"/>
+                        <path d="M40 60 L160 60 L140 40 L60 40 Z" fill="#c084fc" stroke="white" stroke-width="3" stroke-linejoin="round" opacity="0.9"/>
+                        <circle cx="100" cy="80" r="6" fill="#fbbf24" stroke="white" stroke-width="2"/>
+                    </g>
+                </svg>
+            </div>
         </div>
+        <p class="text-white/50 text-xs mt-8 font-medium animate-pulse">Touche le coffre pour l'ouvrir</p>
     </div>
     <div id="white-flash" class="white-flash"></div>
 
@@ -152,7 +178,7 @@
             <div class="logo-container">
                 <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
                     <defs>
-                        <linearGradient id="auroraFill" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <linearGradient id="auroraFill2" x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" style="stop-color:#22d3ee;stop-opacity:1" />
                             <stop offset="50%" style="stop-color:#818cf8;stop-opacity:1" />
                             <stop offset="100%" style="stop-color:#c084fc;stop-opacity:1" />
@@ -165,15 +191,11 @@
                     <path d="M70 80 L50 20 L90 20 Z" fill="url(#lightBeam)" opacity="0.6"/>
                     <path d="M100 85 L100 10 L120 10 Z" fill="url(#lightBeam)" opacity="0.8"/>
                     <path d="M130 80 L150 20 L110 20 Z" fill="url(#lightBeam)" opacity="0.6"/>
-                    <path d="M50 80 L150 80 L140 160 L60 160 Z" fill="url(#auroraFill)" stroke="white" stroke-width="3" stroke-linejoin="round"/>
+                    <path d="M50 80 L150 80 L140 160 L60 160 Z" fill="url(#auroraFill2)" stroke="white" stroke-width="3" stroke-linejoin="round"/>
                     <path d="M50 80 L20 60 L60 60 L80 80 Z" fill="#818cf8" stroke="white" stroke-width="2" opacity="0.9"/>
                     <path d="M150 80 L180 60 L140 60 L120 80 Z" fill="#c084fc" stroke="white" stroke-width="2" opacity="0.9"/>
                     <path d="M60 80 L140 80 L120 60 L80 60 Z" fill="#34d399" opacity="0.7"/>
-                    <path d="M50 80 L150 80 L170 100 L30 100 Z" fill="url(#auroraFill)" stroke="white" stroke-width="2" opacity="0.8"/>
-                    <circle cx="100" cy="50" r="5" fill="#fff" filter="drop-shadow(0 0 5px #fff)"><animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite"/></circle>
-                    <circle cx="60" cy="40" r="3" fill="#22d3ee"><animate attributeName="cy" values="40;30;40" dur="3s" repeatCount="indefinite"/></circle>
-                    <circle cx="140" cy="45" r="4" fill="#c084fc"><animate attributeName="cy" values="45;35;45" dur="2.5s" repeatCount="indefinite"/></circle>
-                    <path d="M100 30 L103 40 L113 40 L105 48 L108 58 L100 52 L92 58 L95 48 L87 40 L97 40 Z" fill="#fef08a" filter="drop-shadow(0 0 8px #fbbf24)"><animateTransform attributeName="transform" type="scale" values="1;1.2;1" dur="1.5s" repeatCount="indefinite" additive="sum" transform-origin="100 45"/><animateTransform attributeName="transform" type="rotate" values="0 100 45; 360 100 45" dur="10s" repeatCount="indefinite" additive="sum"/></path>
+                    <path d="M50 80 L150 80 L170 100 L30 100 Z" fill="url(#auroraFill2)" stroke="white" stroke-width="2" opacity="0.8"/>
                 </svg>
             </div>
             
@@ -226,7 +248,8 @@
         const canvas = document.getElementById('starfield'); 
         const ctx = canvas.getContext('2d'); 
         let particles = [];
-        let burstParticles = []; // Particules pour l'explosion
+        let burstParticles = [];
+        let shockwaves = [];
 
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         
@@ -237,23 +260,22 @@
             draw() { ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); } 
         }
 
-        // Classe pour l'effet d'explosion
         class BurstParticle {
             constructor(x, y) {
                 this.x = x; this.y = y;
                 const angle = Math.random() * Math.PI * 2;
-                const speed = Math.random() * 15 + 2; // Vitesse rapide
+                const speed = Math.random() * 20 + 5; // Explosion plus large
                 this.vx = Math.cos(angle) * speed;
                 this.vy = Math.sin(angle) * speed;
                 this.life = 1.0;
-                this.decay = Math.random() * 0.015 + 0.005;
-                this.color = `hsl(${Math.random() * 360}, 100%, 70%)`;
-                this.size = Math.random() * 4 + 1;
+                this.decay = Math.random() * 0.01 + 0.005;
+                this.color = `hsl(${Math.random() * 60 + 200}, 100%, 70%)`; // Teintes bleues/violettes/cyan
+                this.size = Math.random() * 6 + 2;
             }
             update() {
                 this.x += this.vx; this.y += this.vy;
-                this.vy += 0.2; // Gravité
-                this.vx *= 0.96; this.vy *= 0.96; // Friction
+                this.vy += 0.3; // Gravité
+                this.vx *= 0.95; this.vy *= 0.95;
                 this.life -= this.decay;
             }
             draw() {
@@ -266,30 +288,54 @@
             }
         }
 
+        class Shockwave {
+            constructor(x, y) {
+                this.x = x; this.y = y;
+                this.radius = 10;
+                this.maxRadius = Math.max(canvas.width, canvas.height);
+                this.life = 1.0;
+                this.lineWidth = 20;
+            }
+            update() {
+                this.radius += 30; // Vitesse de l'onde
+                this.life -= 0.02;
+                this.lineWidth *= 0.95;
+            }
+            draw() {
+                if(this.life <= 0) return;
+                ctx.globalAlpha = this.life * 0.5;
+                ctx.strokeStyle = "white";
+                ctx.lineWidth = this.lineWidth;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.globalAlpha = 1.0;
+            }
+        }
+
         function initParticles() { particles = []; for (let i = 0; i < 100; i++) particles.push(new Particle()); }
         
-        // Fonction pour déclencher l'explosion
         function triggerBurst() {
             const centerX = window.innerWidth / 2;
             const centerY = window.innerHeight / 2;
-            for (let i = 0; i < 300; i++) { // 300 étoiles
+            shockwaves.push(new Shockwave(centerX, centerY)); // Onde de choc
+            for (let i = 0; i < 400; i++) {
                 burstParticles.push(new BurstParticle(centerX, centerY));
             }
         }
 
         function animate() { 
             ctx.clearRect(0, 0, canvas.width, canvas.height); 
-            // Particules de fond
             particles.forEach(p => { p.update(); p.draw(); }); 
             
-            // Particules d'explosion
             for (let i = burstParticles.length - 1; i >= 0; i--) {
-                const p = burstParticles[i];
-                p.update();
-                p.draw();
+                const p = burstParticles[i]; p.update(); p.draw();
                 if (p.life <= 0) burstParticles.splice(i, 1);
             }
-            
+            for (let i = shockwaves.length - 1; i >= 0; i--) {
+                const s = shockwaves[i]; s.update(); s.draw();
+                if (s.life <= 0) shockwaves.splice(i, 1);
+            }
             requestAnimationFrame(animate); 
         }
         window.addEventListener('resize', resize); resize(); initParticles(); animate();
@@ -315,7 +361,6 @@
             analyser.fftSize = 64; 
             audioSource.connect(analyser);
             analyser.connect(context.destination);
-            
             const bufferLength = analyser.frequencyBinCount;
             dataArray = new Uint8Array(bufferLength);
             drawVisualizer();
@@ -324,22 +369,14 @@
         function drawVisualizer() {
             visualizerAnimationId = requestAnimationFrame(drawVisualizer);
             analyser.getByteFrequencyData(dataArray);
-
             vizCtx.clearRect(0, 0, vizCanvas.width, vizCanvas.height);
-
             const bufferLength = analyser.frequencyBinCount;
             const gap = 6;
             const barWidth = (vizCanvas.width / bufferLength) - gap; 
-            let barHeight;
-            let x = gap / 2;
-
+            let barHeight; let x = gap / 2;
             let gradient = vizCtx.createLinearGradient(0, vizCanvas.height, 0, 0);
-            gradient.addColorStop(0, '#4f46e5'); 
-            gradient.addColorStop(0.5, '#9333ea');
-            gradient.addColorStop(1, '#db2777');
-
+            gradient.addColorStop(0, '#4f46e5'); gradient.addColorStop(0.5, '#9333ea'); gradient.addColorStop(1, '#db2777');
             vizCtx.fillStyle = gradient;
-
             for (let i = 0; i < bufferLength; i++) {
                 barHeight = (dataArray[i] / 255) * vizCanvas.height;
                 if (barHeight < 5) barHeight = 5;
@@ -348,24 +385,11 @@
                 x += barWidth + gap;
             }
         }
-
         function roundRect(ctx, x, y, width, height, radius) {
-            if (width < 2 * radius) radius = width / 2;
-            if (height < 2 * radius) radius = height / 2;
-            ctx.beginPath();
-            ctx.moveTo(x + radius, y);
-            ctx.arcTo(x + width, y, x + width, y + height, radius);
-            ctx.arcTo(x + width, y + height, x, y + height, radius);
-            ctx.arcTo(x, y + height, x, y, radius);
-            ctx.arcTo(x, y, x + width, y, radius);
-            ctx.closePath();
-            ctx.fill();
+            if (width < 2 * radius) radius = width / 2; if (height < 2 * radius) radius = height / 2;
+            ctx.beginPath(); ctx.moveTo(x + radius, y); ctx.arcTo(x + width, y, x + width, y + height, radius); ctx.arcTo(x + width, y + height, x, y + height, radius); ctx.arcTo(x, y + height, x, y, radius); ctx.arcTo(x, y, x + width, y, radius); ctx.closePath(); ctx.fill();
         }
-
-        function stopVisualizer() {
-            if (visualizerAnimationId) cancelAnimationFrame(visualizerAnimationId);
-            vizCtx.clearRect(0, 0, vizCanvas.width, vizCanvas.height);
-        }
+        function stopVisualizer() { if (visualizerAnimationId) cancelAnimationFrame(visualizerAnimationId); vizCtx.clearRect(0, 0, vizCanvas.width, vizCanvas.height); }
 
         /* --- CONFIGURATION --- */
         let GEMINI_KEY = localStorage.getItem('BOITE_GEMINI_KEY');
@@ -380,42 +404,66 @@
         let audioCtx = null;
         let currentAudio = null;
 
-        // --- SON "WOOSH" ETENDU (4 SECONDES) ---
-        function playWoosh() {
+        // --- SON D'OUVERTURE MAGIQUE COMPLEXE ---
+        function playMagicOpeningSound() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            
-            const bufferSize = audioCtx.sampleRate * 4.0; // 4 secondes
+            const t = audioCtx.currentTime;
+
+            // 1. LE "RUMBLE" (Grondement de terre pendant la secousse)
+            const rumbleOsc = audioCtx.createOscillator();
+            rumbleOsc.type = 'sawtooth';
+            rumbleOsc.frequency.setValueAtTime(50, t);
+            rumbleOsc.frequency.exponentialRampToValueAtTime(150, t + 1.2); // Monte légèrement
+            const rumbleGain = audioCtx.createGain();
+            rumbleGain.gain.setValueAtTime(0.3, t);
+            rumbleGain.gain.linearRampToValueAtTime(0, t + 1.2);
+            rumbleOsc.connect(rumbleGain); rumbleGain.connect(audioCtx.destination);
+            rumbleOsc.start(t); rumbleOsc.stop(t + 1.2);
+
+            // 2. LE "RISE" (Sifflement qui monte)
+            const riseOsc = audioCtx.createOscillator();
+            riseOsc.type = 'sine';
+            riseOsc.frequency.setValueAtTime(200, t);
+            riseOsc.frequency.exponentialRampToValueAtTime(800, t + 1.2);
+            const riseGain = audioCtx.createGain();
+            riseGain.gain.setValueAtTime(0, t);
+            riseGain.gain.linearRampToValueAtTime(0.2, t + 1.0);
+            riseGain.gain.linearRampToValueAtTime(0, t + 1.3);
+            riseOsc.connect(riseGain); riseGain.connect(audioCtx.destination);
+            riseOsc.start(t); riseOsc.stop(t + 1.3);
+
+            // 3. L'EXPLOSION (Bruit rose à 1.2s)
+            const burstTime = t + 1.2;
+            const bufferSize = audioCtx.sampleRate * 2.0;
             const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
             const data = buffer.getChannelData(0);
             for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+            const noise = audioCtx.createBufferSource(); noise.buffer = buffer;
+            const noiseFilter = audioCtx.createBiquadFilter();
+            noiseFilter.type = 'lowpass'; noiseFilter.frequency.setValueAtTime(500, burstTime);
+            noiseFilter.frequency.exponentialRampToValueAtTime(8000, burstTime + 0.1); // Éclat
+            noiseFilter.frequency.exponentialRampToValueAtTime(100, burstTime + 2.0); // Retombée
+            const noiseGain = audioCtx.createGain();
+            noiseGain.gain.setValueAtTime(0, burstTime);
+            noiseGain.gain.setValueAtTime(0.5, burstTime + 0.05);
+            noiseGain.gain.exponentialRampToValueAtTime(0.01, burstTime + 1.5);
+            noise.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(audioCtx.destination);
+            noise.start(burstTime);
 
-            const noise = audioCtx.createBufferSource();
-            noise.buffer = buffer;
-
-            const filter = audioCtx.createBiquadFilter();
-            filter.type = 'lowpass';
-            filter.Q.value = 1;
-
-            const gain = audioCtx.createGain();
-            
-            noise.connect(filter);
-            filter.connect(gain);
-            gain.connect(audioCtx.destination);
-
-            const t = audioCtx.currentTime;
-
-            // Automation plus lente
-            filter.frequency.setValueAtTime(100, t);
-            filter.frequency.exponentialRampToValueAtTime(4000, t + 1.5); // Montée plus lente
-            filter.frequency.exponentialRampToValueAtTime(50, t + 3.8);  // Descente lente
-
-            gain.gain.setValueAtTime(0, t);
-            gain.gain.linearRampToValueAtTime(0.5, t + 0.5);
-            gain.gain.exponentialRampToValueAtTime(0.001, t + 3.9);
-
-            noise.start(t);
-            noise.stop(t + 4.0);
+            // 4. LES "SPARKLES" (Poussière magique aléatoire)
+            for(let i=0; i<10; i++) {
+                const sparkleOsc = audioCtx.createOscillator();
+                sparkleOsc.type = 'triangle';
+                const start = burstTime + (Math.random() * 0.5);
+                sparkleOsc.frequency.setValueAtTime(1000 + Math.random()*2000, start);
+                const sparkleGain = audioCtx.createGain();
+                sparkleGain.gain.setValueAtTime(0, start);
+                sparkleGain.gain.linearRampToValueAtTime(0.1, start + 0.05);
+                sparkleGain.gain.linearRampToValueAtTime(0, start + 0.2);
+                sparkleOsc.connect(sparkleGain); sparkleGain.connect(audioCtx.destination);
+                sparkleOsc.start(start); sparkleOsc.stop(start + 0.2);
+            }
         }
 
         function playChime() {
@@ -429,18 +477,37 @@
 
         /* --- LOGIQUE D'INTRO --- */
         const introBox = document.getElementById('intro-box');
+        const rays = document.getElementById('god-rays');
+        let opened = false;
+
         introBox.addEventListener('click', () => {
+            if (opened) return;
+            opened = true;
+
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
             
-            playWoosh();
-            triggerBurst(); // Lancement des étoiles !
+            // 1. Début de la séquence : Son + Secousse + Rayons
+            playMagicOpeningSound();
+            introBox.classList.add('super-shake');
+            rays.classList.add('rays-active');
 
-            introBox.classList.add('shake-box');
+            // 2. L'Explosion (calée sur le son à 1.2s)
+            setTimeout(() => {
+                document.getElementById('intro-lid').classList.add('lid-open');
+                triggerBurst(); // BOOM Etoiles !
+                document.getElementById('white-flash').classList.add('flash-active');
+            }, 1200);
+
+            // 3. Transition vers l'interface
+            setTimeout(() => {
+                document.getElementById('intro-overlay').classList.add('intro-fade-out');
+                document.getElementById('main-interface').classList.add('content-visible');
+            }, 1800);
             
-            setTimeout(() => { document.getElementById('intro-lid').classList.add('lid-open'); document.getElementById('white-flash').classList.add('flash-active'); }, 500);
-            setTimeout(() => { document.getElementById('intro-overlay').classList.add('intro-fade-out'); document.getElementById('main-interface').classList.add('content-visible'); }, 1000);
-            setTimeout(() => { document.getElementById('intro-overlay').style.display = 'none'; }, 2000);
+            setTimeout(() => {
+                 document.getElementById('intro-overlay').style.display = 'none';
+            }, 3000);
         });
 
         function toggleStopButton(active) {
@@ -469,7 +536,6 @@
             btnMic.classList.add('understood-flash');
             statusLabel.classList.add('hidden');
             loader.classList.remove('hidden');
-            
             setTimeout(() => { btnMic.classList.remove('understood-flash'); toggleStopButton(true); }, 800);
             
             const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${GEMINI_KEY}`;
@@ -526,18 +592,14 @@
         async function parler() {
             if (isSpeaking || speechQueue.length === 0) return;
             isSpeaking = true; 
-            
             document.getElementById('story-card').classList.remove('hidden');
-
             let txt = speechQueue.shift().replace(/[#*`_]/g, '');
             const audioBlob = await textToSpeechAzure(txt);
             if (audioBlob) {
                 const audioUrl = URL.createObjectURL(audioBlob);
                 currentAudio = new Audio(audioUrl);
-                
                 const source = audioCtx.createMediaElementSource(currentAudio);
                 startVisualizer(source, audioCtx);
-                
                 currentAudio.onended = () => {
                     isSpeaking = false;
                     if (speechQueue.length === 0) { toggleStopButton(false); stopVisualizer(); document.getElementById('story-card').classList.add('hidden'); }
