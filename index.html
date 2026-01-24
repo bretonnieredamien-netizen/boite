@@ -72,22 +72,16 @@
         }
         @keyframes spinLoader { 100% { transform: rotate(360deg); } }
 
-        /* --- NOUVEAU VISUALISEUR PARTICULES --- */
+        /* --- VISUALISEUR BARRES (RETOUR) --- */
         #story-card { 
             background: transparent; 
-            /* Zone plus grande pour les particules */
-            width: 300px; height: 300px;
+            overflow: hidden;
             display: flex; align-items: center; justify-content: center;
-            position: relative;
+            /* Retour à une taille rectangulaire large pour les barres */
+            width: 100%; max-width: 320px; height: 100px; 
+            filter: drop-shadow(0 4px 6px rgba(129, 140, 248, 0.3));
         }
-        /* Le canvas doit couvrir la zone */
-        #visualizer-canvas {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            /* Effet de flou léger pour rendre les particules "magiques" */
-            filter: blur(0.5px) drop-shadow(0 0 10px rgba(129, 140, 248, 0.3));
-        }
+        #visualizer-canvas { width: 100%; height: 100%; }
 
         /* --- BOUTONS --- */
         .orbe-base { position: relative; width: 120px; height: 120px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(15px); border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.8); display: flex; align-items: center; justify-content: center; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
@@ -323,11 +317,10 @@
         function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); for (let i = burstParticles.length - 1; i >= 0; i--) { const p = burstParticles[i]; p.update(); p.draw(); if (p.life <= 0) burstParticles.splice(i, 1); } requestAnimationFrame(animate); }
         window.addEventListener('resize', resize); resize(); initParticles(); animate();
 
-        /* --- NOUVEAU VISUALISEUR PARTICULES FINES --- */
+        /* --- VISUALISEUR BARRES (RETOUR AU DIAGRAMME) --- */
         const vizCanvas = document.getElementById('visualizer-canvas'); 
         const vizCtx = vizCanvas.getContext('2d'); 
         let analyser = null; let dataArray = null; let visualizerAnimationId = null;
-        let orbParticles = [];
 
         function resizeViz() { 
             if(vizCanvas.parentElement) { 
@@ -337,60 +330,17 @@
         }
         window.addEventListener('resize', resizeViz);
 
-        // Classe pour les particules de l'orbe
-        class OrbParticle {
-            constructor(centerX, centerY) {
-                this.centerX = centerX;
-                this.centerY = centerY;
-                this.angle = Math.random() * Math.PI * 2;
-                // Rayon de base variable pour créer de la profondeur
-                this.baseRadius = Math.random() * 60 + 20; 
-                this.radius = this.baseRadius;
-                this.size = Math.random() * 2 + 0.5; // Particules très fines
-                this.speed = (Math.random() - 0.5) * 0.02; // Rotation lente
-                // Couleurs de la palette
-                const colors = ["#818cf8", "#c084fc", "#22d3ee", "#fbbf24"];
-                this.color = colors[Math.floor(Math.random() * colors.length)];
-                this.opacity = Math.random() * 0.5 + 0.3;
-            }
-            update(audioIntensity) {
-                this.angle += this.speed;
-                // Le rayon augmente avec l'intensité audio (le "pulse")
-                // audioIntensity est entre 0 et 1
-                this.radius = this.baseRadius + (audioIntensity * 50);
-                
-                this.x = this.centerX + Math.cos(this.angle) * this.radius;
-                this.y = this.centerY + Math.sin(this.angle) * this.radius;
-            }
-            draw(ctx, audioIntensity) {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                // L'opacité augmente aussi avec le son pour faire briller
-                ctx.fillStyle = `${this.color}${Math.floor((this.opacity + audioIntensity*0.4) * 255).toString(16).padStart(2, '0')}`;
-                ctx.fill();
-            }
-        }
-
         function startVisualizer(audioSource, context) {
             resizeViz();
             if (!analyser) {
                 analyser = context.createAnalyser();
-                analyser.fftSize = 256; // Plus grand pour plus de détails
+                analyser.fftSize = 64; // Retour à 64 pour des barres plus larges
             }
             audioSource.connect(analyser);
             analyser.connect(context.destination);
             
             const bufferLength = analyser.frequencyBinCount;
             dataArray = new Uint8Array(bufferLength);
-            
-            // Initialiser les particules de l'orbe
-            orbParticles = [];
-            const centerX = vizCanvas.width / 2;
-            const centerY = vizCanvas.height / 2;
-            for(let i=0; i<150; i++) { // 150 particules
-                orbParticles.push(new OrbParticle(centerX, centerY));
-            }
-
             drawVisualizer(); 
         }
 
@@ -398,36 +348,45 @@
             visualizerAnimationId = requestAnimationFrame(drawVisualizer);
             analyser.getByteFrequencyData(dataArray);
             
-            // Calcul de l'intensité moyenne (basses fréquences)
-            let sum = 0;
-            // On prend le premier tiers des fréquences (les basses/voix)
-            const range = Math.floor(dataArray.length / 3);
-            for(let i = 0; i < range; i++) { sum += dataArray[i]; }
-            // Intensité normalisée entre 0.0 et 1.0
-            let intensity = (sum / range) / 255;
-            // Lissage pour éviter les sauts brusques
-            intensity = Math.pow(intensity, 1.5); 
-
-            // Effet de traînée (trail effect) : on efface avec de la transparence
-            vizCtx.fillStyle = 'rgba(0, 0, 0, 0.1)'; // Fond transparent légèrement effacé
             vizCtx.clearRect(0, 0, vizCanvas.width, vizCanvas.height);
+            
+            const bufferLength = analyser.frequencyBinCount;
+            const gap = 6;
+            const barWidth = (vizCanvas.width / bufferLength) - gap;
+            let barHeight;
+            let x = gap / 2;
 
-            const centerX = vizCanvas.width / 2;
-            const centerY = vizCanvas.height / 2;
-
-            // Dessiner un léger halo central qui pulse
-            const gradient = vizCtx.createRadialGradient(centerX, centerY, 10, centerX, centerY, 100 + intensity*50);
-            gradient.addColorStop(0, `rgba(129, 140, 248, ${0.1 + intensity*0.2})`);
-            gradient.addColorStop(1, 'rgba(0,0,0,0)');
+            // Dégradé pour les barres
+            let gradient = vizCtx.createLinearGradient(0, vizCanvas.height, 0, 0);
+            gradient.addColorStop(0, '#4f46e5');
+            gradient.addColorStop(0.5, '#9333ea');
+            gradient.addColorStop(1, '#db2777');
             vizCtx.fillStyle = gradient;
-            vizCtx.fillRect(0,0, vizCanvas.width, vizCanvas.height);
 
-            // Mettre à jour et dessiner les particules
-            orbParticles.forEach(p => {
-                p.centerX = centerX; p.centerY = centerY; // Au cas où la fenêtre change de taille
-                p.update(intensity);
-                p.draw(vizCtx, intensity);
-            });
+            for (let i = 0; i < bufferLength; i++) {
+                // On normalise un peu pour que ça bouge bien
+                barHeight = (dataArray[i] / 255) * vizCanvas.height;
+                if (barHeight < 5) barHeight = 5; // Hauteur min
+                
+                // Centrer verticalement
+                const y = (vizCanvas.height - barHeight) / 2;
+                
+                roundRect(vizCtx, x, y, barWidth, barHeight, 50);
+                x += barWidth + gap;
+            }
+        }
+
+        function roundRect(ctx, x, y, width, height, radius) { 
+            if (width < 2 * radius) radius = width / 2; 
+            if (height < 2 * radius) radius = height / 2; 
+            ctx.beginPath(); 
+            ctx.moveTo(x + radius, y); 
+            ctx.arcTo(x + width, y, x + width, y + height, radius); 
+            ctx.arcTo(x + width, y + height, x, y + height, radius); 
+            ctx.arcTo(x, y + height, x, y, radius); 
+            ctx.arcTo(x, y, x + width, y, radius); 
+            ctx.closePath(); 
+            ctx.fill(); 
         }
 
         function stopVisualizer() { 
