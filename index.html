@@ -237,19 +237,20 @@
         let AZURE_REGION = localStorage.getItem('BOITE_AZURE_REGION');
         
         const MODEL_ID = "models/gemini-2.5-flash"; 
-        const AZURE_VOICE_NAME = "fr-FR-DeniseNeural"; 
+        
+        // VOIX MISE A JOUR : AVA NEURAL
+        const AZURE_VOICE_NAME = "fr-FR-AvaNeural"; 
 
         let speechQueue = [];
         let isSpeaking = false;
         let audioCtx = null;
         let currentAudio = null;
 
-        // --- NOUVEAU SON "WOOSH" (SYNTHÈSE) ---
+        // --- SON "WOOSH" (Intro) ---
         function playWoosh() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
 
-            // Création de bruit blanc
             const bufferSize = audioCtx.sampleRate * 1.5;
             const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
             const data = buffer.getChannelData(0);
@@ -260,7 +261,6 @@
             const noise = audioCtx.createBufferSource();
             noise.buffer = buffer;
 
-            // Filtre passe-bas dynamique
             const filter = audioCtx.createBiquadFilter();
             filter.type = 'lowpass';
             filter.Q.value = 1;
@@ -273,10 +273,9 @@
 
             const t = audioCtx.currentTime;
 
-            // Automation du son "frouuuuit"
             filter.frequency.setValueAtTime(100, t);
-            filter.frequency.exponentialRampToValueAtTime(3000, t + 0.3); // Montée
-            filter.frequency.exponentialRampToValueAtTime(100, t + 1.2);  // Descente
+            filter.frequency.exponentialRampToValueAtTime(3000, t + 0.3);
+            filter.frequency.exponentialRampToValueAtTime(100, t + 1.2);
 
             gain.gain.setValueAtTime(0, t);
             gain.gain.linearRampToValueAtTime(0.5, t + 0.1);
@@ -286,7 +285,7 @@
             noise.stop(t + 1.5);
         }
 
-        // --- ANCIEN CARILLON (Pour l'IA) ---
+        // --- CARILLON (Pour l'IA) ---
         function playChime() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -302,7 +301,7 @@
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
             
-            playWoosh(); // LE NOUVEAU SON ICI
+            playWoosh(); // Son Woosh à l'ouverture
 
             introBox.classList.add('shake-box');
             
