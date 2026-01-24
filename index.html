@@ -7,16 +7,27 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;500;800;900&display=swap" rel="stylesheet">
     <style>
+        /* --- VARIABLES CSS DYNAMIQUES (POUR LE THEME) --- */
+        :root {
+            --bg-1: #fff7ed;
+            --bg-2: #fef9c3;
+            --bg-3: #ede9fe;
+            --bg-4: #fae8ff;
+            --accent-color: #6366f1; /* Indigo par défaut */
+        }
+
         /* Fond Moderne Animé */
         body { 
             font-family: 'Lexend', sans-serif; 
-            background: linear-gradient(-45deg, #fff7ed, #fef9c3, #ede9fe, #fae8ff);
+            /* On utilise les variables pour pouvoir changer les couleurs via JS */
+            background: linear-gradient(-45deg, var(--bg-1), var(--bg-2), var(--bg-3), var(--bg-4));
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
             touch-action: manipulation; 
             overflow-x: hidden;
             min-height: 100vh;
             margin: 0;
+            transition: background 2s ease; /* Transition douce lors du changement de couleur */
         }
         @keyframes gradientBG {
             0% { background-position: 0% 50%; }
@@ -72,20 +83,20 @@
         }
         @keyframes spinLoader { 100% { transform: rotate(360deg); } }
 
-        /* --- VISUALISEUR BARRES (RETOUR) --- */
+        /* --- VISUALISEUR BARRES --- */
         #story-card { 
             background: transparent; 
             overflow: hidden;
             display: flex; align-items: center; justify-content: center;
             width: 100%; max-width: 320px; height: 100px; 
-            filter: drop-shadow(0 4px 6px rgba(129, 140, 248, 0.3));
+            filter: drop-shadow(0 4px 6px rgba(var(--accent-rgb), 0.3)); /* Ombre colorée */
         }
         #visualizer-canvas { width: 100%; height: 100%; }
 
         /* --- BOUTONS --- */
         .orbe-base { position: relative; width: 120px; height: 120px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(15px); border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.8); display: flex; align-items: center; justify-content: center; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
-        .orbe-base svg { width: 45px; height: 45px; fill: #6366f1; }
-        .mic-listening { background: rgba(99, 102, 241, 0.15) !important; box-shadow: 0 0 50px rgba(99, 102, 241, 0.6) !important; transform: scale(1.1); }
+        .orbe-base svg { width: 45px; height: 45px; fill: var(--accent-color); transition: fill 1s; }
+        .mic-listening { background: rgba(255, 255, 255, 0.3) !important; box-shadow: 0 0 50px var(--accent-color) !important; transform: scale(1.1); }
         #btn-stop svg { fill: #f87171; }
         #stop-container.opacity-100 #btn-stop { background: rgba(248, 113, 113, 0.15); border-color: #f87171; box-shadow: 0 0 30px rgba(248, 113, 113, 0.4); }
         
@@ -278,16 +289,61 @@
         let userPrenom = localStorage.getItem('BOITE_PRENOM');
         let userAge = localStorage.getItem('BOITE_AGE');
         let userGenre = localStorage.getItem('BOITE_GENRE'); 
+        let userColor = localStorage.getItem('BOITE_COLOR'); // Nouvelle variable
         
         let interactionMode = 'INIT'; 
 
         const MODEL_ID = "models/gemini-2.5-flash"; 
         const AZURE_VOICE_NAME = "fr-FR-DeniseNeural"; 
 
+        /* --- THEMES COULEURS --- */
+        // Configuration des thèmes possibles
+        const THEMES = {
+            'defaut': { bg: ['#fff7ed', '#fef9c3', '#ede9fe', '#fae8ff'], star: '251, 191, 36', accent: '#6366f1', vis: ['#4f46e5', '#9333ea', '#db2777'] },
+            'bleu': { bg: ['#eff6ff', '#dbeafe', '#bfdbfe', '#93c5fd'], star: '96, 165, 250', accent: '#2563eb', vis: ['#1e40af', '#3b82f6', '#93c5fd'] },
+            'rose': { bg: ['#fff1f2', '#ffe4e6', '#fecdd3', '#fda4af'], star: '244, 114, 182', accent: '#db2777', vis: ['#9d174d', '#db2777', '#f472b6'] },
+            'rouge': { bg: ['#fef2f2', '#fee2e2', '#fecaca', '#fca5a5'], star: '248, 113, 113', accent: '#dc2626', vis: ['#991b1b', '#ef4444', '#f87171'] },
+            'vert': { bg: ['#f0fdf4', '#dcfce7', '#bbf7d0', '#86efac'], star: '74, 222, 128', accent: '#16a34a', vis: ['#166534', '#22c55e', '#86efac'] },
+            'violet': { bg: ['#f5f3ff', '#ede9fe', '#ddd6fe', '#c4b5fd'], star: '167, 139, 250', accent: '#7c3aed', vis: ['#5b21b6', '#8b5cf6', '#c4b5fd'] },
+            'jaune': { bg: ['#fefce8', '#fef9c3', '#fef08a', '#fde047'], star: '234, 179, 8', accent: '#ca8a04', vis: ['#854d0e', '#eab308', '#fef08a'] },
+            'sombre': { bg: ['#1e1b4b', '#312e81', '#4338ca', '#3730a3'], star: '255, 255, 255', accent: '#818cf8', vis: ['#4338ca', '#6366f1', '#a5b4fc'] }
+        };
+
+        // Palette actuelle (par défaut)
+        let currentTheme = THEMES['defaut'];
+
         let speechQueue = [];
         let isSpeaking = false;
         let audioCtx = null;
         let currentAudio = null;
+
+        /* --- FONCTION APPLICATION THEME --- */
+        function applyTheme(colorName) {
+            let theme = THEMES['defaut'];
+            // Logique simple de détection
+            if (colorName) {
+                const c = colorName.toLowerCase();
+                if (c.includes('bleu') || c.includes('mer') || c.includes('ciel')) theme = THEMES['bleu'];
+                else if (c.includes('rose') || c.includes('fée') || c.includes('princesse')) theme = THEMES['rose'];
+                else if (c.includes('rouge') || c.includes('feu') || c.includes('pompier')) theme = THEMES['rouge'];
+                else if (c.includes('vert') || c.includes('foret') || c.includes('nature') || c.includes('herbe')) theme = THEMES['vert'];
+                else if (c.includes('violet') || c.includes('lilas')) theme = THEMES['violet'];
+                else if (c.includes('jaune') || c.includes('soleil') || c.includes('or')) theme = THEMES['jaune'];
+                else if (c.includes('noir') || c.includes('nuit') || c.includes('espace') || c.includes('sombre')) theme = THEMES['sombre'];
+            }
+            currentTheme = theme;
+
+            // Appliquer au CSS (Background)
+            const r = document.querySelector(':root');
+            r.style.setProperty('--bg-1', theme.bg[0]);
+            r.style.setProperty('--bg-2', theme.bg[1]);
+            r.style.setProperty('--bg-3', theme.bg[2]);
+            r.style.setProperty('--bg-4', theme.bg[3]);
+            r.style.setProperty('--accent-color', theme.accent);
+
+            // Mettre à jour les étoiles existantes
+            particles.forEach(p => p.color = theme.star);
+        }
 
         /* --- CANVAS STARS (FOND) --- */
         const canvas = document.getElementById('starfield'); const ctx = canvas.getContext('2d'); let particles = []; let burstParticles = [];
@@ -301,7 +357,8 @@
                 this.size = Math.random() * 2.5 + 0.5; 
                 this.speed = Math.random() * 0.02 + 0.01; 
                 this.opacity = Math.random() * 0.9; 
-                this.color = Math.random() > 0.5 ? "251, 191, 36" : "129, 140, 248"; 
+                // Utilise la couleur du thème actuel
+                this.color = currentTheme.star; 
             } 
             update() { this.y -= this.speed; this.x += Math.sin(this.y * 0.01) * 0.2; if (this.y < 0) this.reset(); } 
             draw() { ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); } 
@@ -316,7 +373,7 @@
         function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); for (let i = burstParticles.length - 1; i >= 0; i--) { const p = burstParticles[i]; p.update(); p.draw(); if (p.life <= 0) burstParticles.splice(i, 1); } requestAnimationFrame(animate); }
         window.addEventListener('resize', resize); resize(); initParticles(); animate();
 
-        /* --- VISUALISEUR BARRES (RETOUR AU DIAGRAMME) --- */
+        /* --- VISUALISEUR BARRES --- */
         const vizCanvas = document.getElementById('visualizer-canvas'); 
         const vizCtx = vizCanvas.getContext('2d'); 
         let analyser = null; let dataArray = null; let visualizerAnimationId = null;
@@ -333,7 +390,7 @@
             resizeViz();
             if (!analyser) {
                 analyser = context.createAnalyser();
-                analyser.fftSize = 64; // Retour à 64 pour des barres plus larges
+                analyser.fftSize = 64; 
             }
             audioSource.connect(analyser);
             analyser.connect(context.destination);
@@ -355,21 +412,17 @@
             let barHeight;
             let x = gap / 2;
 
-            // Dégradé pour les barres
+            // Dégradé pour les barres basé sur le thème
             let gradient = vizCtx.createLinearGradient(0, vizCanvas.height, 0, 0);
-            gradient.addColorStop(0, '#4f46e5');
-            gradient.addColorStop(0.5, '#9333ea');
-            gradient.addColorStop(1, '#db2777');
+            gradient.addColorStop(0, currentTheme.vis[0]);
+            gradient.addColorStop(0.5, currentTheme.vis[1]);
+            gradient.addColorStop(1, currentTheme.vis[2]);
             vizCtx.fillStyle = gradient;
 
             for (let i = 0; i < bufferLength; i++) {
-                // On normalise un peu pour que ça bouge bien
                 barHeight = (dataArray[i] / 255) * vizCanvas.height;
-                if (barHeight < 5) barHeight = 5; // Hauteur min
-                
-                // Centrer verticalement
+                if (barHeight < 5) barHeight = 5; 
                 const y = (vizCanvas.height - barHeight) / 2;
-                
                 roundRect(vizCtx, x, y, barWidth, barHeight, 50);
                 x += barWidth + gap;
             }
@@ -402,7 +455,6 @@
             const noise = audioCtx.createBufferSource(); noise.buffer = buffer;
             const filter = audioCtx.createBiquadFilter(); filter.type = 'lowpass'; filter.Q.value = 1; filter.frequency.setValueAtTime(100, t); filter.frequency.exponentialRampToValueAtTime(3000, t + 1.5); filter.frequency.exponentialRampToValueAtTime(100, t + 4.0);
             const gain = audioCtx.createGain(); gain.gain.setValueAtTime(0, t); 
-            // VOLUME REDUIT 0.1
             gain.gain.linearRampToValueAtTime(0.1, t + 1.0); 
             gain.gain.linearRampToValueAtTime(0, t + 4.0);
             noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination); noise.start(t); noise.stop(t + 4.0);
@@ -434,6 +486,8 @@
             rec.onerror = (e) => { document.getElementById('btn-mic').classList.remove('mic-listening'); 
                 if (interactionMode === 'NAME_INPUT') document.getElementById('status').innerText = "Comment t'appelles-tu ?";
                 else if (interactionMode === 'GENDER_INPUT') document.getElementById('status').innerText = "Garçon ou fille ?";
+                // Fallback pour la nouvelle étape
+                else if (interactionMode === 'COLOR_INPUT') document.getElementById('status').innerText = "Tes couleurs préférées ?";
                 else if (interactionMode === 'AGE_INPUT') document.getElementById('status').innerText = "Quel âge as-tu ?";
                 else if (interactionMode === 'STORY_INPUT') document.getElementById('status').innerText = "Dis-moi ton idée...";
             };
@@ -444,31 +498,15 @@
         function getRandomWelcome(name, genre) {
             const ami = (genre === 'fille') ? 'amie' : 'ami';
             const curieux = (genre === 'fille') ? 'curieuse' : 'curieux';
-            const aventurier = (genre === 'fille') ? 'aventurière' : 'aventurier';
-            const reveur = (genre === 'fille') ? 'rêveuse' : 'rêveur';
-            const heros = (genre === 'fille') ? 'héroïne' : 'héros';
-            
             const phrases = [
                 `Oh, quel bonheur de te revoir, ${name} !`,
-                `Te voilà enfin, ${name} ! J'attendais ton retour avec impatience.`,
-                `Coucou ${name} ! La boîte magique est toute joyeuse de te voir.`,
-                `Bonjour mon petit ${ami} ${name} ! Prêt pour une nouvelle aventure ?`,
+                `Te voilà enfin, ${name} !`,
+                `Coucou ${name} ! La boîte magique est toute joyeuse.`,
+                `Bonjour mon petit ${ami} ${name} !`,
                 `C'est ma partie préférée de la journée : retrouver ${name} !`,
-                `Bonjour petit ${curieux} ! J'ai plein de nouvelles histoires pour toi.`,
-                `Oh ! Mais qui voilà ? C'est ${name}, mon ${aventurier} préféré !`,
-                `Bienvenue dans le monde des rêves, ${name}.`,
+                `Bonjour petit ${curieux} !`,
                 `Salut ${name} ! Prêt à faire briller ton imagination ?`,
-                `Toc toc toc... Ah ! C'est toi, ${name} ! Entre vite !`,
-                `Quelle joie ! Mon petit ${heros} ${name} est de retour.`,
-                `Bonjour ${name}. Tout est calme ici, prêt pour ton histoire.`,
-                `Regarde toutes ces étoiles, ${name}, elles brillent juste pour toi.`,
-                `Je savais que tu viendrais, ${name}. J'ai gardé une place pour toi.`,
-                `Bonjour ${name}, mon petit ${reveur}. On s'envole aujourd'hui ?`,
-                `Chut... écoute le silence... Bonjour ${name}.`,
-                `La poussière de fée s'agite ! C'est parce que ${name} est là !`,
-                `Ah, te voilà ! J'ai failli commencer sans toi, ${name} ! (Je plaisante).`,
-                `Bonjour ${name}. Quelle merveilleuse journée pour une histoire.`,
-                `Coucou ! Installe-toi bien confortablement, ${name}.`
+                `Toc toc toc... Ah ! C'est toi, ${name} !`
             ];
             return phrases[Math.floor(Math.random() * phrases.length)];
         }
@@ -480,16 +518,8 @@
                 "Mmmh, intéressant... Je rassemble mes idées...",
                 "Je demande aux étoiles de m'aider à écrire...",
                 "Attrape un peu de poussière magique, ça arrive...",
-                "Oh ! J'adore ça. Je commence à écrire l'histoire...",
-                "Patience, mes lutins écrivent aussi vite que possible...",
-                "Je mélange les mots et la magie...",
                 "Ferme les yeux un instant, l'histoire se prépare...",
-                "C'est parti ! Je tisse les fils de l'histoire...",
-                "Voyons voir... Il était une fois...",
-                "Mes plumes magiques sont en train d'écrire...",
-                "Je souffle sur les nuages pour faire venir l'histoire...",
-                "Quelle imagination ! Je note tout ça...",
-                "Un instant, je mets mon chapeau de conteuse..."
+                "C'est parti ! Je tisse les fils de l'histoire..."
             ];
             return phrases[Math.floor(Math.random() * phrases.length)];
         }
@@ -502,7 +532,8 @@
         let opened = false;
 
         function startInteractionSequence() {
-            if (!userPrenom && !userGenre && !userAge) {
+            // S'il manque des infos, on lance le questionnaire
+            if (!userPrenom || !userGenre || !userAge || !userColor) {
                 speechQueue.push("Bonjour ! Avant de commencer, je vais te poser quelques questions pour créer ta boîte à histoires magique.");
                 interactionMode = 'NAME_INPUT';
                 document.getElementById('status').innerText = "Bonjour ! Comment t'appelles-tu ?";
@@ -511,29 +542,12 @@
                 return;
             }
 
-            if (!userPrenom) {
-                interactionMode = 'NAME_INPUT';
-                document.getElementById('status').innerText = "Bonjour ! Comment t'appelles-tu ?";
-                speechQueue.push("Bonjour ! Je suis ta boîte à histoires. Comment t'appelles-tu ?");
-                parler();
-            } else if (!userGenre) {
-                interactionMode = 'GENDER_INPUT';
-                document.getElementById('status').innerText = `Enchantée ${userPrenom} ! Garçon ou fille ?`;
-                speechQueue.push(`Enchantée ${userPrenom} ! Es-tu un garçon ou une fille ?`);
-                parler();
-            } else if (!userAge) {
-                interactionMode = 'AGE_INPUT';
-                document.getElementById('status').innerText = `Quel âge as-tu ?`;
-                speechQueue.push(`D'accord ! Et quel âge as-tu ?`);
-                parler();
-            } else {
-                interactionMode = 'STORY_INPUT';
-                const welcomeMsg = getRandomWelcome(userPrenom, userGenre);
-                // AJOUT DU "Je t'écoute"
-                document.getElementById('status').innerText = "Quelle histoire veux-tu ?";
-                speechQueue.push(`${welcomeMsg} Quelle histoire on invente aujourd'hui ? Je t'écoute.`);
-                parler();
-            }
+            // Si on a déjà tout (retour d'un utilisateur complet)
+            interactionMode = 'STORY_INPUT';
+            const welcomeMsg = getRandomWelcome(userPrenom, userGenre);
+            document.getElementById('status').innerText = "Quelle histoire veux-tu ?";
+            speechQueue.push(`${welcomeMsg} Quelle histoire on invente aujourd'hui ? Je t'écoute.`);
+            parler();
         }
 
         function traiterInput(texte) {
@@ -560,14 +574,27 @@
                     userGenre = genreDetecte;
                     localStorage.setItem('BOITE_GENRE', userGenre);
                     
-                    interactionMode = 'AGE_INPUT';
-                    document.getElementById('status').innerText = `Quel âge as-tu ?`;
-                    speechQueue.push(`C'est noté ! Et quel âge as-tu ?`);
+                    // NOUVELLE ETAPE : COULEURS
+                    interactionMode = 'COLOR_INPUT';
+                    document.getElementById('status').innerText = `Tes couleurs préférées ?`;
+                    speechQueue.push(`C'est noté. Et dis-moi, quelles sont tes couleurs préférées ?`);
                     parler();
                 } else {
                     speechQueue.push(`Je n'ai pas bien compris. Es-tu un garçon ou une fille ?`);
                     parler();
                 }
+
+            } else if (interactionMode === 'COLOR_INPUT') {
+                userColor = texte;
+                localStorage.setItem('BOITE_COLOR', userColor);
+                
+                // Application immédiate du thème
+                applyTheme(userColor);
+                
+                interactionMode = 'AGE_INPUT';
+                document.getElementById('status').innerText = `Quel âge as-tu ?`;
+                speechQueue.push(`Oh, j'adore ces couleurs ! Je décore la boîte pour toi... Voilà ! Et maintenant, quel âge as-tu ?`);
+                parler();
 
             } else if (interactionMode === 'AGE_INPUT') {
                 userAge = texte.replace(/j'ai /i, "").replace(/ans/i, "").trim();
@@ -575,7 +602,7 @@
                 
                 interactionMode = 'STORY_INPUT';
                 document.getElementById('status').innerText = `Quelle histoire veux-tu ?`;
-                speechQueue.push(`D'accord, ${userAge} ans ! Tout est prêt. Quelle histoire veux-tu écouter maintenant ?`);
+                speechQueue.push(`D'accord, ${userAge} ans ! Tout est prêt. Quelle histoire veux-tu écouter maintenant ? Je t'écoute.`);
                 parler();
 
             } else if (interactionMode === 'STORY_INPUT') {
@@ -605,6 +632,10 @@
             setTimeout(() => {
                 document.getElementById('intro-overlay').classList.add('intro-fade-out');
                 document.getElementById('main-interface').classList.add('content-visible');
+                
+                // Appliquer le thème si déjà connu
+                if (userColor) applyTheme(userColor);
+
                 startInteractionSequence();
             }, 1800);
             
@@ -621,14 +652,14 @@
             if (currentAudio) { currentAudio.pause(); currentAudio = null; }
             stopVisualizer(); speechQueue = []; isSpeaking = false;
             
-            // Re-afficher le header si on arrête
             document.getElementById('main-header').classList.remove('cinema-mode');
-
             document.getElementById('status').classList.remove('hidden');
             document.getElementById('loading-spinner').classList.add('hidden');
             
+            // Mise à jour du statut en cas d'arrêt
             if (interactionMode === 'NAME_INPUT') document.getElementById('status').innerText = "Comment t'appelles-tu ?";
             else if (interactionMode === 'GENDER_INPUT') document.getElementById('status').innerText = "Garçon ou fille ?";
+            else if (interactionMode === 'COLOR_INPUT') document.getElementById('status').innerText = "Tes couleurs préférées ?";
             else if (interactionMode === 'AGE_INPUT') document.getElementById('status').innerText = "Quel âge as-tu ?";
             else if (interactionMode === 'STORY_INPUT') document.getElementById('status').innerText = userPrenom ? `Dis-moi ton idée, ${userPrenom}...` : "Dis-moi ton idée...";
             else if (interactionMode === 'TELLING') { interactionMode = 'STORY_INPUT'; document.getElementById('status').innerText = "Une autre histoire ?"; }
@@ -716,12 +747,9 @@
             isSpeaking = true; 
             
             toggleStopButton(true);
-
-            // ACTIVATION DU MODE CINEMA (Cache le header)
             document.getElementById('main-header').classList.add('cinema-mode');
-
             document.getElementById('story-card').classList.remove('hidden');
-            resizeViz(); // S'assurer que le canvas est à la bonne taille
+            resizeViz(); 
             
             let txt = speechQueue.shift().replace(/[#*`_]/g, '');
             const audioBlob = await textToSpeechAzure(txt);
@@ -733,10 +761,9 @@
                 currentAudio.onended = () => {
                     isSpeaking = false;
                     if (speechQueue.length === 0) { 
-                        // FIN DE L'HISTOIRE : ON RÉAFFICHE TOUT
                         document.getElementById('main-header').classList.remove('cinema-mode');
                         toggleStopButton(false); stopVisualizer(); document.getElementById('story-card').classList.add('hidden');
-                        if (['NAME_INPUT', 'GENDER_INPUT', 'AGE_INPUT', 'STORY_INPUT'].includes(interactionMode)) {
+                        if (['NAME_INPUT', 'GENDER_INPUT', 'COLOR_INPUT', 'AGE_INPUT', 'STORY_INPUT'].includes(interactionMode)) {
                             setTimeout(() => { startListening(); }, 500);
                         }
                     } else parler(); 
@@ -746,23 +773,19 @@
         }
 
         function verifierCles() {
-            // TEXTES MODIFIÉS POUR "CLES D'ACTIVATION"
             if (!GEMINI_KEY) { const k = prompt("Entre ta clé d'activation magique N°1 (Google) :"); if (k) { localStorage.setItem('BOITE_GEMINI_KEY', k); GEMINI_KEY = k; } }
             if (!AZURE_KEY) { const k = prompt("Entre ta clé d'activation magique N°2 (Azure) :"); const r = prompt("Entre ta région Azure (ex: francecentral) :"); if (k && r) { localStorage.setItem('BOITE_AZURE_KEY', k); localStorage.setItem('BOITE_AZURE_REGION', r); AZURE_KEY = k; AZURE_REGION = r; } }
             if (GEMINI_KEY && AZURE_KEY && AZURE_REGION) location.reload();
         }
 
         function reinitialiserCle() { localStorage.removeItem('BOITE_GEMINI_KEY'); localStorage.removeItem('BOITE_AZURE_KEY'); localStorage.removeItem('BOITE_AZURE_REGION'); localStorage.removeItem('BOITE_FINAL_KEY_2026'); location.reload(); }
-        function oublierTout() { localStorage.removeItem('BOITE_PRENOM'); localStorage.removeItem('BOITE_AGE'); localStorage.removeItem('BOITE_GENRE'); location.reload(); }
+        function oublierTout() { localStorage.removeItem('BOITE_PRENOM'); localStorage.removeItem('BOITE_AGE'); localStorage.removeItem('BOITE_GENRE'); localStorage.removeItem('BOITE_COLOR'); location.reload(); }
 
         document.addEventListener('DOMContentLoaded', () => {
             if (!GEMINI_KEY || !AZURE_KEY) verifierCles();
-            // document.getElementById('toggle-input').onclick = () => document.getElementById('keyboard-area').classList.toggle('hidden');
-            // document.getElementById('btn-ok').onclick = () => { const val = document.getElementById('manualInput').value.trim(); traiterInput(val); };
             document.getElementById('btn-mic').onclick = () => { startListening(); };
             document.getElementById('btn-stop').onclick = stopAudio;
             
-            // LOGIQUE POUR LE NOM SUR L'ÉCRAN D'ACCUEIL
             const introText = document.getElementById('intro-text');
             if (userPrenom) {
                  introText.innerText = `Ouvre ta boite magique, ${userPrenom}`;
