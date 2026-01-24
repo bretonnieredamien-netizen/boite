@@ -33,7 +33,6 @@
         /* --- HEADER & LOGO --- */
         .brand-header { position: absolute; top: 1.5rem; left: 1.5rem; z-index: 20; }
         
-        /* Transition douce pour le mode cinéma */
         #main-header {
             transition: opacity 1s ease, transform 1s ease;
             opacity: 1;
@@ -73,14 +72,39 @@
         }
         @keyframes spinLoader { 100% { transform: rotate(360deg); } }
 
-        /* --- VISUALISEUR AUDIO --- */
+        /* --- NOUVELLE ORBE MAGIQUE --- */
         #story-card { 
             background: transparent; 
-            overflow: hidden;
+            overflow: visible; /* Important pour que l'ombre ne soit pas coupée */
             display: flex; align-items: center; justify-content: center;
-            filter: drop-shadow(0 4px 6px rgba(129, 140, 248, 0.3));
+            width: 200px; height: 200px;
         }
-        #visualizer-canvas { width: 100%; height: 100%; }
+        
+        #magic-orb {
+            width: 120px; height: 120px;
+            border-radius: 50%;
+            /* Dégradé magique */
+            background: radial-gradient(circle at 30% 30%, #e0e7ff, #818cf8, #4f46e5);
+            /* Ombre interne et externe pour l'effet 3D */
+            box-shadow: 
+                0 0 30px rgba(99, 102, 241, 0.6), 
+                inset 10px 10px 20px rgba(255, 255, 255, 0.5),
+                inset -10px -10px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            /* Transition ultra rapide pour suivre la voix */
+            transition: transform 0.05s ease-out, box-shadow 0.05s ease-out;
+        }
+
+        /* Petit halo autour */
+        #magic-orb::after {
+            content: ''; position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            opacity: 0.5;
+            animation: orbitPulse 3s infinite linear;
+        }
+        @keyframes orbitPulse { 0% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.1); opacity: 0.2; } 100% { transform: scale(1); opacity: 0.5; } }
+
 
         /* --- BOUTONS --- */
         .orbe-base { position: relative; width: 120px; height: 120px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(15px); border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.8); display: flex; align-items: center; justify-content: center; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
@@ -250,18 +274,11 @@
                 </div>
             </div>
 
-            <div id="story-card" class="w-full max-w-xs h-24 hidden transition-all duration-500">
-                <canvas id="visualizer-canvas"></canvas>
+            <div id="story-card" class="hidden transition-all duration-500">
+                <div id="magic-orb"></div>
             </div>
 
-            <div id="keyboard-area" class="w-full flex gap-2 glass-ui p-2 rounded-2xl shadow-xl hidden">
-                <input type="text" id="manualInput" placeholder="Ta réponse..." class="flex-1 bg-white/40 p-4 rounded-xl outline-none text-sm font-medium">
-                <button id="btn-ok" class="bg-indigo-500 text-white px-7 py-4 rounded-xl font-bold active:scale-95 shadow-md">OK</button>
-            </div>
-
-            <button id="toggle-input" class="p-4 rounded-full shadow-sm active:scale-90 opacity-40 hover:opacity-100 transition-opacity">
-                <span class="text-2xl">⌨️</span>
-            </button>
+            <input type="text" id="manualInput" class="hidden">
 
         </main>
 
@@ -323,14 +340,53 @@
         function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); for (let i = burstParticles.length - 1; i >= 0; i--) { const p = burstParticles[i]; p.update(); p.draw(); if (p.life <= 0) burstParticles.splice(i, 1); } requestAnimationFrame(animate); }
         window.addEventListener('resize', resize); resize(); initParticles(); animate();
 
-        /* --- VISUALISEUR --- */
-        const vizCanvas = document.getElementById('visualizer-canvas'); const vizCtx = vizCanvas.getContext('2d'); let analyser = null; let dataArray = null; let visualizerAnimationId = null;
-        function resizeViz() { if(vizCanvas.parentElement) { vizCanvas.width = vizCanvas.parentElement.offsetWidth; vizCanvas.height = vizCanvas.parentElement.offsetHeight; } }
-        window.addEventListener('resize', resizeViz);
-        function startVisualizer(audioSource, context) { resizeViz(); analyser = context.createAnalyser(); analyser.fftSize = 64; audioSource.connect(analyser); analyser.connect(context.destination); const bufferLength = analyser.frequencyBinCount; dataArray = new Uint8Array(bufferLength); drawVisualizer(); }
-        function drawVisualizer() { visualizerAnimationId = requestAnimationFrame(drawVisualizer); analyser.getByteFrequencyData(dataArray); vizCtx.clearRect(0, 0, vizCanvas.width, vizCanvas.height); const bufferLength = analyser.frequencyBinCount; const gap = 6; const barWidth = (vizCanvas.width / bufferLength) - gap; let barHeight; let x = gap / 2; let gradient = vizCtx.createLinearGradient(0, vizCanvas.height, 0, 0); gradient.addColorStop(0, '#4f46e5'); gradient.addColorStop(0.5, '#9333ea'); gradient.addColorStop(1, '#db2777'); vizCtx.fillStyle = gradient; for (let i = 0; i < bufferLength; i++) { barHeight = (dataArray[i] / 255) * vizCanvas.height; if (barHeight < 5) barHeight = 5; const y = (vizCanvas.height - barHeight) / 2; roundRect(vizCtx, x, y, barWidth, barHeight, 50); x += barWidth + gap; } }
-        function roundRect(ctx, x, y, width, height, radius) { if (width < 2 * radius) radius = width / 2; if (height < 2 * radius) radius = height / 2; ctx.beginPath(); ctx.moveTo(x + radius, y); ctx.arcTo(x + width, y, x + width, y + height, radius); ctx.arcTo(x + width, y + height, x, y + height, radius); ctx.arcTo(x, y + height, x, y, radius); ctx.arcTo(x, y, x + width, y, radius); ctx.closePath(); ctx.fill(); }
-        function stopVisualizer() { if (visualizerAnimationId) cancelAnimationFrame(visualizerAnimationId); vizCtx.clearRect(0, 0, vizCanvas.width, vizCanvas.height); }
+        /* --- VISUALISEUR ORBE --- */
+        let analyser = null; let dataArray = null; let visualizerAnimationId = null;
+        
+        function startVisualizer(audioSource, context) {
+            if (!analyser) {
+                analyser = context.createAnalyser();
+                analyser.fftSize = 64; // Petit buffer pour réactivité
+            }
+            // On déconnecte les anciennes connexions si besoin (géré par AudioContext généralement)
+            audioSource.connect(analyser);
+            analyser.connect(context.destination);
+            
+            const bufferLength = analyser.frequencyBinCount;
+            dataArray = new Uint8Array(bufferLength);
+            drawVisualizer(); 
+        }
+
+        function drawVisualizer() {
+            visualizerAnimationId = requestAnimationFrame(drawVisualizer);
+            analyser.getByteFrequencyData(dataArray);
+            
+            // Calcul de la moyenne du volume
+            let sum = 0;
+            for(let i = 0; i < dataArray.length; i++) {
+                sum += dataArray[i];
+            }
+            let average = sum / dataArray.length;
+
+            // Mapping: 0-255 vers Scale 1.0 - 1.8
+            // On lisse un peu pour éviter les tremblements trop violents
+            let scale = 1 + (average / 255) * 0.8;
+            
+            // Application à l'orbe
+            const orb = document.getElementById('magic-orb');
+            if (orb) {
+                orb.style.transform = `scale(${scale})`;
+                // Le halo devient plus intense avec le volume
+                orb.style.boxShadow = `0 0 ${30 + average/2}px rgba(99, 102, 241, ${0.5 + average/500}), inset 10px 10px 20px rgba(255, 255, 255, 0.5)`;
+            }
+        }
+
+        function stopVisualizer() { 
+            if (visualizerAnimationId) cancelAnimationFrame(visualizerAnimationId); 
+            // Reset scale
+            const orb = document.getElementById('magic-orb');
+            if(orb) orb.style.transform = 'scale(1)';
+        }
 
         /* --- SONS --- */
         function playSimpleWoosh() {
@@ -468,7 +524,7 @@
             } else {
                 interactionMode = 'STORY_INPUT';
                 const welcomeMsg = getRandomWelcome(userPrenom, userGenre);
-                // MODIFICATION ICI: TEXTE NEUTRE, PAS DE "TE REVOILA + PRENOM"
+                // TEXTE NEUTRE, PAS DE "TE REVOILA + PRENOM"
                 document.getElementById('status').innerText = "Quelle histoire veux-tu ?";
                 speechQueue.push(`${welcomeMsg} Quelle histoire on invente aujourd'hui ?`);
                 parler();
@@ -487,7 +543,6 @@
                 
                 interactionMode = 'GENDER_INPUT';
                 document.getElementById('status').innerText = `Garçon ou fille ?`;
-                document.getElementById('manualInput').placeholder = "Garçon ou fille...";
                 speechQueue.push(`Enchantée ${userPrenom} ! Es-tu un garçon ou une fille ?`);
                 parler();
                 
@@ -502,7 +557,6 @@
                     
                     interactionMode = 'AGE_INPUT';
                     document.getElementById('status').innerText = `Quel âge as-tu ?`;
-                    document.getElementById('manualInput').placeholder = "Ton âge...";
                     speechQueue.push(`C'est noté ! Et quel âge as-tu ?`);
                     parler();
                 } else {
@@ -516,7 +570,6 @@
                 
                 interactionMode = 'STORY_INPUT';
                 document.getElementById('status').innerText = `Quelle histoire veux-tu ?`;
-                document.getElementById('manualInput').placeholder = "Sujet de l'aventure...";
                 speechQueue.push(`D'accord, ${userAge} ans ! Tout est prêt. Quelle histoire veux-tu écouter maintenant ?`);
                 parler();
 
@@ -697,8 +750,8 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             if (!GEMINI_KEY || !AZURE_KEY) verifierCles();
-            document.getElementById('toggle-input').onclick = () => document.getElementById('keyboard-area').classList.toggle('hidden');
-            document.getElementById('btn-ok').onclick = () => { const val = document.getElementById('manualInput').value.trim(); traiterInput(val); };
+            // document.getElementById('toggle-input').onclick = () => document.getElementById('keyboard-area').classList.toggle('hidden');
+            // document.getElementById('btn-ok').onclick = () => { const val = document.getElementById('manualInput').value.trim(); traiterInput(val); };
             document.getElementById('btn-mic').onclick = () => { startListening(); };
             document.getElementById('btn-stop').onclick = stopAudio;
             
