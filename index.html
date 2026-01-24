@@ -276,11 +276,11 @@
         let AZURE_KEY = localStorage.getItem('BOITE_AZURE_KEY');
         let AZURE_REGION = localStorage.getItem('BOITE_AZURE_REGION');
         
-        // Stockage du prénom et de l'âge
         let userPrenom = localStorage.getItem('BOITE_PRENOM');
         let userAge = localStorage.getItem('BOITE_AGE');
         
-        let interactionMode = 'INIT'; // 'INIT', 'NAME_INPUT', 'AGE_INPUT', 'STORY_INPUT'
+        // MODES: 'INIT', 'NAME_INPUT', 'AGE_INPUT', 'STORY_INPUT', 'TELLING'
+        let interactionMode = 'INIT'; 
 
         const MODEL_ID = "models/gemini-2.5-flash"; 
         const AZURE_VOICE_NAME = "fr-FR-DeniseNeural"; 
@@ -329,6 +329,38 @@
             osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.5);
         }
 
+        /* --- FONCTION D'ÉCOUTE AUTOMATIQUE --- */
+        function startListening() {
+            const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!Speech) return; // Pas de support, on ne fait rien (l'enfant devra cliquer)
+
+            const rec = new Speech();
+            rec.lang = 'fr-FR';
+            rec.interimResults = false;
+            
+            rec.onstart = () => {
+                document.getElementById('btn-mic').classList.add('mic-listening');
+                document.getElementById('status').innerText = "Je t'écoute...";
+            };
+            rec.onresult = (e) => {
+                const p = e.results[0][0].transcript;
+                document.getElementById('manualInput').value = p;
+                traiterInput(p);
+            };
+            rec.onend = () => document.getElementById('btn-mic').classList.remove('mic-listening');
+            rec.onerror = (e) => {
+                console.log("Erreur micro ou silence", e);
+                document.getElementById('btn-mic').classList.remove('mic-listening');
+                // On remet le texte par défaut si erreur
+                if (interactionMode === 'NAME_INPUT') document.getElementById('status').innerText = "Comment t'appelles-tu ?";
+                else if (interactionMode === 'AGE_INPUT') document.getElementById('status').innerText = "Quel âge as-tu ?";
+                else if (interactionMode === 'STORY_INPUT') document.getElementById('status').innerText = "Dis-moi ton idée...";
+            };
+
+            try { rec.start(); } catch (e) {}
+        }
+
+
         /* --- LOGIQUE D'INTERACTION --- */
         const introBox = document.getElementById('intro-box');
         const rays = document.getElementById('god-rays');
@@ -337,7 +369,6 @@
         let opened = false;
 
         function startInteractionSequence() {
-            // Séquence : Prénom -> Âge -> Histoire
             if (!userPrenom) {
                 interactionMode = 'NAME_INPUT';
                 document.getElementById('status').innerText = "Bonjour ! Comment t'appelles-tu ?";
@@ -366,14 +397,13 @@
         function traiterInput(texte) {
             if (!texte.trim()) return;
             
-            stopAudio(); // Coupe l'écoute/parole précédente
+            stopAudio(); 
             document.getElementById('manualInput').value = "";
 
             if (interactionMode === 'NAME_INPUT') {
                 userPrenom = texte.replace(/je m'appelle /i, "").replace(/c'est /i, "").trim();
                 localStorage.setItem('BOITE_PRENOM', userPrenom);
                 
-                // On passe à l'âge
                 interactionMode = 'AGE_INPUT';
                 document.getElementById('status').innerText = `Et quel âge as-tu ?`;
                 document.getElementById('manualInput').placeholder = "Ton âge...";
@@ -385,7 +415,6 @@
                 userAge = texte.replace(/j'ai /i, "").replace(/ans/i, "").trim();
                 localStorage.setItem('BOITE_AGE', userAge);
                 
-                // On passe à l'histoire
                 interactionMode = 'STORY_INPUT';
                 document.getElementById('status').innerText = `D'accord ! Quelle histoire veux-tu ?`;
                 document.getElementById('manualInput').placeholder = "Sujet de l'aventure...";
@@ -394,6 +423,7 @@
                 parler();
 
             } else if (interactionMode === 'STORY_INPUT') {
+                interactionMode = 'TELLING'; // On passe en mode narration (pas d'auto-mic)
                 appelIA(texte);
             }
         }
@@ -437,10 +467,14 @@
             document.getElementById('status').classList.remove('hidden');
             document.getElementById('loading-spinner').classList.add('hidden');
             
-            // Mise à jour du texte de statut selon le mode
             if (interactionMode === 'NAME_INPUT') document.getElementById('status').innerText = "Comment t'appelles-tu ?";
             else if (interactionMode === 'AGE_INPUT') document.getElementById('status').innerText = "Quel âge as-tu ?";
-            else document.getElementById('status').innerText = userPrenom ? `Dis-moi ton idée, ${userPrenom}...` : "Dis-moi ton idée...";
+            else if (interactionMode === 'STORY_INPUT') document.getElementById('status').innerText = userPrenom ? `Dis-moi ton idée, ${userPrenom}...` : "Dis-moi ton idée...";
+            // Si on est en mode TELLING et qu'on stop, on revient à STORY_INPUT pour demander une autre histoire
+            else if (interactionMode === 'TELLING') {
+                interactionMode = 'STORY_INPUT';
+                document.getElementById('status').innerText = "Une autre histoire ?";
+            }
             
             toggleStopButton(false);
             document.getElementById('story-card').classList.add('hidden'); 
@@ -449,6 +483,9 @@
         async function appelIA(sujet) {
             if (!GEMINI_KEY || !AZURE_KEY || !AZURE_REGION) { verifierCles(); return; }
             stopAudio();
+            // Re-forcer le mode Telling ici pour être sûr
+            interactionMode = 'TELLING';
+            
             const btnMic = document.getElementById('btn-mic');
             const statusLabel = document.getElementById('status');
             const loader = document.getElementById('loading-spinner');
@@ -460,7 +497,6 @@
             
             const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${GEMINI_KEY}`;
             
-            // CONTEXTE RICHE POUR L'IA (PRENOM + AGE)
             let contextChild = "";
             if (userPrenom) contextChild += `L'enfant s'appelle ${userPrenom}. `;
             if (userAge) contextChild += `L'enfant a ${userAge} ans (adapte le vocabulaire et la complexité de l'histoire à cet âge). `;
@@ -522,9 +558,25 @@
                 currentAudio = new Audio(audioUrl);
                 const source = audioCtx.createMediaElementSource(currentAudio);
                 startVisualizer(source, audioCtx);
+                
                 currentAudio.onended = () => {
                     isSpeaking = false;
-                    if (speechQueue.length === 0) { toggleStopButton(false); stopVisualizer(); document.getElementById('story-card').classList.add('hidden'); }
+                    
+                    if (speechQueue.length === 0) { 
+                        // La phrase est finie et la file est vide
+                        toggleStopButton(false); 
+                        stopVisualizer(); 
+                        document.getElementById('story-card').classList.add('hidden');
+                        
+                        // LOGIQUE D'ACTIVATION AUTOMATIQUE DU MICRO
+                        // Si on est dans un mode qui attend une réponse (Prénom, Age, Histoire)
+                        if (interactionMode === 'NAME_INPUT' || interactionMode === 'AGE_INPUT' || interactionMode === 'STORY_INPUT') {
+                            // Petit délai naturel avant d'écouter
+                            setTimeout(() => {
+                                startListening();
+                            }, 500);
+                        }
+                    }
                     else parler(); 
                 };
                 currentAudio.play();
@@ -548,17 +600,7 @@
             document.getElementById('btn-ok').onclick = () => { const val = document.getElementById('manualInput').value.trim(); traiterInput(val); };
             
             document.getElementById('btn-mic').onclick = () => {
-                const Speech = window.SpeechRecognition || window.webkitSpeechRecognition; if (!Speech) return alert("Micro non supporté.");
-                const rec = new Speech(); rec.lang = 'fr-FR';
-                rec.onstart = () => { document.getElementById('btn-mic').classList.add('mic-listening'); document.getElementById('status').innerText = "Je t'écoute..."; };
-                rec.onresult = (e) => { 
-                    const p = e.results[0][0].transcript; 
-                    document.getElementById('manualInput').value = p; 
-                    traiterInput(p);
-                };
-                rec.onend = () => document.getElementById('btn-mic').classList.remove('mic-listening');
-                rec.onerror = () => document.getElementById('status').innerText = "Je n'ai pas entendu...";
-                try { rec.start(); } catch (e) {}
+               startListening(); // Utilisation de la nouvelle fonction commune
             };
             document.getElementById('btn-stop').onclick = stopAudio;
         });
