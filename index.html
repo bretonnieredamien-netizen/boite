@@ -70,15 +70,15 @@
 
         /* --- VISUALISEUR AUDIO (BARRES) --- */
         #story-card { 
-            padding: 0 !important; 
-            background: #0f172a; /* Bleu très sombre (Slate 900) pour faire ressortir les couleurs */
+            /* Plus de fond noir, plus de bordure, taille réduite */
+            background: transparent; 
             overflow: hidden;
             display: flex; align-items: center; justify-content: center;
-            box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+            /* Une légère ombre portée douce pour détacher les barres */
+            filter: drop-shadow(0 4px 6px rgba(129, 140, 248, 0.3));
         }
         #visualizer-canvas {
             width: 100%; height: 100%;
-            border-radius: 2.5rem;
         }
         
         /* --- INTRO ANIMATION --- */
@@ -201,6 +201,10 @@
                 </div>
             </div>
 
+            <div id="story-card" class="w-full max-w-xs h-24 hidden transition-all duration-500">
+                <canvas id="visualizer-canvas"></canvas>
+            </div>
+
             <div id="keyboard-area" class="w-full flex gap-2 glass-ui p-2 rounded-2xl shadow-xl hidden">
                 <input type="text" id="manualInput" placeholder="Sujet de l'aventure..." class="flex-1 bg-white/40 p-4 rounded-xl outline-none text-sm font-medium">
                 <button id="btn-ok" class="bg-indigo-500 text-white px-7 py-4 rounded-xl font-bold active:scale-95 shadow-md">OK</button>
@@ -209,10 +213,6 @@
             <button id="toggle-input" class="p-4 rounded-full shadow-sm active:scale-90 opacity-40 hover:opacity-100 transition-opacity">
                 <span class="text-2xl">⌨️</span>
             </button>
-
-            <div id="story-card" class="w-full rounded-[3rem] shadow-2xl border-4 border-white/20 hidden">
-                <canvas id="visualizer-canvas"></canvas>
-            </div>
 
         </main>
 
@@ -241,7 +241,7 @@
         function resizeViz() {
             if(vizCanvas.parentElement) {
                 vizCanvas.width = vizCanvas.parentElement.offsetWidth;
-                vizCanvas.height = vizCanvas.parentElement.offsetWidth; // Carré
+                vizCanvas.height = vizCanvas.parentElement.offsetHeight;
             }
         }
         window.addEventListener('resize', resizeViz);
@@ -249,7 +249,7 @@
         function startVisualizer(audioSource, context) {
             resizeViz();
             analyser = context.createAnalyser();
-            analyser.fftSize = 64; // 32 barres (Moins de barres = plus "chunky" et mignon)
+            analyser.fftSize = 64; 
             audioSource.connect(analyser);
             analyser.connect(context.destination);
             
@@ -266,39 +266,33 @@
             vizCtx.clearRect(0, 0, vizCanvas.width, vizCanvas.height);
 
             const bufferLength = analyser.frequencyBinCount;
-            // Espace entre les barres
-            const gap = 4;
-            // Largeur d'une barre
+            const gap = 6; // Espace plus large
             const barWidth = (vizCanvas.width / bufferLength) - gap; 
             let barHeight;
             let x = gap / 2;
 
-            // Création du dégradé magique pour les barres
+            // Dégradé plus soutenu pour être visible sur fond clair
             let gradient = vizCtx.createLinearGradient(0, vizCanvas.height, 0, 0);
-            gradient.addColorStop(0, '#22d3ee'); // Cyan bas
-            gradient.addColorStop(0.5, '#818cf8'); // Indigo milieu
-            gradient.addColorStop(1, '#c084fc'); // Violet haut
+            gradient.addColorStop(0, '#4f46e5'); // Indigo profond
+            gradient.addColorStop(0.5, '#9333ea'); // Purple
+            gradient.addColorStop(1, '#db2777'); // Pink
 
             vizCtx.fillStyle = gradient;
 
             for (let i = 0; i < bufferLength; i++) {
-                // On amplifie un peu la hauteur pour que ça bouge bien
-                barHeight = (dataArray[i] / 255) * vizCanvas.height * 0.8; 
-                
-                // Pour éviter les barres vides, on met une hauteur minime
-                if (barHeight < 10) barHeight = 10;
+                barHeight = (dataArray[i] / 255) * vizCanvas.height;
+                if (barHeight < 5) barHeight = 5; // Hauteur mini
 
-                // Dessin de la barre (rectangles avec coins arrondis)
-                // On centre verticalement : y = (HauteurCanvas - HauteurBarre) / 2
+                // Centrage vertical
                 const y = (vizCanvas.height - barHeight) / 2;
                 
-                roundRect(vizCtx, x, y, barWidth, barHeight, 10); // 10px de radius
+                // Dessin avec coins arrondis
+                roundRect(vizCtx, x, y, barWidth, barHeight, 50); 
 
                 x += barWidth + gap;
             }
         }
 
-        // Fonction utilitaire pour dessiner un rectangle arrondi
         function roundRect(ctx, x, y, width, height, radius) {
             if (width < 2 * radius) radius = width / 2;
             if (height < 2 * radius) radius = height / 2;
@@ -382,6 +376,7 @@
             document.getElementById('loading-spinner').classList.add('hidden');
             document.getElementById('status').innerText = "Dis-moi ton idée pour une histoire...";
             toggleStopButton(false);
+            document.getElementById('story-card').classList.add('hidden'); // Cacher le visualiseur
         }
 
         async function appelIA(sujet) {
@@ -395,8 +390,7 @@
             statusLabel.classList.add('hidden');
             loader.classList.remove('hidden');
             
-            // Afficher le cadre du visualiseur 
-            document.getElementById('story-card').classList.remove('hidden');
+            // On affichera le visualiseur quand l'audio commencera
             
             setTimeout(() => { btnMic.classList.remove('understood-flash'); toggleStopButton(true); }, 800);
             
@@ -454,6 +448,10 @@
         async function parler() {
             if (isSpeaking || speechQueue.length === 0) return;
             isSpeaking = true; 
+            
+            // Afficher le visualiseur
+            document.getElementById('story-card').classList.remove('hidden');
+
             let txt = speechQueue.shift().replace(/[#*`_]/g, '');
             const audioBlob = await textToSpeechAzure(txt);
             if (audioBlob) {
@@ -465,7 +463,7 @@
                 
                 currentAudio.onended = () => {
                     isSpeaking = false;
-                    if (speechQueue.length === 0) { toggleStopButton(false); stopVisualizer(); }
+                    if (speechQueue.length === 0) { toggleStopButton(false); stopVisualizer(); document.getElementById('story-card').classList.add('hidden'); }
                     else parler(); 
                 };
                 currentAudio.play();
