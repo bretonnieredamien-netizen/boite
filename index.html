@@ -68,16 +68,17 @@
         }
         @keyframes spinLoader { 100% { transform: rotate(360deg); } }
 
-        /* --- NOUVEAU : VISUALISEUR AUDIO --- */
+        /* --- VISUALISEUR AUDIO (BARRES) --- */
         #story-card { 
-            padding: 0 !important; /* Plein cadre */
-            background: black; /* Fond sombre pour contraste */
+            padding: 0 !important; 
+            background: #0f172a; /* Bleu très sombre (Slate 900) pour faire ressortir les couleurs */
             overflow: hidden;
             display: flex; align-items: center; justify-content: center;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
         }
         #visualizer-canvas {
             width: 100%; height: 100%;
-            border-radius: 2.5rem; /* Match le border-radius du parent */
+            border-radius: 2.5rem;
         }
         
         /* --- INTRO ANIMATION --- */
@@ -209,7 +210,7 @@
                 <span class="text-2xl">⌨️</span>
             </button>
 
-            <div id="story-card" class="bg-black w-full rounded-[3rem] shadow-2xl border-4 border-white/20 hidden">
+            <div id="story-card" class="w-full rounded-[3rem] shadow-2xl border-4 border-white/20 hidden">
                 <canvas id="visualizer-canvas"></canvas>
             </div>
 
@@ -248,7 +249,7 @@
         function startVisualizer(audioSource, context) {
             resizeViz();
             analyser = context.createAnalyser();
-            analyser.fftSize = 256; // Résolution
+            analyser.fftSize = 64; // 32 barres (Moins de barres = plus "chunky" et mignon)
             audioSource.connect(analyser);
             analyser.connect(context.destination);
             
@@ -262,44 +263,53 @@
             visualizerAnimationId = requestAnimationFrame(drawVisualizer);
             analyser.getByteFrequencyData(dataArray);
 
-            vizCtx.fillStyle = 'rgba(0, 0, 0, 0.2)'; // Traînée pour effet fluide
-            vizCtx.fillRect(0, 0, vizCanvas.width, vizCanvas.height);
+            vizCtx.clearRect(0, 0, vizCanvas.width, vizCanvas.height);
 
-            const centerX = vizCanvas.width / 2;
-            const centerY = vizCanvas.height / 2;
-            const radius = Math.min(centerX, centerY) * 0.4;
+            const bufferLength = analyser.frequencyBinCount;
+            // Espace entre les barres
+            const gap = 4;
+            // Largeur d'une barre
+            const barWidth = (vizCanvas.width / bufferLength) - gap; 
+            let barHeight;
+            let x = gap / 2;
 
-            vizCtx.beginPath();
-            vizCtx.strokeStyle = '#22d3ee'; // Cyan
-            vizCtx.lineWidth = 4;
+            // Création du dégradé magique pour les barres
+            let gradient = vizCtx.createLinearGradient(0, vizCanvas.height, 0, 0);
+            gradient.addColorStop(0, '#22d3ee'); // Cyan bas
+            gradient.addColorStop(0.5, '#818cf8'); // Indigo milieu
+            gradient.addColorStop(1, '#c084fc'); // Violet haut
 
-            for (let i = 0; i < dataArray.length; i++) {
-                const barHeight = dataArray[i] * 0.5;
-                const angle = (i * 2 * Math.PI) / dataArray.length;
+            vizCtx.fillStyle = gradient;
+
+            for (let i = 0; i < bufferLength; i++) {
+                // On amplifie un peu la hauteur pour que ça bouge bien
+                barHeight = (dataArray[i] / 255) * vizCanvas.height * 0.8; 
                 
-                // Cercle déformé par le son
-                const x = centerX + Math.cos(angle) * (radius + barHeight);
-                const y = centerY + Math.sin(angle) * (radius + barHeight);
+                // Pour éviter les barres vides, on met une hauteur minime
+                if (barHeight < 10) barHeight = 10;
 
-                if (i === 0) vizCtx.moveTo(x, y);
-                else vizCtx.lineTo(x, y);
-            }
-            vizCtx.closePath();
-            vizCtx.stroke();
+                // Dessin de la barre (rectangles avec coins arrondis)
+                // On centre verticalement : y = (HauteurCanvas - HauteurBarre) / 2
+                const y = (vizCanvas.height - barHeight) / 2;
+                
+                roundRect(vizCtx, x, y, barWidth, barHeight, 10); // 10px de radius
 
-            // Deuxième couche (Violette)
-            vizCtx.beginPath();
-            vizCtx.strokeStyle = '#c084fc'; 
-            vizCtx.lineWidth = 2;
-             for (let i = 0; i < dataArray.length; i++) {
-                const barHeight = dataArray[i] * 0.3;
-                const angle = (i * 2 * Math.PI) / dataArray.length;
-                const x = centerX + Math.cos(angle) * (radius * 0.8 + barHeight);
-                const y = centerY + Math.sin(angle) * (radius * 0.8 + barHeight);
-                if (i === 0) vizCtx.moveTo(x, y);
-                else vizCtx.lineTo(x, y);
+                x += barWidth + gap;
             }
-            vizCtx.stroke();
+        }
+
+        // Fonction utilitaire pour dessiner un rectangle arrondi
+        function roundRect(ctx, x, y, width, height, radius) {
+            if (width < 2 * radius) radius = width / 2;
+            if (height < 2 * radius) radius = height / 2;
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.arcTo(x + width, y, x + width, y + height, radius);
+            ctx.arcTo(x + width, y + height, x, y + height, radius);
+            ctx.arcTo(x, y + height, x, y, radius);
+            ctx.arcTo(x, y, x + width, y, radius);
+            ctx.closePath();
+            ctx.fill();
         }
 
         function stopVisualizer() {
@@ -366,7 +376,7 @@
 
         function stopAudio() {
             if (currentAudio) { currentAudio.pause(); currentAudio = null; }
-            stopVisualizer(); // Arrêt de l'animation
+            stopVisualizer(); 
             speechQueue = []; isSpeaking = false;
             document.getElementById('status').classList.remove('hidden');
             document.getElementById('loading-spinner').classList.add('hidden');
@@ -385,7 +395,7 @@
             statusLabel.classList.add('hidden');
             loader.classList.remove('hidden');
             
-            // Afficher le cadre du visualiseur (vide pour l'instant)
+            // Afficher le cadre du visualiseur 
             document.getElementById('story-card').classList.remove('hidden');
             
             setTimeout(() => { btnMic.classList.remove('understood-flash'); toggleStopButton(true); }, 800);
@@ -450,8 +460,6 @@
                 const audioUrl = URL.createObjectURL(audioBlob);
                 currentAudio = new Audio(audioUrl);
                 
-                // --- CONNEXION VISUALISEUR ---
-                // Il faut recréer une source audio compatible Web Audio API
                 const source = audioCtx.createMediaElementSource(currentAudio);
                 startVisualizer(source, audioCtx);
                 
