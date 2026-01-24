@@ -277,9 +277,8 @@
         
         let userPrenom = localStorage.getItem('BOITE_PRENOM');
         let userAge = localStorage.getItem('BOITE_AGE');
-        let userGenre = localStorage.getItem('BOITE_GENRE'); // 'garçon' ou 'fille'
+        let userGenre = localStorage.getItem('BOITE_GENRE'); 
         
-        // MODES: 'INIT', 'NAME_INPUT', 'GENDER_INPUT', 'AGE_INPUT', 'STORY_INPUT', 'TELLING'
         let interactionMode = 'INIT'; 
 
         const MODEL_ID = "models/gemini-2.5-flash"; 
@@ -346,6 +345,22 @@
             try { rec.start(); } catch (e) {}
         }
 
+        /* --- GENERATION PHRASES D'ACCUEIL --- */
+        function getRandomWelcome(name, genre) {
+            const ami = (genre === 'fille') ? 'amie' : 'ami';
+            const curieux = (genre === 'fille') ? 'curieuse' : 'curieux';
+            
+            const phrases = [
+                `Oh, quel bonheur de te revoir, ${name} !`,
+                `Te voilà enfin, ${name} ! J'attendais ton retour avec impatience.`,
+                `Coucou ${name} ! La boîte magique est toute joyeuse de te voir.`,
+                `Bonjour mon petit ${ami} ${name} ! Prêt pour une nouvelle aventure ?`,
+                `C'est ma partie préférée de la journée : retrouver ${name} !`,
+                `Bonjour petit ${curieux} ! J'ai plein de nouvelles histoires pour toi.`
+            ];
+            return phrases[Math.floor(Math.random() * phrases.length)];
+        }
+
         /* --- LOGIQUE D'INTERACTION --- */
         const introBox = document.getElementById('intro-box');
         const rays = document.getElementById('god-rays');
@@ -356,10 +371,8 @@
         function startInteractionSequence() {
             // Séquence : Intro? -> Prénom -> Genre -> Âge -> Histoire
             
-            // Si on ne connaît rien, on fait l'intro d'abord
             if (!userPrenom && !userGenre && !userAge) {
                 speechQueue.push("Bonjour ! Avant de commencer, je vais te poser quelques questions pour créer ta boîte à histoires magique.");
-                // On enchaine avec la demande de prénom
                 interactionMode = 'NAME_INPUT';
                 document.getElementById('status').innerText = "Bonjour ! Comment t'appelles-tu ?";
                 speechQueue.push("D'abord, comment t'appelles-tu ?");
@@ -367,7 +380,6 @@
                 return;
             }
 
-            // Sinon on reprend là où on en était
             if (!userPrenom) {
                 interactionMode = 'NAME_INPUT';
                 document.getElementById('status').innerText = "Bonjour ! Comment t'appelles-tu ?";
@@ -385,8 +397,14 @@
                 parler();
             } else {
                 interactionMode = 'STORY_INPUT';
+                
+                // ACCUEIL PERSONNALISÉ & ALÉATOIRE
+                const welcomeMsg = getRandomWelcome(userPrenom, userGenre);
+                
                 document.getElementById('status').innerText = `Te revoilà, ${userPrenom} !`;
-                speechQueue.push(`Bonjour ${userPrenom} ! Quelle histoire on invente aujourd'hui ?`);
+                
+                // On met la phrase de bienvenue, un petit silence (virgule), puis la question
+                speechQueue.push(`${welcomeMsg} Quelle histoire on invente aujourd'hui ?`);
                 parler();
             }
         }
@@ -402,7 +420,6 @@
                 userPrenom = texte.replace(/je m'appelle /i, "").replace(/c'est /i, "").trim();
                 localStorage.setItem('BOITE_PRENOM', userPrenom);
                 
-                // Passage au genre
                 interactionMode = 'GENDER_INPUT';
                 document.getElementById('status').innerText = `Garçon ou fille ?`;
                 document.getElementById('manualInput').placeholder = "Garçon ou fille...";
@@ -410,7 +427,6 @@
                 parler();
                 
             } else if (interactionMode === 'GENDER_INPUT') {
-                // Détection simple
                 let genreDetecte = null;
                 if (lowerText.includes('garçon') || lowerText.includes('garcon') || lowerText.includes('homme')) genreDetecte = 'garçon';
                 else if (lowerText.includes('fille') || lowerText.includes('femme')) genreDetecte = 'fille';
@@ -419,14 +435,12 @@
                     userGenre = genreDetecte;
                     localStorage.setItem('BOITE_GENRE', userGenre);
                     
-                    // Passage à l'âge
                     interactionMode = 'AGE_INPUT';
                     document.getElementById('status').innerText = `Quel âge as-tu ?`;
                     document.getElementById('manualInput').placeholder = "Ton âge...";
                     speechQueue.push(`C'est noté ! Et quel âge as-tu ?`);
                     parler();
                 } else {
-                    // Pas compris
                     speechQueue.push(`Je n'ai pas bien compris. Es-tu un garçon ou une fille ?`);
                     parler();
                 }
