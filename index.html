@@ -14,12 +14,14 @@
             --bg-3: #ede9fe;
             --bg-4: #fae8ff;
             --accent-color: #6366f1; /* Indigo par défaut */
+            --vis-1: #4f46e5;
+            --vis-2: #9333ea;
+            --vis-3: #db2777;
         }
 
         /* Fond Moderne Animé */
         body { 
             font-family: 'Lexend', sans-serif; 
-            /* On utilise les variables pour pouvoir changer les couleurs via JS */
             background: linear-gradient(-45deg, var(--bg-1), var(--bg-2), var(--bg-3), var(--bg-4));
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
@@ -27,7 +29,7 @@
             overflow-x: hidden;
             min-height: 100vh;
             margin: 0;
-            transition: background 2s ease; /* Transition douce lors du changement de couleur */
+            transition: background 2s ease; 
         }
         @keyframes gradientBG {
             0% { background-position: 0% 50%; }
@@ -89,7 +91,7 @@
             overflow: hidden;
             display: flex; align-items: center; justify-content: center;
             width: 100%; max-width: 320px; height: 100px; 
-            filter: drop-shadow(0 4px 6px rgba(var(--accent-rgb), 0.3)); /* Ombre colorée */
+            filter: drop-shadow(0 4px 6px rgba(129, 140, 248, 0.3));
         }
         #visualizer-canvas { width: 100%; height: 100%; }
 
@@ -264,9 +266,7 @@
             <div id="story-card" class="hidden transition-all duration-500">
                  <canvas id="visualizer-canvas"></canvas>
             </div>
-
-            <input type="text" id="manualInput" class="hidden">
-
+             <input type="text" id="manualInput" class="hidden">
         </main>
 
         <footer class="mt-auto py-8 flex flex-col items-center gap-3">
@@ -289,7 +289,7 @@
         let userPrenom = localStorage.getItem('BOITE_PRENOM');
         let userAge = localStorage.getItem('BOITE_AGE');
         let userGenre = localStorage.getItem('BOITE_GENRE'); 
-        let userColor = localStorage.getItem('BOITE_COLOR'); // Nouvelle variable
+        let userColor = localStorage.getItem('BOITE_COLOR'); 
         
         let interactionMode = 'INIT'; 
 
@@ -297,7 +297,6 @@
         const AZURE_VOICE_NAME = "fr-FR-DeniseNeural"; 
 
         /* --- THEMES COULEURS --- */
-        // Configuration des thèmes possibles
         const THEMES = {
             'defaut': { bg: ['#fff7ed', '#fef9c3', '#ede9fe', '#fae8ff'], star: '251, 191, 36', accent: '#6366f1', vis: ['#4f46e5', '#9333ea', '#db2777'] },
             'bleu': { bg: ['#eff6ff', '#dbeafe', '#bfdbfe', '#93c5fd'], star: '96, 165, 250', accent: '#2563eb', vis: ['#1e40af', '#3b82f6', '#93c5fd'] },
@@ -309,7 +308,17 @@
             'sombre': { bg: ['#1e1b4b', '#312e81', '#4338ca', '#3730a3'], star: '255, 255, 255', accent: '#818cf8', vis: ['#4338ca', '#6366f1', '#a5b4fc'] }
         };
 
-        // Palette actuelle (par défaut)
+        // Mapping mots-clés -> Clés Thèmes
+        const KEYWORDS = {
+            'bleu': 'bleu', 'mer': 'bleu', 'ciel': 'bleu', 'azur': 'bleu',
+            'rose': 'rose', 'fée': 'rose', 'princesse': 'rose',
+            'rouge': 'rouge', 'feu': 'rouge', 'pompier': 'rouge',
+            'vert': 'vert', 'nature': 'vert', 'foret': 'vert', 'herbe': 'vert',
+            'violet': 'violet', 'lilas': 'violet', 'mauve': 'violet',
+            'jaune': 'jaune', 'soleil': 'jaune', 'or': 'jaune',
+            'noir': 'sombre', 'sombre': 'sombre', 'nuit': 'sombre', 'espace': 'sombre'
+        };
+
         let currentTheme = THEMES['defaut'];
 
         let speechQueue = [];
@@ -317,32 +326,63 @@
         let audioCtx = null;
         let currentAudio = null;
 
-        /* --- FONCTION APPLICATION THEME --- */
-        function applyTheme(colorName) {
-            let theme = THEMES['defaut'];
-            // Logique simple de détection
-            if (colorName) {
-                const c = colorName.toLowerCase();
-                if (c.includes('bleu') || c.includes('mer') || c.includes('ciel')) theme = THEMES['bleu'];
-                else if (c.includes('rose') || c.includes('fée') || c.includes('princesse')) theme = THEMES['rose'];
-                else if (c.includes('rouge') || c.includes('feu') || c.includes('pompier')) theme = THEMES['rouge'];
-                else if (c.includes('vert') || c.includes('foret') || c.includes('nature') || c.includes('herbe')) theme = THEMES['vert'];
-                else if (c.includes('violet') || c.includes('lilas')) theme = THEMES['violet'];
-                else if (c.includes('jaune') || c.includes('soleil') || c.includes('or')) theme = THEMES['jaune'];
-                else if (c.includes('noir') || c.includes('nuit') || c.includes('espace') || c.includes('sombre')) theme = THEMES['sombre'];
+        /* --- FONCTION APPLICATION THEME HYBRIDE --- */
+        function applyMixedTheme(inputText) {
+            if (!inputText) return;
+            const text = inputText.toLowerCase();
+            const detectedKeys = new Set();
+
+            // Détection de tous les thèmes mentionnés
+            for (const [key, val] of Object.entries(KEYWORDS)) {
+                if (text.includes(key)) detectedKeys.add(val);
             }
-            currentTheme = theme;
 
-            // Appliquer au CSS (Background)
+            const themes = Array.from(detectedKeys).map(k => THEMES[k]);
+
+            if (themes.length === 0) {
+                // Pas de couleur détectée, on garde le défaut ou l'ancien
+                return;
+            } else if (themes.length === 1) {
+                // Un seul thème classique
+                currentTheme = themes[0];
+            } else {
+                // Mélange (Hybrid)
+                // On prend 2 thèmes principaux pour le dégradé (premier et dernier trouvés pour max contraste)
+                const t1 = themes[0];
+                const t2 = themes[themes.length - 1]; // Peut être le même si length 1, mais ici length > 1
+                
+                // Construction d'un thème composite
+                currentTheme = {
+                    // Mélange BG: T1-1, T2-2, T1-3, T2-4
+                    bg: [t1.bg[0], t2.bg[1], t1.bg[2], t2.bg[3]],
+                    // Etoiles: Couleur du premier
+                    star: t1.star,
+                    // Accent: Couleur du second
+                    accent: t2.accent,
+                    // Vis: Mélange [T1-1, T2-2, T1-3]
+                    vis: [t1.vis[0], t2.vis[1], t1.vis[2]]
+                };
+            }
+
+            // Application CSS
             const r = document.querySelector(':root');
-            r.style.setProperty('--bg-1', theme.bg[0]);
-            r.style.setProperty('--bg-2', theme.bg[1]);
-            r.style.setProperty('--bg-3', theme.bg[2]);
-            r.style.setProperty('--bg-4', theme.bg[3]);
-            r.style.setProperty('--accent-color', theme.accent);
+            r.style.setProperty('--bg-1', currentTheme.bg[0]);
+            r.style.setProperty('--bg-2', currentTheme.bg[1]);
+            r.style.setProperty('--bg-3', currentTheme.bg[2]);
+            r.style.setProperty('--bg-4', currentTheme.bg[3]);
+            r.style.setProperty('--accent-color', currentTheme.accent);
+            r.style.setProperty('--vis-1', currentTheme.vis[0]);
+            r.style.setProperty('--vis-2', currentTheme.vis[1]);
+            r.style.setProperty('--vis-3', currentTheme.vis[2]);
 
-            // Mettre à jour les étoiles existantes
-            particles.forEach(p => p.color = theme.star);
+            particles.forEach(p => {
+                // Si mélange, on peut faire varier les couleurs des particules
+                if (themes.length > 1) {
+                     p.color = Math.random() > 0.5 ? themes[0].star : themes[1].star;
+                } else {
+                     p.color = currentTheme.star;
+                }
+            });
         }
 
         /* --- CANVAS STARS (FOND) --- */
@@ -357,7 +397,6 @@
                 this.size = Math.random() * 2.5 + 0.5; 
                 this.speed = Math.random() * 0.02 + 0.01; 
                 this.opacity = Math.random() * 0.9; 
-                // Utilise la couleur du thème actuel
                 this.color = currentTheme.star; 
             } 
             update() { this.y -= this.speed; this.x += Math.sin(this.y * 0.01) * 0.2; if (this.y < 0) this.reset(); } 
@@ -412,7 +451,8 @@
             let barHeight;
             let x = gap / 2;
 
-            // Dégradé pour les barres basé sur le thème
+            // Dégradé dynamique via CSS vars (récupérées via JS pour le canvas)
+            // On utilise les valeurs du thème courant stocké en JS pour plus de fluidité
             let gradient = vizCtx.createLinearGradient(0, vizCanvas.height, 0, 0);
             gradient.addColorStop(0, currentTheme.vis[0]);
             gradient.addColorStop(0.5, currentTheme.vis[1]);
@@ -486,7 +526,6 @@
             rec.onerror = (e) => { document.getElementById('btn-mic').classList.remove('mic-listening'); 
                 if (interactionMode === 'NAME_INPUT') document.getElementById('status').innerText = "Comment t'appelles-tu ?";
                 else if (interactionMode === 'GENDER_INPUT') document.getElementById('status').innerText = "Garçon ou fille ?";
-                // Fallback pour la nouvelle étape
                 else if (interactionMode === 'COLOR_INPUT') document.getElementById('status').innerText = "Tes couleurs préférées ?";
                 else if (interactionMode === 'AGE_INPUT') document.getElementById('status').innerText = "Quel âge as-tu ?";
                 else if (interactionMode === 'STORY_INPUT') document.getElementById('status').innerText = "Dis-moi ton idée...";
@@ -534,15 +573,15 @@
         function startInteractionSequence() {
             // S'il manque des infos, on lance le questionnaire
             if (!userPrenom || !userGenre || !userAge || !userColor) {
-                speechQueue.push("Bonjour ! Avant de commencer, je vais te poser quelques questions pour créer ta boîte à histoires magique.");
+                speechQueue.push("Bonjour ! Avant de commencer, je vais te poser quelques questions pour créer ta boîte à histoires magique. Je t'écoute.");
                 interactionMode = 'NAME_INPUT';
                 document.getElementById('status').innerText = "Bonjour ! Comment t'appelles-tu ?";
-                speechQueue.push("D'abord, comment t'appelles-tu ?");
+                speechQueue.push("D'abord, comment t'appelles-tu ? Je t'écoute.");
                 parler();
                 return;
             }
 
-            // Si on a déjà tout (retour d'un utilisateur complet)
+            // Si on a déjà tout
             interactionMode = 'STORY_INPUT';
             const welcomeMsg = getRandomWelcome(userPrenom, userGenre);
             document.getElementById('status').innerText = "Quelle histoire veux-tu ?";
@@ -562,7 +601,7 @@
                 
                 interactionMode = 'GENDER_INPUT';
                 document.getElementById('status').innerText = `Garçon ou fille ?`;
-                speechQueue.push(`Enchantée ${userPrenom} ! Es-tu un garçon ou une fille ?`);
+                speechQueue.push(`Enchantée ${userPrenom} ! Es-tu un garçon ou une fille ? Je t'écoute.`);
                 parler();
                 
             } else if (interactionMode === 'GENDER_INPUT') {
@@ -574,13 +613,12 @@
                     userGenre = genreDetecte;
                     localStorage.setItem('BOITE_GENRE', userGenre);
                     
-                    // NOUVELLE ETAPE : COULEURS
                     interactionMode = 'COLOR_INPUT';
                     document.getElementById('status').innerText = `Tes couleurs préférées ?`;
-                    speechQueue.push(`C'est noté. Et dis-moi, quelles sont tes couleurs préférées ?`);
+                    speechQueue.push(`C'est noté. Et dis-moi, quelles sont tes couleurs préférées ? Je t'écoute.`);
                     parler();
                 } else {
-                    speechQueue.push(`Je n'ai pas bien compris. Es-tu un garçon ou une fille ?`);
+                    speechQueue.push(`Je n'ai pas bien compris. Es-tu un garçon ou une fille ? Je t'écoute.`);
                     parler();
                 }
 
@@ -588,12 +626,12 @@
                 userColor = texte;
                 localStorage.setItem('BOITE_COLOR', userColor);
                 
-                // Application immédiate du thème
-                applyTheme(userColor);
+                // Application immédiate du thème mixte
+                applyMixedTheme(userColor);
                 
                 interactionMode = 'AGE_INPUT';
                 document.getElementById('status').innerText = `Quel âge as-tu ?`;
-                speechQueue.push(`Oh, j'adore ces couleurs ! Je décore la boîte pour toi... Voilà ! Et maintenant, quel âge as-tu ?`);
+                speechQueue.push(`Oh, j'adore ces couleurs ! Je décore la boîte pour toi... Voilà ! Et maintenant, quel âge as-tu ? Je t'écoute.`);
                 parler();
 
             } else if (interactionMode === 'AGE_INPUT') {
@@ -634,7 +672,7 @@
                 document.getElementById('main-interface').classList.add('content-visible');
                 
                 // Appliquer le thème si déjà connu
-                if (userColor) applyTheme(userColor);
+                if (userColor) applyMixedTheme(userColor);
 
                 startInteractionSequence();
             }, 1800);
@@ -656,7 +694,6 @@
             document.getElementById('status').classList.remove('hidden');
             document.getElementById('loading-spinner').classList.add('hidden');
             
-            // Mise à jour du statut en cas d'arrêt
             if (interactionMode === 'NAME_INPUT') document.getElementById('status').innerText = "Comment t'appelles-tu ?";
             else if (interactionMode === 'GENDER_INPUT') document.getElementById('status').innerText = "Garçon ou fille ?";
             else if (interactionMode === 'COLOR_INPUT') document.getElementById('status').innerText = "Tes couleurs préférées ?";
