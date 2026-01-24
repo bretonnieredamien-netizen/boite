@@ -292,9 +292,27 @@
         /* --- CANVAS STARS --- */
         const canvas = document.getElementById('starfield'); const ctx = canvas.getContext('2d'); let particles = []; let burstParticles = [];
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        class Particle { constructor() { this.reset(); } reset() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 2 + 0.5; this.speed = Math.random() * 0.02 + 0.01; this.opacity = Math.random() * 0.8; this.color = Math.random() > 0.5 ? "251, 191, 36" : "129, 140, 248"; } update() { this.y -= this.speed; this.x += Math.sin(this.y * 0.01) * 0.2; if (this.y < 0) this.reset(); } draw() { ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); } }
+        
+        class Particle { 
+            constructor() { this.reset(); } 
+            reset() { 
+                this.x = Math.random() * canvas.width; 
+                this.y = Math.random() * canvas.height; 
+                this.size = Math.random() * 2.5 + 0.5; // Un peu plus gros
+                this.speed = Math.random() * 0.02 + 0.01; 
+                this.opacity = Math.random() * 0.9; 
+                this.color = Math.random() > 0.5 ? "251, 191, 36" : "129, 140, 248"; 
+            } 
+            update() { this.y -= this.speed; this.x += Math.sin(this.y * 0.01) * 0.2; if (this.y < 0) this.reset(); } 
+            draw() { ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); } 
+        }
         class BurstParticle { constructor(x, y) { this.x = x; this.y = y; const angle = Math.random() * Math.PI * 2; const speed = Math.random() * 15 + 5; this.vx = Math.cos(angle) * speed; this.vy = Math.sin(angle) * speed; this.life = 1.0; this.decay = Math.random() * 0.015 + 0.005; this.color = Math.random() > 0.5 ? "#fbbf24" : "#ffffff"; this.size = Math.random() * 5 + 2; } update() { this.x += this.vx; this.y += this.vy; this.vy += 0.2; this.vx *= 0.96; this.vy *= 0.96; this.life -= this.decay; } draw() { ctx.globalAlpha = this.life; ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1.0; } }
-        function initParticles() { particles = []; for (let i = 0; i < 100; i++) particles.push(new Particle()); }
+        
+        function initParticles() { 
+            particles = []; 
+            // AUGMENTATION DU NOMBRE D'ÉTOILES
+            for (let i = 0; i < 300; i++) particles.push(new Particle()); 
+        }
         function triggerBurst() { const centerX = window.innerWidth / 2; const centerY = window.innerHeight / 2; for (let i = 0; i < 300; i++) burstParticles.push(new BurstParticle(centerX, centerY)); }
         function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); for (let i = burstParticles.length - 1; i >= 0; i--) { const p = burstParticles[i]; p.update(); p.draw(); if (p.life <= 0) burstParticles.splice(i, 1); } requestAnimationFrame(animate); }
         window.addEventListener('resize', resize); resize(); initParticles(); animate();
@@ -319,13 +337,24 @@
             const gain = audioCtx.createGain(); gain.gain.setValueAtTime(0, t); gain.gain.linearRampToValueAtTime(0.4, t + 1.0); gain.gain.linearRampToValueAtTime(0, t + 4.0);
             noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination); noise.start(t); noise.stop(t + 4.0);
         }
-        function playChime() {
+        
+        // SON PING DOUX ET LÉGER
+        function playSoftPing() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-            osc.type = 'triangle'; osc.frequency.setValueAtTime(1244.51, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(1567.98, audioCtx.currentTime + 0.1);
-            gain.gain.setValueAtTime(0, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.05); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-            osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+            const osc = audioCtx.createOscillator(); 
+            const gain = audioCtx.createGain();
+            
+            osc.type = 'sine'; // Plus doux que triangle
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime); 
+            osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
+            
+            gain.gain.setValueAtTime(0, audioCtx.currentTime); 
+            gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.05); // Volume très bas
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+            
+            osc.connect(gain); gain.connect(audioCtx.destination); 
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
         }
 
         /* --- MICRO AUTO --- */
@@ -349,6 +378,9 @@
         function getRandomWelcome(name, genre) {
             const ami = (genre === 'fille') ? 'amie' : 'ami';
             const curieux = (genre === 'fille') ? 'curieuse' : 'curieux';
+            const aventurier = (genre === 'fille') ? 'aventurière' : 'aventurier';
+            const reveur = (genre === 'fille') ? 'rêveuse' : 'rêveur';
+            const heros = (genre === 'fille') ? 'héroïne' : 'héros';
             
             const phrases = [
                 `Oh, quel bonheur de te revoir, ${name} !`,
@@ -356,7 +388,21 @@
                 `Coucou ${name} ! La boîte magique est toute joyeuse de te voir.`,
                 `Bonjour mon petit ${ami} ${name} ! Prêt pour une nouvelle aventure ?`,
                 `C'est ma partie préférée de la journée : retrouver ${name} !`,
-                `Bonjour petit ${curieux} ! J'ai plein de nouvelles histoires pour toi.`
+                `Bonjour petit ${curieux} ! J'ai plein de nouvelles histoires pour toi.`,
+                `Oh ! Mais qui voilà ? C'est ${name}, mon ${aventurier} préféré !`,
+                `Bienvenue dans le monde des rêves, ${name}.`,
+                `Salut ${name} ! Prêt à faire briller ton imagination ?`,
+                `Toc toc toc... Ah ! C'est toi, ${name} ! Entre vite !`,
+                `Quelle joie ! Mon petit ${heros} ${name} est de retour.`,
+                `Bonjour ${name}. Tout est calme ici, prêt pour ton histoire.`,
+                `Regarde toutes ces étoiles, ${name}, elles brillent juste pour toi.`,
+                `Je savais que tu viendrais, ${name}. J'ai gardé une place pour toi.`,
+                `Bonjour ${name}, mon petit ${reveur}. On s'envole aujourd'hui ?`,
+                `Chut... écoute le silence... Bonjour ${name}.`,
+                `La poussière de fée s'agite ! C'est parce que ${name} est là !`,
+                `Ah, te voilà ! J'ai failli commencer sans toi, ${name} ! (Je plaisante).`,
+                `Bonjour ${name}. Quelle merveilleuse journée pour une histoire.`,
+                `Coucou ! Installe-toi bien confortablement, ${name}.`
             ];
             return phrases[Math.floor(Math.random() * phrases.length)];
         }
@@ -397,19 +443,13 @@
                 parler();
             } else {
                 interactionMode = 'STORY_INPUT';
-                
-                // ACCUEIL PERSONNALISÉ & ALÉATOIRE
                 const welcomeMsg = getRandomWelcome(userPrenom, userGenre);
-                
                 document.getElementById('status').innerText = `Te revoilà, ${userPrenom} !`;
-                
-                // On met la phrase de bienvenue, un petit silence (virgule), puis la question
                 speechQueue.push(`${welcomeMsg} Quelle histoire on invente aujourd'hui ?`);
                 parler();
             }
         }
 
-        // Gère l'input (texte ou voix) selon le mode
         function traiterInput(texte) {
             if (!texte.trim()) return;
             stopAudio(); 
@@ -518,7 +558,9 @@
             const btnMic = document.getElementById('btn-mic');
             const statusLabel = document.getElementById('status');
             const loader = document.getElementById('loading-spinner');
-            playChime();
+            
+            playSoftPing(); // NOUVEAU SON
+
             btnMic.classList.add('understood-flash');
             statusLabel.classList.add('hidden');
             loader.classList.remove('hidden');
