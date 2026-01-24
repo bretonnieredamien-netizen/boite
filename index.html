@@ -31,8 +31,9 @@
         .content-visible { opacity: 1 !important; }
 
         /* --- LOGO --- */
-        .brand-header { position: absolute; top: 1.5rem; left: 1.5rem; display: flex; align-items: center; gap: 0.5rem; z-index: 20; }
+        .brand-header { position: absolute; top: 1.5rem; left: 1.5rem; display: flex; flex-direction: column; align-items: flex-start; gap: 0.2rem; z-index: 20; }
         .mini-logo-text { font-weight: 900; font-size: 1.2rem; background: linear-gradient(135deg, #22d3ee, #818cf8, #c084fc, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: lowercase; }
+        .settings-links { display: flex; gap: 10px; }
         
         .logo-container { width: 220px; height: 220px; display: flex; justify-content: center; align-items: center; opacity: 0; animation: introFade 2s ease-out forwards, slowBeat 5s ease-in-out infinite 2s; filter: drop-shadow(0 10px 25px rgba(129, 140, 248, 0.5)); }
         @keyframes introFade { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
@@ -194,7 +195,10 @@
         
         <div class="brand-header">
             <span class="mini-logo-text">tbm.</span>
-            <button onclick="oublierPrenom()" class="text-[10px] text-indigo-300 ml-2 hover:text-indigo-500">(Changer de prénom)</button>
+            <div class="settings-links">
+                <button onclick="oublierPrenom()" class="text-[10px] text-indigo-300 hover:text-indigo-500">(Changer prénom)</button>
+                <button onclick="oublierAge()" class="text-[10px] text-indigo-300 hover:text-indigo-500">(Changer âge)</button>
+            </div>
         </div>
 
         <header class="text-center flex flex-col items-center mt-6">
@@ -272,9 +276,11 @@
         let AZURE_KEY = localStorage.getItem('BOITE_AZURE_KEY');
         let AZURE_REGION = localStorage.getItem('BOITE_AZURE_REGION');
         
-        // Stockage du prénom
+        // Stockage du prénom et de l'âge
         let userPrenom = localStorage.getItem('BOITE_PRENOM');
-        let interactionMode = 'INIT'; // 'INIT', 'NAME_INPUT', 'STORY_INPUT'
+        let userAge = localStorage.getItem('BOITE_AGE');
+        
+        let interactionMode = 'INIT'; // 'INIT', 'NAME_INPUT', 'AGE_INPUT', 'STORY_INPUT'
 
         const MODEL_ID = "models/gemini-2.5-flash"; 
         const AZURE_VOICE_NAME = "fr-FR-DeniseNeural"; 
@@ -331,20 +337,26 @@
         let opened = false;
 
         function startInteractionSequence() {
-            // Détermine le mode initial en fonction de si on connait le prénom
-            if (userPrenom) {
-                interactionMode = 'STORY_INPUT';
-                document.getElementById('status').innerText = `Te revoilà, ${userPrenom} !`;
-                // Petit délai pour que l'audio se joue après l'ouverture
-                setTimeout(() => {
-                    speechQueue.push(`Bonjour ${userPrenom} ! Je suis contente de te revoir. Quelle histoire on invente aujourd'hui ?`);
-                    parler();
-                }, 1000);
-            } else {
+            // Séquence : Prénom -> Âge -> Histoire
+            if (!userPrenom) {
                 interactionMode = 'NAME_INPUT';
                 document.getElementById('status').innerText = "Bonjour ! Comment t'appelles-tu ?";
                 setTimeout(() => {
                     speechQueue.push("Bonjour ! Je suis ta boîte à histoires. Comment t'appelles-tu ?");
+                    parler();
+                }, 1000);
+            } else if (!userAge) {
+                interactionMode = 'AGE_INPUT';
+                document.getElementById('status').innerText = `Quel âge as-tu, ${userPrenom} ?`;
+                setTimeout(() => {
+                    speechQueue.push(`Enchantée ${userPrenom} ! Quel âge as-tu ?`);
+                    parler();
+                }, 1000);
+            } else {
+                interactionMode = 'STORY_INPUT';
+                document.getElementById('status').innerText = `Te revoilà, ${userPrenom} !`;
+                setTimeout(() => {
+                    speechQueue.push(`Bonjour ${userPrenom} ! Quelle histoire on invente aujourd'hui ?`);
                     parler();
                 }, 1000);
             }
@@ -354,24 +366,33 @@
         function traiterInput(texte) {
             if (!texte.trim()) return;
             
+            stopAudio(); // Coupe l'écoute/parole précédente
+            document.getElementById('manualInput').value = "";
+
             if (interactionMode === 'NAME_INPUT') {
-                // Sauvegarde du prénom
-                // On nettoie un peu si l'enfant dit "Je m'appelle Léo" -> on garde tout ou on essaye de couper. 
-                // Pour faire simple et robuste, on prend l'input tel quel, mais souvent l'enfant dit juste son nom.
                 userPrenom = texte.replace(/je m'appelle /i, "").replace(/c'est /i, "").trim();
                 localStorage.setItem('BOITE_PRENOM', userPrenom);
                 
-                interactionMode = 'STORY_INPUT';
+                // On passe à l'âge
+                interactionMode = 'AGE_INPUT';
+                document.getElementById('status').innerText = `Et quel âge as-tu ?`;
+                document.getElementById('manualInput').placeholder = "Ton âge...";
                 
-                // Feedback audio
-                stopAudio(); // Coupe l'écoute précédente
-                document.getElementById('manualInput').value = "";
-                document.getElementById('manualInput').placeholder = "Sujet de l'aventure...";
-                document.getElementById('status').innerText = `Enchantée ${userPrenom} !`;
-                
-                speechQueue.push(`Enchantée ${userPrenom} ! Quelle histoire veux-tu écouter maintenant ?`);
+                speechQueue.push(`Enchantée ${userPrenom} ! Et dis-moi, quel âge as-tu ?`);
                 parler();
                 
+            } else if (interactionMode === 'AGE_INPUT') {
+                userAge = texte.replace(/j'ai /i, "").replace(/ans/i, "").trim();
+                localStorage.setItem('BOITE_AGE', userAge);
+                
+                // On passe à l'histoire
+                interactionMode = 'STORY_INPUT';
+                document.getElementById('status').innerText = `D'accord ! Quelle histoire veux-tu ?`;
+                document.getElementById('manualInput').placeholder = "Sujet de l'aventure...";
+                
+                speechQueue.push(`D'accord, ${userAge} ans ! C'est noté. Quelle histoire veux-tu écouter maintenant ?`);
+                parler();
+
             } else if (interactionMode === 'STORY_INPUT') {
                 appelIA(texte);
             }
@@ -398,7 +419,6 @@
             setTimeout(() => {
                 document.getElementById('intro-overlay').classList.add('intro-fade-out');
                 document.getElementById('main-interface').classList.add('content-visible');
-                // Lancer la logique d'accueil
                 startInteractionSequence();
             }, 1800);
             
@@ -416,8 +436,10 @@
             stopVisualizer(); speechQueue = []; isSpeaking = false;
             document.getElementById('status').classList.remove('hidden');
             document.getElementById('loading-spinner').classList.add('hidden');
-            // Remet le texte approprié selon le mode
+            
+            // Mise à jour du texte de statut selon le mode
             if (interactionMode === 'NAME_INPUT') document.getElementById('status').innerText = "Comment t'appelles-tu ?";
+            else if (interactionMode === 'AGE_INPUT') document.getElementById('status').innerText = "Quel âge as-tu ?";
             else document.getElementById('status').innerText = userPrenom ? `Dis-moi ton idée, ${userPrenom}...` : "Dis-moi ton idée...";
             
             toggleStopButton(false);
@@ -437,9 +459,13 @@
             setTimeout(() => { btnMic.classList.remove('understood-flash'); toggleStopButton(true); }, 800);
             
             const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${GEMINI_KEY}`;
-            // Intégration du prénom dans le prompt
-            const contextPrenom = userPrenom ? `L'enfant qui écoute s'appelle ${userPrenom}.` : "";
-            const promptIA = `Tu es une conteuse de livre audio professionnelle. ${contextPrenom} Raconte une aventure réaliste pour un enfant sur : "${sujet}". Ton ton est bienveillant mais neutre. INTERDICTION d'utiliser des surnoms affectueux (mon cœur, mon chéri, mon ange). Tu n'es pas sa maman. Reste une narratrice externe. Utilise des phrases simples. Pas de magie. Fin positive. Termine par "FIN".`;
+            
+            // CONTEXTE RICHE POUR L'IA (PRENOM + AGE)
+            let contextChild = "";
+            if (userPrenom) contextChild += `L'enfant s'appelle ${userPrenom}. `;
+            if (userAge) contextChild += `L'enfant a ${userAge} ans (adapte le vocabulaire et la complexité de l'histoire à cet âge). `;
+            
+            const promptIA = `Tu es une conteuse de livre audio professionnelle. ${contextChild} Raconte une aventure réaliste pour cet enfant sur : "${sujet}". Ton ton est bienveillant mais neutre. INTERDICTION d'utiliser des surnoms affectueux (mon cœur, mon chéri, mon ange). Tu n'es pas sa maman. Reste une narratrice externe. Utilise des phrases simples. Pas de magie. Fin positive. Termine par "FIN".`;
 
             try {
                 const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: promptIA }] }] }) });
@@ -513,12 +539,12 @@
 
         function reinitialiserCle() { localStorage.removeItem('BOITE_GEMINI_KEY'); localStorage.removeItem('BOITE_AZURE_KEY'); localStorage.removeItem('BOITE_AZURE_REGION'); localStorage.removeItem('BOITE_FINAL_KEY_2026'); location.reload(); }
         function oublierPrenom() { localStorage.removeItem('BOITE_PRENOM'); location.reload(); }
+        function oublierAge() { localStorage.removeItem('BOITE_AGE'); location.reload(); }
 
         document.addEventListener('DOMContentLoaded', () => {
             if (!GEMINI_KEY || !AZURE_KEY) verifierCles();
             document.getElementById('toggle-input').onclick = () => document.getElementById('keyboard-area').classList.toggle('hidden');
             
-            // Modification des handlers pour utiliser traiterInput
             document.getElementById('btn-ok').onclick = () => { const val = document.getElementById('manualInput').value.trim(); traiterInput(val); };
             
             document.getElementById('btn-mic').onclick = () => {
@@ -528,7 +554,7 @@
                 rec.onresult = (e) => { 
                     const p = e.results[0][0].transcript; 
                     document.getElementById('manualInput').value = p; 
-                    traiterInput(p); // On passe par le routeur d'input
+                    traiterInput(p);
                 };
                 rec.onend = () => document.getElementById('btn-mic').classList.remove('mic-listening');
                 rec.onerror = () => document.getElementById('status').innerText = "Je n'ai pas entendu...";
