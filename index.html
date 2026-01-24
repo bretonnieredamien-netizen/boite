@@ -310,7 +310,6 @@
         
         function initParticles() { 
             particles = []; 
-            // AUGMENTATION DU NOMBRE D'ÉTOILES
             for (let i = 0; i < 300; i++) particles.push(new Particle()); 
         }
         function triggerBurst() { const centerX = window.innerWidth / 2; const centerY = window.innerHeight / 2; for (let i = 0; i < 300; i++) burstParticles.push(new BurstParticle(centerX, centerY)); }
@@ -338,19 +337,18 @@
             noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination); noise.start(t); noise.stop(t + 4.0);
         }
         
-        // SON PING DOUX ET LÉGER
         function playSoftPing() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
             const osc = audioCtx.createOscillator(); 
             const gain = audioCtx.createGain();
             
-            osc.type = 'sine'; // Plus doux que triangle
+            osc.type = 'sine'; 
             osc.frequency.setValueAtTime(800, audioCtx.currentTime); 
             osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
             
             gain.gain.setValueAtTime(0, audioCtx.currentTime); 
-            gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.05); // Volume très bas
+            gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.05); 
             gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
             
             osc.connect(gain); gain.connect(audioCtx.destination); 
@@ -374,7 +372,7 @@
             try { rec.start(); } catch (e) {}
         }
 
-        /* --- GENERATION PHRASES D'ACCUEIL --- */
+        /* --- GENERATION PHRASES D'ACCUEIL & ATTENTE --- */
         function getRandomWelcome(name, genre) {
             const ami = (genre === 'fille') ? 'amie' : 'ami';
             const curieux = (genre === 'fille') ? 'curieuse' : 'curieux';
@@ -407,6 +405,27 @@
             return phrases[Math.floor(Math.random() * phrases.length)];
         }
 
+        function getRandomWaitingPhrase() {
+            const phrases = [
+                "C'est une excellente idée ! Laisse-moi réfléchir...",
+                "J'ouvre mon grand livre d'histoires à la bonne page...",
+                "Mmmh, intéressant... Je rassemble mes idées...",
+                "Je demande aux étoiles de m'aider à écrire...",
+                "Attrape un peu de poussière magique, ça arrive...",
+                "Oh ! J'adore ça. Je commence à écrire l'histoire...",
+                "Patience, mes lutins écrivent aussi vite que possible...",
+                "Je mélange les mots et la magie...",
+                "Ferme les yeux un instant, l'histoire se prépare...",
+                "C'est parti ! Je tisse les fils de l'histoire...",
+                "Voyons voir... Il était une fois...",
+                "Mes plumes magiques sont en train d'écrire...",
+                "Je souffle sur les nuages pour faire venir l'histoire...",
+                "Quelle imagination ! Je note tout ça...",
+                "Un instant, je mets mon chapeau de conteuse..."
+            ];
+            return phrases[Math.floor(Math.random() * phrases.length)];
+        }
+
         /* --- LOGIQUE D'INTERACTION --- */
         const introBox = document.getElementById('intro-box');
         const rays = document.getElementById('god-rays');
@@ -415,8 +434,6 @@
         let opened = false;
 
         function startInteractionSequence() {
-            // Séquence : Intro? -> Prénom -> Genre -> Âge -> Histoire
-            
             if (!userPrenom && !userGenre && !userAge) {
                 speechQueue.push("Bonjour ! Avant de commencer, je vais te poser quelques questions pour créer ta boîte à histoires magique.");
                 interactionMode = 'NAME_INPUT';
@@ -559,13 +576,20 @@
             const statusLabel = document.getElementById('status');
             const loader = document.getElementById('loading-spinner');
             
-            playSoftPing(); // NOUVEAU SON
+            playSoftPing(); 
 
             btnMic.classList.add('understood-flash');
             statusLabel.classList.add('hidden');
             loader.classList.remove('hidden');
             setTimeout(() => { btnMic.classList.remove('understood-flash'); toggleStopButton(true); }, 800);
             
+            // --- NOUVEAU : PHRASE D'ATTENTE ---
+            const waitingPhrase = getRandomWaitingPhrase();
+            document.getElementById('status').innerText = waitingPhrase;
+            speechQueue.push(waitingPhrase);
+            parler();
+            // ----------------------------------
+
             const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${GEMINI_KEY}`;
             
             let contextChild = "";
