@@ -68,16 +68,18 @@
         }
         @keyframes spinLoader { 100% { transform: rotate(360deg); } }
 
-        /* --- THEATRE MAGIQUE --- */
-        #story-card { padding: 1.5rem !important; transition: all 0.5s ease; }
-        .magic-stage { width: 100%; aspect-ratio: 1 / 1; border-radius: 2rem; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #e0e7ff 0%, #fae8ff 100%); transition: background 1s ease; }
-        .stage-glow { position: absolute; width: 70%; height: 70%; background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%); border-radius: 50%; animation: pulseGlow 4s infinite alternate; }
-        .hero-emoji { font-size: 8rem; z-index: 10; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.15)); animation: floatHero 6s ease-in-out infinite; transform-origin: center bottom; }
-        @keyframes floatHero { 0%, 100% { transform: translateY(0) scale(1) rotate(-2deg); } 50% { transform: translateY(-20px) scale(1.1) rotate(2deg); } }
-        @keyframes pulseGlow { 0% { transform: scale(0.8); opacity: 0.5; } 100% { transform: scale(1.2); opacity: 0.8; } }
-        .pop-in { animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-
+        /* --- NOUVEAU : VISUALISEUR AUDIO --- */
+        #story-card { 
+            padding: 0 !important; /* Plein cadre */
+            background: black; /* Fond sombre pour contraste */
+            overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+        }
+        #visualizer-canvas {
+            width: 100%; height: 100%;
+            border-radius: 2.5rem; /* Match le border-radius du parent */
+        }
+        
         /* --- INTRO ANIMATION --- */
         #intro-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -207,11 +209,8 @@
                 <span class="text-2xl">⌨️</span>
             </button>
 
-            <div id="story-card" class="bg-white/95 w-full rounded-[3rem] shadow-2xl border-4 border-white hidden">
-                <div class="magic-stage" id="magic-stage">
-                    <div class="stage-glow"></div>
-                    <div id="hero-emoji" class="hero-emoji pop-in">✨</div>
-                </div>
+            <div id="story-card" class="bg-black w-full rounded-[3rem] shadow-2xl border-4 border-white/20 hidden">
+                <canvas id="visualizer-canvas"></canvas>
             </div>
 
         </main>
@@ -231,14 +230,90 @@
         function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
         window.addEventListener('resize', resize); resize(); initParticles(); animate();
 
+        /* --- VISUALISEUR AUDIO LOGIC --- */
+        const vizCanvas = document.getElementById('visualizer-canvas');
+        const vizCtx = vizCanvas.getContext('2d');
+        let analyser = null;
+        let dataArray = null;
+        let visualizerAnimationId = null;
+
+        function resizeViz() {
+            if(vizCanvas.parentElement) {
+                vizCanvas.width = vizCanvas.parentElement.offsetWidth;
+                vizCanvas.height = vizCanvas.parentElement.offsetWidth; // Carré
+            }
+        }
+        window.addEventListener('resize', resizeViz);
+
+        function startVisualizer(audioSource, context) {
+            resizeViz();
+            analyser = context.createAnalyser();
+            analyser.fftSize = 256; // Résolution
+            audioSource.connect(analyser);
+            analyser.connect(context.destination);
+            
+            const bufferLength = analyser.frequencyBinCount;
+            dataArray = new Uint8Array(bufferLength);
+            
+            drawVisualizer();
+        }
+
+        function drawVisualizer() {
+            visualizerAnimationId = requestAnimationFrame(drawVisualizer);
+            analyser.getByteFrequencyData(dataArray);
+
+            vizCtx.fillStyle = 'rgba(0, 0, 0, 0.2)'; // Traînée pour effet fluide
+            vizCtx.fillRect(0, 0, vizCanvas.width, vizCanvas.height);
+
+            const centerX = vizCanvas.width / 2;
+            const centerY = vizCanvas.height / 2;
+            const radius = Math.min(centerX, centerY) * 0.4;
+
+            vizCtx.beginPath();
+            vizCtx.strokeStyle = '#22d3ee'; // Cyan
+            vizCtx.lineWidth = 4;
+
+            for (let i = 0; i < dataArray.length; i++) {
+                const barHeight = dataArray[i] * 0.5;
+                const angle = (i * 2 * Math.PI) / dataArray.length;
+                
+                // Cercle déformé par le son
+                const x = centerX + Math.cos(angle) * (radius + barHeight);
+                const y = centerY + Math.sin(angle) * (radius + barHeight);
+
+                if (i === 0) vizCtx.moveTo(x, y);
+                else vizCtx.lineTo(x, y);
+            }
+            vizCtx.closePath();
+            vizCtx.stroke();
+
+            // Deuxième couche (Violette)
+            vizCtx.beginPath();
+            vizCtx.strokeStyle = '#c084fc'; 
+            vizCtx.lineWidth = 2;
+             for (let i = 0; i < dataArray.length; i++) {
+                const barHeight = dataArray[i] * 0.3;
+                const angle = (i * 2 * Math.PI) / dataArray.length;
+                const x = centerX + Math.cos(angle) * (radius * 0.8 + barHeight);
+                const y = centerY + Math.sin(angle) * (radius * 0.8 + barHeight);
+                if (i === 0) vizCtx.moveTo(x, y);
+                else vizCtx.lineTo(x, y);
+            }
+            vizCtx.stroke();
+        }
+
+        function stopVisualizer() {
+            if (visualizerAnimationId) cancelAnimationFrame(visualizerAnimationId);
+            vizCtx.clearRect(0, 0, vizCanvas.width, vizCanvas.height);
+        }
+
+
         /* --- CONFIGURATION --- */
         let GEMINI_KEY = localStorage.getItem('BOITE_GEMINI_KEY');
         let AZURE_KEY = localStorage.getItem('BOITE_AZURE_KEY');
         let AZURE_REGION = localStorage.getItem('BOITE_AZURE_REGION');
         
         const MODEL_ID = "models/gemini-2.5-flash"; 
-        
-        // VOIX REMISE SUR DENISE (VALEUR SÛRE)
         const AZURE_VOICE_NAME = "fr-FR-DeniseNeural"; 
 
         let speechQueue = [];
@@ -246,46 +321,23 @@
         let audioCtx = null;
         let currentAudio = null;
 
-        // --- SON "WOOSH" (Intro) ---
         function playWoosh() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
-
             const bufferSize = audioCtx.sampleRate * 1.5;
             const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
             const data = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) {
-                data[i] = Math.random() * 2 - 1;
-            }
-
-            const noise = audioCtx.createBufferSource();
-            noise.buffer = buffer;
-
-            const filter = audioCtx.createBiquadFilter();
-            filter.type = 'lowpass';
-            filter.Q.value = 1;
-
+            for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+            const noise = audioCtx.createBufferSource(); noise.buffer = buffer;
+            const filter = audioCtx.createBiquadFilter(); filter.type = 'lowpass'; filter.Q.value = 1;
             const gain = audioCtx.createGain();
-            
-            noise.connect(filter);
-            filter.connect(gain);
-            gain.connect(audioCtx.destination);
-
+            noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
             const t = audioCtx.currentTime;
-
-            filter.frequency.setValueAtTime(100, t);
-            filter.frequency.exponentialRampToValueAtTime(3000, t + 0.3);
-            filter.frequency.exponentialRampToValueAtTime(100, t + 1.2);
-
-            gain.gain.setValueAtTime(0, t);
-            gain.gain.linearRampToValueAtTime(0.5, t + 0.1);
-            gain.gain.exponentialRampToValueAtTime(0.01, t + 1.0);
-
-            noise.start(t);
-            noise.stop(t + 1.5);
+            filter.frequency.setValueAtTime(100, t); filter.frequency.exponentialRampToValueAtTime(3000, t + 0.3); filter.frequency.exponentialRampToValueAtTime(100, t + 1.2);
+            gain.gain.setValueAtTime(0, t); gain.gain.linearRampToValueAtTime(0.5, t + 0.1); gain.gain.exponentialRampToValueAtTime(0.01, t + 1.0);
+            noise.start(t); noise.stop(t + 1.5);
         }
 
-        // --- CARILLON (Pour l'IA) ---
         function playChime() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -300,26 +352,12 @@
         introBox.addEventListener('click', () => {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            
-            playWoosh(); // Son Woosh à l'ouverture
-
+            playWoosh();
             introBox.classList.add('shake-box');
-            
-            setTimeout(() => {
-                document.getElementById('intro-lid').classList.add('lid-open');
-                document.getElementById('white-flash').classList.add('flash-active');
-            }, 500);
-
-            setTimeout(() => {
-                document.getElementById('intro-overlay').classList.add('intro-fade-out');
-                document.getElementById('main-interface').classList.add('content-visible');
-            }, 1000);
-            
-            setTimeout(() => {
-                 document.getElementById('intro-overlay').style.display = 'none';
-            }, 2000);
+            setTimeout(() => { document.getElementById('intro-lid').classList.add('lid-open'); document.getElementById('white-flash').classList.add('flash-active'); }, 500);
+            setTimeout(() => { document.getElementById('intro-overlay').classList.add('intro-fade-out'); document.getElementById('main-interface').classList.add('content-visible'); }, 1000);
+            setTimeout(() => { document.getElementById('intro-overlay').style.display = 'none'; }, 2000);
         });
-
 
         function toggleStopButton(active) {
             const container = document.getElementById('stop-container');
@@ -328,73 +366,29 @@
 
         function stopAudio() {
             if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+            stopVisualizer(); // Arrêt de l'animation
             speechQueue = []; isSpeaking = false;
-            // Reset de l'état "status"
             document.getElementById('status').classList.remove('hidden');
             document.getElementById('loading-spinner').classList.add('hidden');
             document.getElementById('status').innerText = "Dis-moi ton idée pour une histoire...";
             toggleStopButton(false);
         }
 
-        function setMagicScene(sujet) {
-            const s = sujet.toLowerCase();
-            const stage = document.getElementById('magic-stage');
-            const hero = document.getElementById('hero-emoji');
-            
-            let emoji = "✨";
-            let gradient = "linear-gradient(135deg, #e0e7ff 0%, #fae8ff 100%)"; 
-
-            if (s.includes('chat') || s.includes('chaton')) { emoji = "🐱"; gradient = "linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%)"; }
-            else if (s.includes('chien') || s.includes('chiot')) { emoji = "🐶"; gradient = "linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)"; }
-            else if (s.includes('dragon')) { emoji = "🐉"; gradient = "linear-gradient(135deg, #dcfce7 0%, #86efac 100%)"; }
-            else if (s.includes('licorne')) { emoji = "🦄"; gradient = "linear-gradient(135deg, #fce7f3 0%, #f9a8d4 100%)"; }
-            else if (s.includes('dino') || s.includes('t-rex')) { emoji = "🦖"; gradient = "linear-gradient(135deg, #d1fae5 0%, #6ee7b7 100%)"; }
-            else if (s.includes('lion')) { emoji = "🦁"; gradient = "linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%)"; }
-            else if (s.includes('ours')) { emoji = "🐻"; gradient = "linear-gradient(135deg, #fff7ed 0%, #fdba74 100%)"; }
-            else if (s.includes('princesse') || s.includes('chateau')) { emoji = "🏰"; gradient = "linear-gradient(135deg, #fbcfe8 0%, #f472b6 100%)"; }
-            else if (s.includes('sorcier') || s.includes('magie')) { emoji = "🧙‍♂️"; gradient = "linear-gradient(135deg, #e9d5ff 0%, #c084fc 100%)"; }
-            else if (s.includes('pirate') || s.includes('bateau')) { emoji = "🏴‍☠️"; gradient = "linear-gradient(135deg, #cffafe 0%, #67e8f9 100%)"; }
-            else if (s.includes('chevalier')) { emoji = "⚔️"; gradient = "linear-gradient(135deg, #e5e7eb 0%, #9ca3af 100%)"; }
-            else if (s.includes('fée')) { emoji = "🧚‍♀️"; gradient = "linear-gradient(135deg, #ccfbf1 0%, #5eead4 100%)"; }
-            else if (s.includes('espace') || s.includes('lune') || s.includes('etoile')) { emoji = "🚀"; gradient = "linear-gradient(135deg, #312e81 0%, #4338ca 100%)"; stage.style.color = "white"; }
-            else if (s.includes('mer') || s.includes('océan') || s.includes('poisson')) { emoji = "🐠"; gradient = "linear-gradient(135deg, #bae6fd 0%, #38bdf8 100%)"; }
-            else if (s.includes('foret') || s.includes('arbre')) { emoji = "🌳"; gradient = "linear-gradient(135deg, #ecfccb 0%, #a3e635 100%)"; }
-            else if (s.includes('voiture')) { emoji = "🏎️"; gradient = "linear-gradient(135deg, #fee2e2 0%, #ef4444 100%)"; }
-            else if (s.includes('train')) { emoji = "🚂"; gradient = "linear-gradient(135deg, #ffedd5 0%, #f97316 100%)"; }
-            else if (s.includes('avion')) { emoji = "✈️"; gradient = "linear-gradient(135deg, #e0f2fe 0%, #60a5fa 100%)"; }
-
-            stage.style.background = gradient;
-            hero.innerText = emoji;
-            hero.classList.remove('pop-in');
-            void hero.offsetWidth; 
-            hero.classList.add('pop-in');
-        }
-
         async function appelIA(sujet) {
-            if (!GEMINI_KEY || !AZURE_KEY || !AZURE_REGION) {
-                verifierCles();
-                return;
-            }
-
+            if (!GEMINI_KEY || !AZURE_KEY || !AZURE_REGION) { verifierCles(); return; }
             stopAudio();
             const btnMic = document.getElementById('btn-mic');
             const statusLabel = document.getElementById('status');
             const loader = document.getElementById('loading-spinner');
-            
             playChime();
             btnMic.classList.add('understood-flash');
-            
-            // Masquer texte, afficher loader
             statusLabel.classList.add('hidden');
             loader.classList.remove('hidden');
             
-            setMagicScene(sujet);
+            // Afficher le cadre du visualiseur (vide pour l'instant)
+            document.getElementById('story-card').classList.remove('hidden');
             
-            setTimeout(() => {
-                btnMic.classList.remove('understood-flash');
-                document.getElementById('story-card').classList.remove('hidden');
-                toggleStopButton(true);
-            }, 800);
+            setTimeout(() => { btnMic.classList.remove('understood-flash'); toggleStopButton(true); }, 800);
             
             const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${GEMINI_KEY}`;
             const promptIA = `Tu es une conteuse de livre audio professionnelle. Raconte une aventure réaliste pour un enfant sur : "${sujet}". Ton ton est bienveillant mais neutre. INTERDICTION d'utiliser des surnoms affectueux (mon cœur, mon chéri, mon ange). Tu n'es pas sa maman. Reste une narratrice externe. Utilise des phrases simples. Pas de magie. Fin positive. Termine par "FIN".`;
@@ -405,11 +399,9 @@
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) {
-                        // Fin du chargement : masquer loader, afficher texte final
                         loader.classList.add('hidden');
                         statusLabel.classList.remove('hidden');
                         statusLabel.innerText = "L'aventure est prête !";
-                        
                         if (currentSentence.trim()) { speechQueue.push(currentSentence.trim()); parler(); }
                         break;
                     }
@@ -432,101 +424,60 @@
                         }
                     }
                 }
-            } catch (e) { 
-                loader.classList.add('hidden');
-                statusLabel.classList.remove('hidden');
-                statusLabel.innerText = "Erreur technique..."; 
-            }
+            } catch (e) { loader.classList.add('hidden'); statusLabel.classList.remove('hidden'); statusLabel.innerText = "Erreur technique..."; }
         }
 
-        /* --- MOTEUR AZURE TTS --- */
         async function textToSpeechAzure(text) {
             const url = `https://${AZURE_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`;
-            const ssml = `
-                <speak version='1.0' xml:lang='fr-FR'>
-                    <voice xml:lang='fr-FR' xml:gender='Female' name='${AZURE_VOICE_NAME}'>
-                        <prosody rate="0.9">
-                            ${text}
-                        </prosody>
-                    </voice>
-                </speak>`;
-
+            const ssml = `<speak version='1.0' xml:lang='fr-FR'><voice xml:lang='fr-FR' xml:gender='Female' name='${AZURE_VOICE_NAME}'><prosody rate="0.9">${text}</prosody></voice></speak>`;
             try {
                 const response = await fetch(url, {
                     method: 'POST',
-                    headers: {
-                        'Ocp-Apim-Subscription-Key': AZURE_KEY,
-                        'Content-Type': 'application/ssml+xml',
-                        'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3'
-                    },
+                    headers: { 'Ocp-Apim-Subscription-Key': AZURE_KEY, 'Content-Type': 'application/ssml+xml', 'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3' },
                     body: ssml
                 });
-
                 if (!response.ok) throw new Error("Erreur Azure");
                 return await response.blob();
-            } catch (e) {
-                console.error(e);
-                return null;
-            }
+            } catch (e) { return null; }
         }
 
         async function parler() {
             if (isSpeaking || speechQueue.length === 0) return;
             isSpeaking = true; 
-            
             let txt = speechQueue.shift().replace(/[#*`_]/g, '');
-            
             const audioBlob = await textToSpeechAzure(txt);
-            
             if (audioBlob) {
                 const audioUrl = URL.createObjectURL(audioBlob);
                 currentAudio = new Audio(audioUrl);
+                
+                // --- CONNEXION VISUALISEUR ---
+                // Il faut recréer une source audio compatible Web Audio API
+                const source = audioCtx.createMediaElementSource(currentAudio);
+                startVisualizer(source, audioCtx);
+                
                 currentAudio.onended = () => {
                     isSpeaking = false;
-                    if (speechQueue.length === 0) toggleStopButton(false);
-                    parler(); 
+                    if (speechQueue.length === 0) { toggleStopButton(false); stopVisualizer(); }
+                    else parler(); 
                 };
                 currentAudio.play();
-            } else {
-                isSpeaking = false;
-                parler();
-            }
+            } else { isSpeaking = false; parler(); }
         }
 
-        /* --- GESTION DES CLÉS --- */
         function verifierCles() {
-            if (!GEMINI_KEY) {
-                const k = prompt("Entre ta clé API Gemini (Google) :");
-                if (k) { localStorage.setItem('BOITE_GEMINI_KEY', k); GEMINI_KEY = k; }
-            }
-            if (!AZURE_KEY) {
-                const k = prompt("Entre ta clé API Azure Speech (Clé 1) :");
-                const r = prompt("Entre ta région Azure (ex: francecentral) :");
-                if (k && r) { 
-                    localStorage.setItem('BOITE_AZURE_KEY', k); 
-                    localStorage.setItem('BOITE_AZURE_REGION', r);
-                    AZURE_KEY = k; AZURE_REGION = r;
-                }
-            }
+            if (!GEMINI_KEY) { const k = prompt("Entre ta clé API Gemini (Google) :"); if (k) { localStorage.setItem('BOITE_GEMINI_KEY', k); GEMINI_KEY = k; } }
+            if (!AZURE_KEY) { const k = prompt("Entre ta clé API Azure Speech (Clé 1) :"); const r = prompt("Entre ta région Azure (ex: francecentral) :"); if (k && r) { localStorage.setItem('BOITE_AZURE_KEY', k); localStorage.setItem('BOITE_AZURE_REGION', r); AZURE_KEY = k; AZURE_REGION = r; } }
             if (GEMINI_KEY && AZURE_KEY && AZURE_REGION) location.reload();
         }
 
-        function reinitialiserCle() { 
-            localStorage.removeItem('BOITE_GEMINI_KEY'); 
-            localStorage.removeItem('BOITE_AZURE_KEY'); 
-            localStorage.removeItem('BOITE_AZURE_REGION'); 
-            localStorage.removeItem('BOITE_FINAL_KEY_2026'); 
-            location.reload(); 
-        }
+        function reinitialiserCle() { localStorage.removeItem('BOITE_GEMINI_KEY'); localStorage.removeItem('BOITE_AZURE_KEY'); localStorage.removeItem('BOITE_AZURE_REGION'); localStorage.removeItem('BOITE_FINAL_KEY_2026'); location.reload(); }
 
         document.addEventListener('DOMContentLoaded', () => {
             if (!GEMINI_KEY || !AZURE_KEY) verifierCles();
-
             document.getElementById('toggle-input').onclick = () => document.getElementById('keyboard-area').classList.toggle('hidden');
             document.getElementById('btn-ok').onclick = () => { const val = document.getElementById('manualInput').value.trim(); if(val) appelIA(val); };
             document.getElementById('btn-mic').onclick = () => {
-                const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-                if (!Speech) return alert("Micro non supporté.");
+                const Speech = window.SpeechRecognition || window.webkitSpeechRecognition; if (!Speech) return alert("Micro non supporté.");
                 const rec = new Speech(); rec.lang = 'fr-FR';
                 rec.onstart = () => { document.getElementById('btn-mic').classList.add('mic-listening'); document.getElementById('status').innerText = "Je t'écoute..."; };
                 rec.onresult = (e) => { const p = e.results[0][0].transcript; document.getElementById('manualInput').value = p; appelIA(p); };
