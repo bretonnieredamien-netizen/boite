@@ -196,7 +196,7 @@
                 </svg>
             </div>
         </div>
-        <p class="text-indigo-900/60 text-sm mt-8 font-bold uppercase tracking-widest animate-pulse drop-shadow-lg">Touche le coffre</p>
+        <p id="intro-text" class="text-indigo-900/60 text-sm mt-8 font-bold uppercase tracking-widest animate-pulse drop-shadow-lg">Ouvre ta boite magique</p>
     </div>
     <div id="white-flash" class="white-flash"></div>
 
@@ -701,6 +701,14 @@
             document.getElementById('btn-ok').onclick = () => { const val = document.getElementById('manualInput').value.trim(); traiterInput(val); };
             document.getElementById('btn-mic').onclick = () => { startListening(); };
             document.getElementById('btn-stop').onclick = stopAudio;
+            
+            // LOGIQUE POUR LE NOM SUR L'ÉCRAN D'ACCUEIL
+            const introText = document.getElementById('intro-text');
+            if (userPrenom) {
+                 introText.innerText = `Ouvre ta boite magique, ${userPrenom}`;
+            } else {
+                 introText.innerText = "Ouvre ta boite magique";
+            }
         });
     </script>
 </body>
