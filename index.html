@@ -36,25 +36,22 @@
         .content-layer { position: relative; z-index: 10; width: 100%; display: flex; flex-direction: column; align-items: center; opacity: 0; transition: opacity 1s ease-in; }
         .content-visible { opacity: 1 !important; }
 
-        /* --- OVERLAY DE CONCENTRATION (NOUVEAU) --- */
+        /* --- OVERLAY DE CONCENTRATION --- */
         #dim-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); /* Assez sombre pour le focus */
-            z-index: 40; /* Au dessus du fond, en dessous du visualiseur */
-            opacity: 0; pointer-events: none;
-            transition: opacity 3s ease-in-out; /* Transition très lente et douce */
+            background: rgba(0, 0, 0, 0.85); 
+            z-index: 40; opacity: 0; pointer-events: none;
+            transition: opacity 3s ease-in-out; 
         }
         .dim-active { opacity: 1 !important; pointer-events: auto !important; }
 
         /* --- HEADER & LOGO --- */
         .brand-header { position: absolute; top: 1.5rem; left: 1.5rem; z-index: 20; transition: opacity 1s; }
-        
         #main-header { transition: opacity 1s ease, transform 1s ease; opacity: 1; transform: translateY(0); }
         .cinema-mode { opacity: 0 !important; transform: translateY(-20px) !important; pointer-events: none; }
 
-        .logo-container { width: 220px; height: 220px; display: flex; justify-content: center; align-items: center; opacity: 0; animation: introFade 2s ease-out forwards, slowBeat 5s ease-in-out infinite 2s; filter: drop-shadow(0 10px 25px rgba(129, 140, 248, 0.5)); }
+        .logo-container { width: 180px; height: 180px; display: flex; justify-content: center; align-items: center; opacity: 0; animation: introFade 2s ease-out forwards; filter: drop-shadow(0 10px 25px rgba(129, 140, 248, 0.5)); }
         @keyframes introFade { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
-        @keyframes slowBeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
 
         /* --- UI --- */
         .status-box { 
@@ -66,7 +63,6 @@
         }
         .understood-flash { animation: success-pulse 0.8s ease-out !important; background: rgba(16, 185, 129, 0.2) !important; border-color: #10b981 !important; }
         @keyframes success-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); box-shadow: 0 0 60px #10b981; } 100% { transform: scale(1); } }
-        .glass-ui { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px); border: 1px solid white; }
 
         /* --- LOADER --- */
         .magic-loader { width: 24px; height: 24px; border-radius: 50%; border: 3px solid transparent; border-top-color: #22d3ee; border-right-color: #818cf8; border-bottom-color: #c084fc; animation: spinLoader 1s linear infinite; }
@@ -74,12 +70,10 @@
 
         /* --- VISUALISEUR --- */
         #story-card { 
-            background: transparent; 
-            overflow: hidden;
-            display: flex; align-items: center; justify-content: center;
+            background: transparent; overflow: hidden; display: flex; align-items: center; justify-content: center;
             width: 100%; max-width: 320px; height: 100px; 
             filter: drop-shadow(0 4px 6px rgba(129, 140, 248, 0.3));
-            position: relative; z-index: 50; /* Au dessus de l'overlay sombre */
+            position: relative; z-index: 50;
         }
         #visualizer-canvas { width: 100%; height: 100%; }
 
@@ -90,24 +84,29 @@
         #btn-stop svg { fill: #f87171; }
         #stop-container.opacity-100 #btn-stop { background: rgba(248, 113, 113, 0.15); border-color: #f87171; box-shadow: 0 0 30px rgba(248, 113, 113, 0.4); }
         
-        /* --- INTRO ANIMATION --- */
+        /* --- INTRO & SELECTEUR --- */
         #intro-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s ease-out, visibility 0.8s; }
-        .container-box { position: relative; width: 400px; height: 400px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .god-rays { position: absolute; width: 180%; height: 180%; background: conic-gradient(from 0deg, transparent 0deg, rgba(251, 191, 36, 0.2) 20deg, transparent 40deg, rgba(139, 92, 246, 0.2) 60deg, transparent 80deg); border-radius: 50%; z-index: 0; opacity: 0; transition: opacity 1s; top: 50%; left: 50%; transform: translate(-50%, -50%); mix-blend-mode: overlay; }
-        .rays-active { opacity: 1; animation: spinRays 8s linear infinite; }
+        
+        .mode-selector { display: flex; gap: 2rem; align-items: center; justify-content: center; width: 100%; }
+        .mode-card {
+            display: flex; flex-direction: column; align-items: center; gap: 1rem;
+            cursor: pointer; transition: transform 0.3s ease;
+        }
+        .mode-card:hover { transform: scale(1.1); }
+        .mode-icon-box {
+            width: 140px; height: 140px; border-radius: 30px;
+            background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .mode-label {
+            font-weight: 800; color: rgba(79, 70, 229, 0.6); text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.8rem;
+        }
+
+        .god-rays { position: absolute; width: 180%; height: 180%; background: conic-gradient(from 0deg, transparent 0deg, rgba(251, 191, 36, 0.2) 20deg, transparent 40deg, rgba(139, 92, 246, 0.2) 60deg, transparent 80deg); border-radius: 50%; z-index: -1; opacity: 1; animation: spinRays 20s linear infinite; top: 50%; left: 50%; transform: translate(-50%, -50%); mix-blend-mode: overlay; pointer-events: none; }
         @keyframes spinRays { 100% { transform: translate(-50%, -50%) rotate(360deg); } }
-        #treasure-glow { position: absolute; top: 60%; left: 50%; width: 0; height: 0; transform: translate(-50%, -50%); background: radial-gradient(circle, rgba(255, 215, 0, 0.9) 10%, rgba(251, 191, 36, 0.7) 30%, rgba(255, 255, 255, 0) 70%); z-index: 3; opacity: 0; border-radius: 50%; pointer-events: none; }
-        .treasure-shine-active { animation: treasureShineAnim 1.5s ease-out forwards; }
-        @keyframes treasureShineAnim { 0% { opacity: 0; width: 50px; height: 50px; } 20% { opacity: 1; width: 800px; height: 800px; } 100% { opacity: 0; width: 1200px; height: 1200px; } }
-        .arrow-container { width: 50px; height: 50px; z-index: 5; position: relative; margin-bottom: -20px; filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.6)); transition: opacity 0.3s; }
-        .bounce-arrow { animation: bounce 2s ease-in-out infinite; }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-        #intro-box { width: 320px; height: 320px; cursor: pointer; position: relative; z-index: 2; transition: transform 0.3s; filter: drop-shadow(0 20px 30px rgba(129, 140, 248, 0.6)); }
-        #intro-box:hover { transform: scale(1.05); }
-        .super-shake { animation: violentShake 1.2s cubic-bezier(.36,.07,.19,.97) both; }
-        @keyframes violentShake { 0% { transform: translate(0, 0) rotate(0); } 10%, 90% { transform: translate(-5px, 2px) rotate(-5deg); } 20%, 80% { transform: translate(5px, -2px) rotate(5deg); } 30%, 50%, 70% { transform: translate(-10px, 8px) rotate(-8deg) scale(1.1); } 40%, 60% { transform: translate(10px, -8px) rotate(8deg) scale(1.1); } 100% { transform: translate(0, 0) scale(1.2); } }
-        .lid-open { animation: lidExplode 0.8s forwards cubic-bezier(0.2, 0.8, 0.2, 1); }
-        @keyframes lidExplode { 0% { transform: translateY(0) rotate(0); } 30% { transform: translateY(-80px) rotate(-15deg); } 100% { transform: translateY(-800px) rotate(-60deg) scale(1.8); opacity: 0; } }
+
         .intro-fade-out { opacity: 0; pointer-events: none; }
         .white-flash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 90; opacity: 0; pointer-events: none; }
         .flash-active { animation: flashAnim 1.5s ease-out forwards; }
@@ -121,52 +120,42 @@
     <div id="dim-overlay"></div>
 
     <div id="intro-overlay">
-        <div class="container-box">
-            <div id="god-rays" class="god-rays"></div>
-            <div id="treasure-glow"></div>
-            <div class="arrow-container bounce-arrow">
-                 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <defs><linearGradient id="arrowGradient" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#22d3ee;stop-opacity:1" /><stop offset="50%" style="stop-color:#818cf8;stop-opacity:1" /><stop offset="100%" style="stop-color:#c084fc;stop-opacity:1" /></linearGradient></defs>
-                    <path d="M 50 90 L 10 50 L 30 50 L 30 10 L 70 10 L 70 50 L 90 50 Z" fill="url(#arrowGradient)" stroke="white" stroke-width="2" stroke-linejoin="round"/>
-                </svg>
+        <div class="god-rays"></div>
+        
+        <p id="intro-title" class="text-indigo-900/50 text-xl font-black mb-12 uppercase tracking-widest text-center">Choisis ta magie</p>
+
+        <div class="mode-selector">
+            <div class="mode-card" onclick="selectMode('STORY')">
+                <div class="mode-icon-box">
+                    <svg width="60" height="60" viewBox="0 0 24 24" fill="#6366f1">
+                        <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/>
+                    </svg>
+                </div>
+                <span class="mode-label">Histoires</span>
             </div>
-            <div id="intro-box">
-                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                    <defs><linearGradient id="auroraFill" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#22d3ee;stop-opacity:1" /><stop offset="50%" style="stop-color:#818cf8;stop-opacity:1" /><stop offset="100%" style="stop-color:#c084fc;stop-opacity:1" /></linearGradient></defs>
-                    <path d="M50 80 L150 80 L140 160 L60 160 Z" fill="url(#auroraFill)" stroke="white" stroke-width="3" stroke-linejoin="round"/>
-                    <g id="intro-lid" style="transform-origin: 100px 80px;">
-                        <path d="M40 60 L160 60 L150 80 L50 80 Z" fill="#818cf8" stroke="white" stroke-width="3" stroke-linejoin="round"/>
-                        <path d="M40 60 L160 60 L140 40 L60 40 Z" fill="#c084fc" stroke="white" stroke-width="3" stroke-linejoin="round" opacity="0.9"/>
-                        <circle cx="100" cy="80" r="6" fill="#fbbf24" stroke="white" stroke-width="2"/>
-                    </g>
-                </svg>
+
+            <div class="mode-card" onclick="selectMode('QUESTION')">
+                <div class="mode-icon-box">
+                    <svg width="60" height="60" viewBox="0 0 24 24" fill="#ec4899">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+                    </svg>
+                </div>
+                <span class="mode-label">Questions</span>
             </div>
         </div>
-        <p id="intro-text" class="text-indigo-900/60 text-sm mt-8 font-bold uppercase tracking-widest animate-pulse drop-shadow-lg">Ouvre ta boite magique</p>
     </div>
+
     <div id="white-flash" class="white-flash"></div>
 
     <div id="main-interface" class="content-layer min-h-screen">
         <div class="brand-header"></div>
         <header id="main-header" class="text-center flex flex-col items-center mt-6">
             <div class="logo-container">
-                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="auroraFill2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#22d3ee;stop-opacity:1" /><stop offset="50%" style="stop-color:#818cf8;stop-opacity:1" /><stop offset="100%" style="stop-color:#c084fc;stop-opacity:1" /></linearGradient>
-                        <linearGradient id="lightBeam" x1="0.5" y1="1" x2="0.5" y2="0"><stop offset="0%" stop-color="#fff" stop-opacity="0.6"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/></linearGradient>
-                    </defs>
-                    <path d="M70 80 L50 20 L90 20 Z" fill="url(#lightBeam)" opacity="0.6"/>
-                    <path d="M100 85 L100 10 L120 10 Z" fill="url(#lightBeam)" opacity="0.8"/>
-                    <path d="M130 80 L150 20 L110 20 Z" fill="url(#lightBeam)" opacity="0.6"/>
-                    <path d="M50 80 L150 80 L140 160 L60 160 Z" fill="url(#auroraFill2)" stroke="white" stroke-width="3" stroke-linejoin="round"/>
-                    <path d="M50 80 L20 60 L60 60 L80 80 Z" fill="#818cf8" stroke="white" stroke-width="2" opacity="0.9"/>
-                    <path d="M150 80 L180 60 L140 60 L120 80 Z" fill="#c084fc" stroke="white" stroke-width="2" opacity="0.9"/>
-                    <path d="M60 80 L140 80 L120 60 L80 60 Z" fill="#34d399" opacity="0.7"/>
-                    <path d="M50 80 L150 80 L170 100 L30 100 Z" fill="url(#auroraFill2)" stroke="white" stroke-width="2" opacity="0.8"/>
-                </svg>
+                <svg id="main-logo-story" class="hidden" viewBox="0 0 24 24" fill="#6366f1" width="100" height="100"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+                <svg id="main-logo-question" class="hidden" viewBox="0 0 24 24" fill="#ec4899" width="100" height="100"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg>
             </div>
             <div class="status-box">
-                <p id="status" class="text-indigo-900/60 font-semibold italic text-sm">Chargement...</p>
+                <p id="status" class="text-indigo-900/60 font-semibold italic text-sm">Prêt...</p>
                 <div id="loading-spinner" class="magic-loader hidden"></div>
             </div>
         </header>
@@ -191,8 +180,8 @@
         </main>
 
         <footer class="mt-auto py-8 flex flex-col items-center gap-3">
-             <button onclick="oublierTout()" class="text-indigo-400/60 text-[11px] font-bold uppercase tracking-widest hover:text-indigo-600 transition-colors">Réinitialiser le profil</button>
-            <button onclick="reinitialiserCle()" class="text-gray-400/30 text-[9px] uppercase tracking-widest hover:text-gray-400 transition-colors">Réinitialiser mes clés d'activation</button>
+             <button onclick="window.location.reload()" class="text-indigo-400/60 text-[11px] font-bold uppercase tracking-widest hover:text-indigo-600 transition-colors">Retour au menu</button>
+             <button onclick="oublierTout()" class="text-gray-400/30 text-[9px] uppercase tracking-widest hover:text-gray-400 transition-colors">Réinitialiser le profil</button>
         </footer>
     </div>
 
@@ -207,7 +196,10 @@
         let userGenre = localStorage.getItem('BOITE_GENRE'); 
         let userColor = localStorage.getItem('BOITE_COLOR'); 
         
+        // Nouvelle variable pour savoir dans quelle boite on est
+        let currentAppMode = null; // 'STORY' ou 'QUESTION'
         let interactionMode = 'INIT'; 
+
         const MODEL_ID = "models/gemini-2.5-flash"; 
         const AZURE_VOICE_NAME = "fr-FR-DeniseNeural"; 
 
@@ -323,46 +315,66 @@
             rec.onresult = (e) => { const p = e.results[0][0].transcript; document.getElementById('manualInput').value = p; traiterInput(p); };
             rec.onend = () => document.getElementById('btn-mic').classList.remove('mic-listening');
             rec.onerror = (e) => { document.getElementById('btn-mic').classList.remove('mic-listening'); 
+                // Gestion erreur ou silence
                 if (interactionMode === 'NAME_INPUT') document.getElementById('status').innerText = "Comment t'appelles-tu ?";
                 else if (interactionMode === 'GENDER_INPUT') document.getElementById('status').innerText = "Garçon ou fille ?";
                 else if (interactionMode === 'COLOR_INPUT') document.getElementById('status').innerText = "Tes couleurs préférées ?";
                 else if (interactionMode === 'AGE_INPUT') document.getElementById('status').innerText = "Quel âge as-tu ?";
                 else if (interactionMode === 'STORY_INPUT') document.getElementById('status').innerText = "Dis-moi ton idée...";
+                else if (interactionMode === 'QUESTION_INPUT') document.getElementById('status').innerText = "Ta question ?";
             };
             try { rec.start(); } catch (e) {}
         }
 
-        /* --- LOGIQUE INTERACTION --- */
-        function getRandomWelcome(name, genre) {
-            const ami = (genre === 'fille') ? 'amie' : 'ami';
-            const curieux = (genre === 'fille') ? 'curieuse' : 'curieux';
-            const phrases = [`Oh, quel bonheur de te revoir, ${name} !`, `Te voilà enfin, ${name} !`, `Coucou ${name} !`, `Bonjour mon petit ${ami} ${name} !`, `C'est ma partie préférée de la journée : retrouver ${name} !`];
-            return phrases[Math.floor(Math.random() * phrases.length)];
-        }
-        function getRandomWaitingPhrase() {
-            const phrases = ["C'est une excellente idée ! Laisse-moi réfléchir...", "J'ouvre mon grand livre d'histoires...", "Mmmh, intéressant...", "Attrape un peu de poussière magique...", "C'est parti !"];
-            return phrases[Math.floor(Math.random() * phrases.length)];
-        }
+        /* --- SELECTION DU MODE (NOUVEAU) --- */
+        function selectMode(mode) {
+            currentAppMode = mode;
+            
+            // Son & Animation
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            playSimpleWoosh();
+            triggerBurst();
+            document.getElementById('white-flash').classList.add('flash-active');
 
-        const introBox = document.getElementById('intro-box');
-        const rays = document.getElementById('god-rays');
-        const treasureGlow = document.getElementById('treasure-glow');
-        const arrow = document.querySelector('.arrow-container');
-        let opened = false;
+            // Affichage de l'interface principale
+            setTimeout(() => {
+                document.getElementById('intro-overlay').classList.add('intro-fade-out');
+                document.getElementById('main-interface').classList.add('content-visible');
+                
+                // Afficher le bon logo
+                if(mode === 'STORY') document.getElementById('main-logo-story').classList.remove('hidden');
+                else document.getElementById('main-logo-question').classList.remove('hidden');
+
+                if (userColor) applyMixedTheme(userColor);
+
+                startInteractionSequence();
+            }, 1000);
+
+            setTimeout(() => { document.getElementById('intro-overlay').style.display = 'none'; }, 2000);
+        }
 
         function startInteractionSequence() {
+            // S'il manque des infos, on lance le questionnaire de setup
             if (!userPrenom || !userGenre || !userAge || !userColor) {
-                speechQueue.push("Bonjour ! Avant de commencer, je vais te poser quelques questions pour créer ta boîte à histoires magique.");
+                speechQueue.push("Bonjour ! Avant de commencer, je vais te poser quelques questions pour créer ta boîte magique.");
                 interactionMode = 'NAME_INPUT';
                 document.getElementById('status').innerText = "Bonjour ! Comment t'appelles-tu ?";
                 speechQueue.push("D'abord, comment t'appelles-tu ?");
                 parler();
                 return;
             }
-            interactionMode = 'STORY_INPUT';
-            const welcomeMsg = getRandomWelcome(userPrenom, userGenre);
-            document.getElementById('status').innerText = "Quelle histoire veux-tu ?";
-            speechQueue.push(`${welcomeMsg} Quelle histoire on invente aujourd'hui ?`);
+
+            // Si le setup est fait, on lance le mode choisi
+            if (currentAppMode === 'STORY') {
+                interactionMode = 'STORY_INPUT';
+                document.getElementById('status').innerText = "Quelle histoire veux-tu ?";
+                speechQueue.push(`Te revoilà ${userPrenom} ! Quelle histoire on invente aujourd'hui ?`);
+            } else {
+                interactionMode = 'QUESTION_INPUT';
+                document.getElementById('status').innerText = "Pose ta question...";
+                speechQueue.push(`Bonjour ${userPrenom}. Je sais tout sur tout. Pose-moi ta question.`);
+            }
             parler();
         }
 
@@ -372,6 +384,7 @@
             document.getElementById('manualInput').value = "";
             const lowerText = texte.toLowerCase();
 
+            // --- SETUP INITIAL ---
             if (interactionMode === 'NAME_INPUT') {
                 userPrenom = texte.replace(/je m'appelle /i, "").replace(/c'est /i, "").trim();
                 localStorage.setItem('BOITE_PRENOM', userPrenom);
@@ -401,27 +414,30 @@
             } else if (interactionMode === 'AGE_INPUT') {
                 userAge = texte.replace(/j'ai /i, "").replace(/ans/i, "").trim();
                 localStorage.setItem('BOITE_AGE', userAge);
-                interactionMode = 'STORY_INPUT';
-                document.getElementById('status').innerText = `Quelle histoire veux-tu ?`;
-                speechQueue.push(`D'accord, ${userAge} ans ! Tout est prêt. Quelle histoire veux-tu écouter maintenant ?`);
+                
+                // Fin du setup, redirection vers le mode choisi
+                if (currentAppMode === 'STORY') {
+                    interactionMode = 'STORY_INPUT';
+                    document.getElementById('status').innerText = `Quelle histoire veux-tu ?`;
+                    speechQueue.push(`D'accord, ${userAge} ans ! Tout est prêt. Quelle histoire veux-tu écouter maintenant ?`);
+                } else {
+                    interactionMode = 'QUESTION_INPUT';
+                    document.getElementById('status').innerText = `Ta question ?`;
+                    speechQueue.push(`D'accord, ${userAge} ans ! Je suis prête. Quelle est ta question ?`);
+                }
                 parler();
-            } else if (interactionMode === 'STORY_INPUT') {
+            } 
+            
+            // --- MODES D'UTILISATION ---
+            else if (interactionMode === 'STORY_INPUT') {
                 interactionMode = 'TELLING';
-                appelIA(texte);
+                appelIA(texte, 'STORY');
+            } 
+            else if (interactionMode === 'QUESTION_INPUT') {
+                interactionMode = 'TELLING';
+                appelIA(texte, 'QUESTION');
             }
         }
-
-        introBox.addEventListener('click', () => {
-            if (opened) return;
-            opened = true;
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            playSimpleWoosh(); 
-            introBox.classList.add('super-shake'); rays.classList.add('rays-active'); arrow.classList.add('intro-fade-out');
-            setTimeout(() => { document.getElementById('intro-lid').classList.add('lid-open'); treasureGlow.classList.add('treasure-shine-active'); triggerBurst(); document.getElementById('white-flash').classList.add('flash-active'); }, 1200);
-            setTimeout(() => { document.getElementById('intro-overlay').classList.add('intro-fade-out'); document.getElementById('main-interface').classList.add('content-visible'); if (userColor) applyMixedTheme(userColor); startInteractionSequence(); }, 1800);
-            setTimeout(() => { document.getElementById('intro-overlay').style.display = 'none'; }, 3000);
-        });
 
         /* --- AUDIO & IA --- */
         function toggleStopButton(active) {
@@ -433,24 +449,29 @@
             if (currentAudio) { currentAudio.pause(); currentAudio = null; }
             stopVisualizer(); speechQueue = []; isSpeaking = false;
             document.getElementById('main-header').classList.remove('cinema-mode');
-            document.getElementById('dim-overlay').classList.remove('dim-active'); // On rallume la lumière
+            document.getElementById('dim-overlay').classList.remove('dim-active'); 
             document.getElementById('status').classList.remove('hidden');
             document.getElementById('loading-spinner').classList.add('hidden');
-            if (interactionMode === 'NAME_INPUT') document.getElementById('status').innerText = "Comment t'appelles-tu ?";
-            else if (interactionMode === 'GENDER_INPUT') document.getElementById('status').innerText = "Garçon ou fille ?";
-            else if (interactionMode === 'COLOR_INPUT') document.getElementById('status').innerText = "Tes couleurs préférées ?";
-            else if (interactionMode === 'AGE_INPUT') document.getElementById('status').innerText = "Quel âge as-tu ?";
-            else if (interactionMode === 'STORY_INPUT') document.getElementById('status').innerText = userPrenom ? `Dis-moi ton idée, ${userPrenom}...` : "Dis-moi ton idée...";
-            else if (interactionMode === 'TELLING') { interactionMode = 'STORY_INPUT'; document.getElementById('status').innerText = "Une autre histoire ?"; }
+            
+            // Reset status text based on mode
+            if (['NAME_INPUT', 'GENDER_INPUT', 'COLOR_INPUT', 'AGE_INPUT'].includes(interactionMode)) {
+                 // on laisse tel quel pour la logique de setup
+            } else if (currentAppMode === 'STORY') {
+                interactionMode = 'STORY_INPUT';
+                document.getElementById('status').innerText = "Une autre histoire ?";
+            } else {
+                interactionMode = 'QUESTION_INPUT';
+                document.getElementById('status').innerText = "Une autre question ?";
+            }
+
             toggleStopButton(false); document.getElementById('story-card').classList.add('hidden'); 
         }
 
-        async function appelIA(sujet) {
+        async function appelIA(sujet, mode) {
             if (!GEMINI_KEY || !AZURE_KEY || !AZURE_REGION) { verifierCles(); return; }
             stopAudio();
-            interactionMode = 'TELLING';
+            interactionMode = 'TELLING'; // Bloque l'input pendant que ça charge
             
-            // Activation du mode focus
             document.getElementById('dim-overlay').classList.add('dim-active');
             
             const btnMic = document.getElementById('btn-mic');
@@ -463,21 +484,36 @@
             loader.classList.remove('hidden');
             setTimeout(() => { btnMic.classList.remove('understood-flash'); toggleStopButton(true); }, 800);
             
-            const waitingPhrase = getRandomWaitingPhrase();
+            // Phrases d'attente différentes selon le mode
+            const waitingPhrasesStory = ["J'ouvre mon grand livre...", "Mmmh, bonne idée...", "L'histoire arrive..."];
+            const waitingPhrasesQuestion = ["Je cherche dans ma mémoire magique...", "Voyons voir...", "C'est une très bonne question..."];
+            
+            const phrases = (mode === 'STORY') ? waitingPhrasesStory : waitingPhrasesQuestion;
+            const waitingPhrase = phrases[Math.floor(Math.random() * phrases.length)];
+            
             document.getElementById('status').innerText = waitingPhrase;
             speechQueue.push(waitingPhrase);
             parler();
 
             const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${GEMINI_KEY}`;
+            
+            // CONTEXTE ENFANT
             let contextChild = "";
             if (userPrenom) contextChild += `L'enfant s'appelle ${userPrenom}. `;
-            if (userGenre) contextChild += `C'est un(e) ${userGenre}. `;
             if (userAge) contextChild += `L'enfant a ${userAge} ans. `;
-            
-            // PROMPT MODIFIÉ POUR EVITER LEO/LEA
-            const promptIA = `Tu es une conteuse de livre audio professionnelle. ${contextChild} Raconte une aventure réaliste pour cet enfant sur : "${sujet}". Ton ton est bienveillant mais neutre. INTERDICTION d'utiliser des surnoms affectueux (mon cœur, mon chéri). Tu n'es pas sa maman. Reste une narratrice externe. Utilise des phrases simples. Pas de magie. Fin positive.
-            IMPORTANT : Le héros EST l'enfant nommé ${userPrenom}. Si tu dois créer des amis ou personnages secondaires, utilise des prénoms variés et originaux (ex: Milo, Noor, Kenji, Sofia...) et ÉVITE ABSOLUMENT les prénoms trop classiques comme Léo ou Léa.
-            Commence directement par la première phrase de l'histoire. Termine par "FIN".`;
+
+            let promptIA = "";
+
+            if (mode === 'STORY') {
+                promptIA = `Tu es une conteuse. ${contextChild} Raconte une aventure réaliste sur : "${sujet}". Ton ton est bienveillant mais neutre. Pas de surnoms affectueux. Tu n'es pas sa maman. Phrases simples. Pas de magie. Fin positive.
+                IMPORTANT : Le héros EST l'enfant nommé ${userPrenom}. Si tu crées des amis, utilise des prénoms variés (Milo, Noor, Kenji...) et EVITE Léo/Léa.
+                Commence directement par l'histoire. Termine par "FIN".`;
+            } else {
+                // MODE QUESTION
+                promptIA = `Tu es une encyclopédie magique et bienveillante. ${contextChild} L'enfant te pose la question : "${sujet}".
+                Réponds de manière pédagogique, simple et scientifiquement juste, adaptée à un enfant de ${userAge} ans.
+                Fais court (3 ou 4 phrases maximum). Ton ton est encourageant. Pas de "Bonjour". Commence directement par la réponse.`;
+            }
 
             try {
                 const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: promptIA }] }] }) });
@@ -485,7 +521,8 @@
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) {
-                        loader.classList.add('hidden'); statusLabel.classList.remove('hidden'); statusLabel.innerText = "L'aventure est prête !";
+                        loader.classList.add('hidden'); statusLabel.classList.remove('hidden'); 
+                        statusLabel.innerText = (mode === 'STORY') ? "L'aventure est prête !" : "J'ai trouvé !";
                         if (currentSentence.trim()) { speechQueue.push(currentSentence.trim()); parler(); }
                         break;
                     }
@@ -535,11 +572,12 @@
                 currentAudio.onended = () => {
                     isSpeaking = false;
                     if (speechQueue.length === 0) { 
-                        // FIN DE L'HISTOIRE
                         document.getElementById('main-header').classList.remove('cinema-mode');
-                        document.getElementById('dim-overlay').classList.remove('dim-active'); // On rallume
+                        document.getElementById('dim-overlay').classList.remove('dim-active');
                         toggleStopButton(false); stopVisualizer(); document.getElementById('story-card').classList.add('hidden');
-                        if (['NAME_INPUT', 'GENDER_INPUT', 'COLOR_INPUT', 'AGE_INPUT', 'STORY_INPUT'].includes(interactionMode)) {
+                        
+                        // Réactiver l'écoute si on est dans un flux continu
+                        if (['NAME_INPUT', 'GENDER_INPUT', 'COLOR_INPUT', 'AGE_INPUT', 'STORY_INPUT', 'QUESTION_INPUT'].includes(interactionMode)) {
                             setTimeout(() => { startListening(); }, 500);
                         }
                     } else parler(); 
@@ -561,8 +599,6 @@
             if (!GEMINI_KEY || !AZURE_KEY) verifierCles();
             document.getElementById('btn-mic').onclick = () => { startListening(); };
             document.getElementById('btn-stop').onclick = stopAudio;
-            const introText = document.getElementById('intro-text');
-            if (userPrenom) { introText.innerText = `Ouvre ta boite magique, ${userPrenom}`; } else { introText.innerText = "Ouvre ta boite magique"; }
         });
     </script>
 </body>
