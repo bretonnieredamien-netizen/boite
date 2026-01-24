@@ -82,59 +82,61 @@
         /* --- INTRO ANIMATION --- */
         #intro-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(-45deg, #fff7ed, #fef9c3, #ede9fe, #fae8ff);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
+            /* FOND TRANSPARENT POUR VOIR LES ÉTOILES ET LE DÉGRADÉ DU BODY */
+            background: transparent;
             z-index: 100;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             transition: opacity 0.8s ease-out, visibility 0.8s;
         }
         
-        .container-box { position: relative; width: 300px; height: 350px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        /* CONTENEUR AGRANDI POUR LA BOITE */
+        .container-box { position: relative; width: 400px; height: 400px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         
         .god-rays {
-            position: absolute; width: 150%; height: 150%;
-            background: conic-gradient(from 0deg, transparent 0deg, rgba(251, 191, 36, 0.1) 20deg, transparent 40deg, rgba(139, 92, 246, 0.1) 60deg, transparent 80deg);
+            position: absolute; width: 180%; height: 180%;
+            background: conic-gradient(from 0deg, transparent 0deg, rgba(251, 191, 36, 0.2) 20deg, transparent 40deg, rgba(139, 92, 246, 0.2) 60deg, transparent 80deg);
             border-radius: 50%; z-index: 0; opacity: 0; transition: opacity 1s;
             top: 50%; left: 50%; transform: translate(-50%, -50%);
+            mix-blend-mode: overlay;
         }
-        .rays-active { opacity: 1; animation: spinRays 4s linear infinite; }
+        .rays-active { opacity: 1; animation: spinRays 8s linear infinite; }
         @keyframes spinRays { 100% { transform: translate(-50%, -50%) rotate(360deg); } }
 
         #treasure-glow {
             position: absolute; top: 60%; left: 50%; width: 0; height: 0; transform: translate(-50%, -50%);
-            background: radial-gradient(circle, rgba(255, 215, 0, 0.8) 10%, rgba(251, 191, 36, 0.6) 30%, rgba(255, 255, 255, 0) 70%);
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.9) 10%, rgba(251, 191, 36, 0.7) 30%, rgba(255, 255, 255, 0) 70%);
             z-index: 3; opacity: 0; border-radius: 50%; pointer-events: none;
         }
         .treasure-shine-active { animation: treasureShineAnim 1.5s ease-out forwards; }
         @keyframes treasureShineAnim {
             0% { opacity: 0; width: 50px; height: 50px; }
-            20% { opacity: 1; width: 600px; height: 600px; }
-            100% { opacity: 0; width: 800px; height: 800px; }
+            20% { opacity: 1; width: 800px; height: 800px; }
+            100% { opacity: 0; width: 1200px; height: 1200px; }
         }
 
-        .arrow-container { width: 50px; height: 50px; z-index: 5; position: relative; margin-bottom: -10px; filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.6)); transition: opacity 0.3s; }
+        .arrow-container { width: 50px; height: 50px; z-index: 5; position: relative; margin-bottom: -20px; filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.6)); transition: opacity 0.3s; }
         .bounce-arrow { animation: bounce 2s ease-in-out infinite; }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-        #intro-box { width: 220px; height: 220px; cursor: pointer; position: relative; z-index: 2; transition: transform 0.3s; }
+        /* BOITE AGRANDIE */
+        #intro-box { width: 320px; height: 320px; cursor: pointer; position: relative; z-index: 2; transition: transform 0.3s; filter: drop-shadow(0 20px 30px rgba(129, 140, 248, 0.6)); }
         #intro-box:hover { transform: scale(1.05); }
 
         .super-shake { animation: violentShake 1.2s cubic-bezier(.36,.07,.19,.97) both; }
         @keyframes violentShake {
             0% { transform: translate(0, 0) rotate(0); }
-            10%, 90% { transform: translate(-3px, 1px) rotate(-3deg); }
-            20%, 80% { transform: translate(3px, -2px) rotate(3deg); }
-            30%, 50%, 70% { transform: translate(-6px, 4px) rotate(-6deg) scale(1.1); }
-            40%, 60% { transform: translate(6px, -4px) rotate(6deg) scale(1.1); }
+            10%, 90% { transform: translate(-5px, 2px) rotate(-5deg); }
+            20%, 80% { transform: translate(5px, -2px) rotate(5deg); }
+            30%, 50%, 70% { transform: translate(-10px, 8px) rotate(-8deg) scale(1.1); }
+            40%, 60% { transform: translate(10px, -8px) rotate(8deg) scale(1.1); }
             100% { transform: translate(0, 0) scale(1.2); }
         }
 
-        .lid-open { animation: lidExplode 0.6s forwards cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .lid-open { animation: lidExplode 0.8s forwards cubic-bezier(0.2, 0.8, 0.2, 1); }
         @keyframes lidExplode {
             0% { transform: translateY(0) rotate(0); }
-            40% { transform: translateY(-50px) rotate(-10deg); }
-            100% { transform: translateY(-600px) rotate(-45deg) scale(1.5); opacity: 0; }
+            30% { transform: translateY(-80px) rotate(-15deg); }
+            100% { transform: translateY(-800px) rotate(-60deg) scale(1.8); opacity: 0; }
         }
 
         .intro-fade-out { opacity: 0; pointer-events: none; }
@@ -142,8 +144,8 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white;
             z-index: 90; opacity: 0; pointer-events: none;
         }
-        .flash-active { animation: flashAnim 1s ease-out forwards; }
-        @keyframes flashAnim { 0% { opacity: 0; } 10% { opacity: 0.8; } 100% { opacity: 0; } }
+        .flash-active { animation: flashAnim 1.5s ease-out forwards; }
+        @keyframes flashAnim { 0% { opacity: 0; } 15% { opacity: 0.95; } 100% { opacity: 0; } }
 
     </style>
 </head>
@@ -170,7 +172,7 @@
             </div>
 
             <div id="intro-box">
-                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" filter="drop-shadow(0 0 20px rgba(139, 92, 246, 0.4))">
+                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         <linearGradient id="auroraFill" x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" style="stop-color:#22d3ee;stop-opacity:1" />
@@ -187,7 +189,7 @@
                 </svg>
             </div>
         </div>
-        <p class="text-indigo-900/40 text-xs mt-8 font-bold uppercase tracking-widest animate-pulse">Touche le coffre pour l'ouvrir</p>
+        <p class="text-indigo-900/60 text-sm mt-8 font-bold uppercase tracking-widest animate-pulse drop-shadow-lg">Touche le coffre</p>
     </div>
     <div id="white-flash" class="white-flash"></div>
 
@@ -334,7 +336,7 @@
             const noise = audioCtx.createBufferSource(); noise.buffer = buffer;
             const filter = audioCtx.createBiquadFilter(); filter.type = 'lowpass'; filter.Q.value = 1; filter.frequency.setValueAtTime(100, t); filter.frequency.exponentialRampToValueAtTime(3000, t + 1.5); filter.frequency.exponentialRampToValueAtTime(100, t + 4.0);
             const gain = audioCtx.createGain(); gain.gain.setValueAtTime(0, t); 
-            // VOLUME RÉDUIT À 0.1
+            // VOLUME RÉDUIT À 0.1 pour être très doux
             gain.gain.linearRampToValueAtTime(0.1, t + 1.0); 
             gain.gain.linearRampToValueAtTime(0, t + 4.0);
             noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination); noise.start(t); noise.stop(t + 4.0);
@@ -595,7 +597,8 @@
             if (userGenre) contextChild += `C'est un(e) ${userGenre}. `;
             if (userAge) contextChild += `L'enfant a ${userAge} ans (adapte le vocabulaire et la complexité à cet âge). `;
             
-            const promptIA = `Tu es une conteuse de livre audio professionnelle. ${contextChild} Raconte une aventure réaliste pour cet enfant sur : "${sujet}". Ton ton est bienveillant mais neutre. INTERDICTION d'utiliser des surnoms affectueux (mon cœur, mon chéri, mon ange). Tu n'es pas sa maman. Reste une narratrice externe. Utilise des phrases simples. Pas de magie. Fin positive. Termine par "FIN".`;
+            // PROMPT MODIFIÉ : SANS BONJOUR
+            const promptIA = `Tu es une conteuse de livre audio professionnelle. ${contextChild} Raconte une aventure réaliste pour cet enfant sur : "${sujet}". Ton ton est bienveillant mais neutre. INTERDICTION d'utiliser des surnoms affectueux (mon cœur, mon chéri, mon ange). Tu n'es pas sa maman. Reste une narratrice externe. Utilise des phrases simples. Pas de magie. Fin positive. IMPORTANT: Ne dis PAS "Bonjour" ni de titre au début. Commence directement par la première phrase de l'histoire (ex: "Il était une fois..."). Termine par "FIN".`;
 
             try {
                 const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: promptIA }] }] }) });
@@ -645,7 +648,7 @@
             if (isSpeaking || speechQueue.length === 0) return;
             isSpeaking = true; 
             
-            // CORRECTION BUG : ON FORCE L'ACTIVATION DU BOUTON STOP
+            // CORRECTION : FORCER L'ACTIVATION DU BOUTON STOP
             toggleStopButton(true);
 
             document.getElementById('story-card').classList.remove('hidden');
