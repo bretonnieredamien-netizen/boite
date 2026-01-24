@@ -7,16 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;500;800;900&display=swap" rel="stylesheet">
     <style>
-        /* --- VARIABLES CSS DYNAMIQUES (POUR LE THEME) --- */
+        /* --- VARIABLES CSS DYNAMIQUES --- */
         :root {
-            --bg-1: #fff7ed;
-            --bg-2: #fef9c3;
-            --bg-3: #ede9fe;
-            --bg-4: #fae8ff;
-            --accent-color: #6366f1; /* Indigo par défaut */
-            --vis-1: #4f46e5;
-            --vis-2: #9333ea;
-            --vis-3: #db2777;
+            --bg-1: #fff7ed; --bg-2: #fef9c3; --bg-3: #ede9fe; --bg-4: #fae8ff;
+            --accent-color: #6366f1; 
+            --vis-1: #4f46e5; --vis-2: #9333ea; --vis-3: #db2777;
         }
 
         /* Fond Moderne Animé */
@@ -26,9 +21,7 @@
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
             touch-action: manipulation; 
-            overflow-x: hidden;
-            min-height: 100vh;
-            margin: 0;
+            overflow-x: hidden; min-height: 100vh; margin: 0;
             transition: background 2s ease; 
         }
         @keyframes gradientBG {
@@ -37,25 +30,27 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* --- Poussière d'étoiles (Fond) --- */
+        /* --- Poussière d'étoiles --- */
         #starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
         .hidden { display: none !important; }
         .content-layer { position: relative; z-index: 10; width: 100%; display: flex; flex-direction: column; align-items: center; opacity: 0; transition: opacity 1s ease-in; }
         .content-visible { opacity: 1 !important; }
 
+        /* --- OVERLAY DE CONCENTRATION (NOUVEAU) --- */
+        #dim-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); /* Assez sombre pour le focus */
+            z-index: 40; /* Au dessus du fond, en dessous du visualiseur */
+            opacity: 0; pointer-events: none;
+            transition: opacity 3s ease-in-out; /* Transition très lente et douce */
+        }
+        .dim-active { opacity: 1 !important; pointer-events: auto !important; }
+
         /* --- HEADER & LOGO --- */
-        .brand-header { position: absolute; top: 1.5rem; left: 1.5rem; z-index: 20; }
+        .brand-header { position: absolute; top: 1.5rem; left: 1.5rem; z-index: 20; transition: opacity 1s; }
         
-        #main-header {
-            transition: opacity 1s ease, transform 1s ease;
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .cinema-mode {
-            opacity: 0 !important;
-            transform: translateY(-20px) !important;
-            pointer-events: none;
-        }
+        #main-header { transition: opacity 1s ease, transform 1s ease; opacity: 1; transform: translateY(0); }
+        .cinema-mode { opacity: 0 !important; transform: translateY(-20px) !important; pointer-events: none; }
 
         .logo-container { width: 220px; height: 220px; display: flex; justify-content: center; align-items: center; opacity: 0; animation: introFade 2s ease-out forwards, slowBeat 5s ease-in-out infinite 2s; filter: drop-shadow(0 10px 25px rgba(129, 140, 248, 0.5)); }
         @keyframes introFade { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
@@ -73,133 +68,71 @@
         @keyframes success-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); box-shadow: 0 0 60px #10b981; } 100% { transform: scale(1); } }
         .glass-ui { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px); border: 1px solid white; }
 
-        /* --- LOADER MAGIQUE --- */
-        .magic-loader {
-            width: 24px; height: 24px;
-            border-radius: 50%;
-            border: 3px solid transparent;
-            border-top-color: #22d3ee;
-            border-right-color: #818cf8;
-            border-bottom-color: #c084fc;
-            animation: spinLoader 1s linear infinite;
-        }
+        /* --- LOADER --- */
+        .magic-loader { width: 24px; height: 24px; border-radius: 50%; border: 3px solid transparent; border-top-color: #22d3ee; border-right-color: #818cf8; border-bottom-color: #c084fc; animation: spinLoader 1s linear infinite; }
         @keyframes spinLoader { 100% { transform: rotate(360deg); } }
 
-        /* --- VISUALISEUR BARRES --- */
+        /* --- VISUALISEUR --- */
         #story-card { 
             background: transparent; 
             overflow: hidden;
             display: flex; align-items: center; justify-content: center;
             width: 100%; max-width: 320px; height: 100px; 
             filter: drop-shadow(0 4px 6px rgba(129, 140, 248, 0.3));
+            position: relative; z-index: 50; /* Au dessus de l'overlay sombre */
         }
         #visualizer-canvas { width: 100%; height: 100%; }
 
         /* --- BOUTONS --- */
-        .orbe-base { position: relative; width: 120px; height: 120px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(15px); border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.8); display: flex; align-items: center; justify-content: center; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
+        .orbe-base { position: relative; width: 120px; height: 120px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(15px); border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.8); display: flex; align-items: center; justify-content: center; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; z-index: 50; }
         .orbe-base svg { width: 45px; height: 45px; fill: var(--accent-color); transition: fill 1s; }
         .mic-listening { background: rgba(255, 255, 255, 0.3) !important; box-shadow: 0 0 50px var(--accent-color) !important; transform: scale(1.1); }
         #btn-stop svg { fill: #f87171; }
         #stop-container.opacity-100 #btn-stop { background: rgba(248, 113, 113, 0.15); border-color: #f87171; box-shadow: 0 0 30px rgba(248, 113, 113, 0.4); }
         
         /* --- INTRO ANIMATION --- */
-        #intro-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: transparent;
-            z-index: 100;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.8s ease-out, visibility 0.8s;
-        }
-        
+        #intro-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s ease-out, visibility 0.8s; }
         .container-box { position: relative; width: 400px; height: 400px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        
-        .god-rays {
-            position: absolute; width: 180%; height: 180%;
-            background: conic-gradient(from 0deg, transparent 0deg, rgba(251, 191, 36, 0.2) 20deg, transparent 40deg, rgba(139, 92, 246, 0.2) 60deg, transparent 80deg);
-            border-radius: 50%; z-index: 0; opacity: 0; transition: opacity 1s;
-            top: 50%; left: 50%; transform: translate(-50%, -50%);
-            mix-blend-mode: overlay;
-        }
+        .god-rays { position: absolute; width: 180%; height: 180%; background: conic-gradient(from 0deg, transparent 0deg, rgba(251, 191, 36, 0.2) 20deg, transparent 40deg, rgba(139, 92, 246, 0.2) 60deg, transparent 80deg); border-radius: 50%; z-index: 0; opacity: 0; transition: opacity 1s; top: 50%; left: 50%; transform: translate(-50%, -50%); mix-blend-mode: overlay; }
         .rays-active { opacity: 1; animation: spinRays 8s linear infinite; }
         @keyframes spinRays { 100% { transform: translate(-50%, -50%) rotate(360deg); } }
-
-        #treasure-glow {
-            position: absolute; top: 60%; left: 50%; width: 0; height: 0; transform: translate(-50%, -50%);
-            background: radial-gradient(circle, rgba(255, 215, 0, 0.9) 10%, rgba(251, 191, 36, 0.7) 30%, rgba(255, 255, 255, 0) 70%);
-            z-index: 3; opacity: 0; border-radius: 50%; pointer-events: none;
-        }
+        #treasure-glow { position: absolute; top: 60%; left: 50%; width: 0; height: 0; transform: translate(-50%, -50%); background: radial-gradient(circle, rgba(255, 215, 0, 0.9) 10%, rgba(251, 191, 36, 0.7) 30%, rgba(255, 255, 255, 0) 70%); z-index: 3; opacity: 0; border-radius: 50%; pointer-events: none; }
         .treasure-shine-active { animation: treasureShineAnim 1.5s ease-out forwards; }
-        @keyframes treasureShineAnim {
-            0% { opacity: 0; width: 50px; height: 50px; }
-            20% { opacity: 1; width: 800px; height: 800px; }
-            100% { opacity: 0; width: 1200px; height: 1200px; }
-        }
-
+        @keyframes treasureShineAnim { 0% { opacity: 0; width: 50px; height: 50px; } 20% { opacity: 1; width: 800px; height: 800px; } 100% { opacity: 0; width: 1200px; height: 1200px; } }
         .arrow-container { width: 50px; height: 50px; z-index: 5; position: relative; margin-bottom: -20px; filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.6)); transition: opacity 0.3s; }
         .bounce-arrow { animation: bounce 2s ease-in-out infinite; }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-
         #intro-box { width: 320px; height: 320px; cursor: pointer; position: relative; z-index: 2; transition: transform 0.3s; filter: drop-shadow(0 20px 30px rgba(129, 140, 248, 0.6)); }
         #intro-box:hover { transform: scale(1.05); }
-
         .super-shake { animation: violentShake 1.2s cubic-bezier(.36,.07,.19,.97) both; }
-        @keyframes violentShake {
-            0% { transform: translate(0, 0) rotate(0); }
-            10%, 90% { transform: translate(-5px, 2px) rotate(-5deg); }
-            20%, 80% { transform: translate(5px, -2px) rotate(5deg); }
-            30%, 50%, 70% { transform: translate(-10px, 8px) rotate(-8deg) scale(1.1); }
-            40%, 60% { transform: translate(10px, -8px) rotate(8deg) scale(1.1); }
-            100% { transform: translate(0, 0) scale(1.2); }
-        }
-
+        @keyframes violentShake { 0% { transform: translate(0, 0) rotate(0); } 10%, 90% { transform: translate(-5px, 2px) rotate(-5deg); } 20%, 80% { transform: translate(5px, -2px) rotate(5deg); } 30%, 50%, 70% { transform: translate(-10px, 8px) rotate(-8deg) scale(1.1); } 40%, 60% { transform: translate(10px, -8px) rotate(8deg) scale(1.1); } 100% { transform: translate(0, 0) scale(1.2); } }
         .lid-open { animation: lidExplode 0.8s forwards cubic-bezier(0.2, 0.8, 0.2, 1); }
-        @keyframes lidExplode {
-            0% { transform: translateY(0) rotate(0); }
-            30% { transform: translateY(-80px) rotate(-15deg); }
-            100% { transform: translateY(-800px) rotate(-60deg) scale(1.8); opacity: 0; }
-        }
-
+        @keyframes lidExplode { 0% { transform: translateY(0) rotate(0); } 30% { transform: translateY(-80px) rotate(-15deg); } 100% { transform: translateY(-800px) rotate(-60deg) scale(1.8); opacity: 0; } }
         .intro-fade-out { opacity: 0; pointer-events: none; }
-        .white-flash {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white;
-            z-index: 90; opacity: 0; pointer-events: none;
-        }
+        .white-flash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 90; opacity: 0; pointer-events: none; }
         .flash-active { animation: flashAnim 1.5s ease-out forwards; }
         @keyframes flashAnim { 0% { opacity: 0; } 15% { opacity: 0.95; } 100% { opacity: 0; } }
-
     </style>
 </head>
 <body class="p-6">
 
     <canvas id="starfield"></canvas>
+    
+    <div id="dim-overlay"></div>
 
     <div id="intro-overlay">
         <div class="container-box">
             <div id="god-rays" class="god-rays"></div>
             <div id="treasure-glow"></div>
-            
             <div class="arrow-container bounce-arrow">
                  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="arrowGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" style="stop-color:#22d3ee;stop-opacity:1" />
-                            <stop offset="50%" style="stop-color:#818cf8;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#c084fc;stop-opacity:1" />
-                        </linearGradient>
-                    </defs>
+                    <defs><linearGradient id="arrowGradient" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#22d3ee;stop-opacity:1" /><stop offset="50%" style="stop-color:#818cf8;stop-opacity:1" /><stop offset="100%" style="stop-color:#c084fc;stop-opacity:1" /></linearGradient></defs>
                     <path d="M 50 90 L 10 50 L 30 50 L 30 10 L 70 10 L 70 50 L 90 50 Z" fill="url(#arrowGradient)" stroke="white" stroke-width="2" stroke-linejoin="round"/>
                 </svg>
             </div>
-
             <div id="intro-box">
                 <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="auroraFill" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#22d3ee;stop-opacity:1" />
-                            <stop offset="50%" style="stop-color:#818cf8;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#c084fc;stop-opacity:1" />
-                        </linearGradient>
-                    </defs>
+                    <defs><linearGradient id="auroraFill" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#22d3ee;stop-opacity:1" /><stop offset="50%" style="stop-color:#818cf8;stop-opacity:1" /><stop offset="100%" style="stop-color:#c084fc;stop-opacity:1" /></linearGradient></defs>
                     <path d="M50 80 L150 80 L140 160 L60 160 Z" fill="url(#auroraFill)" stroke="white" stroke-width="3" stroke-linejoin="round"/>
                     <g id="intro-lid" style="transform-origin: 100px 80px;">
                         <path d="M40 60 L160 60 L150 80 L50 80 Z" fill="#818cf8" stroke="white" stroke-width="3" stroke-linejoin="round"/>
@@ -214,22 +147,13 @@
     <div id="white-flash" class="white-flash"></div>
 
     <div id="main-interface" class="content-layer min-h-screen">
-        
         <div class="brand-header"></div>
-
         <header id="main-header" class="text-center flex flex-col items-center mt-6">
             <div class="logo-container">
                 <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
                     <defs>
-                        <linearGradient id="auroraFill2" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#22d3ee;stop-opacity:1" />
-                            <stop offset="50%" style="stop-color:#818cf8;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#c084fc;stop-opacity:1" />
-                        </linearGradient>
-                        <linearGradient id="lightBeam" x1="0.5" y1="1" x2="0.5" y2="0">
-                             <stop offset="0%" stop-color="#fff" stop-opacity="0.6"/>
-                             <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
-                        </linearGradient>
+                        <linearGradient id="auroraFill2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#22d3ee;stop-opacity:1" /><stop offset="50%" style="stop-color:#818cf8;stop-opacity:1" /><stop offset="100%" style="stop-color:#c084fc;stop-opacity:1" /></linearGradient>
+                        <linearGradient id="lightBeam" x1="0.5" y1="1" x2="0.5" y2="0"><stop offset="0%" stop-color="#fff" stop-opacity="0.6"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/></linearGradient>
                     </defs>
                     <path d="M70 80 L50 20 L90 20 Z" fill="url(#lightBeam)" opacity="0.6"/>
                     <path d="M100 85 L100 10 L120 10 Z" fill="url(#lightBeam)" opacity="0.8"/>
@@ -241,12 +165,10 @@
                     <path d="M50 80 L150 80 L170 100 L30 100 Z" fill="url(#auroraFill2)" stroke="white" stroke-width="2" opacity="0.8"/>
                 </svg>
             </div>
-            
             <div class="status-box">
                 <p id="status" class="text-indigo-900/60 font-semibold italic text-sm">Chargement...</p>
                 <div id="loading-spinner" class="magic-loader hidden"></div>
             </div>
-
         </header>
 
         <main class="w-full max-w-md flex flex-col items-center gap-14 mt-8">
@@ -262,7 +184,6 @@
                     </button>
                 </div>
             </div>
-
             <div id="story-card" class="hidden transition-all duration-500">
                  <canvas id="visualizer-canvas"></canvas>
             </div>
@@ -270,14 +191,9 @@
         </main>
 
         <footer class="mt-auto py-8 flex flex-col items-center gap-3">
-             <button onclick="oublierTout()" class="text-indigo-400/60 text-[11px] font-bold uppercase tracking-widest hover:text-indigo-600 transition-colors">
-                Réinitialiser le profil
-            </button>
-            <button onclick="reinitialiserCle()" class="text-gray-400/30 text-[9px] uppercase tracking-widest hover:text-gray-400 transition-colors">
-                Réinitialiser mes clés d'activation
-            </button>
+             <button onclick="oublierTout()" class="text-indigo-400/60 text-[11px] font-bold uppercase tracking-widest hover:text-indigo-600 transition-colors">Réinitialiser le profil</button>
+            <button onclick="reinitialiserCle()" class="text-gray-400/30 text-[9px] uppercase tracking-widest hover:text-gray-400 transition-colors">Réinitialiser mes clés d'activation</button>
         </footer>
-
     </div>
 
     <script>
@@ -292,7 +208,6 @@
         let userColor = localStorage.getItem('BOITE_COLOR'); 
         
         let interactionMode = 'INIT'; 
-
         const MODEL_ID = "models/gemini-2.5-flash"; 
         const AZURE_VOICE_NAME = "fr-FR-DeniseNeural"; 
 
@@ -319,7 +234,6 @@
         };
 
         let currentTheme = THEMES['defaut'];
-
         let speechQueue = [];
         let isSpeaking = false;
         let audioCtx = null;
@@ -330,174 +244,74 @@
             if (!inputText) return;
             const text = inputText.toLowerCase();
             const detectedKeys = new Set();
-
-            for (const [key, val] of Object.entries(KEYWORDS)) {
-                if (text.includes(key)) detectedKeys.add(val);
-            }
-
+            for (const [key, val] of Object.entries(KEYWORDS)) { if (text.includes(key)) detectedKeys.add(val); }
             const themes = Array.from(detectedKeys).map(k => THEMES[k]);
 
-            if (themes.length === 0) {
-                return;
-            } else if (themes.length === 1) {
-                currentTheme = themes[0];
-            } else {
+            if (themes.length === 0) return;
+            else if (themes.length === 1) currentTheme = themes[0];
+            else {
                 const t1 = themes[0];
                 const t2 = themes[themes.length - 1]; 
-                
                 currentTheme = {
                     bg: [t1.bg[0], t2.bg[1], t1.bg[2], t2.bg[3]],
-                    star: t1.star,
-                    accent: t2.accent,
+                    star: t1.star, accent: t2.accent,
                     vis: [t1.vis[0], t2.vis[1], t1.vis[2]]
                 };
             }
 
             const r = document.querySelector(':root');
-            r.style.setProperty('--bg-1', currentTheme.bg[0]);
-            r.style.setProperty('--bg-2', currentTheme.bg[1]);
-            r.style.setProperty('--bg-3', currentTheme.bg[2]);
-            r.style.setProperty('--bg-4', currentTheme.bg[3]);
+            r.style.setProperty('--bg-1', currentTheme.bg[0]); r.style.setProperty('--bg-2', currentTheme.bg[1]); r.style.setProperty('--bg-3', currentTheme.bg[2]); r.style.setProperty('--bg-4', currentTheme.bg[3]);
             r.style.setProperty('--accent-color', currentTheme.accent);
-            r.style.setProperty('--vis-1', currentTheme.vis[0]);
-            r.style.setProperty('--vis-2', currentTheme.vis[1]);
-            r.style.setProperty('--vis-3', currentTheme.vis[2]);
+            r.style.setProperty('--vis-1', currentTheme.vis[0]); r.style.setProperty('--vis-2', currentTheme.vis[1]); r.style.setProperty('--vis-3', currentTheme.vis[2]);
 
             particles.forEach(p => {
-                if (themes.length > 1) {
-                     p.color = Math.random() > 0.5 ? themes[0].star : themes[1].star;
-                } else {
-                     p.color = currentTheme.star;
-                }
+                if (themes.length > 1) p.color = Math.random() > 0.5 ? themes[0].star : themes[1].star;
+                else p.color = currentTheme.star;
             });
         }
 
-        /* --- CANVAS STARS (FOND) --- */
+        /* --- CANVAS STARS --- */
         const canvas = document.getElementById('starfield'); const ctx = canvas.getContext('2d'); let particles = []; let burstParticles = [];
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        
         class Particle { 
             constructor() { this.reset(); } 
-            reset() { 
-                this.x = Math.random() * canvas.width; 
-                this.y = Math.random() * canvas.height; 
-                this.size = Math.random() * 2.5 + 0.5; 
-                this.speed = Math.random() * 0.02 + 0.01; 
-                this.opacity = Math.random() * 0.9; 
-                this.color = currentTheme.star; 
-            } 
+            reset() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 2.5 + 0.5; this.speed = Math.random() * 0.02 + 0.01; this.opacity = Math.random() * 0.9; this.color = currentTheme.star; } 
             update() { this.y -= this.speed; this.x += Math.sin(this.y * 0.01) * 0.2; if (this.y < 0) this.reset(); } 
             draw() { ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); } 
         }
         class BurstParticle { constructor(x, y) { this.x = x; this.y = y; const angle = Math.random() * Math.PI * 2; const speed = Math.random() * 15 + 5; this.vx = Math.cos(angle) * speed; this.vy = Math.sin(angle) * speed; this.life = 1.0; this.decay = Math.random() * 0.015 + 0.005; this.color = Math.random() > 0.5 ? "#fbbf24" : "#ffffff"; this.size = Math.random() * 5 + 2; } update() { this.x += this.vx; this.y += this.vy; this.vy += 0.2; this.vx *= 0.96; this.vy *= 0.96; this.life -= this.decay; } draw() { ctx.globalAlpha = this.life; ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1.0; } }
-        
-        function initParticles() { 
-            particles = []; 
-            for (let i = 0; i < 300; i++) particles.push(new Particle()); 
-        }
+        function initParticles() { particles = []; for (let i = 0; i < 300; i++) particles.push(new Particle()); }
         function triggerBurst() { const centerX = window.innerWidth / 2; const centerY = window.innerHeight / 2; for (let i = 0; i < 300; i++) burstParticles.push(new BurstParticle(centerX, centerY)); }
         function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); for (let i = burstParticles.length - 1; i >= 0; i--) { const p = burstParticles[i]; p.update(); p.draw(); if (p.life <= 0) burstParticles.splice(i, 1); } requestAnimationFrame(animate); }
         window.addEventListener('resize', resize); resize(); initParticles(); animate();
 
-        /* --- VISUALISEUR BARRES --- */
-        const vizCanvas = document.getElementById('visualizer-canvas'); 
-        const vizCtx = vizCanvas.getContext('2d'); 
-        let analyser = null; let dataArray = null; let visualizerAnimationId = null;
-
-        function resizeViz() { 
-            if(vizCanvas.parentElement) { 
-                vizCanvas.width = vizCanvas.parentElement.offsetWidth; 
-                vizCanvas.height = vizCanvas.parentElement.offsetHeight; 
-            }
-        }
+        /* --- VISUALISEUR --- */
+        const vizCanvas = document.getElementById('visualizer-canvas'); const vizCtx = vizCanvas.getContext('2d'); let analyser = null; let dataArray = null; let visualizerAnimationId = null;
+        function resizeViz() { if(vizCanvas.parentElement) { vizCanvas.width = vizCanvas.parentElement.offsetWidth; vizCanvas.height = vizCanvas.parentElement.offsetHeight; } }
         window.addEventListener('resize', resizeViz);
-
-        function startVisualizer(audioSource, context) {
-            resizeViz();
-            if (!analyser) {
-                analyser = context.createAnalyser();
-                analyser.fftSize = 64; 
-            }
-            audioSource.connect(analyser);
-            analyser.connect(context.destination);
-            
-            const bufferLength = analyser.frequencyBinCount;
-            dataArray = new Uint8Array(bufferLength);
-            drawVisualizer(); 
-        }
-
+        function startVisualizer(audioSource, context) { resizeViz(); if (!analyser) { analyser = context.createAnalyser(); analyser.fftSize = 64; } audioSource.connect(analyser); analyser.connect(context.destination); const bufferLength = analyser.frequencyBinCount; dataArray = new Uint8Array(bufferLength); drawVisualizer(); }
         function drawVisualizer() {
-            visualizerAnimationId = requestAnimationFrame(drawVisualizer);
-            analyser.getByteFrequencyData(dataArray);
-            
+            visualizerAnimationId = requestAnimationFrame(drawVisualizer); analyser.getByteFrequencyData(dataArray);
             vizCtx.clearRect(0, 0, vizCanvas.width, vizCanvas.height);
-            
-            const bufferLength = analyser.frequencyBinCount;
-            const gap = 6;
-            const barWidth = (vizCanvas.width / bufferLength) - gap;
-            let barHeight;
-            let x = gap / 2;
-
-            let gradient = vizCtx.createLinearGradient(0, vizCanvas.height, 0, 0);
-            gradient.addColorStop(0, currentTheme.vis[0]);
-            gradient.addColorStop(0.5, currentTheme.vis[1]);
-            gradient.addColorStop(1, currentTheme.vis[2]);
-            vizCtx.fillStyle = gradient;
-
-            for (let i = 0; i < bufferLength; i++) {
-                barHeight = (dataArray[i] / 255) * vizCanvas.height;
-                if (barHeight < 5) barHeight = 5; 
-                const y = (vizCanvas.height - barHeight) / 2;
-                roundRect(vizCtx, x, y, barWidth, barHeight, 50);
-                x += barWidth + gap;
-            }
+            const bufferLength = analyser.frequencyBinCount; const gap = 6; const barWidth = (vizCanvas.width / bufferLength) - gap; let barHeight; let x = gap / 2;
+            let gradient = vizCtx.createLinearGradient(0, vizCanvas.height, 0, 0); gradient.addColorStop(0, currentTheme.vis[0]); gradient.addColorStop(0.5, currentTheme.vis[1]); gradient.addColorStop(1, currentTheme.vis[2]); vizCtx.fillStyle = gradient;
+            for (let i = 0; i < bufferLength; i++) { barHeight = (dataArray[i] / 255) * vizCanvas.height; if (barHeight < 5) barHeight = 5; const y = (vizCanvas.height - barHeight) / 2; roundRect(vizCtx, x, y, barWidth, barHeight, 50); x += barWidth + gap; }
         }
-
-        function roundRect(ctx, x, y, width, height, radius) { 
-            if (width < 2 * radius) radius = width / 2; 
-            if (height < 2 * radius) radius = height / 2; 
-            ctx.beginPath(); 
-            ctx.moveTo(x + radius, y); 
-            ctx.arcTo(x + width, y, x + width, y + height, radius); 
-            ctx.arcTo(x + width, y + height, x, y + height, radius); 
-            ctx.arcTo(x, y + height, x, y, radius); 
-            ctx.arcTo(x, y, x + width, y, radius); 
-            ctx.closePath(); 
-            ctx.fill(); 
-        }
-
-        function stopVisualizer() { 
-            if (visualizerAnimationId) cancelAnimationFrame(visualizerAnimationId); 
-            vizCtx.clearRect(0, 0, vizCanvas.width, vizCanvas.height);
-        }
+        function roundRect(ctx, x, y, width, height, radius) { if (width < 2 * radius) radius = width / 2; if (height < 2 * radius) radius = height / 2; ctx.beginPath(); ctx.moveTo(x + radius, y); ctx.arcTo(x + width, y, x + width, y + height, radius); ctx.arcTo(x + width, y + height, x, y + height, radius); ctx.arcTo(x, y + height, x, y, radius); ctx.arcTo(x, y, x + width, y, radius); ctx.closePath(); ctx.fill(); }
+        function stopVisualizer() { if (visualizerAnimationId) cancelAnimationFrame(visualizerAnimationId); vizCtx.clearRect(0, 0, vizCanvas.width, vizCanvas.height); }
 
         /* --- SONS --- */
         function playSimpleWoosh() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const t = audioCtx.currentTime;
-            const bufferSize = audioCtx.sampleRate * 4.0; const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate); const data = buffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-            const noise = audioCtx.createBufferSource(); noise.buffer = buffer;
-            const filter = audioCtx.createBiquadFilter(); filter.type = 'lowpass'; filter.Q.value = 1; filter.frequency.setValueAtTime(100, t); filter.frequency.exponentialRampToValueAtTime(3000, t + 1.5); filter.frequency.exponentialRampToValueAtTime(100, t + 4.0);
-            const gain = audioCtx.createGain(); gain.gain.setValueAtTime(0, t); 
-            gain.gain.linearRampToValueAtTime(0.1, t + 1.0); 
-            gain.gain.linearRampToValueAtTime(0, t + 4.0);
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume();
+            const t = audioCtx.currentTime; const bufferSize = audioCtx.sampleRate * 4.0; const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate); const data = buffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+            const noise = audioCtx.createBufferSource(); noise.buffer = buffer; const filter = audioCtx.createBiquadFilter(); filter.type = 'lowpass'; filter.Q.value = 1; filter.frequency.setValueAtTime(100, t); filter.frequency.exponentialRampToValueAtTime(3000, t + 1.5); filter.frequency.exponentialRampToValueAtTime(100, t + 4.0);
+            const gain = audioCtx.createGain(); gain.gain.setValueAtTime(0, t); gain.gain.linearRampToValueAtTime(0.1, t + 1.0); gain.gain.linearRampToValueAtTime(0, t + 4.0);
             noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination); noise.start(t); noise.stop(t + 4.0);
         }
-        
         function playSoftPing() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator(); 
-            const gain = audioCtx.createGain();
-            osc.type = 'sine'; 
-            osc.frequency.setValueAtTime(800, audioCtx.currentTime); 
-            osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
-            gain.gain.setValueAtTime(0, audioCtx.currentTime); 
-            gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.05); 
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
-            osc.connect(gain); gain.connect(audioCtx.destination); 
-            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1); gain.gain.setValueAtTime(0, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.05); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+            osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.3);
         }
 
         /* --- MICRO AUTO --- */
@@ -518,37 +332,18 @@
             try { rec.start(); } catch (e) {}
         }
 
-        /* --- GENERATION PHRASES --- */
+        /* --- LOGIQUE INTERACTION --- */
         function getRandomWelcome(name, genre) {
             const ami = (genre === 'fille') ? 'amie' : 'ami';
             const curieux = (genre === 'fille') ? 'curieuse' : 'curieux';
-            const phrases = [
-                `Oh, quel bonheur de te revoir, ${name} !`,
-                `Te voilà enfin, ${name} !`,
-                `Coucou ${name} ! La boîte magique est toute joyeuse.`,
-                `Bonjour mon petit ${ami} ${name} !`,
-                `C'est ma partie préférée de la journée : retrouver ${name} !`,
-                `Bonjour petit ${curieux} !`,
-                `Salut ${name} ! Prêt à faire briller ton imagination ?`,
-                `Toc toc toc... Ah ! C'est toi, ${name} !`
-            ];
+            const phrases = [`Oh, quel bonheur de te revoir, ${name} !`, `Te voilà enfin, ${name} !`, `Coucou ${name} !`, `Bonjour mon petit ${ami} ${name} !`, `C'est ma partie préférée de la journée : retrouver ${name} !`];
             return phrases[Math.floor(Math.random() * phrases.length)];
         }
-
         function getRandomWaitingPhrase() {
-            const phrases = [
-                "C'est une excellente idée ! Laisse-moi réfléchir...",
-                "J'ouvre mon grand livre d'histoires à la bonne page...",
-                "Mmmh, intéressant... Je rassemble mes idées...",
-                "Je demande aux étoiles de m'aider à écrire...",
-                "Attrape un peu de poussière magique, ça arrive...",
-                "Ferme les yeux un instant, l'histoire se prépare...",
-                "C'est parti ! Je tisse les fils de l'histoire..."
-            ];
+            const phrases = ["C'est une excellente idée ! Laisse-moi réfléchir...", "J'ouvre mon grand livre d'histoires...", "Mmmh, intéressant...", "Attrape un peu de poussière magique...", "C'est parti !"];
             return phrases[Math.floor(Math.random() * phrases.length)];
         }
 
-        /* --- LOGIQUE D'INTERACTION --- */
         const introBox = document.getElementById('intro-box');
         const rays = document.getElementById('god-rays');
         const treasureGlow = document.getElementById('treasure-glow');
@@ -564,7 +359,6 @@
                 parler();
                 return;
             }
-
             interactionMode = 'STORY_INPUT';
             const welcomeMsg = getRandomWelcome(userPrenom, userGenre);
             document.getElementById('status').innerText = "Quelle histoire veux-tu ?";
@@ -581,51 +375,36 @@
             if (interactionMode === 'NAME_INPUT') {
                 userPrenom = texte.replace(/je m'appelle /i, "").replace(/c'est /i, "").trim();
                 localStorage.setItem('BOITE_PRENOM', userPrenom);
-                
                 interactionMode = 'GENDER_INPUT';
                 document.getElementById('status').innerText = `Garçon ou fille ?`;
                 speechQueue.push(`Enchantée ${userPrenom} ! Es-tu un garçon ou une fille ?`);
                 parler();
-                
             } else if (interactionMode === 'GENDER_INPUT') {
-                let genreDetecte = null;
-                if (lowerText.includes('garçon') || lowerText.includes('garcon') || lowerText.includes('homme')) genreDetecte = 'garçon';
-                else if (lowerText.includes('fille') || lowerText.includes('femme')) genreDetecte = 'fille';
-
-                if (genreDetecte) {
-                    userGenre = genreDetecte;
+                if (lowerText.includes('garçon') || lowerText.includes('homme')) { userGenre = 'garçon'; next(); }
+                else if (lowerText.includes('fille') || lowerText.includes('femme')) { userGenre = 'fille'; next(); }
+                else { speechQueue.push(`Je n'ai pas bien compris. Es-tu un garçon ou une fille ?`); parler(); }
+                function next() {
                     localStorage.setItem('BOITE_GENRE', userGenre);
-                    
                     interactionMode = 'COLOR_INPUT';
                     document.getElementById('status').innerText = `Tes couleurs préférées ?`;
                     speechQueue.push(`C'est noté. Et dis-moi, quelles sont tes couleurs préférées ?`);
                     parler();
-                } else {
-                    speechQueue.push(`Je n'ai pas bien compris. Es-tu un garçon ou une fille ?`);
-                    parler();
                 }
-
             } else if (interactionMode === 'COLOR_INPUT') {
                 userColor = texte;
                 localStorage.setItem('BOITE_COLOR', userColor);
-                
-                // Application immédiate du thème mixte
                 applyMixedTheme(userColor);
-                
                 interactionMode = 'AGE_INPUT';
                 document.getElementById('status').innerText = `Quel âge as-tu ?`;
-                speechQueue.push(`Oh, j'adore ces couleurs ! Je décore la boîte pour toi... Voilà ! Et maintenant, quel âge as-tu ?`);
+                speechQueue.push(`Oh, j'adore ces couleurs ! Voilà ! Et maintenant, quel âge as-tu ?`);
                 parler();
-
             } else if (interactionMode === 'AGE_INPUT') {
                 userAge = texte.replace(/j'ai /i, "").replace(/ans/i, "").trim();
                 localStorage.setItem('BOITE_AGE', userAge);
-                
                 interactionMode = 'STORY_INPUT';
                 document.getElementById('status').innerText = `Quelle histoire veux-tu ?`;
                 speechQueue.push(`D'accord, ${userAge} ans ! Tout est prêt. Quelle histoire veux-tu écouter maintenant ?`);
                 parler();
-
             } else if (interactionMode === 'STORY_INPUT') {
                 interactionMode = 'TELLING';
                 appelIA(texte);
@@ -637,33 +416,14 @@
             opened = true;
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            
             playSimpleWoosh(); 
-            introBox.classList.add('super-shake');
-            rays.classList.add('rays-active');
-            arrow.classList.add('intro-fade-out');
-
-            setTimeout(() => {
-                document.getElementById('intro-lid').classList.add('lid-open');
-                treasureGlow.classList.add('treasure-shine-active');
-                triggerBurst();
-                document.getElementById('white-flash').classList.add('flash-active');
-            }, 1200);
-
-            setTimeout(() => {
-                document.getElementById('intro-overlay').classList.add('intro-fade-out');
-                document.getElementById('main-interface').classList.add('content-visible');
-                
-                // Appliquer le thème si déjà connu
-                if (userColor) applyMixedTheme(userColor);
-
-                startInteractionSequence();
-            }, 1800);
-            
+            introBox.classList.add('super-shake'); rays.classList.add('rays-active'); arrow.classList.add('intro-fade-out');
+            setTimeout(() => { document.getElementById('intro-lid').classList.add('lid-open'); treasureGlow.classList.add('treasure-shine-active'); triggerBurst(); document.getElementById('white-flash').classList.add('flash-active'); }, 1200);
+            setTimeout(() => { document.getElementById('intro-overlay').classList.add('intro-fade-out'); document.getElementById('main-interface').classList.add('content-visible'); if (userColor) applyMixedTheme(userColor); startInteractionSequence(); }, 1800);
             setTimeout(() => { document.getElementById('intro-overlay').style.display = 'none'; }, 3000);
         });
 
-        /* --- AUDIO --- */
+        /* --- AUDIO & IA --- */
         function toggleStopButton(active) {
             const container = document.getElementById('stop-container');
             if (active) { container.classList.remove('opacity-20', 'pointer-events-none'); container.classList.add('opacity-100'); } else { container.classList.add('opacity-20', 'pointer-events-none'); container.classList.remove('opacity-100'); }
@@ -672,20 +432,17 @@
         function stopAudio() {
             if (currentAudio) { currentAudio.pause(); currentAudio = null; }
             stopVisualizer(); speechQueue = []; isSpeaking = false;
-            
             document.getElementById('main-header').classList.remove('cinema-mode');
+            document.getElementById('dim-overlay').classList.remove('dim-active'); // On rallume la lumière
             document.getElementById('status').classList.remove('hidden');
             document.getElementById('loading-spinner').classList.add('hidden');
-            
             if (interactionMode === 'NAME_INPUT') document.getElementById('status').innerText = "Comment t'appelles-tu ?";
             else if (interactionMode === 'GENDER_INPUT') document.getElementById('status').innerText = "Garçon ou fille ?";
             else if (interactionMode === 'COLOR_INPUT') document.getElementById('status').innerText = "Tes couleurs préférées ?";
             else if (interactionMode === 'AGE_INPUT') document.getElementById('status').innerText = "Quel âge as-tu ?";
             else if (interactionMode === 'STORY_INPUT') document.getElementById('status').innerText = userPrenom ? `Dis-moi ton idée, ${userPrenom}...` : "Dis-moi ton idée...";
             else if (interactionMode === 'TELLING') { interactionMode = 'STORY_INPUT'; document.getElementById('status').innerText = "Une autre histoire ?"; }
-            
-            toggleStopButton(false);
-            document.getElementById('story-card').classList.add('hidden'); 
+            toggleStopButton(false); document.getElementById('story-card').classList.add('hidden'); 
         }
 
         async function appelIA(sujet) {
@@ -693,12 +450,14 @@
             stopAudio();
             interactionMode = 'TELLING';
             
+            // Activation du mode focus
+            document.getElementById('dim-overlay').classList.add('dim-active');
+            
             const btnMic = document.getElementById('btn-mic');
             const statusLabel = document.getElementById('status');
             const loader = document.getElementById('loading-spinner');
             
             playSoftPing(); 
-
             btnMic.classList.add('understood-flash');
             statusLabel.classList.add('hidden');
             loader.classList.remove('hidden');
@@ -710,13 +469,15 @@
             parler();
 
             const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${GEMINI_KEY}`;
-            
             let contextChild = "";
             if (userPrenom) contextChild += `L'enfant s'appelle ${userPrenom}. `;
             if (userGenre) contextChild += `C'est un(e) ${userGenre}. `;
-            if (userAge) contextChild += `L'enfant a ${userAge} ans (adapte le vocabulaire et la complexité à cet âge). `;
+            if (userAge) contextChild += `L'enfant a ${userAge} ans. `;
             
-            const promptIA = `Tu es une conteuse de livre audio professionnelle. ${contextChild} Raconte une aventure réaliste pour cet enfant sur : "${sujet}". Ton ton est bienveillant mais neutre. INTERDICTION d'utiliser des surnoms affectueux (mon cœur, mon chéri, mon ange). Tu n'es pas sa maman. Reste une narratrice externe. Utilise des phrases simples. Pas de magie. Fin positive. IMPORTANT: Ne dis PAS "Bonjour" ni de titre au début. Commence directement par la première phrase de l'histoire (ex: "Il était une fois..."). Termine par "FIN".`;
+            // PROMPT MODIFIÉ POUR EVITER LEO/LEA
+            const promptIA = `Tu es une conteuse de livre audio professionnelle. ${contextChild} Raconte une aventure réaliste pour cet enfant sur : "${sujet}". Ton ton est bienveillant mais neutre. INTERDICTION d'utiliser des surnoms affectueux (mon cœur, mon chéri). Tu n'es pas sa maman. Reste une narratrice externe. Utilise des phrases simples. Pas de magie. Fin positive.
+            IMPORTANT : Le héros EST l'enfant nommé ${userPrenom}. Si tu dois créer des amis ou personnages secondaires, utilise des prénoms variés et originaux (ex: Milo, Noor, Kenji, Sofia...) et ÉVITE ABSOLUMENT les prénoms trop classiques comme Léo ou Léa.
+            Commence directement par la première phrase de l'histoire. Termine par "FIN".`;
 
             try {
                 const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: promptIA }] }] }) });
@@ -724,9 +485,7 @@
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) {
-                        loader.classList.add('hidden');
-                        statusLabel.classList.remove('hidden');
-                        statusLabel.innerText = "L'aventure est prête !";
+                        loader.classList.add('hidden'); statusLabel.classList.remove('hidden'); statusLabel.innerText = "L'aventure est prête !";
                         if (currentSentence.trim()) { speechQueue.push(currentSentence.trim()); parler(); }
                         break;
                     }
@@ -739,10 +498,7 @@
                                 currentSentence += chunkText;
                                 if (/[.!?;:]/.test(chunkText) || chunkText.includes("\n")) {
                                     const parts = currentSentence.split(/([.!?;:]|\n)/);
-                                    for (let i = 0; i < parts.length - 1; i += 2) { 
-                                        const p = (parts[i] + (parts[i+1] || "")).trim(); 
-                                        if (p.length > 2) { speechQueue.push(p); parler(); } 
-                                    }
+                                    for (let i = 0; i < parts.length - 1; i += 2) { const p = (parts[i] + (parts[i+1] || "")).trim(); if (p.length > 2) { speechQueue.push(p); parler(); } }
                                     currentSentence = parts[parts.length - 1];
                                 }
                             } catch(e) {}
@@ -757,15 +513,13 @@
             const ssml = `<speak version='1.0' xml:lang='fr-FR'><voice xml:lang='fr-FR' xml:gender='Female' name='${AZURE_VOICE_NAME}'><prosody rate="0.9">${text}</prosody></voice></speak>`;
             try {
                 const response = await fetch(url, { method: 'POST', headers: { 'Ocp-Apim-Subscription-Key': AZURE_KEY, 'Content-Type': 'application/ssml+xml', 'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3' }, body: ssml });
-                if (!response.ok) throw new Error("Erreur Azure");
-                return await response.blob();
+                if (!response.ok) throw new Error("Erreur Azure"); return await response.blob();
             } catch (e) { return null; }
         }
 
         async function parler() {
             if (isSpeaking || speechQueue.length === 0) return;
             isSpeaking = true; 
-            
             toggleStopButton(true);
             document.getElementById('main-header').classList.add('cinema-mode');
             document.getElementById('story-card').classList.remove('hidden');
@@ -781,7 +535,9 @@
                 currentAudio.onended = () => {
                     isSpeaking = false;
                     if (speechQueue.length === 0) { 
+                        // FIN DE L'HISTOIRE
                         document.getElementById('main-header').classList.remove('cinema-mode');
+                        document.getElementById('dim-overlay').classList.remove('dim-active'); // On rallume
                         toggleStopButton(false); stopVisualizer(); document.getElementById('story-card').classList.add('hidden');
                         if (['NAME_INPUT', 'GENDER_INPUT', 'COLOR_INPUT', 'AGE_INPUT', 'STORY_INPUT'].includes(interactionMode)) {
                             setTimeout(() => { startListening(); }, 500);
@@ -805,13 +561,8 @@
             if (!GEMINI_KEY || !AZURE_KEY) verifierCles();
             document.getElementById('btn-mic').onclick = () => { startListening(); };
             document.getElementById('btn-stop').onclick = stopAudio;
-            
             const introText = document.getElementById('intro-text');
-            if (userPrenom) {
-                 introText.innerText = `Ouvre ta boite magique, ${userPrenom}`;
-            } else {
-                 introText.innerText = "Ouvre ta boite magique";
-            }
+            if (userPrenom) { introText.innerText = `Ouvre ta boite magique, ${userPrenom}`; } else { introText.innerText = "Ouvre ta boite magique"; }
         });
     </script>
 </body>
