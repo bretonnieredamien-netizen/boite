@@ -70,11 +70,9 @@
 
         /* --- VISUALISEUR AUDIO (BARRES) --- */
         #story-card { 
-            /* Plus de fond noir, plus de bordure, taille réduite */
             background: transparent; 
             overflow: hidden;
             display: flex; align-items: center; justify-content: center;
-            /* Une légère ombre portée douce pour détacher les barres */
             filter: drop-shadow(0 4px 6px rgba(129, 140, 248, 0.3));
         }
         #visualizer-canvas {
@@ -137,7 +135,8 @@
                     <path d="M40 60 L160 60 L150 80 L50 80 Z" fill="#818cf8" stroke="white" stroke-width="3" stroke-linejoin="round"/>
                     <path d="M40 60 L160 60 L140 40 L60 40 Z" fill="#c084fc" stroke="white" stroke-width="3" stroke-linejoin="round" opacity="0.8"/>
                 </g>
-                <text x="100" y="190" text-anchor="middle" fill="#6366f1" font-size="12" font-weight="bold" opacity="0.6" style="text-transform: uppercase; letter-spacing: 2px;">Ouvrir la boîte</text>
+                <text x="100" y="175" text-anchor="middle" fill="#6366f1" font-size="10" font-weight="bold" opacity="0.7" style="text-transform: uppercase; letter-spacing: 1px;">Ouvre ta boîte</text>
+                <text x="100" y="190" text-anchor="middle" fill="#6366f1" font-size="10" font-weight="bold" opacity="0.7" style="text-transform: uppercase; letter-spacing: 1px;">Magique à histoires</text>
             </svg>
         </div>
     </div>
@@ -223,15 +222,79 @@
     </div>
 
     <script>
-        /* --- CANVAS STARS --- */
-        const canvas = document.getElementById('starfield'); const ctx = canvas.getContext('2d'); let particles = [];
+        /* --- CANVAS STARS & EXPLOSION --- */
+        const canvas = document.getElementById('starfield'); 
+        const ctx = canvas.getContext('2d'); 
+        let particles = [];
+        let burstParticles = []; // Particules pour l'explosion
+
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        class Particle { constructor() { this.reset(); } reset() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 2 + 0.5; this.speed = Math.random() * 0.02 + 0.01; this.opacity = Math.random() * 0.8; this.color = Math.random() > 0.5 ? "251, 191, 36" : "129, 140, 248"; } update() { this.y -= this.speed; this.x += Math.sin(this.y * 0.01) * 0.2; if (this.y < 0) this.reset(); } draw() { ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); } }
+        
+        class Particle { 
+            constructor() { this.reset(); } 
+            reset() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 2 + 0.5; this.speed = Math.random() * 0.02 + 0.01; this.opacity = Math.random() * 0.8; this.color = Math.random() > 0.5 ? "251, 191, 36" : "129, 140, 248"; } 
+            update() { this.y -= this.speed; this.x += Math.sin(this.y * 0.01) * 0.2; if (this.y < 0) this.reset(); } 
+            draw() { ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); } 
+        }
+
+        // Classe pour l'effet d'explosion
+        class BurstParticle {
+            constructor(x, y) {
+                this.x = x; this.y = y;
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 15 + 2; // Vitesse rapide
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed;
+                this.life = 1.0;
+                this.decay = Math.random() * 0.015 + 0.005;
+                this.color = `hsl(${Math.random() * 360}, 100%, 70%)`;
+                this.size = Math.random() * 4 + 1;
+            }
+            update() {
+                this.x += this.vx; this.y += this.vy;
+                this.vy += 0.2; // Gravité
+                this.vx *= 0.96; this.vy *= 0.96; // Friction
+                this.life -= this.decay;
+            }
+            draw() {
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+            }
+        }
+
         function initParticles() { particles = []; for (let i = 0; i < 100; i++) particles.push(new Particle()); }
-        function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
+        
+        // Fonction pour déclencher l'explosion
+        function triggerBurst() {
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+            for (let i = 0; i < 300; i++) { // 300 étoiles
+                burstParticles.push(new BurstParticle(centerX, centerY));
+            }
+        }
+
+        function animate() { 
+            ctx.clearRect(0, 0, canvas.width, canvas.height); 
+            // Particules de fond
+            particles.forEach(p => { p.update(); p.draw(); }); 
+            
+            // Particules d'explosion
+            for (let i = burstParticles.length - 1; i >= 0; i--) {
+                const p = burstParticles[i];
+                p.update();
+                p.draw();
+                if (p.life <= 0) burstParticles.splice(i, 1);
+            }
+            
+            requestAnimationFrame(animate); 
+        }
         window.addEventListener('resize', resize); resize(); initParticles(); animate();
 
-        /* --- VISUALISEUR AUDIO LOGIC --- */
+        /* --- VISUALISEUR AUDIO --- */
         const vizCanvas = document.getElementById('visualizer-canvas');
         const vizCtx = vizCanvas.getContext('2d');
         let analyser = null;
@@ -255,7 +318,6 @@
             
             const bufferLength = analyser.frequencyBinCount;
             dataArray = new Uint8Array(bufferLength);
-            
             drawVisualizer();
         }
 
@@ -266,29 +328,23 @@
             vizCtx.clearRect(0, 0, vizCanvas.width, vizCanvas.height);
 
             const bufferLength = analyser.frequencyBinCount;
-            const gap = 6; // Espace plus large
+            const gap = 6;
             const barWidth = (vizCanvas.width / bufferLength) - gap; 
             let barHeight;
             let x = gap / 2;
 
-            // Dégradé plus soutenu pour être visible sur fond clair
             let gradient = vizCtx.createLinearGradient(0, vizCanvas.height, 0, 0);
-            gradient.addColorStop(0, '#4f46e5'); // Indigo profond
-            gradient.addColorStop(0.5, '#9333ea'); // Purple
-            gradient.addColorStop(1, '#db2777'); // Pink
+            gradient.addColorStop(0, '#4f46e5'); 
+            gradient.addColorStop(0.5, '#9333ea');
+            gradient.addColorStop(1, '#db2777');
 
             vizCtx.fillStyle = gradient;
 
             for (let i = 0; i < bufferLength; i++) {
                 barHeight = (dataArray[i] / 255) * vizCanvas.height;
-                if (barHeight < 5) barHeight = 5; // Hauteur mini
-
-                // Centrage vertical
+                if (barHeight < 5) barHeight = 5;
                 const y = (vizCanvas.height - barHeight) / 2;
-                
-                // Dessin avec coins arrondis
                 roundRect(vizCtx, x, y, barWidth, barHeight, 50); 
-
                 x += barWidth + gap;
             }
         }
@@ -311,7 +367,6 @@
             vizCtx.clearRect(0, 0, vizCanvas.width, vizCanvas.height);
         }
 
-
         /* --- CONFIGURATION --- */
         let GEMINI_KEY = localStorage.getItem('BOITE_GEMINI_KEY');
         let AZURE_KEY = localStorage.getItem('BOITE_AZURE_KEY');
@@ -325,21 +380,42 @@
         let audioCtx = null;
         let currentAudio = null;
 
+        // --- SON "WOOSH" ETENDU (4 SECONDES) ---
         function playWoosh() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            const bufferSize = audioCtx.sampleRate * 1.5;
+            
+            const bufferSize = audioCtx.sampleRate * 4.0; // 4 secondes
             const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
             const data = buffer.getChannelData(0);
             for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-            const noise = audioCtx.createBufferSource(); noise.buffer = buffer;
-            const filter = audioCtx.createBiquadFilter(); filter.type = 'lowpass'; filter.Q.value = 1;
+
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.Q.value = 1;
+
             const gain = audioCtx.createGain();
-            noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+            
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+
             const t = audioCtx.currentTime;
-            filter.frequency.setValueAtTime(100, t); filter.frequency.exponentialRampToValueAtTime(3000, t + 0.3); filter.frequency.exponentialRampToValueAtTime(100, t + 1.2);
-            gain.gain.setValueAtTime(0, t); gain.gain.linearRampToValueAtTime(0.5, t + 0.1); gain.gain.exponentialRampToValueAtTime(0.01, t + 1.0);
-            noise.start(t); noise.stop(t + 1.5);
+
+            // Automation plus lente
+            filter.frequency.setValueAtTime(100, t);
+            filter.frequency.exponentialRampToValueAtTime(4000, t + 1.5); // Montée plus lente
+            filter.frequency.exponentialRampToValueAtTime(50, t + 3.8);  // Descente lente
+
+            gain.gain.setValueAtTime(0, t);
+            gain.gain.linearRampToValueAtTime(0.5, t + 0.5);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 3.9);
+
+            noise.start(t);
+            noise.stop(t + 4.0);
         }
 
         function playChime() {
@@ -356,8 +432,12 @@
         introBox.addEventListener('click', () => {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
+            
             playWoosh();
+            triggerBurst(); // Lancement des étoiles !
+
             introBox.classList.add('shake-box');
+            
             setTimeout(() => { document.getElementById('intro-lid').classList.add('lid-open'); document.getElementById('white-flash').classList.add('flash-active'); }, 500);
             setTimeout(() => { document.getElementById('intro-overlay').classList.add('intro-fade-out'); document.getElementById('main-interface').classList.add('content-visible'); }, 1000);
             setTimeout(() => { document.getElementById('intro-overlay').style.display = 'none'; }, 2000);
@@ -376,7 +456,7 @@
             document.getElementById('loading-spinner').classList.add('hidden');
             document.getElementById('status').innerText = "Dis-moi ton idée pour une histoire...";
             toggleStopButton(false);
-            document.getElementById('story-card').classList.add('hidden'); // Cacher le visualiseur
+            document.getElementById('story-card').classList.add('hidden'); 
         }
 
         async function appelIA(sujet) {
@@ -389,8 +469,6 @@
             btnMic.classList.add('understood-flash');
             statusLabel.classList.add('hidden');
             loader.classList.remove('hidden');
-            
-            // On affichera le visualiseur quand l'audio commencera
             
             setTimeout(() => { btnMic.classList.remove('understood-flash'); toggleStopButton(true); }, 800);
             
@@ -449,7 +527,6 @@
             if (isSpeaking || speechQueue.length === 0) return;
             isSpeaking = true; 
             
-            // Afficher le visualiseur
             document.getElementById('story-card').classList.remove('hidden');
 
             let txt = speechQueue.shift().replace(/[#*`_]/g, '');
