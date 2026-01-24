@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;500;800;900&display=swap" rel="stylesheet">
     <style>
-        /* Fond Moderne Animé (Partagé par tout le site) */
+        /* Fond Moderne Animé */
         body { 
             font-family: 'Lexend', sans-serif; 
             background: linear-gradient(-45deg, #fff7ed, #fef9c3, #ede9fe, #fae8ff);
@@ -44,6 +44,7 @@
             padding: 0.6rem 1.8rem; border-radius: 9999px; 
             border: 1px solid rgba(255, 255, 255, 0.5); margin-top: 1rem;
             min-height: 44px; display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s ease;
         }
         .understood-flash { animation: success-pulse 0.8s ease-out !important; background: rgba(16, 185, 129, 0.2) !important; border-color: #10b981 !important; }
         @keyframes success-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); box-shadow: 0 0 60px #10b981; } 100% { transform: scale(1); } }
@@ -61,7 +62,7 @@
         }
         @keyframes spinLoader { 100% { transform: rotate(360deg); } }
 
-        /* --- VISUALISEUR AUDIO (BARRES) --- */
+        /* --- VISUALISEUR AUDIO --- */
         #story-card { 
             background: transparent; 
             overflow: hidden;
@@ -80,7 +81,6 @@
         /* --- INTRO ANIMATION --- */
         #intro-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            /* FOND CLAIR IDENTIQUE AU BODY */
             background: linear-gradient(-45deg, #fff7ed, #fef9c3, #ede9fe, #fae8ff);
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
@@ -91,7 +91,6 @@
         
         .container-box { position: relative; width: 300px; height: 350px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         
-        /* Rayons adaptés pour fond clair (Or/Blanc/Violet très léger) */
         .god-rays {
             position: absolute; width: 150%; height: 150%;
             background: conic-gradient(from 0deg, transparent 0deg, rgba(251, 191, 36, 0.1) 20deg, transparent 40deg, rgba(139, 92, 246, 0.1) 60deg, transparent 80deg);
@@ -101,10 +100,8 @@
         .rays-active { opacity: 1; animation: spinRays 4s linear infinite; }
         @keyframes spinRays { 100% { transform: translate(-50%, -50%) rotate(360deg); } }
 
-        /* Lumière du trésor */
         #treasure-glow {
             position: absolute; top: 60%; left: 50%; width: 0; height: 0; transform: translate(-50%, -50%);
-            /* Dégradé renforcé pour être visible sur le blanc */
             background: radial-gradient(circle, rgba(255, 215, 0, 0.8) 10%, rgba(251, 191, 36, 0.6) 30%, rgba(255, 255, 255, 0) 70%);
             z-index: 3; opacity: 0; border-radius: 50%; pointer-events: none;
         }
@@ -115,15 +112,13 @@
             100% { opacity: 0; width: 800px; height: 800px; }
         }
 
-        /* Flèche animée */
-        .arrow-container { width: 50px; height: 50px; z-index: 5; position: relative; margin-bottom: -10px; filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.6)); }
+        .arrow-container { width: 50px; height: 50px; z-index: 5; position: relative; margin-bottom: -10px; filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.6)); transition: opacity 0.3s; }
         .bounce-arrow { animation: bounce 2s ease-in-out infinite; }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
         #intro-box { width: 220px; height: 220px; cursor: pointer; position: relative; z-index: 2; transition: transform 0.3s; }
         #intro-box:hover { transform: scale(1.05); }
 
-        /* Secousse */
         .super-shake { animation: violentShake 1.2s cubic-bezier(.36,.07,.19,.97) both; }
         @keyframes violentShake {
             0% { transform: translate(0, 0) rotate(0); }
@@ -183,7 +178,6 @@
                         </linearGradient>
                     </defs>
                     <path d="M50 80 L150 80 L140 160 L60 160 Z" fill="url(#auroraFill)" stroke="white" stroke-width="3" stroke-linejoin="round"/>
-                    
                     <g id="intro-lid" style="transform-origin: 100px 80px;">
                         <path d="M40 60 L160 60 L150 80 L50 80 Z" fill="#818cf8" stroke="white" stroke-width="3" stroke-linejoin="round"/>
                         <path d="M40 60 L160 60 L140 40 L60 40 Z" fill="#c084fc" stroke="white" stroke-width="3" stroke-linejoin="round" opacity="0.9"/>
@@ -200,6 +194,7 @@
         
         <div class="brand-header">
             <span class="mini-logo-text">tbm.</span>
+            <button onclick="oublierPrenom()" class="text-[10px] text-indigo-300 ml-2 hover:text-indigo-500">(Changer de prénom)</button>
         </div>
 
         <header class="text-center flex flex-col items-center mt-6">
@@ -228,7 +223,7 @@
             </div>
             
             <div class="status-box">
-                <p id="status" class="text-indigo-900/60 font-semibold italic text-sm">Dis-moi ton idée pour une histoire...</p>
+                <p id="status" class="text-indigo-900/60 font-semibold italic text-sm">Chargement...</p>
                 <div id="loading-spinner" class="magic-loader hidden"></div>
             </div>
 
@@ -255,7 +250,7 @@
             </div>
 
             <div id="keyboard-area" class="w-full flex gap-2 glass-ui p-2 rounded-2xl shadow-xl hidden">
-                <input type="text" id="manualInput" placeholder="Sujet de l'aventure..." class="flex-1 bg-white/40 p-4 rounded-xl outline-none text-sm font-medium">
+                <input type="text" id="manualInput" placeholder="Ta réponse..." class="flex-1 bg-white/40 p-4 rounded-xl outline-none text-sm font-medium">
                 <button id="btn-ok" class="bg-indigo-500 text-white px-7 py-4 rounded-xl font-bold active:scale-95 shadow-md">OK</button>
             </div>
 
@@ -272,127 +267,15 @@
     </div>
 
     <script>
-        /* --- CANVAS STARS & EXPLOSION --- */
-        const canvas = document.getElementById('starfield'); 
-        const ctx = canvas.getContext('2d'); 
-        let particles = [];
-        let burstParticles = [];
-
-        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        
-        class Particle { 
-            constructor() { this.reset(); } 
-            reset() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 2 + 0.5; this.speed = Math.random() * 0.02 + 0.01; this.opacity = Math.random() * 0.8; this.color = Math.random() > 0.5 ? "251, 191, 36" : "129, 140, 248"; } 
-            update() { this.y -= this.speed; this.x += Math.sin(this.y * 0.01) * 0.2; if (this.y < 0) this.reset(); } 
-            draw() { ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); } 
-        }
-
-        class BurstParticle {
-            constructor(x, y) {
-                this.x = x; this.y = y;
-                const angle = Math.random() * Math.PI * 2;
-                const speed = Math.random() * 15 + 5; 
-                this.vx = Math.cos(angle) * speed;
-                this.vy = Math.sin(angle) * speed;
-                this.life = 1.0;
-                this.decay = Math.random() * 0.015 + 0.005;
-                this.color = Math.random() > 0.5 ? "#fbbf24" : "#ffffff"; 
-                this.size = Math.random() * 5 + 2;
-            }
-            update() {
-                this.x += this.vx; this.y += this.vy;
-                this.vy += 0.2; // Gravité légère
-                this.vx *= 0.96; this.vy *= 0.96;
-                this.life -= this.decay;
-            }
-            draw() {
-                ctx.globalAlpha = this.life;
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.globalAlpha = 1.0;
-            }
-        }
-
-        function initParticles() { particles = []; for (let i = 0; i < 100; i++) particles.push(new Particle()); }
-        
-        function triggerBurst() {
-            const centerX = window.innerWidth / 2;
-            const centerY = window.innerHeight / 2;
-            for (let i = 0; i < 300; i++) {
-                burstParticles.push(new BurstParticle(centerX, centerY));
-            }
-        }
-
-        function animate() { 
-            ctx.clearRect(0, 0, canvas.width, canvas.height); 
-            particles.forEach(p => { p.update(); p.draw(); }); 
-            
-            for (let i = burstParticles.length - 1; i >= 0; i--) {
-                const p = burstParticles[i]; p.update(); p.draw();
-                if (p.life <= 0) burstParticles.splice(i, 1);
-            }
-            requestAnimationFrame(animate); 
-        }
-        window.addEventListener('resize', resize); resize(); initParticles(); animate();
-
-        /* --- VISUALISEUR AUDIO --- */
-        const vizCanvas = document.getElementById('visualizer-canvas');
-        const vizCtx = vizCanvas.getContext('2d');
-        let analyser = null;
-        let dataArray = null;
-        let visualizerAnimationId = null;
-
-        function resizeViz() {
-            if(vizCanvas.parentElement) {
-                vizCanvas.width = vizCanvas.parentElement.offsetWidth;
-                vizCanvas.height = vizCanvas.parentElement.offsetHeight;
-            }
-        }
-        window.addEventListener('resize', resizeViz);
-
-        function startVisualizer(audioSource, context) {
-            resizeViz();
-            analyser = context.createAnalyser();
-            analyser.fftSize = 64; 
-            audioSource.connect(analyser);
-            analyser.connect(context.destination);
-            const bufferLength = analyser.frequencyBinCount;
-            dataArray = new Uint8Array(bufferLength);
-            drawVisualizer();
-        }
-
-        function drawVisualizer() {
-            visualizerAnimationId = requestAnimationFrame(drawVisualizer);
-            analyser.getByteFrequencyData(dataArray);
-            vizCtx.clearRect(0, 0, vizCanvas.width, vizCanvas.height);
-            const bufferLength = analyser.frequencyBinCount;
-            const gap = 6;
-            const barWidth = (vizCanvas.width / bufferLength) - gap; 
-            let barHeight; let x = gap / 2;
-            let gradient = vizCtx.createLinearGradient(0, vizCanvas.height, 0, 0);
-            gradient.addColorStop(0, '#4f46e5'); gradient.addColorStop(0.5, '#9333ea'); gradient.addColorStop(1, '#db2777');
-            vizCtx.fillStyle = gradient;
-            for (let i = 0; i < bufferLength; i++) {
-                barHeight = (dataArray[i] / 255) * vizCanvas.height;
-                if (barHeight < 5) barHeight = 5;
-                const y = (vizCanvas.height - barHeight) / 2;
-                roundRect(vizCtx, x, y, barWidth, barHeight, 50); 
-                x += barWidth + gap;
-            }
-        }
-        function roundRect(ctx, x, y, width, height, radius) {
-            if (width < 2 * radius) radius = width / 2; if (height < 2 * radius) radius = height / 2;
-            ctx.beginPath(); ctx.moveTo(x + radius, y); ctx.arcTo(x + width, y, x + width, y + height, radius); ctx.arcTo(x + width, y + height, x, y + height, radius); ctx.arcTo(x, y + height, x, y, radius); ctx.arcTo(x, y, x + width, y, radius); ctx.closePath(); ctx.fill();
-        }
-        function stopVisualizer() { if (visualizerAnimationId) cancelAnimationFrame(visualizerAnimationId); vizCtx.clearRect(0, 0, vizCanvas.width, vizCanvas.height); }
-
-        /* --- CONFIGURATION --- */
+        /* --- CONFIGURATION & VARIABLES --- */
         let GEMINI_KEY = localStorage.getItem('BOITE_GEMINI_KEY');
         let AZURE_KEY = localStorage.getItem('BOITE_AZURE_KEY');
         let AZURE_REGION = localStorage.getItem('BOITE_AZURE_REGION');
         
+        // Stockage du prénom
+        let userPrenom = localStorage.getItem('BOITE_PRENOM');
+        let interactionMode = 'INIT'; // 'INIT', 'NAME_INPUT', 'STORY_INPUT'
+
         const MODEL_ID = "models/gemini-2.5-flash"; 
         const AZURE_VOICE_NAME = "fr-FR-DeniseNeural"; 
 
@@ -401,36 +284,36 @@
         let audioCtx = null;
         let currentAudio = null;
 
-        // --- SON "WOOSH" ALLONGÉ À 4 SECONDES ---
+        /* --- CANVAS STARS & PARTICLES --- */
+        const canvas = document.getElementById('starfield'); const ctx = canvas.getContext('2d'); let particles = []; let burstParticles = [];
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        class Particle { constructor() { this.reset(); } reset() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 2 + 0.5; this.speed = Math.random() * 0.02 + 0.01; this.opacity = Math.random() * 0.8; this.color = Math.random() > 0.5 ? "251, 191, 36" : "129, 140, 248"; } update() { this.y -= this.speed; this.x += Math.sin(this.y * 0.01) * 0.2; if (this.y < 0) this.reset(); } draw() { ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); } }
+        class BurstParticle { constructor(x, y) { this.x = x; this.y = y; const angle = Math.random() * Math.PI * 2; const speed = Math.random() * 15 + 5; this.vx = Math.cos(angle) * speed; this.vy = Math.sin(angle) * speed; this.life = 1.0; this.decay = Math.random() * 0.015 + 0.005; this.color = Math.random() > 0.5 ? "#fbbf24" : "#ffffff"; this.size = Math.random() * 5 + 2; } update() { this.x += this.vx; this.y += this.vy; this.vy += 0.2; this.vx *= 0.96; this.vy *= 0.96; this.life -= this.decay; } draw() { ctx.globalAlpha = this.life; ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1.0; } }
+        function initParticles() { particles = []; for (let i = 0; i < 100; i++) particles.push(new Particle()); }
+        function triggerBurst() { const centerX = window.innerWidth / 2; const centerY = window.innerHeight / 2; for (let i = 0; i < 300; i++) burstParticles.push(new BurstParticle(centerX, centerY)); }
+        function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); for (let i = burstParticles.length - 1; i >= 0; i--) { const p = burstParticles[i]; p.update(); p.draw(); if (p.life <= 0) burstParticles.splice(i, 1); } requestAnimationFrame(animate); }
+        window.addEventListener('resize', resize); resize(); initParticles(); animate();
+
+        /* --- VISUALISEUR AUDIO --- */
+        const vizCanvas = document.getElementById('visualizer-canvas'); const vizCtx = vizCanvas.getContext('2d'); let analyser = null; let dataArray = null; let visualizerAnimationId = null;
+        function resizeViz() { if(vizCanvas.parentElement) { vizCanvas.width = vizCanvas.parentElement.offsetWidth; vizCanvas.height = vizCanvas.parentElement.offsetHeight; } }
+        window.addEventListener('resize', resizeViz);
+        function startVisualizer(audioSource, context) { resizeViz(); analyser = context.createAnalyser(); analyser.fftSize = 64; audioSource.connect(analyser); analyser.connect(context.destination); const bufferLength = analyser.frequencyBinCount; dataArray = new Uint8Array(bufferLength); drawVisualizer(); }
+        function drawVisualizer() { visualizerAnimationId = requestAnimationFrame(drawVisualizer); analyser.getByteFrequencyData(dataArray); vizCtx.clearRect(0, 0, vizCanvas.width, vizCanvas.height); const bufferLength = analyser.frequencyBinCount; const gap = 6; const barWidth = (vizCanvas.width / bufferLength) - gap; let barHeight; let x = gap / 2; let gradient = vizCtx.createLinearGradient(0, vizCanvas.height, 0, 0); gradient.addColorStop(0, '#4f46e5'); gradient.addColorStop(0.5, '#9333ea'); gradient.addColorStop(1, '#db2777'); vizCtx.fillStyle = gradient; for (let i = 0; i < bufferLength; i++) { barHeight = (dataArray[i] / 255) * vizCanvas.height; if (barHeight < 5) barHeight = 5; const y = (vizCanvas.height - barHeight) / 2; roundRect(vizCtx, x, y, barWidth, barHeight, 50); x += barWidth + gap; } }
+        function roundRect(ctx, x, y, width, height, radius) { if (width < 2 * radius) radius = width / 2; if (height < 2 * radius) radius = height / 2; ctx.beginPath(); ctx.moveTo(x + radius, y); ctx.arcTo(x + width, y, x + width, y + height, radius); ctx.arcTo(x + width, y + height, x, y + height, radius); ctx.arcTo(x, y + height, x, y, radius); ctx.arcTo(x, y, x + width, y, radius); ctx.closePath(); ctx.fill(); }
+        function stopVisualizer() { if (visualizerAnimationId) cancelAnimationFrame(visualizerAnimationId); vizCtx.clearRect(0, 0, vizCanvas.width, vizCanvas.height); }
+
+        /* --- SONS --- */
         function playSimpleWoosh() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
             const t = audioCtx.currentTime;
-
-            const bufferSize = audioCtx.sampleRate * 4.0; 
-            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-            const data = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-
-            const noise = audioCtx.createBufferSource();
-            noise.buffer = buffer;
-
-            const filter = audioCtx.createBiquadFilter();
-            filter.type = 'lowpass';
-            filter.Q.value = 1;
-            filter.frequency.setValueAtTime(100, t);
-            filter.frequency.exponentialRampToValueAtTime(3000, t + 1.5); 
-            filter.frequency.exponentialRampToValueAtTime(100, t + 4.0);  
-
-            const gain = audioCtx.createGain();
-            gain.gain.setValueAtTime(0, t);
-            gain.gain.linearRampToValueAtTime(0.4, t + 1.0); 
-            gain.gain.linearRampToValueAtTime(0, t + 4.0);
-
-            noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
-            noise.start(t); noise.stop(t + 4.0);
+            const bufferSize = audioCtx.sampleRate * 4.0; const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate); const data = buffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+            const noise = audioCtx.createBufferSource(); noise.buffer = buffer;
+            const filter = audioCtx.createBiquadFilter(); filter.type = 'lowpass'; filter.Q.value = 1; filter.frequency.setValueAtTime(100, t); filter.frequency.exponentialRampToValueAtTime(3000, t + 1.5); filter.frequency.exponentialRampToValueAtTime(100, t + 4.0);
+            const gain = audioCtx.createGain(); gain.gain.setValueAtTime(0, t); gain.gain.linearRampToValueAtTime(0.4, t + 1.0); gain.gain.linearRampToValueAtTime(0, t + 4.0);
+            noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination); noise.start(t); noise.stop(t + 4.0);
         }
-
         function playChime() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -440,24 +323,70 @@
             osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.5);
         }
 
-        /* --- LOGIQUE D'INTRO --- */
+        /* --- LOGIQUE D'INTERACTION --- */
         const introBox = document.getElementById('intro-box');
         const rays = document.getElementById('god-rays');
         const treasureGlow = document.getElementById('treasure-glow');
         const arrow = document.querySelector('.arrow-container');
         let opened = false;
 
+        function startInteractionSequence() {
+            // Détermine le mode initial en fonction de si on connait le prénom
+            if (userPrenom) {
+                interactionMode = 'STORY_INPUT';
+                document.getElementById('status').innerText = `Te revoilà, ${userPrenom} !`;
+                // Petit délai pour que l'audio se joue après l'ouverture
+                setTimeout(() => {
+                    speechQueue.push(`Bonjour ${userPrenom} ! Je suis contente de te revoir. Quelle histoire on invente aujourd'hui ?`);
+                    parler();
+                }, 1000);
+            } else {
+                interactionMode = 'NAME_INPUT';
+                document.getElementById('status').innerText = "Bonjour ! Comment t'appelles-tu ?";
+                setTimeout(() => {
+                    speechQueue.push("Bonjour ! Je suis ta boîte à histoires. Comment t'appelles-tu ?");
+                    parler();
+                }, 1000);
+            }
+        }
+
+        // Gère l'input (texte ou voix) selon le mode
+        function traiterInput(texte) {
+            if (!texte.trim()) return;
+            
+            if (interactionMode === 'NAME_INPUT') {
+                // Sauvegarde du prénom
+                // On nettoie un peu si l'enfant dit "Je m'appelle Léo" -> on garde tout ou on essaye de couper. 
+                // Pour faire simple et robuste, on prend l'input tel quel, mais souvent l'enfant dit juste son nom.
+                userPrenom = texte.replace(/je m'appelle /i, "").replace(/c'est /i, "").trim();
+                localStorage.setItem('BOITE_PRENOM', userPrenom);
+                
+                interactionMode = 'STORY_INPUT';
+                
+                // Feedback audio
+                stopAudio(); // Coupe l'écoute précédente
+                document.getElementById('manualInput').value = "";
+                document.getElementById('manualInput').placeholder = "Sujet de l'aventure...";
+                document.getElementById('status').innerText = `Enchantée ${userPrenom} !`;
+                
+                speechQueue.push(`Enchantée ${userPrenom} ! Quelle histoire veux-tu écouter maintenant ?`);
+                parler();
+                
+            } else if (interactionMode === 'STORY_INPUT') {
+                appelIA(texte);
+            }
+        }
+
         introBox.addEventListener('click', () => {
             if (opened) return;
             opened = true;
-
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
             
             playSimpleWoosh(); 
             introBox.classList.add('super-shake');
             rays.classList.add('rays-active');
-            arrow.classList.add('intro-fade-out'); // La flèche disparaît au clic
+            arrow.classList.add('intro-fade-out');
 
             setTimeout(() => {
                 document.getElementById('intro-lid').classList.add('lid-open');
@@ -469,13 +398,14 @@
             setTimeout(() => {
                 document.getElementById('intro-overlay').classList.add('intro-fade-out');
                 document.getElementById('main-interface').classList.add('content-visible');
+                // Lancer la logique d'accueil
+                startInteractionSequence();
             }, 1800);
             
-            setTimeout(() => {
-                 document.getElementById('intro-overlay').style.display = 'none';
-            }, 3000);
+            setTimeout(() => { document.getElementById('intro-overlay').style.display = 'none'; }, 3000);
         });
 
+        /* --- FONCTIONS AUDIO & API --- */
         function toggleStopButton(active) {
             const container = document.getElementById('stop-container');
             if (active) { container.classList.remove('opacity-20', 'pointer-events-none'); container.classList.add('opacity-100'); } else { container.classList.add('opacity-20', 'pointer-events-none'); container.classList.remove('opacity-100'); }
@@ -483,11 +413,13 @@
 
         function stopAudio() {
             if (currentAudio) { currentAudio.pause(); currentAudio = null; }
-            stopVisualizer(); 
-            speechQueue = []; isSpeaking = false;
+            stopVisualizer(); speechQueue = []; isSpeaking = false;
             document.getElementById('status').classList.remove('hidden');
             document.getElementById('loading-spinner').classList.add('hidden');
-            document.getElementById('status').innerText = "Dis-moi ton idée pour une histoire...";
+            // Remet le texte approprié selon le mode
+            if (interactionMode === 'NAME_INPUT') document.getElementById('status').innerText = "Comment t'appelles-tu ?";
+            else document.getElementById('status').innerText = userPrenom ? `Dis-moi ton idée, ${userPrenom}...` : "Dis-moi ton idée...";
+            
             toggleStopButton(false);
             document.getElementById('story-card').classList.add('hidden'); 
         }
@@ -505,7 +437,9 @@
             setTimeout(() => { btnMic.classList.remove('understood-flash'); toggleStopButton(true); }, 800);
             
             const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${GEMINI_KEY}`;
-            const promptIA = `Tu es une conteuse de livre audio professionnelle. Raconte une aventure réaliste pour un enfant sur : "${sujet}". Ton ton est bienveillant mais neutre. INTERDICTION d'utiliser des surnoms affectueux (mon cœur, mon chéri, mon ange). Tu n'es pas sa maman. Reste une narratrice externe. Utilise des phrases simples. Pas de magie. Fin positive. Termine par "FIN".`;
+            // Intégration du prénom dans le prompt
+            const contextPrenom = userPrenom ? `L'enfant qui écoute s'appelle ${userPrenom}.` : "";
+            const promptIA = `Tu es une conteuse de livre audio professionnelle. ${contextPrenom} Raconte une aventure réaliste pour un enfant sur : "${sujet}". Ton ton est bienveillant mais neutre. INTERDICTION d'utiliser des surnoms affectueux (mon cœur, mon chéri, mon ange). Tu n'es pas sa maman. Reste une narratrice externe. Utilise des phrases simples. Pas de magie. Fin positive. Termine par "FIN".`;
 
             try {
                 const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: promptIA }] }] }) });
@@ -545,11 +479,7 @@
             const url = `https://${AZURE_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`;
             const ssml = `<speak version='1.0' xml:lang='fr-FR'><voice xml:lang='fr-FR' xml:gender='Female' name='${AZURE_VOICE_NAME}'><prosody rate="0.9">${text}</prosody></voice></speak>`;
             try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Ocp-Apim-Subscription-Key': AZURE_KEY, 'Content-Type': 'application/ssml+xml', 'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3' },
-                    body: ssml
-                });
+                const response = await fetch(url, { method: 'POST', headers: { 'Ocp-Apim-Subscription-Key': AZURE_KEY, 'Content-Type': 'application/ssml+xml', 'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3' }, body: ssml });
                 if (!response.ok) throw new Error("Erreur Azure");
                 return await response.blob();
             } catch (e) { return null; }
@@ -582,16 +512,24 @@
         }
 
         function reinitialiserCle() { localStorage.removeItem('BOITE_GEMINI_KEY'); localStorage.removeItem('BOITE_AZURE_KEY'); localStorage.removeItem('BOITE_AZURE_REGION'); localStorage.removeItem('BOITE_FINAL_KEY_2026'); location.reload(); }
+        function oublierPrenom() { localStorage.removeItem('BOITE_PRENOM'); location.reload(); }
 
         document.addEventListener('DOMContentLoaded', () => {
             if (!GEMINI_KEY || !AZURE_KEY) verifierCles();
             document.getElementById('toggle-input').onclick = () => document.getElementById('keyboard-area').classList.toggle('hidden');
-            document.getElementById('btn-ok').onclick = () => { const val = document.getElementById('manualInput').value.trim(); if(val) appelIA(val); };
+            
+            // Modification des handlers pour utiliser traiterInput
+            document.getElementById('btn-ok').onclick = () => { const val = document.getElementById('manualInput').value.trim(); traiterInput(val); };
+            
             document.getElementById('btn-mic').onclick = () => {
                 const Speech = window.SpeechRecognition || window.webkitSpeechRecognition; if (!Speech) return alert("Micro non supporté.");
                 const rec = new Speech(); rec.lang = 'fr-FR';
                 rec.onstart = () => { document.getElementById('btn-mic').classList.add('mic-listening'); document.getElementById('status').innerText = "Je t'écoute..."; };
-                rec.onresult = (e) => { const p = e.results[0][0].transcript; document.getElementById('manualInput').value = p; appelIA(p); };
+                rec.onresult = (e) => { 
+                    const p = e.results[0][0].transcript; 
+                    document.getElementById('manualInput').value = p; 
+                    traiterInput(p); // On passe par le routeur d'input
+                };
                 rec.onend = () => document.getElementById('btn-mic').classList.remove('mic-listening');
                 rec.onerror = () => document.getElementById('status').innerText = "Je n'ai pas entendu...";
                 try { rec.start(); } catch (e) {}
