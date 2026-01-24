@@ -308,7 +308,6 @@
             'sombre': { bg: ['#1e1b4b', '#312e81', '#4338ca', '#3730a3'], star: '255, 255, 255', accent: '#818cf8', vis: ['#4338ca', '#6366f1', '#a5b4fc'] }
         };
 
-        // Mapping mots-clés -> Clés Thèmes
         const KEYWORDS = {
             'bleu': 'bleu', 'mer': 'bleu', 'ciel': 'bleu', 'azur': 'bleu',
             'rose': 'rose', 'fée': 'rose', 'princesse': 'rose',
@@ -332,7 +331,6 @@
             const text = inputText.toLowerCase();
             const detectedKeys = new Set();
 
-            // Détection de tous les thèmes mentionnés
             for (const [key, val] of Object.entries(KEYWORDS)) {
                 if (text.includes(key)) detectedKeys.add(val);
             }
@@ -340,31 +338,21 @@
             const themes = Array.from(detectedKeys).map(k => THEMES[k]);
 
             if (themes.length === 0) {
-                // Pas de couleur détectée, on garde le défaut ou l'ancien
                 return;
             } else if (themes.length === 1) {
-                // Un seul thème classique
                 currentTheme = themes[0];
             } else {
-                // Mélange (Hybrid)
-                // On prend 2 thèmes principaux pour le dégradé (premier et dernier trouvés pour max contraste)
                 const t1 = themes[0];
-                const t2 = themes[themes.length - 1]; // Peut être le même si length 1, mais ici length > 1
+                const t2 = themes[themes.length - 1]; 
                 
-                // Construction d'un thème composite
                 currentTheme = {
-                    // Mélange BG: T1-1, T2-2, T1-3, T2-4
                     bg: [t1.bg[0], t2.bg[1], t1.bg[2], t2.bg[3]],
-                    // Etoiles: Couleur du premier
                     star: t1.star,
-                    // Accent: Couleur du second
                     accent: t2.accent,
-                    // Vis: Mélange [T1-1, T2-2, T1-3]
                     vis: [t1.vis[0], t2.vis[1], t1.vis[2]]
                 };
             }
 
-            // Application CSS
             const r = document.querySelector(':root');
             r.style.setProperty('--bg-1', currentTheme.bg[0]);
             r.style.setProperty('--bg-2', currentTheme.bg[1]);
@@ -376,7 +364,6 @@
             r.style.setProperty('--vis-3', currentTheme.vis[2]);
 
             particles.forEach(p => {
-                // Si mélange, on peut faire varier les couleurs des particules
                 if (themes.length > 1) {
                      p.color = Math.random() > 0.5 ? themes[0].star : themes[1].star;
                 } else {
@@ -451,8 +438,6 @@
             let barHeight;
             let x = gap / 2;
 
-            // Dégradé dynamique via CSS vars (récupérées via JS pour le canvas)
-            // On utilise les valeurs du thème courant stocké en JS pour plus de fluidité
             let gradient = vizCtx.createLinearGradient(0, vizCanvas.height, 0, 0);
             gradient.addColorStop(0, currentTheme.vis[0]);
             gradient.addColorStop(0.5, currentTheme.vis[1]);
@@ -571,21 +556,19 @@
         let opened = false;
 
         function startInteractionSequence() {
-            // S'il manque des infos, on lance le questionnaire
             if (!userPrenom || !userGenre || !userAge || !userColor) {
-                speechQueue.push("Bonjour ! Avant de commencer, je vais te poser quelques questions pour créer ta boîte à histoires magique. Je t'écoute.");
+                speechQueue.push("Bonjour ! Avant de commencer, je vais te poser quelques questions pour créer ta boîte à histoires magique.");
                 interactionMode = 'NAME_INPUT';
                 document.getElementById('status').innerText = "Bonjour ! Comment t'appelles-tu ?";
-                speechQueue.push("D'abord, comment t'appelles-tu ? Je t'écoute.");
+                speechQueue.push("D'abord, comment t'appelles-tu ?");
                 parler();
                 return;
             }
 
-            // Si on a déjà tout
             interactionMode = 'STORY_INPUT';
             const welcomeMsg = getRandomWelcome(userPrenom, userGenre);
             document.getElementById('status').innerText = "Quelle histoire veux-tu ?";
-            speechQueue.push(`${welcomeMsg} Quelle histoire on invente aujourd'hui ? Je t'écoute.`);
+            speechQueue.push(`${welcomeMsg} Quelle histoire on invente aujourd'hui ?`);
             parler();
         }
 
@@ -601,7 +584,7 @@
                 
                 interactionMode = 'GENDER_INPUT';
                 document.getElementById('status').innerText = `Garçon ou fille ?`;
-                speechQueue.push(`Enchantée ${userPrenom} ! Es-tu un garçon ou une fille ? Je t'écoute.`);
+                speechQueue.push(`Enchantée ${userPrenom} ! Es-tu un garçon ou une fille ?`);
                 parler();
                 
             } else if (interactionMode === 'GENDER_INPUT') {
@@ -615,10 +598,10 @@
                     
                     interactionMode = 'COLOR_INPUT';
                     document.getElementById('status').innerText = `Tes couleurs préférées ?`;
-                    speechQueue.push(`C'est noté. Et dis-moi, quelles sont tes couleurs préférées ? Je t'écoute.`);
+                    speechQueue.push(`C'est noté. Et dis-moi, quelles sont tes couleurs préférées ?`);
                     parler();
                 } else {
-                    speechQueue.push(`Je n'ai pas bien compris. Es-tu un garçon ou une fille ? Je t'écoute.`);
+                    speechQueue.push(`Je n'ai pas bien compris. Es-tu un garçon ou une fille ?`);
                     parler();
                 }
 
@@ -631,7 +614,7 @@
                 
                 interactionMode = 'AGE_INPUT';
                 document.getElementById('status').innerText = `Quel âge as-tu ?`;
-                speechQueue.push(`Oh, j'adore ces couleurs ! Je décore la boîte pour toi... Voilà ! Et maintenant, quel âge as-tu ? Je t'écoute.`);
+                speechQueue.push(`Oh, j'adore ces couleurs ! Je décore la boîte pour toi... Voilà ! Et maintenant, quel âge as-tu ?`);
                 parler();
 
             } else if (interactionMode === 'AGE_INPUT') {
@@ -640,7 +623,7 @@
                 
                 interactionMode = 'STORY_INPUT';
                 document.getElementById('status').innerText = `Quelle histoire veux-tu ?`;
-                speechQueue.push(`D'accord, ${userAge} ans ! Tout est prêt. Quelle histoire veux-tu écouter maintenant ? Je t'écoute.`);
+                speechQueue.push(`D'accord, ${userAge} ans ! Tout est prêt. Quelle histoire veux-tu écouter maintenant ?`);
                 parler();
 
             } else if (interactionMode === 'STORY_INPUT') {
