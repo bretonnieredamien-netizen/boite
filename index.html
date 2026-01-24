@@ -30,7 +30,7 @@
         .content-layer { position: relative; z-index: 10; width: 100%; display: flex; flex-direction: column; align-items: center; opacity: 0; transition: opacity 1s ease-in; }
         .content-visible { opacity: 1 !important; }
 
-        /* --- LOGO --- */
+        /* --- LOGO & HEADER --- */
         .brand-header { position: absolute; top: 1.5rem; left: 1.5rem; display: flex; flex-direction: column; align-items: flex-start; gap: 0.2rem; z-index: 20; }
         .mini-logo-text { font-weight: 900; font-size: 1.2rem; background: linear-gradient(135deg, #22d3ee, #818cf8, #c084fc, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: lowercase; }
         .settings-links { display: flex; gap: 10px; }
@@ -196,8 +196,7 @@
         <div class="brand-header">
             <span class="mini-logo-text">tbm.</span>
             <div class="settings-links">
-                <button onclick="oublierPrenom()" class="text-[10px] text-indigo-300 hover:text-indigo-500">(Changer prénom)</button>
-                <button onclick="oublierAge()" class="text-[10px] text-indigo-300 hover:text-indigo-500">(Changer âge)</button>
+                <button onclick="oublierTout()" class="text-[10px] text-indigo-300 hover:text-indigo-500 underline uppercase tracking-widest">Réinitialiser profil</button>
             </div>
         </div>
 
@@ -278,8 +277,9 @@
         
         let userPrenom = localStorage.getItem('BOITE_PRENOM');
         let userAge = localStorage.getItem('BOITE_AGE');
+        let userGenre = localStorage.getItem('BOITE_GENRE'); // 'garçon' ou 'fille'
         
-        // MODES: 'INIT', 'NAME_INPUT', 'AGE_INPUT', 'STORY_INPUT', 'TELLING'
+        // MODES: 'INIT', 'NAME_INPUT', 'GENDER_INPUT', 'AGE_INPUT', 'STORY_INPUT', 'TELLING'
         let interactionMode = 'INIT'; 
 
         const MODEL_ID = "models/gemini-2.5-flash"; 
@@ -290,7 +290,7 @@
         let audioCtx = null;
         let currentAudio = null;
 
-        /* --- CANVAS STARS & PARTICLES --- */
+        /* --- CANVAS STARS --- */
         const canvas = document.getElementById('starfield'); const ctx = canvas.getContext('2d'); let particles = []; let burstParticles = [];
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         class Particle { constructor() { this.reset(); } reset() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 2 + 0.5; this.speed = Math.random() * 0.02 + 0.01; this.opacity = Math.random() * 0.8; this.color = Math.random() > 0.5 ? "251, 191, 36" : "129, 140, 248"; } update() { this.y -= this.speed; this.x += Math.sin(this.y * 0.01) * 0.2; if (this.y < 0) this.reset(); } draw() { ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); } }
@@ -300,7 +300,7 @@
         function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); for (let i = burstParticles.length - 1; i >= 0; i--) { const p = burstParticles[i]; p.update(); p.draw(); if (p.life <= 0) burstParticles.splice(i, 1); } requestAnimationFrame(animate); }
         window.addEventListener('resize', resize); resize(); initParticles(); animate();
 
-        /* --- VISUALISEUR AUDIO --- */
+        /* --- VISUALISEUR --- */
         const vizCanvas = document.getElementById('visualizer-canvas'); const vizCtx = vizCanvas.getContext('2d'); let analyser = null; let dataArray = null; let visualizerAnimationId = null;
         function resizeViz() { if(vizCanvas.parentElement) { vizCanvas.width = vizCanvas.parentElement.offsetWidth; vizCanvas.height = vizCanvas.parentElement.offsetHeight; } }
         window.addEventListener('resize', resizeViz);
@@ -329,37 +329,22 @@
             osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.5);
         }
 
-        /* --- FONCTION D'ÉCOUTE AUTOMATIQUE --- */
+        /* --- MICRO AUTO --- */
         function startListening() {
             const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!Speech) return; // Pas de support, on ne fait rien (l'enfant devra cliquer)
-
-            const rec = new Speech();
-            rec.lang = 'fr-FR';
-            rec.interimResults = false;
-            
-            rec.onstart = () => {
-                document.getElementById('btn-mic').classList.add('mic-listening');
-                document.getElementById('status').innerText = "Je t'écoute...";
-            };
-            rec.onresult = (e) => {
-                const p = e.results[0][0].transcript;
-                document.getElementById('manualInput').value = p;
-                traiterInput(p);
-            };
+            if (!Speech) return; 
+            const rec = new Speech(); rec.lang = 'fr-FR'; rec.interimResults = false;
+            rec.onstart = () => { document.getElementById('btn-mic').classList.add('mic-listening'); document.getElementById('status').innerText = "Je t'écoute..."; };
+            rec.onresult = (e) => { const p = e.results[0][0].transcript; document.getElementById('manualInput').value = p; traiterInput(p); };
             rec.onend = () => document.getElementById('btn-mic').classList.remove('mic-listening');
-            rec.onerror = (e) => {
-                console.log("Erreur micro ou silence", e);
-                document.getElementById('btn-mic').classList.remove('mic-listening');
-                // On remet le texte par défaut si erreur
+            rec.onerror = (e) => { document.getElementById('btn-mic').classList.remove('mic-listening'); 
                 if (interactionMode === 'NAME_INPUT') document.getElementById('status').innerText = "Comment t'appelles-tu ?";
+                else if (interactionMode === 'GENDER_INPUT') document.getElementById('status').innerText = "Garçon ou fille ?";
                 else if (interactionMode === 'AGE_INPUT') document.getElementById('status').innerText = "Quel âge as-tu ?";
                 else if (interactionMode === 'STORY_INPUT') document.getElementById('status').innerText = "Dis-moi ton idée...";
             };
-
             try { rec.start(); } catch (e) {}
         }
-
 
         /* --- LOGIQUE D'INTERACTION --- */
         const introBox = document.getElementById('intro-box');
@@ -369,61 +354,95 @@
         let opened = false;
 
         function startInteractionSequence() {
+            // Séquence : Intro? -> Prénom -> Genre -> Âge -> Histoire
+            
+            // Si on ne connaît rien, on fait l'intro d'abord
+            if (!userPrenom && !userGenre && !userAge) {
+                speechQueue.push("Bonjour ! Avant de commencer, je vais te poser quelques questions pour créer ta boîte à histoires magique.");
+                // On enchaine avec la demande de prénom
+                interactionMode = 'NAME_INPUT';
+                document.getElementById('status').innerText = "Bonjour ! Comment t'appelles-tu ?";
+                speechQueue.push("D'abord, comment t'appelles-tu ?");
+                parler();
+                return;
+            }
+
+            // Sinon on reprend là où on en était
             if (!userPrenom) {
                 interactionMode = 'NAME_INPUT';
                 document.getElementById('status').innerText = "Bonjour ! Comment t'appelles-tu ?";
-                setTimeout(() => {
-                    speechQueue.push("Bonjour ! Je suis ta boîte à histoires. Comment t'appelles-tu ?");
-                    parler();
-                }, 1000);
+                speechQueue.push("Bonjour ! Je suis ta boîte à histoires. Comment t'appelles-tu ?");
+                parler();
+            } else if (!userGenre) {
+                interactionMode = 'GENDER_INPUT';
+                document.getElementById('status').innerText = `Enchantée ${userPrenom} ! Garçon ou fille ?`;
+                speechQueue.push(`Enchantée ${userPrenom} ! Es-tu un garçon ou une fille ?`);
+                parler();
             } else if (!userAge) {
                 interactionMode = 'AGE_INPUT';
-                document.getElementById('status').innerText = `Quel âge as-tu, ${userPrenom} ?`;
-                setTimeout(() => {
-                    speechQueue.push(`Enchantée ${userPrenom} ! Quel âge as-tu ?`);
-                    parler();
-                }, 1000);
+                document.getElementById('status').innerText = `Quel âge as-tu ?`;
+                speechQueue.push(`D'accord ! Et quel âge as-tu ?`);
+                parler();
             } else {
                 interactionMode = 'STORY_INPUT';
                 document.getElementById('status').innerText = `Te revoilà, ${userPrenom} !`;
-                setTimeout(() => {
-                    speechQueue.push(`Bonjour ${userPrenom} ! Quelle histoire on invente aujourd'hui ?`);
-                    parler();
-                }, 1000);
+                speechQueue.push(`Bonjour ${userPrenom} ! Quelle histoire on invente aujourd'hui ?`);
+                parler();
             }
         }
 
         // Gère l'input (texte ou voix) selon le mode
         function traiterInput(texte) {
             if (!texte.trim()) return;
-            
             stopAudio(); 
             document.getElementById('manualInput').value = "";
+            const lowerText = texte.toLowerCase();
 
             if (interactionMode === 'NAME_INPUT') {
                 userPrenom = texte.replace(/je m'appelle /i, "").replace(/c'est /i, "").trim();
                 localStorage.setItem('BOITE_PRENOM', userPrenom);
                 
-                interactionMode = 'AGE_INPUT';
-                document.getElementById('status').innerText = `Et quel âge as-tu ?`;
-                document.getElementById('manualInput').placeholder = "Ton âge...";
-                
-                speechQueue.push(`Enchantée ${userPrenom} ! Et dis-moi, quel âge as-tu ?`);
+                // Passage au genre
+                interactionMode = 'GENDER_INPUT';
+                document.getElementById('status').innerText = `Garçon ou fille ?`;
+                document.getElementById('manualInput').placeholder = "Garçon ou fille...";
+                speechQueue.push(`Enchantée ${userPrenom} ! Es-tu un garçon ou une fille ?`);
                 parler();
                 
+            } else if (interactionMode === 'GENDER_INPUT') {
+                // Détection simple
+                let genreDetecte = null;
+                if (lowerText.includes('garçon') || lowerText.includes('garcon') || lowerText.includes('homme')) genreDetecte = 'garçon';
+                else if (lowerText.includes('fille') || lowerText.includes('femme')) genreDetecte = 'fille';
+
+                if (genreDetecte) {
+                    userGenre = genreDetecte;
+                    localStorage.setItem('BOITE_GENRE', userGenre);
+                    
+                    // Passage à l'âge
+                    interactionMode = 'AGE_INPUT';
+                    document.getElementById('status').innerText = `Quel âge as-tu ?`;
+                    document.getElementById('manualInput').placeholder = "Ton âge...";
+                    speechQueue.push(`C'est noté ! Et quel âge as-tu ?`);
+                    parler();
+                } else {
+                    // Pas compris
+                    speechQueue.push(`Je n'ai pas bien compris. Es-tu un garçon ou une fille ?`);
+                    parler();
+                }
+
             } else if (interactionMode === 'AGE_INPUT') {
                 userAge = texte.replace(/j'ai /i, "").replace(/ans/i, "").trim();
                 localStorage.setItem('BOITE_AGE', userAge);
                 
                 interactionMode = 'STORY_INPUT';
-                document.getElementById('status').innerText = `D'accord ! Quelle histoire veux-tu ?`;
+                document.getElementById('status').innerText = `Quelle histoire veux-tu ?`;
                 document.getElementById('manualInput').placeholder = "Sujet de l'aventure...";
-                
-                speechQueue.push(`D'accord, ${userAge} ans ! C'est noté. Quelle histoire veux-tu écouter maintenant ?`);
+                speechQueue.push(`D'accord, ${userAge} ans ! Tout est prêt. Quelle histoire veux-tu écouter maintenant ?`);
                 parler();
 
             } else if (interactionMode === 'STORY_INPUT') {
-                interactionMode = 'TELLING'; // On passe en mode narration (pas d'auto-mic)
+                interactionMode = 'TELLING';
                 appelIA(texte);
             }
         }
@@ -455,7 +474,7 @@
             setTimeout(() => { document.getElementById('intro-overlay').style.display = 'none'; }, 3000);
         });
 
-        /* --- FONCTIONS AUDIO & API --- */
+        /* --- AUDIO --- */
         function toggleStopButton(active) {
             const container = document.getElementById('stop-container');
             if (active) { container.classList.remove('opacity-20', 'pointer-events-none'); container.classList.add('opacity-100'); } else { container.classList.add('opacity-20', 'pointer-events-none'); container.classList.remove('opacity-100'); }
@@ -468,13 +487,10 @@
             document.getElementById('loading-spinner').classList.add('hidden');
             
             if (interactionMode === 'NAME_INPUT') document.getElementById('status').innerText = "Comment t'appelles-tu ?";
+            else if (interactionMode === 'GENDER_INPUT') document.getElementById('status').innerText = "Garçon ou fille ?";
             else if (interactionMode === 'AGE_INPUT') document.getElementById('status').innerText = "Quel âge as-tu ?";
             else if (interactionMode === 'STORY_INPUT') document.getElementById('status').innerText = userPrenom ? `Dis-moi ton idée, ${userPrenom}...` : "Dis-moi ton idée...";
-            // Si on est en mode TELLING et qu'on stop, on revient à STORY_INPUT pour demander une autre histoire
-            else if (interactionMode === 'TELLING') {
-                interactionMode = 'STORY_INPUT';
-                document.getElementById('status').innerText = "Une autre histoire ?";
-            }
+            else if (interactionMode === 'TELLING') { interactionMode = 'STORY_INPUT'; document.getElementById('status').innerText = "Une autre histoire ?"; }
             
             toggleStopButton(false);
             document.getElementById('story-card').classList.add('hidden'); 
@@ -483,7 +499,6 @@
         async function appelIA(sujet) {
             if (!GEMINI_KEY || !AZURE_KEY || !AZURE_REGION) { verifierCles(); return; }
             stopAudio();
-            // Re-forcer le mode Telling ici pour être sûr
             interactionMode = 'TELLING';
             
             const btnMic = document.getElementById('btn-mic');
@@ -499,7 +514,8 @@
             
             let contextChild = "";
             if (userPrenom) contextChild += `L'enfant s'appelle ${userPrenom}. `;
-            if (userAge) contextChild += `L'enfant a ${userAge} ans (adapte le vocabulaire et la complexité de l'histoire à cet âge). `;
+            if (userGenre) contextChild += `C'est un(e) ${userGenre}. `;
+            if (userAge) contextChild += `L'enfant a ${userAge} ans (adapte le vocabulaire et la complexité à cet âge). `;
             
             const promptIA = `Tu es une conteuse de livre audio professionnelle. ${contextChild} Raconte une aventure réaliste pour cet enfant sur : "${sujet}". Ton ton est bienveillant mais neutre. INTERDICTION d'utiliser des surnoms affectueux (mon cœur, mon chéri, mon ange). Tu n'es pas sa maman. Reste une narratrice externe. Utilise des phrases simples. Pas de magie. Fin positive. Termine par "FIN".`;
 
@@ -558,26 +574,14 @@
                 currentAudio = new Audio(audioUrl);
                 const source = audioCtx.createMediaElementSource(currentAudio);
                 startVisualizer(source, audioCtx);
-                
                 currentAudio.onended = () => {
                     isSpeaking = false;
-                    
                     if (speechQueue.length === 0) { 
-                        // La phrase est finie et la file est vide
-                        toggleStopButton(false); 
-                        stopVisualizer(); 
-                        document.getElementById('story-card').classList.add('hidden');
-                        
-                        // LOGIQUE D'ACTIVATION AUTOMATIQUE DU MICRO
-                        // Si on est dans un mode qui attend une réponse (Prénom, Age, Histoire)
-                        if (interactionMode === 'NAME_INPUT' || interactionMode === 'AGE_INPUT' || interactionMode === 'STORY_INPUT') {
-                            // Petit délai naturel avant d'écouter
-                            setTimeout(() => {
-                                startListening();
-                            }, 500);
+                        toggleStopButton(false); stopVisualizer(); document.getElementById('story-card').classList.add('hidden');
+                        if (['NAME_INPUT', 'GENDER_INPUT', 'AGE_INPUT', 'STORY_INPUT'].includes(interactionMode)) {
+                            setTimeout(() => { startListening(); }, 500);
                         }
-                    }
-                    else parler(); 
+                    } else parler(); 
                 };
                 currentAudio.play();
             } else { isSpeaking = false; parler(); }
@@ -590,18 +594,13 @@
         }
 
         function reinitialiserCle() { localStorage.removeItem('BOITE_GEMINI_KEY'); localStorage.removeItem('BOITE_AZURE_KEY'); localStorage.removeItem('BOITE_AZURE_REGION'); localStorage.removeItem('BOITE_FINAL_KEY_2026'); location.reload(); }
-        function oublierPrenom() { localStorage.removeItem('BOITE_PRENOM'); location.reload(); }
-        function oublierAge() { localStorage.removeItem('BOITE_AGE'); location.reload(); }
+        function oublierTout() { localStorage.removeItem('BOITE_PRENOM'); localStorage.removeItem('BOITE_AGE'); localStorage.removeItem('BOITE_GENRE'); location.reload(); }
 
         document.addEventListener('DOMContentLoaded', () => {
             if (!GEMINI_KEY || !AZURE_KEY) verifierCles();
             document.getElementById('toggle-input').onclick = () => document.getElementById('keyboard-area').classList.toggle('hidden');
-            
             document.getElementById('btn-ok').onclick = () => { const val = document.getElementById('manualInput').value.trim(); traiterInput(val); };
-            
-            document.getElementById('btn-mic').onclick = () => {
-               startListening(); // Utilisation de la nouvelle fonction commune
-            };
+            document.getElementById('btn-mic').onclick = () => { startListening(); };
             document.getElementById('btn-stop').onclick = stopAudio;
         });
     </script>
