@@ -198,6 +198,10 @@
                 <span class="mode-label">Dessin</span>
             </div>
         </div>
+
+        <button onclick="oublierTout()" class="mt-12 text-indigo-900/40 text-xs font-bold uppercase tracking-widest hover:text-indigo-600 transition-colors">
+            Redéfinir mon profil
+        </button>
     </div>
 
     <div id="white-flash" class="white-flash"></div>
@@ -236,10 +240,6 @@
             </div>
              <input type="text" id="manualInput" class="hidden">
         </main>
-
-        <footer class="mt-auto py-8 flex flex-col items-center gap-3">
-             <button onclick="oublierTout()" class="text-gray-400/30 text-[9px] uppercase tracking-widest hover:text-gray-400 transition-colors">Réinitialiser le profil</button>
-        </footer>
     </div>
 
     <script>
@@ -300,7 +300,6 @@
                 sCtx.strokeStyle = 'white';
                 sCtx.shadowBlur = 10;
                 sCtx.shadowColor = `hsl(${hue}, 100%, 80%)`;
-                // Effet de poussière d'étoiles
                 for(let i=0; i<3; i++) {
                     sCtx.beginPath();
                     sCtx.arc(x + (Math.random()-0.5)*20, y + (Math.random()-0.5)*20, Math.random()*2, 0, Math.PI*2);
@@ -328,6 +327,9 @@
             stopAudio();
             document.getElementById('slate-layer').style.display = 'none';
             document.getElementById('main-interface').classList.remove('content-visible');
+            document.getElementById('main-logo-story').classList.add('hidden');
+            document.getElementById('main-logo-question').classList.add('hidden');
+            
             document.getElementById('intro-overlay').style.display = 'flex';
             setTimeout(() => {
                 document.getElementById('intro-overlay').classList.remove('intro-fade-out');
@@ -362,7 +364,6 @@
         let audioCtx = null;
         let currentAudio = null;
 
-        /* --- FONCTION APPLICATION THEME HYBRIDE --- */
         function applyMixedTheme(inputText) {
             if (!inputText) return;
             const text = inputText.toLowerCase();
@@ -499,7 +500,9 @@
             document.getElementById('main-logo-question').classList.add('hidden');
             
             document.getElementById('intro-overlay').style.display = 'flex';
-            setTimeout(() => { document.getElementById('intro-overlay').classList.remove('intro-fade-out'); }, 50);
+            setTimeout(() => {
+                document.getElementById('intro-overlay').classList.remove('intro-fade-out');
+            }, 50);
         }
 
         function startInteractionSequence() {
@@ -759,19 +762,6 @@
 
         function reinitialiserCle() { localStorage.removeItem('BOITE_GEMINI_KEY'); localStorage.removeItem('BOITE_AZURE_KEY'); localStorage.removeItem('BOITE_AZURE_REGION'); localStorage.removeItem('BOITE_FINAL_KEY_2026'); location.reload(); }
         function oublierTout() { localStorage.removeItem('BOITE_PRENOM'); localStorage.removeItem('BOITE_AGE'); localStorage.removeItem('BOITE_GENRE'); localStorage.removeItem('BOITE_COLOR'); location.reload(); }
-
-        function returnToMenu() {
-            stopAudio();
-            document.getElementById('slate-layer').style.display = 'none';
-            document.getElementById('main-interface').classList.remove('content-visible');
-            document.getElementById('main-logo-story').classList.add('hidden');
-            document.getElementById('main-logo-question').classList.add('hidden');
-            
-            document.getElementById('intro-overlay').style.display = 'flex';
-            setTimeout(() => {
-                document.getElementById('intro-overlay').classList.remove('intro-fade-out');
-            }, 50);
-        }
 
         document.addEventListener('DOMContentLoaded', () => {
             if (!GEMINI_KEY || !AZURE_KEY) verifierCles();
