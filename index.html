@@ -22,57 +22,57 @@
         #svg-layer { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; pointer-events: none; opacity: 0.4; z-index: 51; display: flex; align-items: center; justify-content: center; filter: grayscale(100%) invert(1); }
         #svg-layer svg { width: 100%; height: 100%; stroke: #ffffff; fill: none; stroke-width: 1.5; }
 
-        /* Barre d'outils adaptative */
+        /* Barre d'outils optimisée */
         .drawing-tools { 
             position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%); 
             display: flex; gap: 6px; background: rgba(255,255,255,0.95); backdrop-filter: blur(15px); 
             padding: 10px 15px; border-radius: 20px; border: 1px solid #e2e8f0; z-index: 120; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.1); flex-wrap: wrap; justify-content: center; 
-            width: 95%; max-width: 700px;
+            width: 95%; max-width: 800px;
         }
         .magic-btn { width: 38px; height: 38px; border-radius: 8px; border: 2px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; transition: 0.2s; background: #f8fafc; }
         .magic-btn.active { transform: scale(1.1); border-color: var(--accent); background: white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25); }
         
-        .bg-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid white; cursor: pointer; transition: transform 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        .bg-dot.active { outline: 2px solid var(--accent); outline-offset: 2px; transform: scale(1.1); }
-
+        .dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid white; cursor: pointer; transition: transform 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .dot.active { outline: 2px solid var(--accent); outline-offset: 2px; transform: scale(1.1); }
         .separator { width: 2px; height: 30px; background: #cbd5e1; margin: auto 2px; border-radius: 2px; }
 
-        /* Clavier & Input */
+        /* UI Basique */
         .input-bar { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; background: white; padding: 8px 12px; border-radius: 999px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); z-index: 150; width: 95%; max-width: 550px; align-items: center; border: 1px solid #eef2ff; }
         .input-bar input { flex-grow: 1; border: none; outline: none; font-size: 1rem; padding: 5px; color: #1e293b; background: transparent; }
-        .action-btn { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; transition: 0.2s; flex-shrink: 0; }
+        .action-btn { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; transition: 0.2s; }
         #btn-mic.listening { background: #f87171; color: white; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-
-        /* Navigation */
-        .brand-header { position: absolute; top: 1.5rem; left: 1.5rem; z-index: 100; }
         .nav-btn { background: white; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .status-box { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 160; bg-white/90; padding: 8px 20px; border-radius: 999px; border: 1px solid #e0e7ff; background: rgba(255,255,255,0.9); }
-
         #intro-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,0.9); backdrop-filter: blur(15px); }
         .mode-card { width: 130px; height: 130px; border-radius: 40px; background: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 15px 35px rgba(0,0,0,0.05); cursor: pointer; border: 2px solid #f8fafc; transition: 0.3s; }
-        .mode-card:hover { border-color: var(--accent); transform: translateY(-8px); }
     </style>
 </head>
 <body>
-
     <canvas id="starfield"></canvas>
-
     <div id="drawing-area">
         <div id="svg-layer"></div>
         <canvas id="draw-canvas"></canvas>
-        
         <div class="drawing-tools">
+            <div class="flex items-center gap-1.5 px-2">
+                <div class="dot active" style="background: #1e293b" onclick="setPenColor('#1e293b', this)"></div>
+                <div class="dot" style="background: #ffffff" onclick="setPenColor('#ffffff', this)"></div>
+                <div class="dot" style="background: #ef4444" onclick="setPenColor('#ef4444', this)"></div>
+                <div class="dot" style="background: #3b82f6" onclick="setPenColor('#3b82f6', this)"></div>
+                <div class="dot" style="background: #22c55e" onclick="setPenColor('#22c55e', this)"></div>
+                <div class="dot" style="background: #f59e0b" onclick="setPenColor('#f59e0b', this)"></div>
+                <div class="dot" style="background: #a855f7" onclick="setPenColor('#a855f7', this)"></div>
+            </div>
+            <div class="separator"></div>
             <div class="magic-btn active" onclick="setBrush('pen', this)" title="Plume">🖋️</div>
             <div class="magic-btn" onclick="setBrush('pencil', this)" title="Crayon">✏️</div>
             <div class="magic-btn" onclick="setBrush('marker', this)" title="Feutre">🖍️</div>
-            <div class="magic-btn" onclick="setBrush('ink', this)" title="Encre">⚫</div>
-            <div class="separator"></div>
             <div class="magic-btn" onclick="setBrush('neon', this)" title="Néon">💡</div>
-            <div class="magic-btn" onclick="setBrush('emerald', this)" title="Émeraude">💎</div>
-            <div class="magic-btn" onclick="setBrush('fire', this)" title="Feu">🔥</div>
-            <div class="magic-btn" onclick="setBrush('bubbles', this)" title="Bulles">🫧</div>
+            <div class="magic-btn" onclick="setBrush('lava', this)" title="Lave">🌋</div>
+            <div class="magic-btn" onclick="setBrush('nature', this)" title="Nature">🌿</div>
+            <div class="magic-btn" onclick="setBrush('ocean', this)" title="Océan">🌊</div>
+            <div class="magic-btn" onclick="setBrush('electric', this)" title="Électrique">⚡</div>
             <div class="separator"></div>
             <div class="magic-btn" onclick="setBrush('rainbow', this)" title="Arc-en-ciel">🌈</div>
             <div class="magic-btn" onclick="setBrush('gold', this)" title="Or">✨</div>
@@ -80,10 +80,10 @@
             <div class="magic-btn" onclick="setBrush('galaxy', this)" title="Galaxie">🌌</div>
             <div class="separator"></div>
             <div class="flex items-center gap-2 px-2">
-                <div class="bg-dot active" style="background: #0f172a" onclick="setCanvasBg('#0f172a', this)"></div>
-                <div class="bg-dot" style="background: #1e1b4b" onclick="setCanvasBg('#1e1b4b', this)"></div>
-                <div class="bg-dot" style="background: #312e81" onclick="setCanvasBg('#312e81', this)"></div>
-                <div class="bg-dot" style="background: #ffffff" onclick="setCanvasBg('#ffffff', this)"></div>
+                <div class="dot active" style="background: #0f172a" onclick="setCanvasBg('#0f172a', this)"></div>
+                <div class="dot" style="background: #1e1b4b" onclick="setCanvasBg('#1e1b4b', this)"></div>
+                <div class="dot" style="background: #312e81" onclick="setCanvasBg('#312e81', this)"></div>
+                <div class="dot" style="background: #ffffff" onclick="setCanvasBg('#ffffff', this)"></div>
             </div>
             <div class="separator"></div>
             <div class="magic-btn" onclick="clearBoard()" title="Effacer">🗑️</div>
@@ -100,7 +100,7 @@
     </div>
 
     <div id="ui-layer" class="hidden">
-        <div class="brand-header"><button onclick="location.reload()" class="nav-btn"><svg width="24" height="24" fill="#6366f1" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></button></div>
+        <div class="brand-header"><button onclick="location.reload()" class="nav-btn shadow-sm"><svg width="24" height="24" fill="#6366f1" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></button></div>
         <div class="status-box"><p id="status" class="text-indigo-950 font-bold text-sm">Prêt...</p></div>
         <div class="input-bar">
             <button id="btn-mic" class="action-btn text-indigo-500"><svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/></svg></button>
@@ -116,17 +116,18 @@
 
         let currentMode = null, isDrawing = false, lastX = 0, lastY = 0, currentBrush = 'pen', magicParticles = [];
         const canvas = document.getElementById('draw-canvas'), ctx = canvas.getContext('2d');
-        let hue = 0;
+        let hue = 0, penColor = '#1e293b';
 
         const BRUSH_STYLES = {
-            'pen': { width: 1.5, glow: 3, color: '#1e293b', opacity: 1 },
-            'pencil': { width: 1, glow: 0, color: '#64748b', opacity: 0.5 },
-            'marker': { width: 10, glow: 5, color: '#ef4444', opacity: 0.8 },
+            'pen': { width: 2, glow: 5, color: '#1e293b', opacity: 1 },
+            'pencil': { width: 1.5, glow: 0, color: '#64748b', opacity: 0.5 },
+            'marker': { width: 8, glow: 4, color: '#ef4444', opacity: 0.8 },
             'ink': { width: 6, glow: 2, color: '#000000', opacity: 1 },
             'neon': { width: 4, glow: 20, color: '#00f2fe', opacity: 1, particles: 'neon' },
-            'emerald': { width: 3, glow: 15, color: '#10b981', opacity: 1, particles: 'gem' },
-            'fire': { width: 5, glow: 18, color: '#f97316', opacity: 1, particles: 'fire' },
-            'bubbles': { width: 2, glow: 8, color: '#dbeafe', opacity: 0.7, particles: 'bubbles' },
+            'lava': { width: 5, glow: 18, color: '#ef4444', opacity: 1, particles: 'fire' },
+            'nature': { width: 3, glow: 12, color: '#22c55e', opacity: 1, particles: 'leaf' },
+            'ocean': { width: 6, glow: 15, color: '#0ea5e9', opacity: 0.8, particles: 'bubbles' },
+            'electric': { width: 3, glow: 25, color: '#facc15', opacity: 1, particles: 'sparks' },
             'rainbow': { width: 4, glow: 15, dynamic: true, opacity: 1, particles: 'rainbow' },
             'gold': { width: 3, glow: 20, color: '#fbbf24', opacity: 1, particles: 'gold' },
             'frost': { width: 2, glow: 15, color: '#bae6fd', opacity: 0.7, particles: 'frost' },
@@ -143,35 +144,39 @@
             }
         }
 
+        function setPenColor(color, btn) {
+            penColor = color;
+            BRUSH_STYLES.pen.color = color;
+            BRUSH_STYLES.pencil.color = color;
+            BRUSH_STYLES.marker.color = color;
+            document.querySelectorAll('.dot').forEach(d => { if(!d.onclick.toString().includes('setCanvasBg')) d.classList.remove('active'); });
+            btn.classList.add('active');
+        }
+
         function setCanvasBg(color, btn) {
             document.getElementById('drawing-area').style.background = color;
             const isDark = color !== '#ffffff';
             document.getElementById('svg-layer').style.filter = isDark ? "grayscale(100%) invert(1)" : "grayscale(100%)";
             BRUSH_STYLES.ink.color = isDark ? "#ffffff" : "#000000";
-            BRUSH_STYLES.pen.color = isDark ? "#f1f5f9" : "#1e293b";
-            document.querySelectorAll('.bg-dot').forEach(d => d.classList.remove('active'));
+            document.querySelectorAll('.dot').forEach(d => { if(d.onclick.toString().includes('setCanvasBg')) d.classList.remove('active'); });
             btn.classList.add('active');
         }
 
         function handleInput() {
-            const el = document.getElementById('keyboard-input');
-            const val = el.value.trim();
-            if(!val) return;
-            el.value = '';
-            appelIA(val);
+            const el = document.getElementById('keyboard-input'); const val = el.value.trim();
+            if(!val) return; el.value = ''; appelIA(val);
         }
         document.getElementById('keyboard-input').onkeydown = (e) => { if(e.key === 'Enter') handleInput(); };
 
         async function appelIA(text) {
-            updateStatus("Magie en cours...");
-            let sys = currentMode === 'DRAW' ? "Génère UNIQUEMENT le code <svg> (trait noir simple) pour : " + text : "Réponse courte pour enfant.";
+            updateStatus("Magie...");
+            let sys = currentMode === 'DRAW' ? "Code <svg> noir simple pour : " + text : "Réponse courte enfant.";
             try {
                 const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ contents: [{ parts: [{ text: sys + "\nDemande : " + text }] }] })
                 });
-                const d = await r.json();
-                const res = d.candidates[0].content.parts[0].text;
+                const d = await r.json(); const res = d.candidates[0].content.parts[0].text;
                 if (currentMode === 'DRAW') {
                     const match = res.match(/<svg[\s\S]*<\/svg>/);
                     if(match) { document.getElementById('svg-layer').innerHTML = match[0]; updateStatus("Apparu !"); }
@@ -205,9 +210,9 @@
                 const pColor = style.dynamic ? ctx.strokeStyle : style.color;
                 for(let i=0; i<1; i++) {
                     let vx = (Math.random()-0.5)*0.5, vy = (Math.random()-0.5)*0.5;
-                    if(style.particles === 'fire') vy = -Math.random()*2 - 0.5;
-                    if(style.particles === 'frost') vy = Math.random()*1.5;
-                    if(style.particles === 'bubbles') vy = -Math.random()*0.8;
+                    if(style.particles === 'fire') vy = -Math.random()*2;
+                    if(style.particles === 'bubbles') vy = -Math.random()*1;
+                    if(style.particles === 'leaf') { vx = (Math.random()-0.5)*2; vy = Math.random()*1; }
 
                     magicParticles.push({
                         x: pos.x, y: pos.y, vx, vy,
@@ -230,6 +235,8 @@
                     if(p.type === 'bubbles') {
                         ctx.strokeStyle = p.color; ctx.lineWidth = 1;
                         ctx.arc(p.x, p.y, p.size*2, 0, Math.PI*2); ctx.stroke();
+                    } else if(p.type === 'leaf') {
+                        ctx.ellipse(p.x, p.y, p.size, p.size*2, p.x, 0, Math.PI*2); ctx.fill();
                     } else {
                         ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill();
                     }
