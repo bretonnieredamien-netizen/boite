@@ -19,7 +19,7 @@
         .content-layer { position: relative; z-index: 10; width: 100%; display: flex; flex-direction: column; align-items: center; opacity: 0; transition: opacity 1s ease-in; }
         .content-visible { opacity: 1 !important; }
 
-        /* --- BOUTON MAISON (Z-INDEX AUGMENTÉ) --- */
+        /* --- BOUTON MAISON --- */
         .nav-home-btn { position: absolute; top: 1.5rem; left: 1.5rem; z-index: 9999; width: 52px; height: 52px; background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(15px); border: 2px solid rgba(255, 255, 255, 0.8); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1); transition: all 0.3s; }
         .nav-home-btn:hover { transform: scale(1.15) rotate(-10deg); background: rgba(255, 255, 255, 0.7); }
         .nav-home-btn svg { width: 26px; height: 26px; fill: var(--accent-color); }
@@ -29,6 +29,19 @@
         .cinema-mode { opacity: 0 !important; transform: translateY(-20px) !important; pointer-events: none; }
         .logo-container { width: 180px; height: 180px; display: flex; justify-content: center; align-items: center; opacity: 0; animation: introFade 2s ease-out forwards; filter: drop-shadow(0 10px 25px rgba(129, 140, 248, 0.5)); }
         @keyframes introFade { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
+
+        /* --- VAGUES DE RÉFLEXION (NOUVEAU) --- */
+        .thinking-waves { display: flex; align-items: center; justify-content: center; gap: 4px; height: 24px; }
+        .wave-bar { width: 6px; height: 100%; border-radius: 99px; animation: waveAnim 1s infinite ease-in-out; }
+        .wave-bar:nth-child(1) { background: #a855f7; animation-delay: 0.0s; }
+        .wave-bar:nth-child(2) { background: #6366f1; animation-delay: 0.1s; }
+        .wave-bar:nth-child(3) { background: #3b82f6; animation-delay: 0.2s; }
+        .wave-bar:nth-child(4) { background: #06b6d4; animation-delay: 0.3s; }
+        .wave-bar:nth-child(5) { background: #14b8a6; animation-delay: 0.4s; }
+        @keyframes waveAnim { 
+            0%, 100% { height: 20%; opacity: 0.5; } 
+            50% { height: 100%; opacity: 1; transform: scaleY(1.1); } 
+        }
 
         /* --- ARDOISE --- */
         #slate-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 150; background: #0f172a; display: none; }
@@ -45,8 +58,7 @@
         .status-box { background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px); padding: 0.6rem 1.8rem; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.5); margin-top: 1rem; min-height: 44px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; }
         .understood-flash { animation: success-pulse 0.8s ease-out !important; background: rgba(16, 185, 129, 0.2) !important; border-color: #10b981 !important; }
         @keyframes success-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); box-shadow: 0 0 60px #10b981; } 100% { transform: scale(1); } }
-        .magic-loader { width: 24px; height: 24px; border-radius: 50%; border: 3px solid transparent; border-top-color: #22d3ee; border-right-color: #818cf8; border-bottom-color: #c084fc; animation: spinLoader 1s linear infinite; }
-        @keyframes spinLoader { 100% { transform: rotate(360deg); } }
+        
         #story-card { background: transparent; overflow: hidden; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 320px; height: 100px; filter: drop-shadow(0 4px 6px rgba(129, 140, 248, 0.3)); position: relative; z-index: 50; }
         #visualizer-canvas { width: 100%; height: 100%; }
         
@@ -139,7 +151,9 @@
             </div>
             <div class="status-box">
                 <p id="status" class="text-indigo-900/60 font-semibold italic text-sm">Prêt...</p>
-                <div id="loading-spinner" class="magic-loader hidden"></div>
+                <div id="ai-thinking" class="hidden thinking-waves">
+                    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                </div>
             </div>
         </header>
 
@@ -221,10 +235,9 @@
             const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!Speech) return; 
             
-            // SECURITY CHECK: IF SPEAKING, STOP FIRST
             if (isSpeaking) {
                 stopAudio();
-                return; // Stop here, the user probably clicked to interrupt
+                return;
             }
 
             const rec = new Speech(); rec.lang = 'fr-FR'; rec.interimResults = false;
@@ -315,7 +328,7 @@
             stopVisualizer(); speechQueue = []; isSpeaking = false;
             document.getElementById('main-header').classList.remove('cinema-mode');
             document.getElementById('status').classList.remove('hidden');
-            document.getElementById('loading-spinner').classList.add('hidden');
+            document.getElementById('ai-thinking').classList.add('hidden');
             
             if (['NAME_INPUT', 'GENDER_INPUT', 'COLOR_INPUT', 'AGE_INPUT'].includes(interactionMode)) {} 
             else if (currentAppMode === 'STORY') { interactionMode = 'STORY_INPUT'; document.getElementById('status').innerText = "Une autre histoire ?"; } 
@@ -337,17 +350,14 @@
             
             const btnMic = document.getElementById('btn-mic');
             const statusLabel = document.getElementById('status');
-            const loader = document.getElementById('loading-spinner');
+            const waves = document.getElementById('ai-thinking');
             
-            playSoftPing(); btnMic.classList.add('understood-flash'); statusLabel.classList.add('hidden'); loader.classList.remove('hidden');
+            playSoftPing(); btnMic.classList.add('understood-flash'); 
+            statusLabel.classList.add('hidden'); 
+            waves.classList.remove('hidden');
+            
             setTimeout(() => { btnMic.classList.remove('understood-flash'); toggleStopButton(true); }, 800);
             
-            let waitingPhrase = "Je réfléchis...";
-            if (mode === 'STORY') waitingPhrase = "J'écris ton histoire...";
-            else if (mode === 'QUESTION') waitingPhrase = "Je cherche...";
-            
-            document.getElementById('status').innerText = waitingPhrase;
-
             const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${GEMINI_KEY}`;
             let promptIA = "";
             let contextChild = ""; if (userPrenom) contextChild += `L'enfant s'appelle ${userPrenom} (${userGenre}, ${userAge} ans). `; 
@@ -378,7 +388,7 @@
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) {
-                        loader.classList.add('hidden'); statusLabel.classList.remove('hidden'); 
+                        waves.classList.add('hidden'); statusLabel.classList.remove('hidden'); 
                         statusLabel.innerText = "Je te réponds...";
                         if (currentSentence.trim()) { speechQueue.push(currentSentence.trim()); fullResponseText += currentSentence.trim(); parler(); }
                         if (mode === 'CHAT') chatHistory.push({ role: "model", content: fullResponseText });
@@ -404,7 +414,7 @@
                         }
                     }
                 }
-            } catch (e) { loader.classList.add('hidden'); statusLabel.classList.remove('hidden'); statusLabel.innerText = "Erreur technique..."; }
+            } catch (e) { waves.classList.add('hidden'); statusLabel.classList.remove('hidden'); statusLabel.innerText = "Erreur technique..."; }
         }
 
         async function textToSpeechAzure(text) {
