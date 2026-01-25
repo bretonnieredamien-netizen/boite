@@ -14,31 +14,22 @@
         .hidden { display: none !important; }
 
         /* --- DESSIN --- */
-        #drawing-area { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; 
-            display: none; background: #0f172a; transition: background 0.5s ease;
-        }
+        #drawing-area { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; display: none; }
         #draw-canvas { width: 100%; height: 100%; display: block; z-index: 52; position: relative; cursor: crosshair; }
-        #svg-layer { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; pointer-events: none; opacity: 0.4; z-index: 51; display: flex; align-items: center; justify-content: center; filter: grayscale(100%) invert(1); }
-        #svg-layer svg { width: 100%; height: 100%; stroke: #ffffff; fill: none; stroke-width: 1.5; }
+        #svg-layer { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; pointer-events: none; opacity: 0.4; z-index: 51; display: flex; align-items: center; justify-content: center; filter: grayscale(100%); }
+        #svg-layer svg { width: 100%; height: 100%; stroke: #1e293b; fill: none; stroke-width: 1.5; }
 
-        /* Barre d'outils plus large */
+        /* Nouvelle barre d'outils plus large */
         .drawing-tools { 
             position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%); 
             display: flex; gap: 6px; background: rgba(255,255,255,0.95); backdrop-filter: blur(15px); 
             padding: 10px 15px; border-radius: 20px; border: 1px solid #e2e8f0; z-index: 120; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.1); flex-wrap: wrap; justify-content: center; 
-            width: 95%; max-width: 650px;
+            width: 95%; max-width: 600px;
         }
         .magic-btn { width: 38px; height: 38px; border-radius: 8px; border: 2px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; transition: 0.2s; background: #f8fafc; }
         .magic-btn:hover { background: #e2e8f0; }
         .magic-btn.active { transform: scale(1.1); border-color: var(--accent); background: white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25); }
-        
-        /* Sélecteur de fond */
-        .bg-dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.2s; }
-        .bg-dot:hover { transform: scale(1.2); }
-        .bg-dot.active { outline: 2px solid var(--accent); outline-offset: 2px; }
-
         .separator { width: 2px; height: 30px; background: #cbd5e1; margin: auto 2px; border-radius: 2px; }
 
         /* Clavier & Input */
@@ -69,22 +60,15 @@
         <div class="drawing-tools">
             <div class="magic-btn active" onclick="setBrush('pen', this)" title="Stylo Bille">🖊️</div>
             <div class="magic-btn" onclick="setBrush('pencil', this)" title="Crayon à papier">✏️</div>
-            <div class="magic-btn" onclick="setBrush('marker', this)" title="Feutre Large">🖋️</div>
-            <div class="magic-btn" onclick="setBrush('paint', this)" title="Aquarelle">🖌️</div>
+            <div class="magic-btn" onclick="setBrush('marker', this)" title="Feutre Large">🖍️</div>
+            <div class="magic-btn" onclick="setBrush('paint', this)" title="Peinture à l'eau">🖌️</div>
             <div class="separator"></div>
-            <div class="magic-btn" onclick="setBrush('ink', this)" title="Encre">⚫</div>
             <div class="magic-btn" onclick="setBrush('chalk', this)" title="Craie">📏</div>
+            <div class="magic-btn" onclick="setBrush('ink', this)" title="Encre de Chine">⚫</div>
             <div class="separator"></div>
             <div class="magic-btn" onclick="setBrush('rainbow', this)" title="Arc-en-ciel">🌈</div>
-            <div class="magic-btn" onclick="setBrush('gold', this)" title="Or">✨</div>
+            <div class="magic-btn" onclick="setBrush('gold', this)" title="Paillettes Dorées">✨</div>
             <div class="magic-btn" onclick="setBrush('frost', this)" title="Givre">❄️</div>
-            <div class="separator"></div>
-            <div class="flex items-center gap-2 px-2">
-                <div class="bg-dot active" style="background: #0f172a" onclick="setCanvasBg('#0f172a', this)" title="Nuit"></div>
-                <div class="bg-dot" style="background: #1e1b4b" onclick="setCanvasBg('#1e1b4b', this)" title="Espace"></div>
-                <div class="bg-dot" style="background: #312e81" onclick="setCanvasBg('#312e81', this)" title="Magie"></div>
-                <div class="bg-dot" style="background: #ffffff" onclick="setCanvasBg('#ffffff', this)" title="Papier"></div>
-            </div>
             <div class="separator"></div>
             <div class="magic-btn" onclick="clearBoard()" title="Tout effacer">🗑️</div>
         </div>
@@ -117,19 +101,18 @@
 
         let currentMode = null, isDrawing = false, lastX = 0, lastY = 0, currentBrush = 'pen', magicParticles = [];
         const canvas = document.getElementById('draw-canvas'), ctx = canvas.getContext('2d');
-        let hue = 0;
 
-        // CONFIGURATION DES PINCEAUX
+        // CONFIGURATION DES PINCEAUX (Nouvelle structure)
         const BRUSH_STYLES = {
-            'pen': { width: 2, glow: 5, color: '#1e293b', opacity: 1, cap: 'round', dash: [], particles: null },
-            'pencil': { width: 2, glow: 2, color: '#64748b', opacity: 0.6, cap: 'round', dash: [], particles: null },
-            'marker': { width: 12, glow: 8, color: '#ef4444', opacity: 0.8, cap: 'round', dash: [], particles: null },
-            'paint': { width: 20, glow: 10, color: '#3b82f6', opacity: 0.4, cap: 'round', dash: [], particles: null },
-            'ink': { width: 8, glow: 5, color: '#000000', opacity: 1, cap: 'round', dash: [], particles: null },
-            'chalk': { width: 6, glow: 4, color: '#f1f5f9', opacity: 0.8, cap: 'butt', dash: [2, 4], particles: null },
-            'rainbow': { width: 5, glow: 15, dynamic: 'hsl', opacity: 1, cap: 'round', dash: [], particles: 'rainbow' },
-            'gold': { width: 4, glow: 20, color: '#fbbf24', opacity: 1, cap: 'round', dash: [], particles: '#f59e0b' },
-            'frost': { width: 2, glow: 15, color: '#bae6fd', opacity: 0.7, cap: 'round', dash: [], particles: '#e0f2fe' }
+            'pen': { width: 2, color: '#1e293b', opacity: 1, cap: 'round', dash: [], particles: null },
+            'pencil': { width: 2, color: '#64748b', opacity: 0.6, cap: 'round', dash: [], particles: null },
+            'marker': { width: 12, color: '#ef4444', opacity: 0.8, cap: 'round', dash: [], particles: null },
+            'paint': { width: 20, color: '#3b82f6', opacity: 0.4, cap: 'round', dash: [], particles: null },
+            'ink': { width: 8, color: '#000000', opacity: 1, cap: 'round', dash: [], particles: null },
+            'chalk': { width: 6, color: '#f1f5f9', opacity: 0.8, cap: 'butt', dash: [2, 4], particles: null }, // Effet pointillé
+            'rainbow': { width: 5, dynamic: 'hsl', opacity: 1, cap: 'round', dash: [], particles: 'rainbow' },
+            'gold': { width: 4, color: '#fbbf24', opacity: 1, cap: 'round', dash: [], particles: '#f59e0b' },
+            'frost': { width: 2, color: '#bae6fd', opacity: 0.7, cap: 'round', dash: [], particles: '#e0f2fe' }
         };
 
         /* --- NAVIGATION --- */
@@ -140,29 +123,17 @@
             if(m === 'DRAW') {
                 document.getElementById('drawing-area').style.display = 'block';
                 resize(); requestAnimationFrame(loopParticles);
-                updateStatus("À tes pinceaux !");
+                updateStatus("Choisis un outil et dessine !");
             } else {
                 updateStatus(m === 'STORY' ? "Quelle histoire inventons-nous ?" : "Quelle est ta question ?");
             }
         }
 
-        /* --- CONFIGURATION FOND --- */
-        function setCanvasBg(color, btn) {
-            const area = document.getElementById('drawing-area');
-            const svgLayer = document.getElementById('svg-layer');
-            area.style.background = color;
-            
-            // On gère l'inversion du calque IA et de l'outil Encre si fond sombre
-            const isDark = (color !== '#ffffff');
-            svgLayer.style.filter = isDark ? "grayscale(100%) invert(1)" : "grayscale(100%)";
-            BRUSH_STYLES.ink.color = isDark ? "#ffffff" : "#000000";
-            
-            document.querySelectorAll('.bg-dot').forEach(d => d.classList.remove('active'));
-            btn.classList.add('active');
-        }
-
         /* --- INPUT --- */
-        function handleInput() { const el = document.getElementById('keyboard-input'); const val = el.value.trim(); if(!val) return; el.value = ''; appelIA(val); }
+        function handleInput() {
+            const el = document.getElementById('keyboard-input'); const val = el.value.trim();
+            if(!val) return; el.value = ''; appelIA(val);
+        }
         document.getElementById('btn-send').onclick = handleInput;
         document.getElementById('keyboard-input').onkeydown = (e) => { if(e.key === 'Enter') handleInput(); };
 
@@ -170,7 +141,7 @@
         async function appelIA(text) {
             updateStatus("Magie en cours...");
             let system = "";
-            if (currentMode === 'STORY') system = "Conteuse pour enfant. Histoire courte (5 phrases). Finis par 'FIN'.";
+            if (currentMode === 'STORY') system = "Conteuse pour enfant. Histoire courte (5 phrases). Finis par 'FIN'. Pas de bonjour.";
             if (currentMode === 'QUESTION') system = "Encyclopédie pour enfant. Réponse simple (3 phrases max).";
             if (currentMode === 'DRAW') system = "Génère UNIQUEMENT le code <svg> (trait noir simple, sans fond) pour : " + text + ". AUCUN autre texte.";
 
@@ -185,49 +156,50 @@
                     const start = res.indexOf('<svg'); const end = res.lastIndexOf('</svg>');
                     if (start !== -1 && end !== -1) {
                         document.getElementById('svg-layer').innerHTML = res.substring(start, end + 6);
-                        updateStatus("C'est apparu !");
+                        updateStatus("Et voilà ! Tu peux colorier par dessus.");
                     } else { throw new Error("Pas de SVG"); }
                 } else { vocal(res); }
             } catch(e) { updateStatus("Oups, la magie a échoué. Réessaie !"); }
         }
 
-        /* --- MOTEUR DE DESSIN --- */
+        /* --- MOTEUR DE DESSIN AMÉLIORÉ --- */
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         function setBrush(t, btn) { currentBrush = t; document.querySelectorAll('.magic-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
         
-        function startDrawing(e) { isDrawing = true; const p = getPos(e); [lastX, lastY] = [p.x, p.y]; draw(e); }
+        function startDrawing(e) { isDrawing = true; const p = getPos(e); [lastX, lastY] = [p.x, p.y]; draw(e); } // Draw on click too
         
         function draw(e) {
             if (!isDrawing) return;
             const p = getPos(e);
             const style = BRUSH_STYLES[currentBrush];
-            hue = (hue + 5) % 360;
 
+            // Configuration du style
             ctx.globalAlpha = style.opacity;
             ctx.lineWidth = style.width;
             ctx.lineCap = style.cap;
             ctx.setLineDash(style.dash);
-            ctx.shadowBlur = style.glow; 
+            // ZERO GLOW : On s'assure que le shadowBlur est à 0
+            ctx.shadowBlur = 0; 
             
+            // Couleur dynamique ou fixe
             if (style.dynamic === 'hsl') {
-                const currentColor = `hsl(${hue}, 100%, 50%)`;
-                ctx.strokeStyle = currentColor;
-                ctx.shadowColor = currentColor;
+                ctx.strokeStyle = `hsl(${Date.now()/5 % 360}, 80%, 50%)`;
             } else {
                 ctx.strokeStyle = style.color;
-                ctx.shadowColor = style.color;
             }
 
+            // Tracé
             ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(p.x, p.y); ctx.stroke();
 
+            // Génération de particules si nécessaire
             if(style.particles) {
-                const pColor = style.dynamic ? ctx.strokeStyle : style.color;
-                for(let i=0; i < 3; i++) {
+                const pColor = style.particles === 'rainbow' ? ctx.strokeStyle : style.particles;
+                for(let i=0; i<(style.width/2); i++) { // Plus le trait est large, plus il y a de particules
                     magicParticles.push({
                         x: p.x + (Math.random()-0.5)*style.width, 
                         y: p.y + (Math.random()-0.5)*style.width, 
-                        vX: (Math.random()-0.5)*3, vY: (Math.random()-0.5)*3, 
-                        life: 1, color: pColor, size: Math.random()*3+1
+                        vX: (Math.random()-0.5)*2, vY: (Math.random()-0.5)*2, 
+                        life: 1, color: pColor, size: Math.random()*2+1
                     });
                 }
             }
@@ -236,11 +208,13 @@
 
         function loopParticles() {
             if (currentMode !== 'DRAW') return;
+            // On n'efface PAS le canvas principal, juste les particules
             magicParticles.forEach((p, i) => {
-                p.x += p.vX; p.y += p.vY; p.life -= 0.03;
+                p.x += p.vX; p.y += p.vY; p.life -= 0.04;
                 if (p.life > 0) {
                     ctx.save(); 
-                    ctx.shadowBlur = 5; ctx.shadowColor = p.color;
+                    // Les particules peuvent avoir un léger glow pour l'effet magique, mais pas le trait
+                    ctx.shadowBlur = 5; ctx.shadowColor = p.color; 
                     ctx.globalAlpha = p.life; ctx.fillStyle = p.color;
                     ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill(); 
                     ctx.restore();
@@ -288,8 +262,8 @@
         sSize(); window.onresize = sSize;
         let stars = Array(100).fill().map(() => ({ x: Math.random()*sCanvas.width, y: Math.random()*sCanvas.height, s: Math.random()*1.5 }));
         function sDraw() {
-            sCtx.clearRect(0,0,sCanvas.width, sCanvas.height); sCtx.fillStyle = "rgba(255,255,255,0.5)";
-            stars.forEach(s => { sCtx.beginPath(); sCtx.arc(s.x, s.y, s.s, 0, Math.PI*2); sCtx.fill(); s.y -= 0.1; if(s.y<0) s.y=sCanvas.height; });
+            sCtx.clearRect(0,0,sCanvas.width, sCanvas.height); sCtx.fillStyle = "white";
+            stars.forEach(s => { sCtx.beginPath(); sCtx.arc(s.x, s.y, s.s, 0, Math.PI*2); sCtx.fill(); s.y -= 0.15; if(s.y<0) s.y=sCanvas.height; });
             requestAnimationFrame(sDraw);
         }
         sDraw();
