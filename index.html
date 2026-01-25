@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ma Boîte Magique - Studio d'Art ✨</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;500;800;900&display=swap" rel="stylesheet">
+    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+    <link href="[https://fonts.googleapis.com/css2?family=Lexend:wght@300;500;800;900&display=swap](https://fonts.googleapis.com/css2?family=Lexend:wght@300;500;800;900&display=swap)" rel="stylesheet">
     <style>
         :root { --bg-1: #fff7ed; --bg-2: #fef9c3; --bg-3: #ede9fe; --bg-4: #fae8ff; --accent: #6366f1; }
         body { font-family: 'Lexend', sans-serif; background: linear-gradient(-45deg, var(--bg-1), var(--bg-2), var(--bg-3), var(--bg-4)); background-size: 400% 400%; animation: gradientBG 15s ease infinite; margin: 0; overflow: hidden; height: 100vh; touch-action: none; }
@@ -19,10 +19,10 @@
             display: none; background: #0f172a; transition: background 0.5s ease;
         }
         #draw-canvas { width: 100%; height: 100%; display: block; z-index: 52; position: relative; cursor: crosshair; }
-        #svg-layer { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; pointer-events: none; opacity: 0.4; z-index: 51; display: flex; align-items: center; justify-content: center; filter: grayscale(100%) invert(1); }
-        #svg-layer svg { width: 100%; height: 100%; stroke: #ffffff; fill: none; stroke-width: 1.5; }
+        #svg-layer { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; pointer-events: none; opacity: 0.6; z-index: 51; display: flex; align-items: center; justify-content: center; }
+        /* Style du SVG généré : blanc éclatant pour le coloriage */
+        #svg-layer svg { width: 100%; height: 100%; filter: drop-shadow(0 0 10px rgba(255,255,255,0.3)); }
 
-        /* Barre d'outils optimisée */
         .drawing-tools { 
             position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%); 
             display: flex; gap: 6px; background: rgba(255,255,255,0.95); backdrop-filter: blur(15px); 
@@ -37,7 +37,6 @@
         .dot.active { outline: 2px solid var(--accent); outline-offset: 2px; transform: scale(1.1); }
         .separator { width: 2px; height: 30px; background: #cbd5e1; margin: auto 2px; border-radius: 2px; }
 
-        /* UI Basique */
         .input-bar { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; background: white; padding: 8px 12px; border-radius: 999px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); z-index: 150; width: 95%; max-width: 550px; align-items: center; border: 1px solid #eef2ff; }
         .input-bar input { flex-grow: 1; border: none; outline: none; font-size: 1rem; padding: 5px; color: #1e293b; background: transparent; }
         .action-btn { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; transition: 0.2s; }
@@ -65,19 +64,19 @@
                 <div class="dot" style="background: #a855f7" onclick="setPenColor('#a855f7', this)"></div>
             </div>
             <div class="separator"></div>
-            <div class="magic-btn active" onclick="setBrush('pen', this)" title="Plume">🖋️</div>
-            <div class="magic-btn" onclick="setBrush('pencil', this)" title="Crayon">✏️</div>
-            <div class="magic-btn" onclick="setBrush('marker', this)" title="Feutre">🖍️</div>
-            <div class="magic-btn" onclick="setBrush('neon', this)" title="Néon">💡</div>
-            <div class="magic-btn" onclick="setBrush('lava', this)" title="Lave">🌋</div>
-            <div class="magic-btn" onclick="setBrush('nature', this)" title="Nature">🌿</div>
-            <div class="magic-btn" onclick="setBrush('ocean', this)" title="Océan">🌊</div>
-            <div class="magic-btn" onclick="setBrush('electric', this)" title="Électrique">⚡</div>
+            <div class="magic-btn active" onclick="setBrush('pen', this)">🖋️</div>
+            <div class="magic-btn" onclick="setBrush('pencil', this)">✏️</div>
+            <div class="magic-btn" onclick="setBrush('marker', this)">🖍️</div>
+            <div class="magic-btn" onclick="setBrush('neon', this)">💡</div>
+            <div class="magic-btn" onclick="setBrush('lava', this)">🌋</div>
+            <div class="magic-btn" onclick="setBrush('nature', this)">🌿</div>
+            <div class="magic-btn" onclick="setBrush('ocean', this)">🌊</div>
+            <div class="magic-btn" onclick="setBrush('electric', this)">⚡</div>
             <div class="separator"></div>
-            <div class="magic-btn" onclick="setBrush('rainbow', this)" title="Arc-en-ciel">🌈</div>
-            <div class="magic-btn" onclick="setBrush('gold', this)" title="Or">✨</div>
-            <div class="magic-btn" onclick="setBrush('frost', this)" title="Givre">❄️</div>
-            <div class="magic-btn" onclick="setBrush('galaxy', this)" title="Galaxie">🌌</div>
+            <div class="magic-btn" onclick="setBrush('rainbow', this)">🌈</div>
+            <div class="magic-btn" onclick="setBrush('gold', this)">✨</div>
+            <div class="magic-btn" onclick="setBrush('frost', this)">❄️</div>
+            <div class="magic-btn" onclick="setBrush('galaxy', this)">🌌</div>
             <div class="separator"></div>
             <div class="flex items-center gap-2 px-2">
                 <div class="dot active" style="background: #0f172a" onclick="setCanvasBg('#0f172a', this)"></div>
@@ -86,7 +85,7 @@
                 <div class="dot" style="background: #ffffff" onclick="setCanvasBg('#ffffff', this)"></div>
             </div>
             <div class="separator"></div>
-            <div class="magic-btn" onclick="clearBoard()" title="Effacer">🗑️</div>
+            <div class="magic-btn" onclick="clearBoard()">🗑️</div>
         </div>
     </div>
 
@@ -156,7 +155,10 @@
         function setCanvasBg(color, btn) {
             document.getElementById('drawing-area').style.background = color;
             const isDark = color !== '#ffffff';
-            document.getElementById('svg-layer').style.filter = isDark ? "grayscale(100%) invert(1)" : "grayscale(100%)";
+            // On gère la couleur du modèle SVG généré par l'IA ici
+            const svgLayer = document.getElementById('svg-layer');
+            svgLayer.style.filter = isDark ? "drop-shadow(0 0 8px rgba(255,255,255,0.4))" : "invert(1) contrast(2)";
+            
             BRUSH_STYLES.ink.color = isDark ? "#ffffff" : "#000000";
             document.querySelectorAll('.dot').forEach(d => { if(d.onclick.toString().includes('setCanvasBg')) d.classList.remove('active'); });
             btn.classList.add('active');
@@ -168,20 +170,45 @@
         }
         document.getElementById('keyboard-input').onkeydown = (e) => { if(e.key === 'Enter') handleInput(); };
 
+        /* --- NOUVEAU MOTEUR IA ROBUSTE --- */
         async function appelIA(text) {
-            updateStatus("Magie...");
-            let sys = currentMode === 'DRAW' ? "Code <svg> noir simple pour : " + text : "Réponse courte enfant.";
+            updateStatus("Invocation magique...");
+            
+            let system = "";
+            if (currentMode === 'STORY') {
+                system = "Tu es une conteuse magique. Raconte une aventure courte (5 phrases).";
+            } else if (currentMode === 'QUESTION') {
+                system = "Tu es une encyclopédie pour enfants. Explique simplement en 3 phrases.";
+            } else if (currentMode === 'DRAW') {
+                // Prompt renforcé pour éviter le bavardage et forcer le blanc (plus visible sur fond sombre)
+                system = "Tu es une machine à dessiner. Génère UNIQUEMENT le code d'un élément <svg viewBox='0 0 100 100'> avec des traits BLANCS (stroke='white') et sans remplissage (fill='none') pour représenter l'objet demandé. Ne réponds RIEN d'autre, pas de texte, pas de bonjour.";
+            }
+
             try {
-                const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`;
+                const r = await fetch(url, {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ contents: [{ parts: [{ text: sys + "\nDemande : " + text }] }] })
+                    body: JSON.stringify({ contents: [{ parts: [{ text: system + "\nObjet : " + text }] }] })
                 });
-                const d = await r.json(); const res = d.candidates[0].content.parts[0].text;
+                
+                const d = await r.json();
+                let rawRes = d.candidates[0].content.parts[0].text;
+
                 if (currentMode === 'DRAW') {
-                    const match = res.match(/<svg[\s\S]*<\/svg>/);
-                    if(match) { document.getElementById('svg-layer').innerHTML = match[0]; updateStatus("Apparu !"); }
-                } else { vocal(res); }
-            } catch(e) { updateStatus("Erreur..."); }
+                    // NETTOYAGE ULTIME : Retire les balises markdown et le texte parasite
+                    let svgMatch = rawRes.match(/<svg[\s\S]*<\/svg>/i);
+                    if(svgMatch) {
+                        let svgCode = svgMatch[0];
+                        // On s'assure que le trait est blanc et bien visible
+                        svgCode = svgCode.replace(/stroke="[^"]*"/g, 'stroke="white"').replace(/stroke-width="[^"]*"/g, 'stroke-width="2"');
+                        document.getElementById('svg-layer').innerHTML = svgCode;
+                        updateStatus("Le modèle est apparu !");
+                    } else { throw new Error("SVG non détecté"); }
+                } else { vocal(rawRes); }
+            } catch(e) { 
+                console.error(e);
+                updateStatus("Zut, l'IA s'est endormie..."); 
+            }
         }
 
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; }
@@ -212,8 +239,6 @@
                     let vx = (Math.random()-0.5)*0.5, vy = (Math.random()-0.5)*0.5;
                     if(style.particles === 'fire') vy = -Math.random()*2;
                     if(style.particles === 'bubbles') vy = -Math.random()*1;
-                    if(style.particles === 'leaf') { vx = (Math.random()-0.5)*2; vy = Math.random()*1; }
-
                     magicParticles.push({
                         x: pos.x, y: pos.y, vx, vy,
                         life: 1, decay: 0.02, color: pColor, 
@@ -235,8 +260,6 @@
                     if(p.type === 'bubbles') {
                         ctx.strokeStyle = p.color; ctx.lineWidth = 1;
                         ctx.arc(p.x, p.y, p.size*2, 0, Math.PI*2); ctx.stroke();
-                    } else if(p.type === 'leaf') {
-                        ctx.ellipse(p.x, p.y, p.size, p.size*2, p.x, 0, Math.PI*2); ctx.fill();
                     } else {
                         ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill();
                     }
