@@ -236,16 +236,53 @@
         const MODEL_ID = "models/gemini-2.5-flash"; 
         const AZURE_VOICE_NAME = "fr-FR-DeniseNeural"; 
 
-        /* --- DATA MUSIQUE SPOTIFY (PLAYLISTS) --- */
-        // On mappe des mots-clés d'ambiance à des Playlists Spotify officielles ou très populaires
+        /* --- DISCOTHÈQUE GÉANTE SPOTIFY (PLAYLISTS & GENRES) --- */
         const SPOTIFY_DB = {
-            'DISNEY': '37i9dQZF1DX8C9xQcOrE6T', // Disney Hits
-            'DODO': '37i9dQZF1DWZd79rJ6a7lp',   // Sleep Lullabies
-            'FETE': '37i9dQZF1DX2sUQqwWQbJn',   // Party Kids
-            'DECOUVERTE': '37i9dQZF1DWWHQX5fP7a70', // Dino/Adventure (Kids Road Trip)
-            'SUPERHEROS': '37i9dQZF1DXu2W0Mf8a55a', // Epic Gaming/Hero
-            'POP': '37i9dQZF1DXcBWIGoYBM5M',     // Today's Top Hits (ou Kids Pop)
-            'CLASSIQUE': '37i9dQZF1DWUvHZA1zLcjW' // Calming Classical
+            // -- POP & HITS --
+            'POP': '37i9dQZF1DXcBWIGoYBM5M',     // Hits
+            'DISNEY': '37i9dQZF1DX8C9xQcOrE6T',  // Disney
+            'FILM': '37i9dQZF1DX8C9xQcOrE6T',    // Films enfants
+            'VOITURE': '37i9dQZF1DWWHQM6sW8kDQ', // Sing Along Kids
+
+            // -- INSTRUMENTS --
+            'GUITARE': '37i9dQZF1DWZK4p8GZlQhW', // Guitare acoustique calme
+            'GUITARE_ELEC': '37i9dQZF1DWWzBc3TOlaAV', // Rock Classics
+            'PIANO': '37i9dQZF1DWUvHZA1zLcjW',   // Piano calme
+            'VIOLON': '37i9dQZF1DWV7EzJMK2FUI',  // Classical Violin
+            'BATTERIE': '37i9dQZF1DWXJKyK5MgDWz', // Drums Focus
+            'TROMPETTE': '37i9dQZF1DX6f3J34J8j5p', // Jazz Classics (Sax/Trompette)
+
+            // -- GENRES --
+            'ROCK': '37i9dQZF1DWWzBc3TOlaAV',    // Classic Rock
+            'METAL': '37i9dQZF1DX9qNs32fujYe',   // Heavy Metal (Soft)
+            'RAP': '37i9dQZF1DX0XUsuxWHRQd',     // Rap Caviar
+            'JAZZ': '37i9dQZF1DXbITWG1ZJKYt',    // Jazz Classics
+            'CLASSIQUE': '37i9dQZF1DWUvHZA1zLcjW', // Classique
+            'COUNTRY': '37i9dQZF1DX1lVhptIYRda', // Country Hits
+            'DISCO': '37i9dQZF1DX4UtSsGT1Sbe',   // All Out 80s
+
+            // -- AMBIANCES --
+            'DODO': '37i9dQZF1DWZd79rJ6a7lp',    // Berceuses
+            'CALME': '37i9dQZF1DWZd79rJ6a7lp',   // Relax
+            'FETE': '37i9dQZF1DX2sUQqwWQbJn',    // Party Kids
+            'DANSE': '37i9dQZF1DX2sUQqwWQbJn',   // Dance
+            'TRISTE': '37i9dQZF1DX3YSRoSdA634',  // Sad Songs
+            'HEUREUX': '37i9dQZF1DXdPec7aLTmlC', // Happy Hits
+            'SPORT': '37i9dQZF1DX76Wlfdnj7AP',   // Workout
+
+            // -- THÈMES SPÉCIAUX --
+            'DINOSAURE': '37i9dQZF1DWWHQX5fP7a70', // Kids Adventure
+            'SUPERHEROS': '37i9dQZF1DXu2W0Mf8a55a', // Epic Gaming
+            'JEUXVIDEO': '37i9dQZF1DXdfOcg1fm0VG',  // Video Game Scores
+            'HALLOWEEN': '37i9dQZF1EIdR77n0lqY6P',  // Spooky
+            'NOEL': '37i9dQZF1DX0A8zVl7p82B',     // Christmas
+
+            // -- NATURE & BRUITS --
+            'PLUIE': '37i9dQZF1DX8gym7ONOGCa',    // Rain Sounds
+            'OCEAN': '37i9dQZF1DX4PP3kddpbma',    // Ocean Sounds
+            'FORET': '37i9dQZF1DWX83CujKHHbD',    // Nature Sounds
+            'ANIMAUX': '37i9dQZF1DWWHQX5fP7a70',  // Animaux (Mix Kids)
+            'JUNGLE': '37i9dQZF1DWWHQX5fP7a70'    // Jungle (Mix Kids)
         };
 
         /* --- ARDOISE NOIRE --- */
@@ -434,8 +471,8 @@
                 interactionMode = 'COLORING_INPUT'; document.getElementById('status').innerText = "Que veux-tu colorier ?";
                 speechQueue.push(`C'est l'heure des couleurs ! Dis-moi ${userPrenom}, que veux-tu colorier aujourd'hui ?`);
             } else if (currentAppMode === 'MUSIC') {
-                interactionMode = 'MUSIC_INPUT'; document.getElementById('status').innerText = "Quel style de musique ?";
-                speechQueue.push(`Bienvenue dans la boîte à musique ${userPrenom} ! Dis-moi ce que tu veux écouter : la reine des neiges, pour dormir, pour danser, ou des dinosaures ?`);
+                interactionMode = 'MUSIC_INPUT'; document.getElementById('status').innerText = "Que veux-tu écouter ?";
+                speechQueue.push(`Bienvenue dans la boîte à musique ${userPrenom} ! Dis-moi ce que tu veux : de la guitare, du piano, des chansons de Noël, ou du rock ?`);
             }
             parler();
         }
@@ -480,6 +517,7 @@
             // Masquer le visualiseur audio car Spotify prend la place
             document.getElementById('story-card').classList.add('hidden');
             
+            // Format URL Spotify standard et fiable
             iframe.src = `https://open.spotify.com/embed/playlist/${playlistId}?utm_source=generator&theme=0`;
             container.classList.add('active');
             
@@ -528,7 +566,7 @@
             let waitingPhrase = "Je réfléchis...";
             if (mode === 'STORY') waitingPhrase = "J'écris ton histoire...";
             else if (mode === 'QUESTION') waitingPhrase = "Je cherche...";
-            else if (mode === 'MUSIC') waitingPhrase = "Je choisis le disque...";
+            else if (mode === 'MUSIC') waitingPhrase = "Je fouille mes disques...";
             
             document.getElementById('status').innerText = waitingPhrase;
 
@@ -555,18 +593,23 @@
                 ${recentHistory}
                 Réponds à l'enfant :`;
             } else if (mode === 'MUSIC') {
-                promptIA = `Tu es un DJ pour enfants. L'enfant demande : "${sujet}".
-                Ta mission : Choisir la playlist Spotify la plus adaptée dans cette liste précise :
-                - DISNEY (Pour dessins animés, films, princesse, reine des neiges)
-                - DODO (Pour dormir, calme, berceuse, relax)
-                - FETE (Pour bouger, danser, rap, rock, énergie)
-                - DECOUVERTE (Animaux, dinosaures, aventure, nature, road trip)
-                - SUPERHEROS (Action, courage, jeux vidéo)
-                - CLASSIQUE (Piano, violon, très calme)
-                - POP (Musique actuelle, hits, radio, stars)
-
-                Analyse l'intention. Si tu hésites, choisis POP.
-                Réponds UNIQUEMENT par le mot clé en majuscule (ex: DISNEY). Rien d'autre.`;
+                // Construction dynamique de la liste des clés disponibles pour aider Gemini
+                const availableKeys = Object.keys(SPOTIFY_DB).join(', ');
+                
+                promptIA = `Tu es un DJ expert pour enfants. L'enfant demande : "${sujet}".
+                
+                Ta mission est de trouver la MEILLEURE correspondance dans ma base de données de playlists.
+                Voici les clés disponibles : ${availableKeys}.
+                
+                Règles de correspondance :
+                - Si l'enfant dit "guitare électrique" -> GUITARE_ELEC ou ROCK.
+                - Si "piano calme" -> PIANO.
+                - Si "bruit de pluie" -> PLUIE.
+                - Si "je veux danser" -> DANSE ou FETE.
+                - Si c'est un truc triste -> TRISTE.
+                - Si tu ne trouves rien de précis, choisis POP.
+                
+                Réponds UNIQUEMENT par le mot clé en majuscule (ex: ROCK). Rien d'autre. Pas de phrase.`;
             }
 
             try {
@@ -579,8 +622,8 @@
                         statusLabel.innerText = "C'est prêt !";
                         
                         if (mode === 'MUSIC') {
-                            // Nettoyage de la réponse IA pour avoir juste le mot clé
-                            const cleanKey = fullResponseText.trim().toUpperCase().replace(/[^A-Z]/g, '');
+                            // Nettoyage de la réponse IA pour avoir juste le mot clé (ex: "ROCK")
+                            const cleanKey = fullResponseText.trim().toUpperCase().replace(/[^A-Z_]/g, ''); // Accepte les underscores
                             playSpotify(cleanKey);
                             interactionMode = 'MUSIC_INPUT';
                         } else {
