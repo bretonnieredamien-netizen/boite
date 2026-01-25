@@ -35,6 +35,23 @@
         .content-layer { position: relative; z-index: 10; width: 100%; display: flex; flex-direction: column; align-items: center; opacity: 0; transition: opacity 1s ease-in; }
         .content-visible { opacity: 1 !important; }
 
+        /* --- OVERLAY DE CONCENTRATION --- */
+        #dim-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); 
+            z-index: 40; opacity: 0; pointer-events: none;
+            transition: opacity 3s ease-in-out; 
+        }
+        .dim-active { opacity: 1 !important; pointer-events: auto !important; }
+
+        /* --- HEADER & LOGO --- */
+        .brand-header { position: absolute; top: 1.5rem; left: 1.5rem; z-index: 20; transition: opacity 1s; }
+        #main-header { transition: opacity 1s ease, transform 1s ease; opacity: 1; transform: translateY(0); }
+        .cinema-mode { opacity: 0 !important; transform: translateY(-20px) !important; pointer-events: none; }
+
+        .logo-container { width: 180px; height: 180px; display: flex; justify-content: center; align-items: center; opacity: 0; animation: introFade 2s ease-out forwards; filter: drop-shadow(0 10px 25px rgba(129, 140, 248, 0.5)); }
+        @keyframes introFade { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
+
         /* --- ARDOISE MAGIQUE (Application 3) --- */
         #slate-layer {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -52,23 +69,71 @@
         .brush-btn.active { border-color: #6366f1; transform: scale(1.2); background: white; color: #1e293b; }
         .slate-action { padding: 0.5rem 1rem; border-radius: 12px; font-weight: 800; font-size: 0.7rem; color: white; text-transform: uppercase; letter-spacing: 0.05em; background: rgba(255,255,255,0.1); }
 
-        /* --- UI MAGIQUE --- */
-        .status-box { background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px); padding: 0.6rem 1.8rem; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.5); margin-top: 1rem; min-height: 44px; display: flex; align-items: center; justify-content: center; }
-        .orbe-base { position: relative; width: 120px; height: 120px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(15px); border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.8); display: flex; align-items: center; justify-content: center; transition: all 0.5s; cursor: pointer; z-index: 50; }
-        .orbe-base svg { width: 45px; height: 45px; fill: var(--accent-color); }
+        /* --- UI --- */
+        .status-box { 
+            background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px); 
+            padding: 0.6rem 1.8rem; border-radius: 9999px; 
+            border: 1px solid rgba(255, 255, 255, 0.5); margin-top: 1rem;
+            min-height: 44px; display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .understood-flash { animation: success-pulse 0.8s ease-out !important; background: rgba(16, 185, 129, 0.2) !important; border-color: #10b981 !important; }
+        @keyframes success-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); box-shadow: 0 0 60px #10b981; } 100% { transform: scale(1); } }
+
+        /* --- LOADER --- */
+        .magic-loader { width: 24px; height: 24px; border-radius: 50%; border: 3px solid transparent; border-top-color: #22d3ee; border-right-color: #818cf8; border-bottom-color: #c084fc; animation: spinLoader 1s linear infinite; }
+        @keyframes spinLoader { 100% { transform: rotate(360deg); } }
+
+        /* --- VISUALISEUR --- */
+        #story-card { 
+            background: transparent; overflow: hidden; display: flex; align-items: center; justify-content: center;
+            width: 100%; max-width: 320px; height: 100px; 
+            filter: drop-shadow(0 4px 6px rgba(129, 140, 248, 0.3));
+            position: relative; z-index: 50;
+        }
+        #visualizer-canvas { width: 100%; height: 100%; }
+
+        /* --- BOUTONS --- */
+        .orbe-base { position: relative; width: 120px; height: 120px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(15px); border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.8); display: flex; align-items: center; justify-content: center; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; z-index: 50; }
+        .orbe-base svg { width: 45px; height: 45px; fill: var(--accent-color); transition: fill 1s; }
         .mic-listening { background: rgba(255, 255, 255, 0.3) !important; box-shadow: 0 0 50px var(--accent-color) !important; transform: scale(1.1); }
+        #btn-stop svg { fill: #f87171; }
+        #stop-container.opacity-100 #btn-stop { background: rgba(248, 113, 113, 0.15); border-color: #f87171; box-shadow: 0 0 30px rgba(248, 113, 113, 0.4); }
         
-        #intro-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s; }
+        /* --- INTRO & SELECTEUR --- */
+        #intro-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s ease-out, visibility 0.8s; }
+        
         .mode-selector { display: flex; gap: 2rem; align-items: center; justify-content: center; width: 100%; flex-wrap: wrap; }
-        .mode-card { display: flex; flex-direction: column; align-items: center; gap: 1rem; cursor: pointer; transition: transform 0.3s; }
+        .mode-card {
+            display: flex; flex-direction: column; align-items: center; gap: 1rem;
+            cursor: pointer; transition: transform 0.3s ease;
+        }
         .mode-card:hover { transform: scale(1.1); }
-        .mode-icon-box { width: 140px; height: 140px; border-radius: 30px; background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(20px); border: 2px solid rgba(255, 255, 255, 0.6); display: flex; align-items: center; justify-content: center; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
-        .mode-label { font-weight: 800; color: rgba(79, 70, 229, 0.6); text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.8rem; }
+        .mode-icon-box {
+            width: 140px; height: 140px; border-radius: 30px;
+            background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .mode-label {
+            font-weight: 800; color: rgba(79, 70, 229, 0.6); text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.8rem;
+        }
+
+        .god-rays { position: absolute; width: 180%; height: 180%; background: conic-gradient(from 0deg, transparent 0deg, rgba(251, 191, 36, 0.2) 20deg, transparent 40deg, rgba(139, 92, 246, 0.2) 60deg, transparent 80deg); border-radius: 50%; z-index: -1; opacity: 1; animation: spinRays 20s linear infinite; top: 50%; left: 50%; transform: translate(-50%, -50%); mix-blend-mode: overlay; pointer-events: none; }
+        @keyframes spinRays { 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+
+        .intro-fade-out { opacity: 0; pointer-events: none; }
+        .white-flash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 90; opacity: 0; pointer-events: none; }
+        .flash-active { animation: flashAnim 1.5s ease-out forwards; }
+        @keyframes flashAnim { 0% { opacity: 0; } 15% { opacity: 0.95; } 100% { opacity: 0; } }
     </style>
 </head>
 <body class="p-6">
 
     <canvas id="starfield"></canvas>
+    
+    <div id="dim-overlay"></div>
 
     <div id="slate-layer">
         <canvas id="slate-canvas"></canvas>
@@ -84,52 +149,96 @@
     </div>
 
     <div id="intro-overlay">
-        <p class="text-indigo-900/50 text-xl font-black mb-12 uppercase tracking-widest text-center">Choisis ta magie</p>
+        <div class="god-rays"></div>
+        
+        <p id="intro-title" class="text-indigo-900/50 text-xl font-black mb-12 uppercase tracking-widest text-center">Choisis ta magie</p>
+
         <div class="mode-selector">
             <div class="mode-card" onclick="selectMode('STORY')">
-                <div class="mode-icon-box"><svg width="60" height="60" viewBox="0 0 24 24" fill="#6366f1"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg></div>
+                <div class="mode-icon-box">
+                    <svg width="60" height="60" viewBox="0 0 24 24" fill="#6366f1">
+                        <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/>
+                    </svg>
+                </div>
                 <span class="mode-label">Histoires</span>
             </div>
+
             <div class="mode-card" onclick="selectMode('QUESTION')">
-                <div class="mode-icon-box"><svg width="60" height="60" viewBox="0 0 24 24" fill="#ec4899"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg></div>
+                <div class="mode-icon-box">
+                    <svg width="60" height="60" viewBox="0 0 24 24" fill="#ec4899">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+                    </svg>
+                </div>
                 <span class="mode-label">Questions</span>
             </div>
+
             <div class="mode-card" onclick="selectMode('DRAW')">
-                <div class="mode-icon-box"><svg width="60" height="60" viewBox="0 0 24 24" fill="#10b981"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"/></svg></div>
+                <div class="mode-icon-box">
+                    <svg width="60" height="60" viewBox="0 0 24 24" fill="#10b981">
+                        <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"/>
+                    </svg>
+                </div>
                 <span class="mode-label">Dessin</span>
             </div>
         </div>
     </div>
 
+    <div id="white-flash" class="white-flash"></div>
+
     <div id="main-interface" class="content-layer min-h-screen">
-        <header class="text-center flex flex-col items-center mt-6">
+        <div class="brand-header"></div>
+        <header id="main-header" class="text-center flex flex-col items-center mt-6">
+            <div class="logo-container">
+                <svg id="main-logo-story" class="hidden" viewBox="0 0 24 24" fill="#6366f1" width="100" height="100"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+                <svg id="main-logo-question" class="hidden" viewBox="0 0 24 24" fill="#ec4899" width="100" height="100"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg>
+            </div>
             <div class="status-box">
                 <p id="status" class="text-indigo-900/60 font-semibold italic text-sm">Prêt...</p>
+                <div id="loading-spinner" class="magic-loader hidden"></div>
             </div>
         </header>
 
         <main class="w-full max-w-md flex flex-col items-center gap-14 mt-8">
-            <button id="btn-mic" class="orbe-base shadow-2xl">
-                <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
-            </button>
-            <div id="stop-container" class="opacity-0 pointer-events-none transition-all duration-500">
-                <button id="btn-stop" class="slate-action">ARRÊTER ⏹</button>
+            <div class="flex items-center justify-center gap-12 w-full">
+                <div class="flex flex-col items-center gap-4">
+                    <button id="btn-mic" class="orbe-base shadow-2xl">
+                        <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+                    </button>
+                </div>
+                <div id="stop-container" class="flex flex-col items-center gap-4 opacity-20 pointer-events-none transition-all duration-500">
+                    <button id="btn-stop" class="orbe-base shadow-xl">
+                        <svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" /></svg>
+                    </button>
+                </div>
             </div>
+            <div id="story-card" class="hidden transition-all duration-500">
+                 <canvas id="visualizer-canvas"></canvas>
+            </div>
+             <input type="text" id="manualInput" class="hidden">
         </main>
 
-        <footer class="mt-auto py-8">
-             <button onclick="window.location.reload()" class="text-indigo-400/60 text-[11px] font-bold uppercase tracking-widest hover:text-indigo-600">Retour au menu</button>
+        <footer class="mt-auto py-8 flex flex-col items-center gap-3">
+             <button onclick="window.location.reload()" class="text-indigo-400/60 text-[11px] font-bold uppercase tracking-widest hover:text-indigo-600 transition-colors">Retour au menu</button>
+             <button onclick="oublierTout()" class="text-gray-400/30 text-[9px] uppercase tracking-widest hover:text-gray-400 transition-colors">Réinitialiser le profil</button>
         </footer>
     </div>
 
     <script>
-        /* --- CONFIGURATION --- */
+        /* --- CONFIGURATION & VARIABLES --- */
         let GEMINI_KEY = localStorage.getItem('BOITE_GEMINI_KEY');
         let AZURE_KEY = localStorage.getItem('BOITE_AZURE_KEY');
         let AZURE_REGION = localStorage.getItem('BOITE_AZURE_REGION');
-        let userPrenom = localStorage.getItem('BOITE_PRENOM');
         
-        let currentAppMode = null, isSpeaking = false, currentAudio = null;
+        let userPrenom = localStorage.getItem('BOITE_PRENOM');
+        let userAge = localStorage.getItem('BOITE_AGE');
+        let userGenre = localStorage.getItem('BOITE_GENRE'); 
+        let userColor = localStorage.getItem('BOITE_COLOR'); 
+        
+        let currentAppMode = null; // 'STORY' ou 'QUESTION'
+        let interactionMode = 'INIT'; 
+
+        const MODEL_ID = "models/gemini-2.5-flash"; 
+        const AZURE_VOICE_NAME = "fr-FR-DeniseNeural"; 
 
         /* --- ARDOISE MAGIQUE LOGIQUE --- */
         const sCanvas = document.getElementById('slate-canvas');
@@ -195,90 +304,407 @@
         window.addEventListener('touchend', () => drawing = false);
 
         function clearSlate() { sCtx.clearRect(0,0,sCanvas.width, sCanvas.height); }
-        function closeSlate() { document.getElementById('slate-layer').style.display = 'none'; }
+        function closeSlate() { document.getElementById('slate-layer').style.display = 'none'; document.getElementById('intro-overlay').style.display = 'flex'; document.getElementById('intro-overlay').classList.remove('intro-fade-out'); }
 
-        /* --- LOGIQUE MODES --- */
+        /* --- THEMES COULEURS --- */
+        const THEMES = {
+            'defaut': { bg: ['#fff7ed', '#fef9c3', '#ede9fe', '#fae8ff'], star: '251, 191, 36', accent: '#6366f1', vis: ['#4f46e5', '#9333ea', '#db2777'] },
+            'bleu': { bg: ['#eff6ff', '#dbeafe', '#bfdbfe', '#93c5fd'], star: '96, 165, 250', accent: '#2563eb', vis: ['#1e40af', '#3b82f6', '#93c5fd'] },
+            'rose': { bg: ['#fff1f2', '#ffe4e6', '#fecdd3', '#fda4af'], star: '244, 114, 182', accent: '#db2777', vis: ['#9d174d', '#db2777', '#f472b6'] },
+            'rouge': { bg: ['#fef2f2', '#fee2e2', '#fecaca', '#fca5a5'], star: '248, 113, 113', accent: '#dc2626', vis: ['#991b1b', '#ef4444', '#f87171'] },
+            'vert': { bg: ['#f0fdf4', '#dcfce7', '#bbf7d0', '#86efac'], star: '74, 222, 128', accent: '#16a34a', vis: ['#166534', '#22c55e', '#86efac'] },
+            'violet': { bg: ['#f5f3ff', '#ede9fe', '#ddd6fe', '#c4b5fd'], star: '167, 139, 250', accent: '#7c3aed', vis: ['#5b21b6', '#8b5cf6', '#c4b5fd'] },
+            'jaune': { bg: ['#fefce8', '#fef9c3', '#fef08a', '#fde047'], star: '234, 179, 8', accent: '#ca8a04', vis: ['#854d0e', '#eab308', '#fef08a'] },
+            'sombre': { bg: ['#1e1b4b', '#312e81', '#4338ca', '#3730a3'], star: '255, 255, 255', accent: '#818cf8', vis: ['#4338ca', '#6366f1', '#a5b4fc'] }
+        };
+
+        const KEYWORDS = {
+            'bleu': 'bleu', 'mer': 'bleu', 'ciel': 'bleu', 'azur': 'bleu',
+            'rose': 'rose', 'fée': 'rose', 'princesse': 'rose',
+            'rouge': 'rouge', 'feu': 'rouge', 'pompier': 'rouge',
+            'vert': 'vert', 'nature': 'vert', 'foret': 'vert', 'herbe': 'vert',
+            'violet': 'violet', 'lilas': 'violet', 'mauve': 'violet',
+            'jaune': 'jaune', 'soleil': 'jaune', 'or': 'jaune',
+            'noir': 'sombre', 'sombre': 'sombre', 'nuit': 'sombre', 'espace': 'sombre'
+        };
+
+        let currentTheme = THEMES['defaut'];
+        let speechQueue = [];
+        let isSpeaking = false;
+        let audioCtx = null;
+        let currentAudio = null;
+
+        /* --- FONCTION APPLICATION THEME HYBRIDE --- */
+        function applyMixedTheme(inputText) {
+            if (!inputText) return;
+            const text = inputText.toLowerCase();
+            const detectedKeys = new Set();
+            for (const [key, val] of Object.entries(KEYWORDS)) { if (text.includes(key)) detectedKeys.add(val); }
+            const themes = Array.from(detectedKeys).map(k => THEMES[k]);
+
+            if (themes.length === 0) return;
+            else if (themes.length === 1) currentTheme = themes[0];
+            else {
+                const t1 = themes[0];
+                const t2 = themes[themes.length - 1]; 
+                currentTheme = {
+                    bg: [t1.bg[0], t2.bg[1], t1.bg[2], t2.bg[3]],
+                    star: t1.star, accent: t2.accent,
+                    vis: [t1.vis[0], t2.vis[1], t1.vis[2]]
+                };
+            }
+
+            const r = document.querySelector(':root');
+            r.style.setProperty('--bg-1', currentTheme.bg[0]); r.style.setProperty('--bg-2', currentTheme.bg[1]); r.style.setProperty('--bg-3', currentTheme.bg[2]); r.style.setProperty('--bg-4', currentTheme.bg[3]);
+            r.style.setProperty('--accent-color', currentTheme.accent);
+            r.style.setProperty('--vis-1', currentTheme.vis[0]); r.style.setProperty('--vis-2', currentTheme.vis[1]); r.style.setProperty('--vis-3', currentTheme.vis[2]);
+
+            particles.forEach(p => {
+                if (themes.length > 1) p.color = Math.random() > 0.5 ? themes[0].star : themes[1].star;
+                else p.color = currentTheme.star;
+            });
+        }
+
+        /* --- CANVAS STARS --- */
+        const canvas = document.getElementById('starfield'); const ctx = canvas.getContext('2d'); let particles = []; let burstParticles = [];
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        class Particle { 
+            constructor() { this.reset(); } 
+            reset() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 2.5 + 0.5; this.speed = Math.random() * 0.02 + 0.01; this.opacity = Math.random() * 0.9; this.color = currentTheme.star; } 
+            update() { this.y -= this.speed; this.x += Math.sin(this.y * 0.01) * 0.2; if (this.y < 0) this.reset(); } 
+            draw() { ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); } 
+        }
+        class BurstParticle { constructor(x, y) { this.x = x; this.y = y; const angle = Math.random() * Math.PI * 2; const speed = Math.random() * 15 + 5; this.vx = Math.cos(angle) * speed; this.vy = Math.sin(angle) * speed; this.life = 1.0; this.decay = Math.random() * 0.015 + 0.005; this.color = Math.random() > 0.5 ? "#fbbf24" : "#ffffff"; this.size = Math.random() * 5 + 2; } update() { this.x += this.vx; this.y += this.vy; this.vy += 0.2; this.vx *= 0.96; this.vy *= 0.96; this.life -= this.decay; } draw() { ctx.globalAlpha = this.life; ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1.0; } }
+        function initParticles() { particles = []; for (let i = 0; i < 300; i++) particles.push(new Particle()); }
+        function triggerBurst() { const centerX = window.innerWidth / 2; const centerY = window.innerHeight / 2; for (let i = 0; i < 300; i++) burstParticles.push(new BurstParticle(centerX, centerY)); }
+        function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); for (let i = burstParticles.length - 1; i >= 0; i--) { const p = burstParticles[i]; p.update(); p.draw(); if (p.life <= 0) burstParticles.splice(i, 1); } requestAnimationFrame(animate); }
+        window.addEventListener('resize', resize); resize(); initParticles(); animate();
+
+        /* --- VISUALISEUR --- */
+        const vizCanvas = document.getElementById('visualizer-canvas'); const vizCtx = vizCanvas.getContext('2d'); let analyser = null; let dataArray = null; let visualizerAnimationId = null;
+        function resizeViz() { if(vizCanvas.parentElement) { vizCanvas.width = vizCanvas.parentElement.offsetWidth; vizCanvas.height = vizCanvas.parentElement.offsetHeight; } }
+        window.addEventListener('resize', resizeViz);
+        function startVisualizer(audioSource, context) { resizeViz(); if (!analyser) { analyser = context.createAnalyser(); analyser.fftSize = 64; } audioSource.connect(analyser); analyser.connect(context.destination); const bufferLength = analyser.frequencyBinCount; dataArray = new Uint8Array(bufferLength); drawVisualizer(); }
+        function drawVisualizer() {
+            visualizerAnimationId = requestAnimationFrame(drawVisualizer); analyser.getByteFrequencyData(dataArray);
+            vizCtx.clearRect(0, 0, vizCanvas.width, vizCanvas.height);
+            const bufferLength = analyser.frequencyBinCount; const gap = 6; const barWidth = (vizCanvas.width / bufferLength) - gap; let barHeight; let x = gap / 2;
+            let gradient = vizCtx.createLinearGradient(0, vizCanvas.height, 0, 0); gradient.addColorStop(0, currentTheme.vis[0]); gradient.addColorStop(0.5, currentTheme.vis[1]); gradient.addColorStop(1, currentTheme.vis[2]); vizCtx.fillStyle = gradient;
+            for (let i = 0; i < bufferLength; i++) { barHeight = (dataArray[i] / 255) * vizCanvas.height; if (barHeight < 5) barHeight = 5; const y = (vizCanvas.height - barHeight) / 2; roundRect(vizCtx, x, y, barWidth, barHeight, 50); x += barWidth + gap; }
+        }
+        function roundRect(ctx, x, y, width, height, radius) { if (width < 2 * radius) radius = width / 2; if (height < 2 * radius) radius = height / 2; ctx.beginPath(); ctx.moveTo(x + radius, y); ctx.arcTo(x + width, y, x + width, y + height, radius); ctx.arcTo(x + width, y + height, x, y + height, radius); ctx.arcTo(x, y + height, x, y, radius); ctx.arcTo(x, y, x + width, y, radius); ctx.closePath(); ctx.fill(); }
+        function stopVisualizer() { if (visualizerAnimationId) cancelAnimationFrame(visualizerAnimationId); vizCtx.clearRect(0, 0, vizCanvas.width, vizCanvas.height); }
+
+        /* --- SONS --- */
+        function playSimpleWoosh() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume();
+            const t = audioCtx.currentTime; const bufferSize = audioCtx.sampleRate * 4.0; const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate); const data = buffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+            const noise = audioCtx.createBufferSource(); noise.buffer = buffer; const filter = audioCtx.createBiquadFilter(); filter.type = 'lowpass'; filter.Q.value = 1; filter.frequency.setValueAtTime(100, t); filter.frequency.exponentialRampToValueAtTime(3000, t + 1.5); filter.frequency.exponentialRampToValueAtTime(100, t + 4.0);
+            const gain = audioCtx.createGain(); gain.gain.setValueAtTime(0, t); gain.gain.linearRampToValueAtTime(0.1, t + 1.0); gain.gain.linearRampToValueAtTime(0, t + 4.0);
+            noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination); noise.start(t); noise.stop(t + 4.0);
+        }
+        function playSoftPing() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1); gain.gain.setValueAtTime(0, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.05); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+            osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        /* --- MICRO AUTO --- */
+        function startListening() {
+            const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!Speech) return; 
+            const rec = new Speech(); rec.lang = 'fr-FR'; rec.interimResults = false;
+            rec.onstart = () => { document.getElementById('btn-mic').classList.add('mic-listening'); document.getElementById('status').innerText = "Je t'écoute..."; };
+            rec.onresult = (e) => { const p = e.results[0][0].transcript; document.getElementById('manualInput').value = p; traiterInput(p); };
+            rec.onend = () => document.getElementById('btn-mic').classList.remove('mic-listening');
+            rec.onerror = (e) => { document.getElementById('btn-mic').classList.remove('mic-listening'); 
+                // Gestion erreur ou silence
+                if (interactionMode === 'NAME_INPUT') document.getElementById('status').innerText = "Comment t'appelles-tu ?";
+                else if (interactionMode === 'GENDER_INPUT') document.getElementById('status').innerText = "Garçon ou fille ?";
+                else if (interactionMode === 'COLOR_INPUT') document.getElementById('status').innerText = "Tes couleurs préférées ?";
+                else if (interactionMode === 'AGE_INPUT') document.getElementById('status').innerText = "Quel âge as-tu ?";
+                else if (interactionMode === 'STORY_INPUT') document.getElementById('status').innerText = "Dis-moi ton idée...";
+                else if (interactionMode === 'QUESTION_INPUT') document.getElementById('status').innerText = "Ta question ?";
+            };
+            try { rec.start(); } catch (e) {}
+        }
+
+        /* --- SELECTION DU MODE --- */
         function selectMode(mode) {
             currentAppMode = mode;
-            document.getElementById('intro-overlay').classList.add('hidden');
+            
             if (mode === 'DRAW') {
-                document.getElementById('slate-layer').style.display = 'block';
-                initSlate();
+                // MODE DESSIN (SANS IA)
+                document.getElementById('intro-overlay').classList.add('intro-fade-out');
+                setTimeout(() => { 
+                    document.getElementById('intro-overlay').style.display = 'none';
+                    document.getElementById('slate-layer').style.display = 'block';
+                    initSlate();
+                }, 800);
             } else {
-                document.getElementById('main-interface').classList.add('content-visible');
-                startSequence();
+                // MODES HISTOIRE & QUESTION (AVEC IA)
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                playSimpleWoosh();
+                triggerBurst();
+                document.getElementById('white-flash').classList.add('flash-active');
+
+                setTimeout(() => {
+                    document.getElementById('intro-overlay').classList.add('intro-fade-out');
+                    document.getElementById('main-interface').classList.add('content-visible');
+                    
+                    if(mode === 'STORY') document.getElementById('main-logo-story').classList.remove('hidden');
+                    else document.getElementById('main-logo-question').classList.remove('hidden');
+
+                    if (userColor) applyMixedTheme(userColor);
+
+                    startInteractionSequence();
+                }, 1000);
+
+                setTimeout(() => { document.getElementById('intro-overlay').style.display = 'none'; }, 2000);
             }
         }
 
-        function startSequence() {
-            if (!userPrenom) {
-                vocal("Coucou ! Comment t'appelles-tu ?");
-            } else {
-                vocal(currentAppMode === 'STORY' ? `Prêt pour une histoire ${userPrenom} ?` : `Pose-moi ta question ${userPrenom} !`);
-            }
-        }
-
-        async function appelIA(text) {
-            if (!userPrenom) {
-                userPrenom = text;
-                localStorage.setItem('BOITE_PRENOM', text);
-                vocal(`Enchanté ${userPrenom} ! De quoi veux-tu parler ?`);
+        function startInteractionSequence() {
+            // S'il manque des infos, on lance le questionnaire de setup
+            if (!userPrenom || !userGenre || !userAge || !userColor) {
+                speechQueue.push("Bonjour ! Avant de commencer, je vais te poser quelques questions pour créer ta boîte magique.");
+                interactionMode = 'NAME_INPUT';
+                document.getElementById('status').innerText = "Bonjour ! Comment t'appelles-tu ?";
+                speechQueue.push("D'abord, comment t'appelles-tu ?");
+                parler();
                 return;
             }
 
-            let sys = currentAppMode === 'STORY' ? "Conteuse magique. Histoire courte (5 phrases)." : "Savante magique. Réponse simple.";
-            try {
-                const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ contents: [{ parts: [{ text: sys + " Demande : " + text }] }] })
-                });
-                const d = await r.json();
-                vocal(d.candidates[0].content.parts[0].text);
-            } catch(e) { vocal("Oups, un petit nuage cache ma magie..."); }
+            // Si le setup est fait, on lance le mode choisi
+            if (currentAppMode === 'STORY') {
+                interactionMode = 'STORY_INPUT';
+                document.getElementById('status').innerText = "Quelle histoire veux-tu ?";
+                speechQueue.push(`Te revoilà ${userPrenom} ! Quelle histoire on invente aujourd'hui ?`);
+            } else if (currentAppMode === 'QUESTION') {
+                interactionMode = 'QUESTION_INPUT';
+                document.getElementById('status').innerText = "Pose ta question...";
+                speechQueue.push(`Bonjour ${userPrenom}. Je sais tout sur tout. Pose-moi ta question.`);
+            }
+            parler();
         }
 
-        async function vocal(t) {
-            document.getElementById('status').innerText = t.length > 50 ? t.substring(0, 47) + "..." : t;
+        function traiterInput(texte) {
+            if (!texte.trim()) return;
+            stopAudio(); 
+            document.getElementById('manualInput').value = "";
+            const lowerText = texte.toLowerCase();
+
+            // --- SETUP INITIAL ---
+            if (interactionMode === 'NAME_INPUT') {
+                userPrenom = texte.replace(/je m'appelle /i, "").replace(/c'est /i, "").trim();
+                localStorage.setItem('BOITE_PRENOM', userPrenom);
+                interactionMode = 'GENDER_INPUT';
+                document.getElementById('status').innerText = `Garçon ou fille ?`;
+                speechQueue.push(`Enchantée ${userPrenom} ! Es-tu un garçon ou une fille ?`);
+                parler();
+            } else if (interactionMode === 'GENDER_INPUT') {
+                if (lowerText.includes('garçon') || lowerText.includes('homme')) { userGenre = 'garçon'; next(); }
+                else if (lowerText.includes('fille') || lowerText.includes('femme')) { userGenre = 'fille'; next(); }
+                else { speechQueue.push(`Je n'ai pas bien compris. Es-tu un garçon ou une fille ?`); parler(); }
+                function next() {
+                    localStorage.setItem('BOITE_GENRE', userGenre);
+                    interactionMode = 'COLOR_INPUT';
+                    document.getElementById('status').innerText = `Tes couleurs préférées ?`;
+                    speechQueue.push(`C'est noté. Et dis-moi, quelles sont tes couleurs préférées ?`);
+                    parler();
+                }
+            } else if (interactionMode === 'COLOR_INPUT') {
+                userColor = texte;
+                localStorage.setItem('BOITE_COLOR', userColor);
+                applyMixedTheme(userColor);
+                interactionMode = 'AGE_INPUT';
+                document.getElementById('status').innerText = `Quel âge as-tu ?`;
+                speechQueue.push(`Oh, j'adore ces couleurs ! Voilà ! Et maintenant, quel âge as-tu ?`);
+                parler();
+            } else if (interactionMode === 'AGE_INPUT') {
+                userAge = texte.replace(/j'ai /i, "").replace(/ans/i, "").trim();
+                localStorage.setItem('BOITE_AGE', userAge);
+                
+                // Fin du setup, redirection vers le mode choisi
+                if (currentAppMode === 'STORY') {
+                    interactionMode = 'STORY_INPUT';
+                    document.getElementById('status').innerText = `Quelle histoire veux-tu ?`;
+                    speechQueue.push(`D'accord, ${userAge} ans ! Tout est prêt. Quelle histoire veux-tu écouter maintenant ?`);
+                } else {
+                    interactionMode = 'QUESTION_INPUT';
+                    document.getElementById('status').innerText = `Ta question ?`;
+                    speechQueue.push(`D'accord, ${userAge} ans ! Je suis prête. Quelle est ta question ?`);
+                }
+                parler();
+            } 
+            
+            // --- MODES D'UTILISATION ---
+            else if (interactionMode === 'STORY_INPUT') {
+                interactionMode = 'TELLING';
+                appelIA(texte, 'STORY');
+            } 
+            else if (interactionMode === 'QUESTION_INPUT') {
+                interactionMode = 'TELLING';
+                appelIA(texte, 'QUESTION');
+            }
+        }
+
+        /* --- AUDIO & IA --- */
+        function toggleStopButton(active) {
+            const container = document.getElementById('stop-container');
+            if (active) { container.classList.remove('opacity-20', 'pointer-events-none'); container.classList.add('opacity-100'); } else { container.classList.add('opacity-20', 'pointer-events-none'); container.classList.remove('opacity-100'); }
+        }
+
+        function stopAudio() {
+            if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+            stopVisualizer(); speechQueue = []; isSpeaking = false;
+            document.getElementById('main-header').classList.remove('cinema-mode');
+            document.getElementById('dim-overlay').classList.remove('dim-active'); 
+            document.getElementById('status').classList.remove('hidden');
+            document.getElementById('loading-spinner').classList.add('hidden');
+            
+            if (['NAME_INPUT', 'GENDER_INPUT', 'COLOR_INPUT', 'AGE_INPUT'].includes(interactionMode)) {
+            } else if (currentAppMode === 'STORY') {
+                interactionMode = 'STORY_INPUT';
+                document.getElementById('status').innerText = "Une autre histoire ?";
+            } else {
+                interactionMode = 'QUESTION_INPUT';
+                document.getElementById('status').innerText = "Une autre question ?";
+            }
+
+            toggleStopButton(false); document.getElementById('story-card').classList.add('hidden'); 
+        }
+
+        async function appelIA(sujet, mode) {
+            if (!GEMINI_KEY || !AZURE_KEY || !AZURE_REGION) { verifierCles(); return; }
+            stopAudio();
+            interactionMode = 'TELLING'; 
+            
+            document.getElementById('dim-overlay').classList.add('dim-active');
+            
+            const btnMic = document.getElementById('btn-mic');
+            const statusLabel = document.getElementById('status');
+            const loader = document.getElementById('loading-spinner');
+            
+            playSoftPing(); 
+            btnMic.classList.add('understood-flash');
+            statusLabel.classList.add('hidden');
+            loader.classList.remove('hidden');
+            setTimeout(() => { btnMic.classList.remove('understood-flash'); toggleStopButton(true); }, 800);
+            
+            const waitingPhrasesStory = ["J'ouvre mon grand livre...", "Mmmh, bonne idée...", "L'histoire arrive..."];
+            const waitingPhrasesQuestion = ["Je cherche dans ma mémoire magique...", "Voyons voir...", "C'est une très bonne question..."];
+            
+            const phrases = (mode === 'STORY') ? waitingPhrasesStory : waitingPhrasesQuestion;
+            const waitingPhrase = phrases[Math.floor(Math.random() * phrases.length)];
+            
+            document.getElementById('status').innerText = waitingPhrase;
+            speechQueue.push(waitingPhrase);
+            parler();
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${GEMINI_KEY}`;
+            
+            let contextChild = "";
+            if (userPrenom) contextChild += `L'enfant s'appelle ${userPrenom}. `;
+            if (userAge) contextChild += `L'enfant a ${userAge} ans. `;
+
+            let promptIA = "";
+
+            if (mode === 'STORY') {
+                promptIA = `Tu es une conteuse. ${contextChild} Raconte une aventure réaliste sur : "${sujet}". Ton ton est bienveillant mais neutre. Pas de surnoms affectueux. Tu n'es pas sa maman. Phrases simples. Pas de magie. Fin positive.
+                IMPORTANT : Le héros EST l'enfant nommé ${userPrenom}. Si tu crées des amis, utilise des prénoms variés (Milo, Noor, Kenji...) et EVITE Léo/Léa.
+                Commence directement par l'histoire. Termine par "FIN".`;
+            } else {
+                promptIA = `Tu es une encyclopédie magique et bienveillante. ${contextChild} L'enfant te pose la question : "${sujet}".
+                Réponds de manière pédagogique, simple et scientifiquement juste, adaptée à un enfant de ${userAge} ans.
+                Fais court (3 ou 4 phrases maximum). Ton ton est encourageant. Pas de "Bonjour". Commence directement par la réponse.`;
+            }
+
             try {
-                const r = await fetch(`https://${AZURE_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`, {
-                    method: 'POST', headers: {'Ocp-Apim-Subscription-Key': AZURE_KEY, 'Content-Type': 'application/ssml+xml', 'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3' },
-                    body: `<speak version='1.0' xml:lang='fr-FR'><voice name='fr-FR-DeniseNeural'><prosody rate="0.95">${t}</prosody></voice></speak>`
-                });
-                const b = await r.blob();
-                if(currentAudio) currentAudio.pause();
-                currentAudio = new Audio(URL.createObjectURL(b));
-                currentAudio.onplay = () => document.getElementById('stop-container').style.opacity = '1';
-                currentAudio.onended = () => { document.getElementById('stop-container').style.opacity = '0'; startListening(); };
+                const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: promptIA }] }] }) });
+                const reader = response.body.getReader(); const decoder = new TextDecoder("utf-8"); let currentSentence = "";
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) {
+                        loader.classList.add('hidden'); statusLabel.classList.remove('hidden'); 
+                        statusLabel.innerText = (mode === 'STORY') ? "L'aventure est prête !" : "J'ai trouvé !";
+                        if (currentSentence.trim()) { speechQueue.push(currentSentence.trim()); parler(); }
+                        break;
+                    }
+                    const chunk = decoder.decode(value); const lines = chunk.split("\n");
+                    for (const line of lines) {
+                        if (line.startsWith("data: ")) {
+                            try {
+                                const json = JSON.parse(line.substring(6));
+                                const chunkText = json.candidates[0].content.parts[0].text;
+                                currentSentence += chunkText;
+                                if (/[.!?;:]/.test(chunkText) || chunkText.includes("\n")) {
+                                    const parts = currentSentence.split(/([.!?;:]|\n)/);
+                                    for (let i = 0; i < parts.length - 1; i += 2) { const p = (parts[i] + (parts[i+1] || "")).trim(); if (p.length > 2) { speechQueue.push(p); parler(); } }
+                                    currentSentence = parts[parts.length - 1];
+                                }
+                            } catch(e) {}
+                        }
+                    }
+                }
+            } catch (e) { loader.classList.add('hidden'); statusLabel.classList.remove('hidden'); statusLabel.innerText = "Erreur technique..."; }
+        }
+
+        async function textToSpeechAzure(text) {
+            const url = `https://${AZURE_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`;
+            const ssml = `<speak version='1.0' xml:lang='fr-FR'><voice xml:lang='fr-FR' xml:gender='Female' name='${AZURE_VOICE_NAME}'><prosody rate="0.9">${text}</prosody></voice></speak>`;
+            try {
+                const response = await fetch(url, { method: 'POST', headers: { 'Ocp-Apim-Subscription-Key': AZURE_KEY, 'Content-Type': 'application/ssml+xml', 'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3' }, body: ssml });
+                if (!response.ok) throw new Error("Erreur Azure"); return await response.blob();
+            } catch (e) { return null; }
+        }
+
+        async function parler() {
+            if (isSpeaking || speechQueue.length === 0) return;
+            isSpeaking = true; 
+            toggleStopButton(true);
+            document.getElementById('main-header').classList.add('cinema-mode');
+            document.getElementById('story-card').classList.remove('hidden');
+            resizeViz(); 
+            
+            let txt = speechQueue.shift().replace(/[#*`_]/g, '');
+            const audioBlob = await textToSpeechAzure(txt);
+            if (audioBlob) {
+                const audioUrl = URL.createObjectURL(audioBlob);
+                currentAudio = new Audio(audioUrl);
+                const source = audioCtx.createMediaElementSource(currentAudio);
+                startVisualizer(source, audioCtx);
+                currentAudio.onended = () => {
+                    isSpeaking = false;
+                    if (speechQueue.length === 0) { 
+                        document.getElementById('main-header').classList.remove('cinema-mode');
+                        document.getElementById('dim-overlay').classList.remove('dim-active');
+                        toggleStopButton(false); stopVisualizer(); document.getElementById('story-card').classList.add('hidden');
+                        
+                        if (['NAME_INPUT', 'GENDER_INPUT', 'COLOR_INPUT', 'AGE_INPUT', 'STORY_INPUT', 'QUESTION_INPUT'].includes(interactionMode)) {
+                            setTimeout(() => { startListening(); }, 500);
+                        }
+                    } else parler(); 
+                };
                 currentAudio.play();
-            } catch(e) {}
+            } else { isSpeaking = false; parler(); }
         }
 
-        function startListening() {
-            const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-            const rec = new Speech(); rec.lang = 'fr-FR';
-            rec.onstart = () => document.getElementById('btn-mic').classList.add('mic-listening');
-            rec.onend = () => document.getElementById('btn-mic').classList.remove('mic-listening');
-            rec.onresult = (e) => appelIA(e.results[0][0].transcript);
-            rec.start();
+        function verifierCles() {
+            if (!GEMINI_KEY) { const k = prompt("Entre ta clé d'activation magique N°1 (Google) :"); if (k) { localStorage.setItem('BOITE_GEMINI_KEY', k); GEMINI_KEY = k; } }
+            if (!AZURE_KEY) { const k = prompt("Entre ta clé d'activation magique N°2 (Azure) :"); const r = prompt("Entre ta région Azure (ex: francecentral) :"); if (k && r) { localStorage.setItem('BOITE_AZURE_KEY', k); localStorage.setItem('BOITE_AZURE_REGION', r); AZURE_KEY = k; AZURE_REGION = r; } }
+            if (GEMINI_KEY && AZURE_KEY && AZURE_REGION) location.reload();
         }
 
-        document.getElementById('btn-mic').onclick = startListening;
-        document.getElementById('btn-stop').onclick = () => { if(currentAudio) currentAudio.pause(); };
+        function reinitialiserCle() { localStorage.removeItem('BOITE_GEMINI_KEY'); localStorage.removeItem('BOITE_AZURE_KEY'); localStorage.removeItem('BOITE_AZURE_REGION'); localStorage.removeItem('BOITE_FINAL_KEY_2026'); location.reload(); }
+        function oublierTout() { localStorage.removeItem('BOITE_PRENOM'); localStorage.removeItem('BOITE_AGE'); localStorage.removeItem('BOITE_GENRE'); localStorage.removeItem('BOITE_COLOR'); location.reload(); }
 
-        /* --- ÉTOILES --- */
-        const canvas = document.getElementById('starfield'); const sCtxBg = canvas.getContext('2d');
-        function sResize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        sResize(); window.onresize = sResize;
-        let stars = Array(150).fill().map(() => ({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*1.5 }));
-        function sDraw() {
-            sCtxBg.clearRect(0,0,canvas.width, canvas.height); sCtxBg.fillStyle = "white";
-            stars.forEach(s => { sCtxBg.beginPath(); sCtxBg.arc(s.x, s.y, s.s, 0, Math.PI*2); sCtxBg.fill(); s.y -= 0.1; if(s.y<0) s.y=canvas.height; });
-            requestAnimationFrame(sDraw);
-        }
-        sDraw();
-
-        if(!GEMINI_KEY) localStorage.setItem('BOITE_GEMINI_KEY', prompt("Clé Gemini :"));
-        if(!AZURE_KEY) { localStorage.setItem('BOITE_AZURE_KEY', prompt("Clé Azure :")); localStorage.setItem('BOITE_AZURE_REGION', prompt("Région :")); }
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!GEMINI_KEY || !AZURE_KEY) verifierCles();
+            document.getElementById('btn-mic').onclick = () => { startListening(); };
+            document.getElementById('btn-stop').onclick = stopAudio;
+        });
     </script>
 </body>
 </html>
