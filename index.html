@@ -74,20 +74,52 @@
         }
         #slate-canvas { width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
         
+        /* BARRE D'OUTILS MOBILE OPTIMISÉE */
         .slate-controls {
-            position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
-            display: flex; gap: 0.5rem; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px);
-            padding: 0.8rem; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255, 255, 255, 0.2); align-items: center; z-index: 160;
-            flex-wrap: wrap; justify-content: center; max-width: 95vw;
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            width: 95%; max-width: 800px;
+            display: flex; gap: 12px; 
+            background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(20px);
+            padding: 12px 20px; border-radius: 25px; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2); 
+            align-items: center; z-index: 160;
+            
+            /* SCROLL HORIZONTAL POUR MOBILE */
+            overflow-x: auto; 
+            justify-content: flex-start; /* Permet le scroll */
+            flex-wrap: nowrap; /* Empêche le passage à la ligne */
+            -webkit-overflow-scrolling: touch; /* Scroll fluide iOS */
         }
-        .brush-btn { width: 38px; height: 38px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; transition: 0.2s; background: rgba(255,255,255,0.1); color: white; }
-        .brush-btn.active { border-color: #6366f1; transform: scale(1.15); background: white; color: #1e293b; box-shadow: 0 0 10px rgba(99,102,241,0.5); }
+        /* Cache la barre de défilement tout en gardant le scroll */
+        .slate-controls::-webkit-scrollbar { display: none; } 
+        .slate-controls { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .brush-btn { 
+            flex-shrink: 0; /* Empêche l'écrasement */
+            width: 48px; height: 48px; 
+            border-radius: 50%; border: 2px solid transparent; 
+            cursor: pointer; display: flex; align-items: center; justify-content: center; 
+            font-size: 1.4rem; transition: 0.2s; 
+            background: rgba(255,255,255,0.1); color: white; 
+        }
+        .brush-btn.active { border-color: #6366f1; transform: scale(1.1); background: white; color: #1e293b; box-shadow: 0 0 15px rgba(99,102,241,0.5); }
         
-        .color-picker { width: 28px; height: 28px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.5); cursor: pointer; transition: 0.2s; }
+        .color-picker { 
+            flex-shrink: 0;
+            width: 32px; height: 32px; border-radius: 50%; 
+            border: 2px solid rgba(255,255,255,0.5); cursor: pointer; transition: 0.2s; 
+        }
         .color-picker.active { transform: scale(1.3); border-color: white; box-shadow: 0 0 10px white; }
 
-        .slate-action { padding: 0.5rem 1rem; border-radius: 12px; font-weight: 800; font-size: 0.7rem; color: white; text-transform: uppercase; letter-spacing: 0.05em; background: rgba(255,255,255,0.1); }
+        .slate-action { 
+            flex-shrink: 0;
+            padding: 0.6rem 1.2rem; border-radius: 12px; 
+            font-weight: 800; font-size: 0.75rem; color: white; 
+            text-transform: uppercase; letter-spacing: 0.05em; 
+            background: rgba(255,255,255,0.1); 
+            white-space: nowrap;
+        }
 
         /* --- UI --- */
         .status-box { 
@@ -161,7 +193,7 @@
         </button>
         <canvas id="slate-canvas"></canvas>
         <div class="slate-controls">
-            <div id="base-colors" class="flex gap-2 mr-2 border-r border-white/20 pr-3">
+            <div id="base-colors" class="flex gap-3 mr-2 border-r border-white/20 pr-4 flex-shrink-0">
                 <div class="color-picker active" style="background:white" onclick="setBaseColor('white', this)"></div>
                 <div class="color-picker" style="background:#ef4444" onclick="setBaseColor('#ef4444', this)"></div>
                 <div class="color-picker" style="background:#3b82f6" onclick="setBaseColor('#3b82f6', this)"></div>
@@ -180,7 +212,8 @@
             <button class="brush-btn" onclick="setBrush('gold', this)" title="Or">✨</button>
             <button class="brush-btn" onclick="setBrush('candy', this)" title="Bonbon">🍭</button>
             
-            <div class="w-px h-8 bg-white/20 mx-1"></div>
+            <div class="w-px h-8 bg-white/20 mx-2 flex-shrink-0"></div>
+            
             <button class="brush-btn" onclick="setBrush('eraser', this)" title="Gomme">🧽</button>
             <button onclick="clearSlate()" class="slate-action">Tout Effacer</button>
         </div>
