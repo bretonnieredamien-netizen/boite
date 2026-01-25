@@ -416,7 +416,12 @@
             let contextChild = ""; if (userPrenom) contextChild += `L'enfant s'appelle ${userPrenom}. `; if (userAge) contextChild += `L'enfant a ${userAge} ans. `;
 
             if (mode === 'STORY') {
-                promptIA = `Tu es une conteuse. ${contextChild} Raconte une aventure sur : "${sujet}". IMPORTANT : Le héros NE DOIT PAS s'appeler ${userPrenom}. Choisis un prénom au hasard (Milo, Noor, Kenji, Luna, Sam). Ton ton est doux. Phrases simples. Fin heureuse. Commence directement.`;
+                promptIA = `Tu es une conteuse. ${contextChild} Raconte une aventure sur : "${sujet}".
+                RÈGLES IMPORTANTES :
+                1. Si la demande concerne un personnage connu (ex: Peppa Pig, Trotro, Pat Patrouille, un super-héros...), raconte l'histoire de CE personnage.
+                2. Si la demande est générale (ex: un château, une forêt, un lapin...), invente un héros. Dans ce cas, choisis un prénom au hasard (Milo, Noor, Kenji, Luna, Sam) mais N'UTILISE PAS le prénom de l'enfant (${userPrenom}).
+                3. Ton ton est doux et bienveillant. Phrases simples. Fin heureuse.
+                Commence directement par l'histoire. Termine par "FIN".`;
             } else if (mode === 'QUESTION') {
                 promptIA = `Encyclopédie bienveillante. ${contextChild} L'enfant demande : "${sujet}". Réponds simplement (3-4 phrases). Ton encourageant. Pas de bonjour.`;
             } else if (mode === 'CHAT') {
