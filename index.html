@@ -14,10 +14,13 @@
         .hidden { display: none !important; }
 
         /* --- DESSIN --- */
-        #drawing-area { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; display: none; }
+        #drawing-area { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; 
+            display: none; background: #0f172a; transition: background 0.5s ease;
+        }
         #draw-canvas { width: 100%; height: 100%; display: block; z-index: 52; position: relative; cursor: crosshair; }
-        #svg-layer { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; pointer-events: none; opacity: 0.4; z-index: 51; display: flex; align-items: center; justify-content: center; filter: grayscale(100%); }
-        #svg-layer svg { width: 100%; height: 100%; stroke: #1e293b; fill: none; stroke-width: 1.5; }
+        #svg-layer { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; pointer-events: none; opacity: 0.4; z-index: 51; display: flex; align-items: center; justify-content: center; filter: grayscale(100%) invert(1); }
+        #svg-layer svg { width: 100%; height: 100%; stroke: #ffffff; fill: none; stroke-width: 1.5; }
 
         /* Barre d'outils plus large */
         .drawing-tools { 
@@ -30,6 +33,12 @@
         .magic-btn { width: 38px; height: 38px; border-radius: 8px; border: 2px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; transition: 0.2s; background: #f8fafc; }
         .magic-btn:hover { background: #e2e8f0; }
         .magic-btn.active { transform: scale(1.1); border-color: var(--accent); background: white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25); }
+        
+        /* Sélecteur de fond */
+        .bg-dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.2s; }
+        .bg-dot:hover { transform: scale(1.2); }
+        .bg-dot.active { outline: 2px solid var(--accent); outline-offset: 2px; }
+
         .separator { width: 2px; height: 30px; background: #cbd5e1; margin: auto 2px; border-radius: 2px; }
 
         /* Clavier & Input */
@@ -60,20 +69,22 @@
         <div class="drawing-tools">
             <div class="magic-btn active" onclick="setBrush('pen', this)" title="Stylo Bille">🖊️</div>
             <div class="magic-btn" onclick="setBrush('pencil', this)" title="Crayon à papier">✏️</div>
-            <div class="magic-btn" onclick="setBrush('coloring', this)" title="Crayon de couleur">🖍️</div>
             <div class="magic-btn" onclick="setBrush('marker', this)" title="Feutre Large">🖋️</div>
             <div class="magic-btn" onclick="setBrush('paint', this)" title="Aquarelle">🖌️</div>
             <div class="separator"></div>
-            <div class="magic-btn" onclick="setBrush('chalk', this)" title="Craie">📏</div>
-            <div class="magic-btn" onclick="setBrush('fatChalk', this)" title="Grosse Craie">🍦</div>
             <div class="magic-btn" onclick="setBrush('ink', this)" title="Encre">⚫</div>
+            <div class="magic-btn" onclick="setBrush('chalk', this)" title="Craie">📏</div>
             <div class="separator"></div>
             <div class="magic-btn" onclick="setBrush('rainbow', this)" title="Arc-en-ciel">🌈</div>
-            <div class="magic-btn" onclick="setBrush('gold', this)" title="Poussière d'Or">✨</div>
+            <div class="magic-btn" onclick="setBrush('gold', this)" title="Or">✨</div>
             <div class="magic-btn" onclick="setBrush('frost', this)" title="Givre">❄️</div>
-            <div class="magic-btn" onclick="setBrush('bubbles', this)" title="Bulles">🫧</div>
-            <div class="magic-btn" onclick="setBrush('galaxy', this)" title="Espace">🌌</div>
-            <div class="magic-btn" onclick="setBrush('firework', this)" title="Feu d'artifice">🧨</div>
+            <div class="separator"></div>
+            <div class="flex items-center gap-2 px-2">
+                <div class="bg-dot active" style="background: #0f172a" onclick="setCanvasBg('#0f172a', this)" title="Nuit"></div>
+                <div class="bg-dot" style="background: #1e1b4b" onclick="setCanvasBg('#1e1b4b', this)" title="Espace"></div>
+                <div class="bg-dot" style="background: #312e81" onclick="setCanvasBg('#312e81', this)" title="Magie"></div>
+                <div class="bg-dot" style="background: #ffffff" onclick="setCanvasBg('#ffffff', this)" title="Papier"></div>
+            </div>
             <div class="separator"></div>
             <div class="magic-btn" onclick="clearBoard()" title="Tout effacer">🗑️</div>
         </div>
@@ -108,22 +119,17 @@
         const canvas = document.getElementById('draw-canvas'), ctx = canvas.getContext('2d');
         let hue = 0;
 
-        // CONFIGURATION DES PINCEAUX AVEC GLOW ET STYLES VARIÉS
+        // CONFIGURATION DES PINCEAUX
         const BRUSH_STYLES = {
-            'pen': { width: 2, glow: 3, color: '#1e293b', opacity: 1, cap: 'round', dash: [], particles: null },
-            'pencil': { width: 1.5, glow: 1, color: '#64748b', opacity: 0.5, cap: 'round', dash: [], particles: null },
-            'coloring': { width: 5, glow: 4, color: '#ec4899', opacity: 0.8, cap: 'round', dash: [], particles: null },
-            'marker': { width: 10, glow: 6, color: '#f59e0b', opacity: 0.9, cap: 'round', dash: [], particles: null },
-            'paint': { width: 22, glow: 8, color: '#3b82f6', opacity: 0.3, cap: 'round', dash: [], particles: null },
-            'ink': { width: 7, glow: 2, color: '#000000', opacity: 1, cap: 'round', dash: [], particles: null },
-            'chalk': { width: 5, glow: 3, color: '#f1f5f9', opacity: 0.7, cap: 'butt', dash: [1, 3], particles: null },
-            'fatChalk': { width: 15, glow: 5, color: '#fef3c7', opacity: 0.6, cap: 'butt', dash: [5, 10], particles: null },
-            'rainbow': { width: 4, glow: 12, dynamic: 'hsl', opacity: 1, cap: 'round', dash: [], particles: 'rainbow' },
-            'gold': { width: 3, glow: 15, color: '#fbbf24', opacity: 1, cap: 'round', dash: [], particles: '#f59e0b' },
-            'frost': { width: 2, glow: 10, color: '#bae6fd', opacity: 0.7, cap: 'round', dash: [], particles: '#e0f2fe' },
-            'bubbles': { width: 0, glow: 8, color: '#dbeafe', opacity: 0.5, cap: 'round', dash: [], particles: 'bubbles' },
-            'galaxy': { width: 3, glow: 20, color: '#1e1b4b', opacity: 1, cap: 'round', dash: [], particles: 'stars' },
-            'firework': { width: 4, glow: 18, color: '#f87171', opacity: 1, cap: 'round', dash: [], particles: 'sparks' }
+            'pen': { width: 2, glow: 5, color: '#1e293b', opacity: 1, cap: 'round', dash: [], particles: null },
+            'pencil': { width: 2, glow: 2, color: '#64748b', opacity: 0.6, cap: 'round', dash: [], particles: null },
+            'marker': { width: 12, glow: 8, color: '#ef4444', opacity: 0.8, cap: 'round', dash: [], particles: null },
+            'paint': { width: 20, glow: 10, color: '#3b82f6', opacity: 0.4, cap: 'round', dash: [], particles: null },
+            'ink': { width: 8, glow: 5, color: '#000000', opacity: 1, cap: 'round', dash: [], particles: null },
+            'chalk': { width: 6, glow: 4, color: '#f1f5f9', opacity: 0.8, cap: 'butt', dash: [2, 4], particles: null },
+            'rainbow': { width: 5, glow: 15, dynamic: 'hsl', opacity: 1, cap: 'round', dash: [], particles: 'rainbow' },
+            'gold': { width: 4, glow: 20, color: '#fbbf24', opacity: 1, cap: 'round', dash: [], particles: '#f59e0b' },
+            'frost': { width: 2, glow: 15, color: '#bae6fd', opacity: 0.7, cap: 'round', dash: [], particles: '#e0f2fe' }
         };
 
         /* --- NAVIGATION --- */
@@ -134,10 +140,25 @@
             if(m === 'DRAW') {
                 document.getElementById('drawing-area').style.display = 'block';
                 resize(); requestAnimationFrame(loopParticles);
-                updateStatus("C'est l'heure de dessiner !");
+                updateStatus("À tes pinceaux !");
             } else {
                 updateStatus(m === 'STORY' ? "Quelle histoire inventons-nous ?" : "Quelle est ta question ?");
             }
+        }
+
+        /* --- CONFIGURATION FOND --- */
+        function setCanvasBg(color, btn) {
+            const area = document.getElementById('drawing-area');
+            const svgLayer = document.getElementById('svg-layer');
+            area.style.background = color;
+            
+            // On gère l'inversion du calque IA et de l'outil Encre si fond sombre
+            const isDark = (color !== '#ffffff');
+            svgLayer.style.filter = isDark ? "grayscale(100%) invert(1)" : "grayscale(100%)";
+            BRUSH_STYLES.ink.color = isDark ? "#ffffff" : "#000000";
+            
+            document.querySelectorAll('.bg-dot').forEach(d => d.classList.remove('active'));
+            btn.classList.add('active');
         }
 
         /* --- INPUT --- */
@@ -149,7 +170,7 @@
         async function appelIA(text) {
             updateStatus("Magie en cours...");
             let system = "";
-            if (currentMode === 'STORY') system = "Conteuse pour enfant. Histoire courte (5 phrases). Finis par 'FIN'. Pas de bonjour.";
+            if (currentMode === 'STORY') system = "Conteuse pour enfant. Histoire courte (5 phrases). Finis par 'FIN'.";
             if (currentMode === 'QUESTION') system = "Encyclopédie pour enfant. Réponse simple (3 phrases max).";
             if (currentMode === 'DRAW') system = "Génère UNIQUEMENT le code <svg> (trait noir simple, sans fond) pour : " + text + ". AUCUN autre texte.";
 
@@ -186,35 +207,27 @@
             ctx.lineWidth = style.width;
             ctx.lineCap = style.cap;
             ctx.setLineDash(style.dash);
-            ctx.shadowBlur = style.glow; // GLOW ACTIF
+            ctx.shadowBlur = style.glow; 
             
             if (style.dynamic === 'hsl') {
-                ctx.strokeStyle = `hsl(${hue}, 80%, 50%)`;
-                ctx.shadowColor = `hsl(${hue}, 80%, 50%)`;
+                const currentColor = `hsl(${hue}, 100%, 50%)`;
+                ctx.strokeStyle = currentColor;
+                ctx.shadowColor = currentColor;
             } else {
                 ctx.strokeStyle = style.color;
                 ctx.shadowColor = style.color;
             }
 
-            // Ne trace pas de ligne pour l'outil Bulles
-            if(style.width > 0) {
-                ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(p.x, p.y); ctx.stroke();
-            }
+            ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(p.x, p.y); ctx.stroke();
 
-            // Particules spécifiques
             if(style.particles) {
-                let pColor = style.dynamic ? ctx.strokeStyle : style.color;
-                let count = style.particles === 'bubbles' || style.particles === 'sparks' ? 2 : 3;
-                
-                for(let i=0; i<count; i++) {
+                const pColor = style.dynamic ? ctx.strokeStyle : style.color;
+                for(let i=0; i < 3; i++) {
                     magicParticles.push({
-                        x: p.x + (Math.random()-0.5)*15, 
-                        y: p.y + (Math.random()-0.5)*15, 
+                        x: p.x + (Math.random()-0.5)*style.width, 
+                        y: p.y + (Math.random()-0.5)*style.width, 
                         vX: (Math.random()-0.5)*3, vY: (Math.random()-0.5)*3, 
-                        life: 1, 
-                        color: pColor, 
-                        size: style.particles === 'bubbles' ? Math.random()*8+2 : Math.random()*2+1,
-                        type: style.particles
+                        life: 1, color: pColor, size: Math.random()*3+1
                     });
                 }
             }
@@ -227,19 +240,9 @@
                 p.x += p.vX; p.y += p.vY; p.life -= 0.03;
                 if (p.life > 0) {
                     ctx.save(); 
-                    ctx.shadowBlur = 4; ctx.shadowColor = p.color;
-                    ctx.globalAlpha = p.life; 
-                    ctx.fillStyle = p.color;
-                    ctx.beginPath(); 
-                    if(p.type === 'bubbles') {
-                        ctx.strokeStyle = p.color;
-                        ctx.lineWidth = 1;
-                        ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
-                        ctx.stroke();
-                    } else {
-                        ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
-                        ctx.fill(); 
-                    }
+                    ctx.shadowBlur = 5; ctx.shadowColor = p.color;
+                    ctx.globalAlpha = p.life; ctx.fillStyle = p.color;
+                    ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill(); 
                     ctx.restore();
                 } else { magicParticles.splice(i, 1); }
             });
@@ -285,7 +288,7 @@
         sSize(); window.onresize = sSize;
         let stars = Array(100).fill().map(() => ({ x: Math.random()*sCanvas.width, y: Math.random()*sCanvas.height, s: Math.random()*1.5 }));
         function sDraw() {
-            sCtx.clearRect(0,0,sCanvas.width, sCanvas.height); sCtx.fillStyle = "white";
+            sCtx.clearRect(0,0,sCanvas.width, sCanvas.height); sCtx.fillStyle = "rgba(255,255,255,0.5)";
             stars.forEach(s => { sCtx.beginPath(); sCtx.arc(s.x, s.y, s.s, 0, Math.PI*2); sCtx.fill(); s.y -= 0.1; if(s.y<0) s.y=sCanvas.height; });
             requestAnimationFrame(sDraw);
         }
