@@ -7,611 +7,379 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;500;800;900&display=swap" rel="stylesheet">
     <style>
-        /* --- VARIABLES CSS --- */
         :root {
             --bg-1: #fff7ed; --bg-2: #fef9c3; --bg-3: #ede9fe; --bg-4: #fae8ff;
             --accent-color: #6366f1; 
             --vis-1: #4f46e5; --vis-2: #9333ea; --vis-3: #db2777;
         }
 
-        /* Fond Animé */
         body { 
             font-family: 'Lexend', sans-serif; 
             background: linear-gradient(-45deg, var(--bg-1), var(--bg-2), var(--bg-3), var(--bg-4));
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
-            touch-action: none; /* Empêche le scroll pour le dessin */
-            overflow: hidden; min-height: 100vh; margin: 0;
-            transition: background 2s ease; 
+            touch-action: none; overflow: hidden; min-height: 100vh; margin: 0;
         }
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
-        /* --- UI Elements --- */
         #starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
-        .hidden { display: none !important; }
         .content-layer { position: relative; z-index: 10; width: 100%; height: 100vh; display: flex; flex-direction: column; align-items: center; opacity: 0; transition: opacity 1s ease-in; }
         .content-visible { opacity: 1 !important; }
 
-        /* --- Overlay Concentration --- */
-        #dim-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); 
-            z-index: 40; opacity: 0; pointer-events: none;
-            transition: opacity 3s ease-in-out; 
-        }
-        .dim-active { opacity: 1 !important; pointer-events: auto !important; }
-
-        /* --- Header & Nav --- */
-        .brand-header { position: absolute; top: 1.5rem; left: 1.5rem; z-index: 60; transition: opacity 0.5s ease; }
-        .home-btn {
-            background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            width: 48px; height: 48px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            transition: transform 0.2s;
-        }
-        .home-btn:hover { transform: scale(1.1); }
-        .home-btn svg { fill: var(--accent-color); width: 24px; height: 24px; transition: fill 0.5s;}
-        .cinema-mode { opacity: 0 !important; transform: translateY(-20px) !important; pointer-events: none; }
-
-        /* --- Logo & Status --- */
-        #main-header { transition: opacity 1s ease, transform 1s ease; opacity: 1; transform: translateY(0); width: 100%; }
-        .logo-container { width: 120px; height: 120px; display: flex; justify-content: center; align-items: center; opacity: 0; animation: introFade 2s ease-out forwards; filter: drop-shadow(0 10px 25px rgba(129, 140, 248, 0.5)); margin: 0 auto; }
-        @keyframes introFade { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
-
-        .status-box { 
-            background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px); 
-            padding: 0.6rem 1.8rem; border-radius: 9999px; 
-            border: 1px solid rgba(255, 255, 255, 0.5); margin-top: 1rem;
-            min-height: 44px; display: flex; align-items: center; justify-content: center;
-            transition: all 0.3s ease;
-        }
-        .understood-flash { animation: success-pulse 0.8s ease-out !important; background: rgba(16, 185, 129, 0.2) !important; border-color: #10b981 !important; }
-        @keyframes success-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); box-shadow: 0 0 60px #10b981; } 100% { transform: scale(1); } }
-        .magic-loader { width: 24px; height: 24px; border-radius: 50%; border: 3px solid transparent; border-top-color: #22d3ee; border-right-color: #818cf8; border-bottom-color: #c084fc; animation: spinLoader 1s linear infinite; }
-        @keyframes spinLoader { 100% { transform: rotate(360deg); } }
-
-        /* --- Visualiseur Audio --- */
-        #story-card { 
-            background: transparent; overflow: hidden; display: flex; align-items: center; justify-content: center;
-            width: 100%; max-width: 320px; height: 80px; 
-            filter: drop-shadow(0 4px 6px rgba(129, 140, 248, 0.3));
-            position: relative; z-index: 50;
-        }
-        #visualizer-canvas { width: 100%; height: 100%; }
-
-        /* --- Boutons Action --- */
-        .controls-area { display: flex; flex-direction: column; align-items: center; gap: 1rem; margin-top: 1rem; position: relative; z-index: 60;}
-        .orbe-base { position: relative; width: 100px; height: 100px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(15px); border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.8); display: flex; align-items: center; justify-content: center; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
-        .orbe-base svg { width: 40px; height: 40px; fill: var(--accent-color); transition: fill 1s; }
-        .mic-listening { background: rgba(255, 255, 255, 0.3) !important; box-shadow: 0 0 50px var(--accent-color) !important; transform: scale(1.1); }
-        #btn-stop svg { fill: #f87171; }
-        #stop-container.opacity-100 #btn-stop { background: rgba(248, 113, 113, 0.15); border-color: #f87171; box-shadow: 0 0 30px rgba(248, 113, 113, 0.4); }
-
-        /* --- SELECTEUR MODE --- */
-        #intro-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s ease-out, visibility 0.8s; }
-        .mode-selector { display: flex; gap: 1.5rem; align-items: center; justify-content: center; width: 100%; flex-wrap: wrap; }
-        .mode-card { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; cursor: pointer; transition: transform 0.3s ease; }
-        .mode-card:hover { transform: scale(1.1); }
-        .mode-icon-box {
-            width: 100px; height: 100px; border-radius: 25px;
-            background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(20px);
-            border: 2px solid rgba(255, 255, 255, 0.6);
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        .mode-label { font-weight: 800; color: rgba(79, 70, 229, 0.6); text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.7rem; }
-        .god-rays { position: absolute; width: 180%; height: 180%; background: conic-gradient(from 0deg, transparent 0deg, rgba(251, 191, 36, 0.2) 20deg, transparent 40deg, rgba(139, 92, 246, 0.2) 60deg, transparent 80deg); border-radius: 50%; z-index: -1; opacity: 1; animation: spinRays 20s linear infinite; top: 50%; left: 50%; transform: translate(-50%, -50%); mix-blend-mode: overlay; pointer-events: none; }
-        @keyframes spinRays { 100% { transform: translate(-50%, -50%) rotate(360deg); } }
-        .intro-fade-out { opacity: 0; pointer-events: none; }
-        .white-flash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 90; opacity: 0; pointer-events: none; }
-        .flash-active { animation: flashAnim 1.5s ease-out forwards; }
-        @keyframes flashAnim { 0% { opacity: 0; } 15% { opacity: 0.95; } 100% { opacity: 0; } }
-
-        /* --- CANVAS DESSIN --- */
+        /* --- UI DESSIN MAGIQUE --- */
         #drawing-area {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 55; /* Sous le header, mais sur le contenu */
-            display: none;
-            touch-action: none;
+            z-index: 55; display: none; touch-action: none;
         }
-        #draw-canvas { width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
+        #draw-canvas { width: 100%; height: 100%; touch-action: none; cursor: crosshair; filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); }
         
-        .drawing-tools {
-            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            display: flex; gap: 10px; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px);
-            padding: 10px 20px; border-radius: 999px; border: 1px solid white;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-        .color-btn { width: 30px; height: 30px; border-radius: 50%; border: 2px solid white; cursor: pointer; transition: transform 0.2s; }
-        .color-btn:active { transform: scale(0.9); }
-        .tool-btn { width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; background: #e2e8f0; border-radius: 50%; cursor: pointer; }
-        .tool-btn svg { width: 20px; height: 20px; fill: #475569; }
-        
-        /* Image SVG générée en fond du canvas */
         #svg-layer {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 80%; height: 80%; pointer-events: none; opacity: 0.5;
-            display: flex; align-items: center; justify-content: center;
+            width: 85%; height: 85%; pointer-events: none; opacity: 0.3;
+            display: flex; align-items: center; justify-content: center; z-index: 56;
         }
-        #svg-layer svg { width: 100%; height: 100%; stroke: #333; stroke-width: 2px; fill: none; }
+        #svg-layer svg { width: 100%; height: 100%; stroke: #444; stroke-width: 1.5px; fill: none; stroke-linecap: round; }
 
+        .drawing-tools {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 15px; background: rgba(255,255,255,0.3); backdrop-filter: blur(20px);
+            padding: 12px 25px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.5);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); z-index: 70;
+        }
+        .magic-btn { 
+            width: 42px; height: 42px; border-radius: 50%; border: 2px solid white; cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+        }
+        .magic-btn:active { transform: scale(0.8) rotate(-10deg); }
+        .magic-btn.active { transform: scale(1.2); border-color: #6366f1; box-shadow: 0 0 15px #6366f1; }
+
+        /* --- INTERFACE GENERALE --- */
+        .brand-header { position: absolute; top: 1.5rem; left: 1.5rem; z-index: 80; }
+        .home-btn { background: rgba(255,255,255,0.4); backdrop-filter: blur(10px); border: 1px solid white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        
+        .status-box { background: rgba(255,255,255,0.4); backdrop-filter: blur(10px); padding: 0.6rem 1.8rem; border-radius: 9999px; border: 1px solid white; margin-top: 1rem; }
+        
+        .orbe-base { position: relative; width: 110px; height: 110px; background: rgba(255,255,255,0.2); backdrop-filter: blur(15px); border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .orbe-base svg { width: 45px; height: 45px; fill: var(--accent-color); }
+
+        #dim-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 40; opacity: 0; pointer-events: none; transition: opacity 2s; }
+        .dim-active { opacity: 1 !important; }
+
+        /* Selector UI */
+        #intro-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .mode-card { display: flex; flex-direction: column; align-items: center; gap: 0.8rem; cursor: pointer; transition: 0.3s; }
+        .mode-icon-box { width: 110px; height: 110px; border-radius: 30px; background: rgba(255,255,255,0.2); backdrop-filter: blur(20px); border: 2px solid white; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
-<body class="p-6">
+<body>
 
     <canvas id="starfield"></canvas>
-    
     <div id="dim-overlay"></div>
 
     <div id="drawing-area">
         <div id="svg-layer"></div>
         <canvas id="draw-canvas"></canvas>
         <div class="drawing-tools">
-            <div class="color-btn" style="background:#000" onclick="setColor('#000000')"></div>
-            <div class="color-btn" style="background:#ef4444" onclick="setColor('#ef4444')"></div>
-            <div class="color-btn" style="background:#3b82f6" onclick="setColor('#3b82f6')"></div>
-            <div class="color-btn" style="background:#22c55e" onclick="setColor('#22c55e')"></div>
-            <div class="color-btn" style="background:#eab308" onclick="setColor('#eab308')"></div>
-            <div class="color-btn" style="background:#a855f7" onclick="setColor('#a855f7')"></div>
-            <div style="width:1px; background:#cbd5e1; margin:0 5px;"></div>
-            <div class="tool-btn" onclick="clearCanvas()">
-                <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-            </div>
+            <div class="magic-btn active" style="background: linear-gradient(to bottom right, #ff0080, #7928ca);" onclick="setMagicBrush('aurora', this)" title="Aurore">✨</div>
+            <div class="magic-btn" style="background: linear-gradient(to bottom right, #00f2fe, #4facfe);" onclick="setMagicBrush('ocean', this)" title="Océan">🌊</div>
+            <div class="magic-btn" style="background: linear-gradient(to bottom right, #f83600, #f9d423);" onclick="setMagicBrush('fire', this)" title="Feu">🔥</div>
+            <div class="magic-btn" style="background: linear-gradient(to bottom right, #00cdac, #8ddad5);" onclick="setMagicBrush('forest', this)" title="Forêt">🌿</div>
+            <div style="width:2px; background: rgba(255,255,255,0.3); margin:0 5px;"></div>
+            <div class="magic-btn" style="background: #fff; color: #333;" onclick="clearCanvas()">🗑️</div>
         </div>
     </div>
 
     <div id="intro-overlay">
-        <div class="god-rays"></div>
-        <p id="intro-title" class="text-indigo-900/50 text-xl font-black mb-8 uppercase tracking-widest text-center">Choisis ta magie</p>
-
-        <div class="mode-selector">
+        <p class="text-indigo-900/50 text-xl font-black mb-12 uppercase tracking-widest">Quelle magie aujourd'hui ?</p>
+        <div class="flex gap-8 flex-wrap justify-center">
             <div class="mode-card" onclick="selectMode('STORY')">
-                <div class="mode-icon-box">
-                    <svg width="50" height="50" viewBox="0 0 24 24" fill="#6366f1">
-                        <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/>
-                    </svg>
-                </div>
-                <span class="mode-label">Histoires</span>
+                <div class="mode-icon-box"><svg width="45" height="45" viewBox="0 0 24 24" fill="#6366f1"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg></div>
+                <span class="text-[10px] font-bold uppercase tracking-widest text-indigo-900/40">Histoires</span>
             </div>
-
             <div class="mode-card" onclick="selectMode('QUESTION')">
-                <div class="mode-icon-box">
-                    <svg width="50" height="50" viewBox="0 0 24 24" fill="#ec4899">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
-                    </svg>
-                </div>
-                <span class="mode-label">Questions</span>
+                <div class="mode-icon-box"><svg width="45" height="45" viewBox="0 0 24 24" fill="#ec4899"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg></div>
+                <span class="text-[10px] font-bold uppercase tracking-widest text-pink-900/40">Questions</span>
             </div>
-
             <div class="mode-card" onclick="selectMode('DRAW')">
-                <div class="mode-icon-box">
-                    <svg width="50" height="50" viewBox="0 0 24 24" fill="#10b981">
-                        <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
-                    </svg>
-                </div>
-                <span class="mode-label">Dessin</span>
+                <div class="mode-icon-box"><svg width="45" height="45" viewBox="0 0 24 24" fill="#10b981"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"/></svg></div>
+                <span class="text-[10px] font-bold uppercase tracking-widest text-green-900/40">Dessin</span>
             </div>
         </div>
     </div>
 
-    <div id="white-flash" class="white-flash"></div>
-
     <div id="main-interface" class="content-layer">
-        
-        <div class="brand-header">
-            <button onclick="backToHome()" class="home-btn" aria-label="Retour à l'accueil">
-                <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-            </button>
-        </div>
-
-        <header id="main-header" class="text-center flex flex-col items-center mt-6">
-            <div class="logo-container">
-                <svg id="main-logo-story" class="hidden" viewBox="0 0 24 24" fill="#6366f1" width="60" height="60"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
-                <svg id="main-logo-question" class="hidden" viewBox="0 0 24 24" fill="#ec4899" width="60" height="60"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg>
-                <svg id="main-logo-draw" class="hidden" viewBox="0 0 24 24" fill="#10b981" width="60" height="60"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"/></svg>
-            </div>
-            <div class="status-box">
-                <p id="status" class="text-indigo-900/60 font-semibold italic text-sm">Prêt...</p>
-                <div id="loading-spinner" class="magic-loader hidden"></div>
-            </div>
+        <div class="brand-header"><button onclick="backToHome()" class="home-btn"><svg width="24" height="24" fill="#6366f1" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></button></div>
+        <header class="text-center mt-20">
+            <div class="status-box"><p id="status" class="text-indigo-900/60 font-bold italic text-sm">Prêt...</p></div>
         </header>
-
-        <main class="w-full max-w-md flex flex-col items-center gap-6 mt-4 flex-grow justify-center">
-            
-            <div id="story-card" class="hidden transition-all duration-500">
-                 <canvas id="visualizer-canvas"></canvas>
-            </div>
-
-            <div class="controls-area">
-                <button id="btn-mic" class="orbe-base shadow-2xl">
-                    <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
-                </button>
-                <div id="stop-container" class="opacity-20 pointer-events-none transition-all duration-500">
-                    <button id="btn-stop" class="orbe-base shadow-xl" style="width: 60px; height: 60px;">
-                        <svg viewBox="0 0 24 24" style="width:24px; height:24px;"><rect x="6" y="6" width="12" height="12" rx="2" /></svg>
-                    </button>
-                </div>
-            </div>
-
-             <input type="text" id="manualInput" class="hidden">
+        <main class="flex-grow flex flex-col items-center justify-center gap-8">
+            <div id="story-card" class="hidden"><canvas id="visualizer-canvas"></canvas></div>
+            <button id="btn-mic" class="orbe-base"><svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg></button>
+            <div id="stop-container" class="opacity-0 pointer-events-none"><button id="btn-stop" class="orbe-base w-16 h-16"><svg viewBox="0 0 24 24" width="24"><rect x="6" y="6" width="12" height="12" rx="2" /></svg></button></div>
         </main>
-
-        <footer class="py-4 flex flex-col items-center gap-2">
-             <button onclick="oublierTout()" class="text-indigo-400/60 text-[9px] font-bold uppercase tracking-widest hover:text-indigo-600 transition-colors">Réinitialiser le profil</button>
-        </footer>
+        <input type="text" id="manualInput" class="hidden">
     </div>
 
     <script>
-        /* --- VARIABLES --- */
+        /* --- CONFIG --- */
         let GEMINI_KEY = localStorage.getItem('BOITE_GEMINI_KEY');
         let AZURE_KEY = localStorage.getItem('BOITE_AZURE_KEY');
         let AZURE_REGION = localStorage.getItem('BOITE_AZURE_REGION');
+        const MODEL_ID = "models/gemini-2.0-flash"; 
         
         let userPrenom = localStorage.getItem('BOITE_PRENOM');
         let userAge = localStorage.getItem('BOITE_AGE');
-        let userGenre = localStorage.getItem('BOITE_GENRE'); 
-        let userColor = localStorage.getItem('BOITE_COLOR'); 
-        
-        let currentAppMode = null; // 'STORY', 'QUESTION', 'DRAW'
+        let userGenre = localStorage.getItem('BOITE_GENRE');
+        let currentAppMode = null; 
         let interactionMode = 'INIT'; 
 
-        const MODEL_ID = "models/gemini-2.5-flash"; 
-        const AZURE_VOICE_NAME = "fr-FR-DeniseNeural"; 
-
-        /* --- THEMES --- */
-        const THEMES = {
-            'defaut': { bg: ['#fff7ed', '#fef9c3', '#ede9fe', '#fae8ff'], star: '251, 191, 36', accent: '#6366f1', vis: ['#4f46e5', '#9333ea', '#db2777'] },
-            'bleu': { bg: ['#eff6ff', '#dbeafe', '#bfdbfe', '#93c5fd'], star: '96, 165, 250', accent: '#2563eb', vis: ['#1e40af', '#3b82f6', '#93c5fd'] },
-            'rose': { bg: ['#fff1f2', '#ffe4e6', '#fecdd3', '#fda4af'], star: '244, 114, 182', accent: '#db2777', vis: ['#9d174d', '#db2777', '#f472b6'] },
-            'rouge': { bg: ['#fef2f2', '#fee2e2', '#fecaca', '#fca5a5'], star: '248, 113, 113', accent: '#dc2626', vis: ['#991b1b', '#ef4444', '#f87171'] },
-            'vert': { bg: ['#f0fdf4', '#dcfce7', '#bbf7d0', '#86efac'], star: '74, 222, 128', accent: '#16a34a', vis: ['#166534', '#22c55e', '#86efac'] },
-            'violet': { bg: ['#f5f3ff', '#ede9fe', '#ddd6fe', '#c4b5fd'], star: '167, 139, 250', accent: '#7c3aed', vis: ['#5b21b6', '#8b5cf6', '#c4b5fd'] },
-            'jaune': { bg: ['#fefce8', '#fef9c3', '#fef08a', '#fde047'], star: '234, 179, 8', accent: '#ca8a04', vis: ['#854d0e', '#eab308', '#fef08a'] },
-            'sombre': { bg: ['#1e1b4b', '#312e81', '#4338ca', '#3730a3'], star: '255, 255, 255', accent: '#818cf8', vis: ['#4338ca', '#6366f1', '#a5b4fc'] }
-        };
-        const KEYWORDS = { 'bleu': 'bleu', 'mer': 'bleu', 'ciel': 'bleu', 'rose': 'rose', 'fée': 'rose', 'princesse': 'rose', 'rouge': 'rouge', 'feu': 'rouge', 'vert': 'vert', 'nature': 'vert', 'foret': 'vert', 'violet': 'violet', 'jaune': 'jaune', 'soleil': 'jaune', 'noir': 'sombre', 'sombre': 'sombre', 'espace': 'sombre' };
-
-        let currentTheme = THEMES['defaut'];
-        let speechQueue = []; let isSpeaking = false; let audioCtx = null; let currentAudio = null;
-
-        /* --- THEME LOGIC --- */
-        function applyMixedTheme(inputText) {
-            if (!inputText) return;
-            const text = inputText.toLowerCase();
-            const detectedKeys = new Set();
-            for (const [key, val] of Object.entries(KEYWORDS)) { if (text.includes(key)) detectedKeys.add(val); }
-            const themes = Array.from(detectedKeys).map(k => THEMES[k]);
-            if (themes.length === 0) return;
-            else if (themes.length === 1) currentTheme = themes[0];
-            else {
-                const t1 = themes[0]; const t2 = themes[themes.length - 1]; 
-                currentTheme = { bg: [t1.bg[0], t2.bg[1], t1.bg[2], t2.bg[3]], star: t1.star, accent: t2.accent, vis: [t1.vis[0], t2.vis[1], t1.vis[2]] };
-            }
-            const r = document.querySelector(':root');
-            r.style.setProperty('--bg-1', currentTheme.bg[0]); r.style.setProperty('--bg-2', currentTheme.bg[1]); r.style.setProperty('--bg-3', currentTheme.bg[2]); r.style.setProperty('--bg-4', currentTheme.bg[3]);
-            r.style.setProperty('--accent-color', currentTheme.accent);
-            particles.forEach(p => { p.color = currentTheme.star; });
-        }
-
-        /* --- BACKGROUND FX --- */
-        const canvas = document.getElementById('starfield'); const ctx = canvas.getContext('2d'); let particles = []; let burstParticles = [];
-        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        class Particle { 
-            constructor() { this.reset(); } 
-            reset() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 2.5 + 0.5; this.speed = Math.random() * 0.02 + 0.01; this.opacity = Math.random() * 0.9; this.color = currentTheme.star; } 
-            update() { this.y -= this.speed; this.x += Math.sin(this.y * 0.01) * 0.2; if (this.y < 0) this.reset(); } 
-            draw() { ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); } 
-        }
-        function initParticles() { particles = []; for (let i = 0; i < 300; i++) particles.push(new Particle()); }
-        function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
-        window.addEventListener('resize', resize); resize(); initParticles(); animate();
-
-        /* --- DRAWING LOGIC --- */
+        /* --- MOTEUR DE DESSIN MAGIQUE --- */
         const drawCanvas = document.getElementById('draw-canvas');
         const drawCtx = drawCanvas.getContext('2d');
         let isDrawing = false;
-        let lastX = 0; let lastY = 0;
-        let brushColor = '#000000';
-        
-        function resizeDrawCanvas() {
-            drawCanvas.width = drawCanvas.offsetWidth;
-            drawCanvas.height = drawCanvas.offsetHeight;
-            drawCtx.lineCap = 'round'; drawCtx.lineJoin = 'round'; drawCtx.lineWidth = 5;
+        let lastX = 0, lastY = 0;
+        let magicParticles = [];
+        let currentBrush = 'aurora';
+
+        const BRUSHES = {
+            'aurora': { colors: ['#ff0080', '#7928ca', '#4facfe'], particle: '#fbcfe8' },
+            'ocean': { colors: ['#00f2fe', '#4facfe', '#0000ff'], particle: '#bae6fd' },
+            'fire': { colors: ['#f83600', '#f9d423', '#ffae00'], particle: '#fef3c7' },
+            'forest': { colors: ['#00cdac', '#8ddad5', '#166534'], particle: '#d1fae5' }
+        };
+
+        function resizeDraw() {
+            drawCanvas.width = window.innerWidth;
+            drawCanvas.height = window.innerHeight;
+            drawCtx.lineCap = 'round';
+            drawCtx.lineJoin = 'round';
+        }
+
+        function setMagicBrush(type, btn) {
+            currentBrush = type;
+            document.querySelectorAll('.magic-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        class Sparkle {
+            constructor(x, y, color) {
+                this.x = x; this.y = y;
+                this.size = Math.random() * 4 + 1;
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = (Math.random() - 0.5) * 2;
+                this.life = 1.0;
+                this.color = color;
+            }
+            update() {
+                this.x += this.vx; this.y += this.vy;
+                this.life -= 0.02;
+            }
+            draw() {
+                drawCtx.save();
+                drawCtx.globalAlpha = this.life;
+                drawCtx.fillStyle = this.color;
+                drawCtx.beginPath();
+                drawCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                drawCtx.fill();
+                drawCtx.restore();
+            }
+        }
+
+        function drawLoop() {
+            if (currentAppMode !== 'DRAW') return;
+            // On ne clear pas le canvas de dessin pour garder les traits, 
+            // mais on anime les particules par dessus (difficile sans calque séparé, 
+            // donc on utilise un trick : on redessine juste les particules)
+            magicParticles.forEach((p, i) => {
+                p.update();
+                p.draw();
+                if (p.life <= 0) magicParticles.splice(i, 1);
+            });
+            requestAnimationFrame(drawLoop);
         }
 
         function startDrawing(e) {
             isDrawing = true;
-            const pos = getPos(e); lastX = pos.x; lastY = pos.y;
+            const pos = getPos(e); [lastX, lastY] = [pos.x, pos.y];
         }
+
         function draw(e) {
             if (!isDrawing) return;
-            e.preventDefault();
             const pos = getPos(e);
-            drawCtx.beginPath(); drawCtx.moveTo(lastX, lastY); drawCtx.lineTo(pos.x, pos.y);
-            drawCtx.strokeStyle = brushColor; drawCtx.stroke();
-            lastX = pos.x; lastY = pos.y;
+            const brush = BRUSHES[currentBrush];
+
+            // Trait dégradé
+            let grad = drawCtx.createLinearGradient(lastX, lastY, pos.x, pos.y);
+            grad.addColorStop(0, brush.colors[0]);
+            grad.addColorStop(0.5, brush.colors[1]);
+            grad.addColorStop(1, brush.colors[2]);
+
+            drawCtx.beginPath();
+            drawCtx.moveTo(lastX, lastY);
+            drawCtx.lineTo(pos.x, pos.y);
+            drawCtx.strokeStyle = grad;
+            drawCtx.lineWidth = 12;
+            drawCtx.shadowBlur = 15;
+            drawCtx.shadowColor = brush.colors[1];
+            drawCtx.stroke();
+
+            // Ajout particules
+            for(let i=0; i<3; i++) {
+                magicParticles.push(new Sparkle(pos.x, pos.y, brush.particle));
+            }
+
+            [lastX, lastY] = [pos.x, pos.y];
         }
-        function stopDrawing() { isDrawing = false; }
+
         function getPos(e) {
-            const rect = drawCanvas.getBoundingClientRect();
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            return { x: clientX - rect.left, y: clientY - rect.top };
+            const x = e.touches ? e.touches[0].clientX : e.clientX;
+            const y = e.touches ? e.touches[0].clientY : e.clientY;
+            return { x, y };
         }
-        function setColor(c) { brushColor = c; }
-        function clearCanvas() { drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height); document.getElementById('svg-layer').innerHTML = ''; }
 
-        drawCanvas.addEventListener('mousedown', startDrawing); drawCanvas.addEventListener('mousemove', draw); drawCanvas.addEventListener('mouseup', stopDrawing); drawCanvas.addEventListener('mouseout', stopDrawing);
-        drawCanvas.addEventListener('touchstart', startDrawing); drawCanvas.addEventListener('touchmove', draw); drawCanvas.addEventListener('touchend', stopDrawing);
+        function clearCanvas() {
+            drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+            document.getElementById('svg-layer').innerHTML = '';
+        }
 
-        /* --- AUDIO VISUALIZER --- */
-        const vizCanvas = document.getElementById('visualizer-canvas'); const vizCtx = vizCanvas.getContext('2d'); let analyser = null; let dataArray = null; let visualizerAnimationId = null;
-        function resizeViz() { if(vizCanvas.parentElement) { vizCanvas.width = vizCanvas.parentElement.offsetWidth; vizCanvas.height = vizCanvas.parentElement.offsetHeight; } }
-        window.addEventListener('resize', resizeViz);
-        function startVisualizer(audioSource, context) {
-            resizeViz(); if (!analyser) { analyser = context.createAnalyser(); analyser.fftSize = 64; } audioSource.connect(analyser); analyser.connect(context.destination); const bufferLength = analyser.frequencyBinCount; dataArray = new Uint8Array(bufferLength); drawVisualizer();
-        }
-        function drawVisualizer() {
-            visualizerAnimationId = requestAnimationFrame(drawVisualizer); analyser.getByteFrequencyData(dataArray);
-            vizCtx.clearRect(0, 0, vizCanvas.width, vizCanvas.height);
-            const bufferLength = analyser.frequencyBinCount; const gap = 6; const barWidth = (vizCanvas.width / bufferLength) - gap; let barHeight; let x = gap / 2;
-            let gradient = vizCtx.createLinearGradient(0, vizCanvas.height, 0, 0); gradient.addColorStop(0, currentTheme.vis[0]); gradient.addColorStop(1, currentTheme.vis[2]); vizCtx.fillStyle = gradient;
-            for (let i = 0; i < bufferLength; i++) { barHeight = (dataArray[i] / 255) * vizCanvas.height; if (barHeight < 5) barHeight = 5; const y = (vizCanvas.height - barHeight) / 2; roundRect(vizCtx, x, y, barWidth, barHeight, 50); x += barWidth + gap; }
-        }
-        function roundRect(ctx, x, y, width, height, radius) { if (width < 2 * radius) radius = width / 2; if (height < 2 * radius) radius = height / 2; ctx.beginPath(); ctx.moveTo(x + radius, y); ctx.arcTo(x + width, y, x + width, y + height, radius); ctx.arcTo(x + width, y + height, x, y + height, radius); ctx.arcTo(x, y + height, x, y, radius); ctx.arcTo(x, y, x + width, y, radius); ctx.closePath(); ctx.fill(); }
-        function stopVisualizer() { if (visualizerAnimationId) cancelAnimationFrame(visualizerAnimationId); vizCtx.clearRect(0, 0, vizCanvas.width, vizCanvas.height); }
+        drawCanvas.addEventListener('mousedown', startDrawing);
+        drawCanvas.addEventListener('mousemove', draw);
+        window.addEventListener('mouseup', () => isDrawing = false);
+        drawCanvas.addEventListener('touchstart', startDrawing);
+        drawCanvas.addEventListener('touchmove', e => { e.preventDefault(); draw(e); });
 
-        /* --- MIC & NAVIGATION --- */
-        function startListening() {
-            const Speech = window.SpeechRecognition || window.webkitSpeechRecognition; if (!Speech) return; 
-            const rec = new Speech(); rec.lang = 'fr-FR'; rec.interimResults = false;
-            rec.onstart = () => { document.getElementById('btn-mic').classList.add('mic-listening'); document.getElementById('status').innerText = "Je t'écoute..."; };
-            rec.onresult = (e) => { const p = e.results[0][0].transcript; document.getElementById('manualInput').value = p; traiterInput(p); };
-            rec.onend = () => document.getElementById('btn-mic').classList.remove('mic-listening');
-            try { rec.start(); } catch (e) {}
-        }
+        /* --- LOGIQUE GLOBALE --- */
+        let audioCtx, analyser, dataArray, currentAudio, isSpeaking = false;
 
         function selectMode(mode) {
             currentAppMode = mode;
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            document.getElementById('white-flash').classList.add('flash-active');
-
-            setTimeout(() => {
-                document.getElementById('intro-overlay').classList.add('intro-fade-out');
-                document.getElementById('main-interface').classList.add('content-visible');
-                
-                document.getElementById('main-logo-story').classList.add('hidden');
-                document.getElementById('main-logo-question').classList.add('hidden');
-                document.getElementById('main-logo-draw').classList.add('hidden');
-
-                if(mode === 'STORY') document.getElementById('main-logo-story').classList.remove('hidden');
-                else if(mode === 'QUESTION') document.getElementById('main-logo-question').classList.remove('hidden');
-                else if(mode === 'DRAW') {
-                    document.getElementById('main-logo-draw').classList.remove('hidden');
-                    document.getElementById('drawing-area').style.display = 'block';
-                    resizeDrawCanvas();
-                }
-
-                if (userColor) applyMixedTheme(userColor);
-                startInteractionSequence();
-            }, 1000);
-            setTimeout(() => { document.getElementById('intro-overlay').style.display = 'none'; }, 2000);
+            document.getElementById('intro-overlay').classList.add('hidden');
+            document.getElementById('main-interface').classList.add('content-visible');
+            
+            if(mode === 'DRAW') {
+                document.getElementById('drawing-area').style.display = 'block';
+                resizeDraw();
+                drawLoop();
+            }
+            startInteraction();
         }
 
         function backToHome() {
             stopAudio();
             document.getElementById('main-interface').classList.remove('content-visible');
-            document.getElementById('intro-overlay').style.display = 'flex';
+            document.getElementById('intro-overlay').classList.remove('hidden');
             document.getElementById('drawing-area').style.display = 'none';
-            setTimeout(() => { document.getElementById('intro-overlay').classList.remove('intro-fade-out'); }, 50);
             currentAppMode = null;
         }
 
-        function startInteractionSequence() {
-            if (!userPrenom || !userGenre || !userAge || !userColor) {
-                speechQueue.push("Bonjour ! Réponds aux questions pour configurer ta boîte.");
+        async function startInteraction() {
+            if(!userPrenom) {
                 interactionMode = 'NAME_INPUT';
-                document.getElementById('status').innerText = "Bonjour ! Comment t'appelles-tu ?";
-                speechQueue.push("Comment t'appelles-tu ?");
-                parler();
-                return;
+                say("Bonjour ! Comment t'appelles-tu ?");
+            } else {
+                interactionMode = currentAppMode === 'STORY' ? 'STORY_INPUT' : 
+                                 currentAppMode === 'QUESTION' ? 'QUESTION_INPUT' : 'DRAW_INPUT';
+                say(`Coucou ${userPrenom} ! Je t'écoute.`);
             }
-
-            if (currentAppMode === 'STORY') {
-                interactionMode = 'STORY_INPUT';
-                document.getElementById('status').innerText = "Quelle histoire veux-tu ?";
-                speechQueue.push(`Quelle histoire on invente aujourd'hui ?`);
-            } else if (currentAppMode === 'QUESTION') {
-                interactionMode = 'QUESTION_INPUT';
-                document.getElementById('status').innerText = "Pose ta question...";
-                speechQueue.push(`Je sais tout sur tout. Pose-moi ta question.`);
-            } else if (currentAppMode === 'DRAW') {
-                interactionMode = 'DRAW_INPUT';
-                document.getElementById('status').innerText = "Dis-moi quoi dessiner...";
-                speechQueue.push(`Tu peux dessiner tout seul, ou me dire ce que je dois faire apparaître !`);
-            }
-            parler();
         }
 
-        function traiterInput(texte) {
-            if (!texte.trim()) return;
-            stopAudio(); 
-            const lowerText = texte.toLowerCase();
-
-            // SETUP LOGIC
-            if (interactionMode === 'NAME_INPUT') {
-                userPrenom = texte.replace(/je m'appelle /i, "").trim(); localStorage.setItem('BOITE_PRENOM', userPrenom);
-                interactionMode = 'GENDER_INPUT'; document.getElementById('status').innerText = `Garçon ou fille ?`; speechQueue.push(`Enchantée ! Garçon ou fille ?`); parler();
-            } else if (interactionMode === 'GENDER_INPUT') {
-                if (lowerText.includes('garçon') || lowerText.includes('homme')) userGenre = 'garçon'; else userGenre = 'fille';
-                localStorage.setItem('BOITE_GENRE', userGenre);
-                interactionMode = 'COLOR_INPUT'; document.getElementById('status').innerText = `Tes couleurs préférées ?`; speechQueue.push(`Quelles sont tes couleurs préférées ?`); parler();
-            } else if (interactionMode === 'COLOR_INPUT') {
-                userColor = texte; localStorage.setItem('BOITE_COLOR', userColor); applyMixedTheme(userColor);
-                interactionMode = 'AGE_INPUT'; document.getElementById('status').innerText = `Quel âge as-tu ?`; speechQueue.push(`Quel âge as-tu ?`); parler();
-            } else if (interactionMode === 'AGE_INPUT') {
-                userAge = texte.replace(/j'ai /i, "").replace(/ans/i, "").trim(); localStorage.setItem('BOITE_AGE', userAge);
-                // Redirect
-                if (currentAppMode === 'STORY') { interactionMode = 'STORY_INPUT'; speechQueue.push(`Quelle histoire veux-tu ?`); }
-                else if (currentAppMode === 'QUESTION') { interactionMode = 'QUESTION_INPUT'; speechQueue.push(`Quelle est ta question ?`); }
-                else if (currentAppMode === 'DRAW') { interactionMode = 'DRAW_INPUT'; speechQueue.push(`Dis-moi quoi dessiner.`); }
-                parler();
-            } 
-            // MODES
-            else if (interactionMode === 'STORY_INPUT') { interactionMode = 'TELLING'; appelIA(texte, 'STORY'); } 
-            else if (interactionMode === 'QUESTION_INPUT') { interactionMode = 'TELLING'; appelIA(texte, 'QUESTION'); }
-            else if (interactionMode === 'DRAW_INPUT') { interactionMode = 'TELLING'; appelIA(texte, 'DRAW'); }
-        }
-
-        function stopAudio() {
-            if (currentAudio) { currentAudio.pause(); currentAudio = null; }
-            stopVisualizer(); speechQueue = []; isSpeaking = false;
-            document.getElementById('main-header').classList.remove('cinema-mode'); document.querySelector('.brand-header').classList.remove('cinema-mode');
-            document.getElementById('dim-overlay').classList.remove('dim-active'); 
-            document.getElementById('status').classList.remove('hidden'); document.getElementById('loading-spinner').classList.add('hidden');
-            
-            if (currentAppMode === 'STORY') { interactionMode = 'STORY_INPUT'; document.getElementById('status').innerText = "Une autre histoire ?"; }
-            else if (currentAppMode === 'QUESTION') { interactionMode = 'QUESTION_INPUT'; document.getElementById('status').innerText = "Une autre question ?"; }
-            else if (currentAppMode === 'DRAW') { interactionMode = 'DRAW_INPUT'; document.getElementById('status').innerText = "Autre chose ?"; }
-            
-            document.getElementById('story-card').classList.add('hidden'); 
-        }
-
-        async function appelIA(sujet, mode) {
-            stopAudio(); interactionMode = 'TELLING'; 
-            if(mode !== 'DRAW') document.getElementById('dim-overlay').classList.add('dim-active');
-            
-            document.getElementById('loading-spinner').classList.remove('hidden'); document.getElementById('status').classList.add('hidden');
-            
-            let waitingPhrase = "Je réfléchis...";
-            if (mode === 'DRAW') waitingPhrase = "Je prépare mes crayons magiques...";
-            document.getElementById('status').innerText = waitingPhrase; speechQueue.push(waitingPhrase); parler();
-
-            const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${GEMINI_KEY}`;
-            let promptIA = "";
-            let contextChild = `L'enfant s'appelle ${userPrenom}, ${userAge} ans.`;
-
-            if (mode === 'STORY') {
-                promptIA = `Conteuse audio. ${contextChild} Aventure sur "${sujet}". Pas de magie. Fin positive. Pas de "Bonjour".`;
-            } else if (mode === 'QUESTION') {
-                promptIA = `Encyclopédie enfant. ${contextChild} Question: "${sujet}". Réponse simple, courte, encourageante.`;
-            } else if (mode === 'DRAW') {
-                promptIA = `Génère UNIQUEMENT le code SVG (sans balises markdown) pour un dessin au trait noir simple (style livre de coloriage) représentant : ${sujet}. Fond transparent.`;
+        async function traiterInput(text) {
+            if(interactionMode === 'NAME_INPUT') {
+                userPrenom = text; localStorage.setItem('BOITE_PRENOM', text);
+                startInteraction();
+            } else {
+                appelIA(text);
             }
+        }
+
+        async function appelIA(prompt) {
+            const status = document.getElementById('status');
+            status.innerText = "Réflexion magique...";
+            
+            let system = "";
+            if(currentAppMode === 'STORY') system = `Conteuse pro. Enfant: ${userPrenom}. Sujet: ${prompt}. Pas de Léo/Léa. FIN à la fin.`;
+            if(currentAppMode === 'QUESTION') system = `Explique simplement à un enfant: ${prompt}. 3 phrases max.`;
+            if(currentAppMode === 'DRAW') system = `Génère UNIQUEMENT le code <svg> (trait noir simple) pour : ${prompt}. Pas de texte autour.`;
 
             try {
-                const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: promptIA }] }] }) });
-                const reader = response.body.getReader(); const decoder = new TextDecoder("utf-8"); let fullText = "";
-                
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) {
-                        document.getElementById('loading-spinner').classList.add('hidden'); document.getElementById('status').classList.remove('hidden');
-                        if (mode === 'DRAW') {
-                            // Nettoyage du SVG
-                            let svgCode = fullText.replace(/```xml/g, '').replace(/```svg/g, '').replace(/```/g, '').trim();
-                            // Trouver le début et la fin du tag svg
-                            const start = svgCode.indexOf('<svg');
-                            const end = svgCode.lastIndexOf('</svg>') + 6;
-                            if(start !== -1 && end !== -1) {
-                                svgCode = svgCode.substring(start, end);
-                                document.getElementById('svg-layer').innerHTML = svgCode;
-                                speechQueue.push("Et voilà ! Tu peux colorier par dessus."); parler();
-                            } else {
-                                speechQueue.push("J'ai eu du mal à dessiner ça, essaie autre chose !"); parler();
-                            }
-                        }
-                        break;
-                    }
-                    const chunk = decoder.decode(value); const lines = chunk.split("\n");
-                    for (const line of lines) {
-                        if (line.startsWith("data: ")) {
-                            try {
-                                const json = JSON.parse(line.substring(6));
-                                const txt = json.candidates[0].content.parts[0].text;
-                                fullText += txt;
-                                if (mode !== 'DRAW' && (/[.!?;:]/.test(txt) || txt.includes("\n"))) {
-                                    // Streaming vocal seulement si ce n'est pas du dessin
-                                    // (Simplification pour cet exemple : on accumule pour éviter de couper le SVG)
-                                    // Dans cette version "Drawing", on attend tout pour le SVG, mais on pourrait streamer le texte.
-                                    // Pour Story/Question, on utilise la logique précédente (omise ici pour brièveté du SVG logic, mais intégrée dans votre version finale)
-                                    speechQueue.push(txt.trim()); parler();
-                                }
-                            } catch(e) {}
-                        }
-                    }
+                const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:generateContent?key=${GEMINI_KEY}`, {
+                    method: 'POST',
+                    body: JSON.stringify({ contents: [{ parts: [{ text: system + prompt }] }] })
+                });
+                const data = await resp.json();
+                const result = data.candidates[0].content.parts[0].text;
+
+                if(currentAppMode === 'DRAW') {
+                    document.getElementById('svg-layer').innerHTML = result.match(/<svg[\s\S]*<\/svg>/)[0];
+                    say("Et voilà ! Tu peux colorier maintenant.");
+                } else {
+                    say(result);
                 }
-            } catch (e) { console.error(e); }
+            } catch(e) { status.innerText = "Zut, la magie a foiré..."; }
         }
 
-        async function textToSpeechAzure(text) {
-            if(!text) return;
+        /* --- AUDIO --- */
+        async function say(text) {
+            document.getElementById('status').innerText = text;
             const url = `https://${AZURE_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`;
-            const ssml = `<speak version='1.0' xml:lang='fr-FR'><voice xml:lang='fr-FR' xml:gender='Female' name='${AZURE_VOICE_NAME}'><prosody rate="0.9">${text}</prosody></voice></speak>`;
-            try {
-                const response = await fetch(url, { method: 'POST', headers: { 'Ocp-Apim-Subscription-Key': AZURE_KEY, 'Content-Type': 'application/ssml+xml', 'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3' }, body: ssml });
-                return await response.blob();
-            } catch (e) { return null; }
+            const resp = await fetch(url, {
+                method: 'POST',
+                headers: { 'Ocp-Apim-Subscription-Key': AZURE_KEY, 'Content-Type': 'application/ssml+xml', 'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3' },
+                body: `<speak version='1.0' xml:lang='fr-FR'><voice name='fr-FR-DeniseNeural'><prosody rate="0.9">${text}</prosody></voice></speak>`
+            });
+            const blob = await resp.blob();
+            const audio = new Audio(URL.createObjectURL(blob));
+            
+            if (!audioCtx) audioCtx = new AudioContext();
+            const source = audioCtx.createMediaElementSource(audio);
+            if(!analyser) analyser = audioCtx.createAnalyser();
+            source.connect(analyser); analyser.connect(audioCtx.destination);
+            
+            document.getElementById('story-card').classList.remove('hidden');
+            document.getElementById('stop-container').style.opacity = "1";
+            document.getElementById('stop-container').style.pointerEvents = "auto";
+            
+            audio.onended = () => {
+                document.getElementById('story-card').classList.add('hidden');
+                document.getElementById('stop-container').style.opacity = "0";
+            };
+            audio.play();
+            currentAudio = audio;
+            visualize();
         }
 
-        async function parler() {
-            if (isSpeaking || speechQueue.length === 0) return;
-            isSpeaking = true; 
+        function stopAudio() { if(currentAudio) currentAudio.pause(); }
+
+        function visualize() {
+            if(!analyser) return;
+            const canvas = document.getElementById('visualizer-canvas');
+            const ctx = canvas.getContext('2d');
+            const data = new Uint8Array(analyser.frequencyBinCount);
             
-            // Si mode dessin, on ne cache pas l'interface
-            if(currentAppMode !== 'DRAW') {
-                document.getElementById('main-header').classList.add('cinema-mode');
-                document.querySelector('.brand-header').classList.add('cinema-mode');
-                document.getElementById('story-card').classList.remove('hidden');
+            function draw() {
+                requestAnimationFrame(draw);
+                analyser.getByteFrequencyData(data);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#6366f1';
+                data.forEach((v, i) => ctx.fillRect(i * 3, canvas.height - v/2, 2, v/2));
             }
-            resizeViz(); 
-            
-            let txt = speechQueue.shift().replace(/[#*`_]/g, '');
-            const audioBlob = await textToSpeechAzure(txt);
-            if (audioBlob) {
-                const audioUrl = URL.createObjectURL(audioBlob);
-                currentAudio = new Audio(audioUrl);
-                const source = audioCtx.createMediaElementSource(currentAudio);
-                startVisualizer(source, audioCtx);
-                currentAudio.onended = () => {
-                    isSpeaking = false;
-                    if (speechQueue.length === 0) { 
-                        if(currentAppMode !== 'DRAW') {
-                           stopAudio(); // Reset UI normal
-                        } else {
-                           // En mode dessin on garde l'interface active mais on stop le visualiseur
-                           stopVisualizer();
-                           toggleStopButton(false);
-                           if(['DRAW_INPUT'].includes(interactionMode)) setTimeout(() => startListening(), 500);
-                        }
-                    } else parler(); 
-                };
-                currentAudio.play();
-            } else { isSpeaking = false; parler(); }
+            draw();
         }
 
-        function verifierCles() {
-            if (!GEMINI_KEY || !AZURE_KEY) {
-                const k1 = prompt("Clé Google Gemini :"); if(k1) localStorage.setItem('BOITE_GEMINI_KEY', k1);
-                const k2 = prompt("Clé Azure Speech :"); if(k2) localStorage.setItem('BOITE_AZURE_KEY', k2);
-                const k3 = prompt("Région Azure :"); if(k3) localStorage.setItem('BOITE_AZURE_REGION', k3);
-                location.reload();
-            }
-        }
+        /* --- MIC --- */
+        document.getElementById('btn-mic').onclick = () => {
+            const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            rec.lang = 'fr-FR';
+            rec.onstart = () => document.getElementById('btn-mic').classList.add('mic-listening');
+            rec.onend = () => document.getElementById('btn-mic').classList.remove('mic-listening');
+            rec.onresult = (e) => traiterInput(e.results[0][0].transcript);
+            rec.start();
+        };
+
+        document.getElementById('btn-stop').onclick = stopAudio;
         function oublierTout() { localStorage.clear(); location.reload(); }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            if (!GEMINI_KEY || !AZURE_KEY) verifierCles();
-            document.getElementById('btn-mic').onclick = () => { startListening(); };
-            document.getElementById('btn-stop').onclick = stopAudio;
-        });
+        window.addEventListener('resize', resizeDraw);
     </script>
 </body>
 </html>
