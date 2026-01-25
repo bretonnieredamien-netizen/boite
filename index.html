@@ -10,7 +10,6 @@
         :root {
             --bg-1: #fff7ed; --bg-2: #fef9c3; --bg-3: #ede9fe; --bg-4: #fae8ff;
             --accent-color: #6366f1; 
-            --vis-1: #4f46e5; --vis-2: #9333ea; --vis-3: #db2777;
         }
 
         body { 
@@ -18,58 +17,61 @@
             background: linear-gradient(-45deg, var(--bg-1), var(--bg-2), var(--bg-3), var(--bg-4));
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
-            touch-action: none; overflow: hidden; min-height: 100vh; margin: 0;
+            margin: 0; overflow: hidden; height: 100vh;
         }
         @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
         #starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
-        .content-layer { position: relative; z-index: 10; width: 100%; height: 100vh; display: flex; flex-direction: column; align-items: center; opacity: 0; transition: opacity 1s ease-in; }
-        .content-visible { opacity: 1 !important; }
+        .hidden { display: none !important; }
 
-        /* --- UI DESSIN MAGIQUE --- */
-        #drawing-area {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 55; display: none; touch-action: none;
+        /* --- NAVIGATION --- */
+        .brand-header { position: absolute; top: 1.5rem; left: 1.5rem; z-index: 100; }
+        .home-btn { 
+            background: rgba(255,255,255,0.6); backdrop-filter: blur(10px); 
+            border: 1px solid white; width: 50px; height: 50px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        #draw-canvas { width: 100%; height: 100%; touch-action: none; cursor: crosshair; filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); }
+
+        /* --- ZONE DESSIN --- */
+        #drawing-area {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 50; display: none; touch-action: none;
+        }
+        #draw-canvas { width: 100%; height: 100%; display: block; touch-action: none; }
         
         #svg-layer {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 85%; height: 85%; pointer-events: none; opacity: 0.3;
-            display: flex; align-items: center; justify-content: center; z-index: 56;
+            width: 80%; height: 80%; pointer-events: none; opacity: 0.4; z-index: 51;
         }
-        #svg-layer svg { width: 100%; height: 100%; stroke: #444; stroke-width: 1.5px; fill: none; stroke-linecap: round; }
+        #svg-layer svg { width: 100%; height: 100%; stroke: #000; fill: none; }
 
         .drawing-tools {
             position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
-            display: flex; gap: 15px; background: rgba(255,255,255,0.3); backdrop-filter: blur(20px);
-            padding: 12px 25px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.5);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1); z-index: 70;
+            display: flex; gap: 12px; background: rgba(255,255,255,0.5); backdrop-filter: blur(15px);
+            padding: 12px 20px; border-radius: 999px; border: 1px solid white; z-index: 100;
         }
-        .magic-btn { 
-            width: 42px; height: 42px; border-radius: 50%; border: 2px solid white; cursor: pointer; 
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
-        }
-        .magic-btn:active { transform: scale(0.8) rotate(-10deg); }
-        .magic-btn.active { transform: scale(1.2); border-color: #6366f1; box-shadow: 0 0 15px #6366f1; }
+        .magic-btn { width: 45px; height: 45px; border-radius: 50%; border: 2px solid white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: 0.2s; }
+        .magic-btn.active { transform: scale(1.2); border-color: #6366f1; box-shadow: 0 0 15px white; }
 
-        /* --- INTERFACE GENERALE --- */
-        .brand-header { position: absolute; top: 1.5rem; left: 1.5rem; z-index: 80; }
-        .home-btn { background: rgba(255,255,255,0.4); backdrop-filter: blur(10px); border: 1px solid white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        /* --- INTERFACE PRINCIPALE --- */
+        #main-interface { position: relative; z-index: 10; width: 100%; height: 100vh; display: flex; flex-direction: column; align-items: center; opacity: 0; transition: 1s; }
+        .content-visible { opacity: 1 !important; }
+
+        .status-box { background: rgba(255,255,255,0.5); backdrop-filter: blur(10px); padding: 0.8rem 2rem; border-radius: 9999px; border: 1px solid white; margin-top: 6rem; max-width: 80%; text-align: center; }
         
-        .status-box { background: rgba(255,255,255,0.4); backdrop-filter: blur(10px); padding: 0.6rem 1.8rem; border-radius: 9999px; border: 1px solid white; margin-top: 1rem; }
-        
-        .orbe-base { position: relative; width: 110px; height: 110px; background: rgba(255,255,255,0.2); backdrop-filter: blur(15px); border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .orbe-base svg { width: 45px; height: 45px; fill: var(--accent-color); }
+        .orbe-base { width: 120px; height: 120px; background: rgba(255,255,255,0.3); backdrop-filter: blur(15px); border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .mic-listening { background: white !important; box-shadow: 0 0 40px #6366f1; animation: pulseMic 1.5s infinite; }
+        @keyframes pulseMic { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
 
-        #dim-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 40; opacity: 0; pointer-events: none; transition: opacity 2s; }
-        .dim-active { opacity: 1 !important; }
-
-        /* Selector UI */
-        #intro-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        /* --- SELECTEUR ACCUEIL --- */
+        #intro-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, transparent 0%, rgba(255,255,255,0.2) 100%); }
         .mode-card { display: flex; flex-direction: column; align-items: center; gap: 0.8rem; cursor: pointer; transition: 0.3s; }
-        .mode-icon-box { width: 110px; height: 110px; border-radius: 30px; background: rgba(255,255,255,0.2); backdrop-filter: blur(20px); border: 2px solid white; display: flex; align-items: center; justify-content: center; }
+        .mode-card:hover { transform: translateY(-10px); }
+        .mode-icon-box { width: 120px; height: 120px; border-radius: 35px; background: white; border: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: center; box-shadow: 0 15px 35px rgba(0,0,0,0.05); }
+
+        #dim-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 5; opacity: 0; pointer-events: none; transition: 2s; }
+        .dim-active { opacity: 0.8 !important; }
     </style>
 </head>
 <body>
@@ -81,155 +83,98 @@
         <div id="svg-layer"></div>
         <canvas id="draw-canvas"></canvas>
         <div class="drawing-tools">
-            <div class="magic-btn active" style="background: linear-gradient(to bottom right, #ff0080, #7928ca);" onclick="setMagicBrush('aurora', this)" title="Aurore">✨</div>
-            <div class="magic-btn" style="background: linear-gradient(to bottom right, #00f2fe, #4facfe);" onclick="setMagicBrush('ocean', this)" title="Océan">🌊</div>
-            <div class="magic-btn" style="background: linear-gradient(to bottom right, #f83600, #f9d423);" onclick="setMagicBrush('fire', this)" title="Feu">🔥</div>
-            <div class="magic-btn" style="background: linear-gradient(to bottom right, #00cdac, #8ddad5);" onclick="setMagicBrush('forest', this)" title="Forêt">🌿</div>
-            <div style="width:2px; background: rgba(255,255,255,0.3); margin:0 5px;"></div>
-            <div class="magic-btn" style="background: #fff; color: #333;" onclick="clearCanvas()">🗑️</div>
+            <div class="magic-btn active" style="background: linear-gradient(45deg, #ff0080, #7928ca);" onclick="setBrush('aurora', this)">✨</div>
+            <div class="magic-btn" style="background: linear-gradient(45deg, #00f2fe, #4facfe);" onclick="setBrush('ocean', this)">🌊</div>
+            <div class="magic-btn" style="background: linear-gradient(45deg, #f83600, #f9d423);" onclick="setBrush('fire', this)">🔥</div>
+            <div class="magic-btn" style="background: #fff; color: #333;" onclick="clearDrawing()">🗑️</div>
         </div>
     </div>
 
     <div id="intro-overlay">
-        <p class="text-indigo-900/50 text-xl font-black mb-12 uppercase tracking-widest">Quelle magie aujourd'hui ?</p>
-        <div class="flex gap-8 flex-wrap justify-center">
+        <h1 class="text-indigo-900/40 text-2xl font-black mb-16 tracking-tighter uppercase">Ma Boîte Magique</h1>
+        <div class="flex gap-10 flex-wrap justify-center">
             <div class="mode-card" onclick="selectMode('STORY')">
-                <div class="mode-icon-box"><svg width="45" height="45" viewBox="0 0 24 24" fill="#6366f1"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg></div>
-                <span class="text-[10px] font-bold uppercase tracking-widest text-indigo-900/40">Histoires</span>
+                <div class="mode-icon-box"><svg width="50" height="50" fill="#6366f1" viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg></div>
+                <span class="text-[11px] font-bold uppercase tracking-widest text-indigo-900/50">Histoires</span>
             </div>
             <div class="mode-card" onclick="selectMode('QUESTION')">
-                <div class="mode-icon-box"><svg width="45" height="45" viewBox="0 0 24 24" fill="#ec4899"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg></div>
-                <span class="text-[10px] font-bold uppercase tracking-widest text-pink-900/40">Questions</span>
+                <div class="mode-icon-box"><svg width="50" height="50" fill="#ec4899" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg></div>
+                <span class="text-[11px] font-bold uppercase tracking-widest text-pink-900/50">Questions</span>
             </div>
             <div class="mode-card" onclick="selectMode('DRAW')">
-                <div class="mode-icon-box"><svg width="45" height="45" viewBox="0 0 24 24" fill="#10b981"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"/></svg></div>
-                <span class="text-[10px] font-bold uppercase tracking-widest text-green-900/40">Dessin</span>
+                <div class="mode-icon-box"><svg width="50" height="50" fill="#10b981" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"/></svg></div>
+                <span class="text-[11px] font-bold uppercase tracking-widest text-green-900/50">Dessin</span>
             </div>
         </div>
     </div>
 
-    <div id="main-interface" class="content-layer">
+    <div id="main-interface">
         <div class="brand-header"><button onclick="backToHome()" class="home-btn"><svg width="24" height="24" fill="#6366f1" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></button></div>
-        <header class="text-center mt-20">
-            <div class="status-box"><p id="status" class="text-indigo-900/60 font-bold italic text-sm">Prêt...</p></div>
-        </header>
-        <main class="flex-grow flex flex-col items-center justify-center gap-8">
-            <div id="story-card" class="hidden"><canvas id="visualizer-canvas"></canvas></div>
-            <button id="btn-mic" class="orbe-base"><svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg></button>
-            <div id="stop-container" class="opacity-0 pointer-events-none"><button id="btn-stop" class="orbe-base w-16 h-16"><svg viewBox="0 0 24 24" width="24"><rect x="6" y="6" width="12" height="12" rx="2" /></svg></button></div>
-        </main>
-        <input type="text" id="manualInput" class="hidden">
+        
+        <div class="status-box"><p id="status" class="text-indigo-900/70 font-bold italic">Je t'écoute...</p></div>
+        
+        <div class="flex-grow flex flex-col items-center justify-center gap-12">
+            <button id="btn-mic" class="orbe-base shadow-2xl"><svg width="45" height="45" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg></button>
+            <button id="btn-stop" class="hidden orbe-base w-16 h-16 border-red-400"><svg width="24" height="24" fill="#f87171" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg></button>
+        </div>
     </div>
 
     <script>
-        /* --- CONFIG --- */
+        /* --- CORE VARS --- */
         let GEMINI_KEY = localStorage.getItem('BOITE_GEMINI_KEY');
         let AZURE_KEY = localStorage.getItem('BOITE_AZURE_KEY');
         let AZURE_REGION = localStorage.getItem('BOITE_AZURE_REGION');
-        const MODEL_ID = "models/gemini-2.0-flash"; 
-        
-        let userPrenom = localStorage.getItem('BOITE_PRENOM');
-        let userAge = localStorage.getItem('BOITE_AGE');
-        let userGenre = localStorage.getItem('BOITE_GENRE');
-        let currentAppMode = null; 
-        let interactionMode = 'INIT'; 
+        const MODEL = "models/gemini-1.5-flash"; 
 
-        /* --- MOTEUR DE DESSIN MAGIQUE --- */
-        const drawCanvas = document.getElementById('draw-canvas');
-        const drawCtx = drawCanvas.getContext('2d');
-        let isDrawing = false;
-        let lastX = 0, lastY = 0;
+        let userPrenom = localStorage.getItem('BOITE_PRENOM') || "";
+        let currentAppMode = null;
+        let isDrawing = false, lastX = 0, lastY = 0;
+        let brushType = 'aurora';
         let magicParticles = [];
-        let currentBrush = 'aurora';
+
+        const canvasDraw = document.getElementById('draw-canvas');
+        const ctxDraw = canvasDraw.getContext('2d');
 
         const BRUSHES = {
-            'aurora': { colors: ['#ff0080', '#7928ca', '#4facfe'], particle: '#fbcfe8' },
-            'ocean': { colors: ['#00f2fe', '#4facfe', '#0000ff'], particle: '#bae6fd' },
-            'fire': { colors: ['#f83600', '#f9d423', '#ffae00'], particle: '#fef3c7' },
-            'forest': { colors: ['#00cdac', '#8ddad5', '#166534'], particle: '#d1fae5' }
+            'aurora': { colors: ['#ff0080', '#7928ca', '#4facfe'], spark: '#fff' },
+            'ocean': { colors: ['#00f2fe', '#4facfe', '#0000ff'], spark: '#bae6fd' },
+            'fire': { colors: ['#f83600', '#f9d423', '#ffae00'], spark: '#fef3c7' }
         };
 
-        function resizeDraw() {
-            drawCanvas.width = window.innerWidth;
-            drawCanvas.height = window.innerHeight;
-            drawCtx.lineCap = 'round';
-            drawCtx.lineJoin = 'round';
+        /* --- NAVIGATION --- */
+        function selectMode(mode) {
+            currentAppMode = mode;
+            document.getElementById('intro-overlay').classList.add('hidden');
+            document.getElementById('main-interface').classList.add('content-visible');
+            
+            if (mode === 'DRAW') {
+                document.getElementById('drawing-area').style.display = 'block';
+                resizeCanvas();
+                requestAnimationFrame(particleLoop);
+                updateStatus("Dis-moi quoi faire apparaître ou dessine avec tes doigts !");
+            } else if (mode === 'STORY') {
+                updateStatus("Quelle histoire veux-tu inventer ?");
+            } else {
+                updateStatus("Quelle est ta question ?");
+            }
         }
 
-        function setMagicBrush(type, btn) {
-            currentBrush = type;
+        function backToHome() {
+            location.reload(); // Plus simple pour reset tous les états
+        }
+
+        /* --- DESSIN --- */
+        function resizeCanvas() {
+            canvasDraw.width = window.innerWidth;
+            canvasDraw.height = window.innerHeight;
+            ctxDraw.lineCap = 'round';
+            ctxDraw.lineJoin = 'round';
+        }
+
+        function setBrush(type, btn) {
+            brushType = type;
             document.querySelectorAll('.magic-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-        }
-
-        class Sparkle {
-            constructor(x, y, color) {
-                this.x = x; this.y = y;
-                this.size = Math.random() * 4 + 1;
-                this.vx = (Math.random() - 0.5) * 2;
-                this.vy = (Math.random() - 0.5) * 2;
-                this.life = 1.0;
-                this.color = color;
-            }
-            update() {
-                this.x += this.vx; this.y += this.vy;
-                this.life -= 0.02;
-            }
-            draw() {
-                drawCtx.save();
-                drawCtx.globalAlpha = this.life;
-                drawCtx.fillStyle = this.color;
-                drawCtx.beginPath();
-                drawCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                drawCtx.fill();
-                drawCtx.restore();
-            }
-        }
-
-        function drawLoop() {
-            if (currentAppMode !== 'DRAW') return;
-            // On ne clear pas le canvas de dessin pour garder les traits, 
-            // mais on anime les particules par dessus (difficile sans calque séparé, 
-            // donc on utilise un trick : on redessine juste les particules)
-            magicParticles.forEach((p, i) => {
-                p.update();
-                p.draw();
-                if (p.life <= 0) magicParticles.splice(i, 1);
-            });
-            requestAnimationFrame(drawLoop);
-        }
-
-        function startDrawing(e) {
-            isDrawing = true;
-            const pos = getPos(e); [lastX, lastY] = [pos.x, pos.y];
-        }
-
-        function draw(e) {
-            if (!isDrawing) return;
-            const pos = getPos(e);
-            const brush = BRUSHES[currentBrush];
-
-            // Trait dégradé
-            let grad = drawCtx.createLinearGradient(lastX, lastY, pos.x, pos.y);
-            grad.addColorStop(0, brush.colors[0]);
-            grad.addColorStop(0.5, brush.colors[1]);
-            grad.addColorStop(1, brush.colors[2]);
-
-            drawCtx.beginPath();
-            drawCtx.moveTo(lastX, lastY);
-            drawCtx.lineTo(pos.x, pos.y);
-            drawCtx.strokeStyle = grad;
-            drawCtx.lineWidth = 12;
-            drawCtx.shadowBlur = 15;
-            drawCtx.shadowColor = brush.colors[1];
-            drawCtx.stroke();
-
-            // Ajout particules
-            for(let i=0; i<3; i++) {
-                magicParticles.push(new Sparkle(pos.x, pos.y, brush.particle));
-            }
-
-            [lastX, lastY] = [pos.x, pos.y];
         }
 
         function getPos(e) {
@@ -238,148 +183,142 @@
             return { x, y };
         }
 
-        function clearCanvas() {
-            drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-            document.getElementById('svg-layer').innerHTML = '';
+        function startDraw(e) {
+            isDrawing = true;
+            const pos = getPos(e); [lastX, lastY] = [pos.x, pos.y];
         }
 
-        drawCanvas.addEventListener('mousedown', startDrawing);
-        drawCanvas.addEventListener('mousemove', draw);
+        function draw(e) {
+            if (!isDrawing) return;
+            const pos = getPos(e);
+            const b = BRUSHES[brushType];
+
+            let g = ctxDraw.createLinearGradient(lastX, lastY, pos.x, pos.y);
+            g.addColorStop(0, b.colors[0]); g.addColorStop(1, b.colors[1]);
+
+            ctxDraw.beginPath();
+            ctxDraw.moveTo(lastX, lastY);
+            ctxDraw.lineTo(pos.x, pos.y);
+            ctxDraw.strokeStyle = g;
+            ctxDraw.lineWidth = 12;
+            ctxDraw.shadowBlur = 10;
+            ctxDraw.shadowColor = b.colors[1];
+            ctxDraw.stroke();
+
+            // Particules
+            for(let i=0; i<2; i++) {
+                magicParticles.push({
+                    x: pos.x, y: pos.y, 
+                    vX: (Math.random()-0.5)*2, vY: (Math.random()-0.5)*2,
+                    life: 1.0, size: Math.random()*3+1, color: b.spark
+                });
+            }
+            [lastX, lastY] = [pos.x, pos.y];
+        }
+
+        function particleLoop() {
+            if (currentAppMode !== 'DRAW') return;
+            magicParticles.forEach((p, i) => {
+                p.x += p.vX; p.y += p.vY; p.life -= 0.02;
+                if (p.life > 0) {
+                    ctxDraw.globalAlpha = p.life;
+                    ctxDraw.fillStyle = p.color;
+                    ctxDraw.beginPath(); ctxDraw.arc(p.x, p.y, p.size, 0, Math.PI*2); ctxDraw.fill();
+                } else { magicParticles.splice(i, 1); }
+            });
+            ctxDraw.globalAlpha = 1;
+            requestAnimationFrame(particleLoop);
+        }
+
+        function clearDrawing() {
+            ctxDraw.clearRect(0,0,canvasDraw.width, canvasDraw.height);
+            document.getElementById('svg-layer').innerHTML = "";
+        }
+
+        canvasDraw.addEventListener('mousedown', startDraw);
+        canvasDraw.addEventListener('mousemove', draw);
         window.addEventListener('mouseup', () => isDrawing = false);
-        drawCanvas.addEventListener('touchstart', startDrawing);
-        drawCanvas.addEventListener('touchmove', e => { e.preventDefault(); draw(e); });
+        canvasDraw.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e); });
+        canvasDraw.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); });
 
-        /* --- LOGIQUE GLOBALE --- */
-        let audioCtx, analyser, dataArray, currentAudio, isSpeaking = false;
-
-        function selectMode(mode) {
-            currentAppMode = mode;
-            document.getElementById('intro-overlay').classList.add('hidden');
-            document.getElementById('main-interface').classList.add('content-visible');
+        /* --- IA --- */
+        async function appelIA(text) {
+            if (!GEMINI_KEY) return alert("Clé manquante !");
+            updateStatus("Magie en cours...");
             
-            if(mode === 'DRAW') {
-                document.getElementById('drawing-area').style.display = 'block';
-                resizeDraw();
-                drawLoop();
-            }
-            startInteraction();
-        }
-
-        function backToHome() {
-            stopAudio();
-            document.getElementById('main-interface').classList.remove('content-visible');
-            document.getElementById('intro-overlay').classList.remove('hidden');
-            document.getElementById('drawing-area').style.display = 'none';
-            currentAppMode = null;
-        }
-
-        async function startInteraction() {
-            if(!userPrenom) {
-                interactionMode = 'NAME_INPUT';
-                say("Bonjour ! Comment t'appelles-tu ?");
-            } else {
-                interactionMode = currentAppMode === 'STORY' ? 'STORY_INPUT' : 
-                                 currentAppMode === 'QUESTION' ? 'QUESTION_INPUT' : 'DRAW_INPUT';
-                say(`Coucou ${userPrenom} ! Je t'écoute.`);
-            }
-        }
-
-        async function traiterInput(text) {
-            if(interactionMode === 'NAME_INPUT') {
-                userPrenom = text; localStorage.setItem('BOITE_PRENOM', text);
-                startInteraction();
-            } else {
-                appelIA(text);
-            }
-        }
-
-        async function appelIA(prompt) {
-            const status = document.getElementById('status');
-            status.innerText = "Réflexion magique...";
-            
-            let system = "";
-            if(currentAppMode === 'STORY') system = `Conteuse pro. Enfant: ${userPrenom}. Sujet: ${prompt}. Pas de Léo/Léa. FIN à la fin.`;
-            if(currentAppMode === 'QUESTION') system = `Explique simplement à un enfant: ${prompt}. 3 phrases max.`;
-            if(currentAppMode === 'DRAW') system = `Génère UNIQUEMENT le code <svg> (trait noir simple) pour : ${prompt}. Pas de texte autour.`;
+            let systemPrompt = "";
+            if (currentAppMode === 'STORY') systemPrompt = `Tu es une conteuse pour enfant. Fais une histoire courte.`;
+            if (currentAppMode === 'QUESTION') systemPrompt = `Explique simplement à un enfant.`;
+            if (currentAppMode === 'DRAW') systemPrompt = `Génère UNIQUEMENT le code <svg> (contours noirs simples) pour : ${text}. Pas de texte avant ou après.`;
 
             try {
-                const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:generateContent?key=${GEMINI_KEY}`, {
+                const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/${MODEL}:generateContent?key=${GEMINI_KEY}`, {
                     method: 'POST',
-                    body: JSON.stringify({ contents: [{ parts: [{ text: system + prompt }] }] })
+                    body: JSON.stringify({ contents: [{ parts: [{ text: systemPrompt + " Sujet : " + text }] }] })
                 });
-                const data = await resp.json();
-                const result = data.candidates[0].content.parts[0].text;
+                const d = await r.json();
+                const res = d.candidates[0].content.parts[0].text;
 
-                if(currentAppMode === 'DRAW') {
-                    document.getElementById('svg-layer').innerHTML = result.match(/<svg[\s\S]*<\/svg>/)[0];
-                    say("Et voilà ! Tu peux colorier maintenant.");
+                if (currentAppMode === 'DRAW') {
+                    const svgMatch = res.match(/<svg[\s\S]*<\/svg>/);
+                    if (svgMatch) {
+                        document.getElementById('svg-layer').innerHTML = svgMatch[0];
+                        updateStatus("Et voilà !");
+                    }
                 } else {
-                    say(result);
+                    say(res);
                 }
-            } catch(e) { status.innerText = "Zut, la magie a foiré..."; }
+            } catch(e) { updateStatus("La boîte est fatiguée, réessaie !"); }
         }
 
-        /* --- AUDIO --- */
+        /* --- VOCAL --- */
         async function say(text) {
-            document.getElementById('status').innerText = text;
+            updateStatus(text);
             const url = `https://${AZURE_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`;
-            const resp = await fetch(url, {
+            const r = await fetch(url, {
                 method: 'POST',
                 headers: { 'Ocp-Apim-Subscription-Key': AZURE_KEY, 'Content-Type': 'application/ssml+xml', 'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3' },
-                body: `<speak version='1.0' xml:lang='fr-FR'><voice name='fr-FR-DeniseNeural'><prosody rate="0.9">${text}</prosody></voice></speak>`
+                body: `<speak version='1.0' xml:lang='fr-FR'><voice name='fr-FR-DeniseNeural'><prosody rate="0.95">${text}</prosody></voice></speak>`
             });
-            const blob = await resp.blob();
+            const blob = await r.blob();
             const audio = new Audio(URL.createObjectURL(blob));
-            
-            if (!audioCtx) audioCtx = new AudioContext();
-            const source = audioCtx.createMediaElementSource(audio);
-            if(!analyser) analyser = audioCtx.createAnalyser();
-            source.connect(analyser); analyser.connect(audioCtx.destination);
-            
-            document.getElementById('story-card').classList.remove('hidden');
-            document.getElementById('stop-container').style.opacity = "1";
-            document.getElementById('stop-container').style.pointerEvents = "auto";
-            
-            audio.onended = () => {
-                document.getElementById('story-card').classList.add('hidden');
-                document.getElementById('stop-container').style.opacity = "0";
-            };
             audio.play();
-            currentAudio = audio;
-            visualize();
         }
 
-        function stopAudio() { if(currentAudio) currentAudio.pause(); }
+        function updateStatus(t) { document.getElementById('status').innerText = t; }
 
-        function visualize() {
-            if(!analyser) return;
-            const canvas = document.getElementById('visualizer-canvas');
-            const ctx = canvas.getContext('2d');
-            const data = new Uint8Array(analyser.frequencyBinCount);
-            
-            function draw() {
-                requestAnimationFrame(draw);
-                analyser.getByteFrequencyData(data);
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#6366f1';
-                data.forEach((v, i) => ctx.fillRect(i * 3, canvas.height - v/2, 2, v/2));
-            }
-            draw();
-        }
-
-        /* --- MIC --- */
+        /* --- MICRO --- */
         document.getElementById('btn-mic').onclick = () => {
-            const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-            rec.lang = 'fr-FR';
+            const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const rec = new Speech(); rec.lang = 'fr-FR';
             rec.onstart = () => document.getElementById('btn-mic').classList.add('mic-listening');
             rec.onend = () => document.getElementById('btn-mic').classList.remove('mic-listening');
-            rec.onresult = (e) => traiterInput(e.results[0][0].transcript);
+            rec.onresult = (e) => appelIA(e.results[0][0].transcript);
             rec.start();
         };
 
-        document.getElementById('btn-stop').onclick = stopAudio;
-        function oublierTout() { localStorage.clear(); location.reload(); }
-        window.addEventListener('resize', resizeDraw);
+        /* --- SETUP CLÉS --- */
+        if (!GEMINI_KEY || !AZURE_KEY) {
+            const k1 = prompt("Clé Google Gemini :"); if(k1) localStorage.setItem('BOITE_GEMINI_KEY', k1);
+            const k2 = prompt("Clé Azure Speech :"); if(k2) localStorage.setItem('BOITE_AZURE_KEY', k2);
+            const k3 = prompt("Région Azure :"); if(k3) localStorage.setItem('BOITE_AZURE_REGION', k3);
+            location.reload();
+        }
+
+        // Fond étoiles
+        const starCanvas = document.getElementById('starfield');
+        const sCtx = starCanvas.getContext('2d');
+        function resizeStars() { starCanvas.width = window.innerWidth; starCanvas.height = window.innerHeight; }
+        window.addEventListener('resize', () => { resizeStars(); resizeCanvas(); });
+        resizeStars();
+        let stars = Array(200).fill().map(() => ({ x: Math.random()*starCanvas.width, y: Math.random()*starCanvas.height, s: Math.random()*2 }));
+        function drawStars() {
+            sCtx.clearRect(0,0,starCanvas.width, starCanvas.height);
+            sCtx.fillStyle = "white";
+            stars.forEach(s => { sCtx.beginPath(); sCtx.arc(s.x, s.y, s.s, 0, Math.PI*2); sCtx.fill(); s.y -= 0.2; if(s.y<0) s.y=starCanvas.height; });
+            requestAnimationFrame(drawStars);
+        }
+        drawStars();
     </script>
 </body>
 </html>
