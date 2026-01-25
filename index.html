@@ -37,7 +37,7 @@
 
         /* --- BOUTON MAISON (DESIGN VERRE MAGIQUE) --- */
         .nav-home-btn {
-            position: absolute; top: 1.5rem; left: 1.5rem; z-index: 60;
+            position: absolute; top: 1.5rem; left: 1.5rem; z-index: 200;
             width: 52px; height: 52px;
             background: rgba(255, 255, 255, 0.4);
             backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
@@ -76,12 +76,13 @@
         
         .slate-controls {
             position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
-            display: flex; gap: 0.8rem; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px);
-            padding: 1rem; border-radius: 999px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            display: flex; gap: 0.6rem; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px);
+            padding: 0.8rem; border-radius: 999px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);
             border: 1px solid rgba(255, 255, 255, 0.2); align-items: center; z-index: 160;
+            flex-wrap: wrap; justify-content: center; max-width: 95%;
         }
-        .brush-btn { width: 45px; height: 45px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: 0.2s; background: rgba(255,255,255,0.1); color: white; }
-        .brush-btn.active { border-color: #6366f1; transform: scale(1.2); background: white; color: #1e293b; }
+        .brush-btn { width: 42px; height: 42px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; transition: 0.2s; background: rgba(255,255,255,0.1); color: white; }
+        .brush-btn.active { border-color: #6366f1; transform: scale(1.15); background: white; color: #1e293b; box-shadow: 0 0 15px rgba(99,102,241,0.5); }
         .slate-action { padding: 0.5rem 1rem; border-radius: 12px; font-weight: 800; font-size: 0.7rem; color: white; text-transform: uppercase; letter-spacing: 0.05em; background: rgba(255,255,255,0.1); }
 
         /* --- UI --- */
@@ -158,7 +159,9 @@
         <div class="slate-controls">
             <button class="brush-btn active" onclick="setBrush('neon', this)" title="Néon">💡</button>
             <button class="brush-btn" onclick="setBrush('rainbow', this)" title="Arc-en-ciel">🌈</button>
-            <button class="brush-btn" onclick="setBrush('lava', this)" title="Lave">🌋</button>
+            <button class="brush-btn" onclick="setBrush('fire', this)" title="Feu">🔥</button>
+            <button class="brush-btn" onclick="setBrush('ice', this)" title="Glace">❄️</button>
+            <button class="brush-btn" onclick="setBrush('electric', this)" title="Électrique">⚡</button>
             <button class="brush-btn" onclick="setBrush('galaxy', this)" title="Galaxie">🌌</button>
             <div class="w-px h-8 bg-white/20 mx-2"></div>
             <button onclick="clearSlate()" class="slate-action">Effacer</button>
@@ -240,6 +243,10 @@
             </div>
              <input type="text" id="manualInput" class="hidden">
         </main>
+
+        <footer class="mt-auto py-8 flex flex-col items-center gap-3">
+             <button onclick="oublierTout()" class="text-gray-400/30 text-[9px] uppercase tracking-widest hover:text-gray-400 transition-colors">Réinitialiser le profil</button>
+        </footer>
     </div>
 
     <script>
@@ -281,34 +288,64 @@
             if (!drawing) return;
             const x = e.clientX || e.touches[0].clientX;
             const y = e.clientY || e.touches[0].clientY;
-            hue = (hue + 2) % 360;
+            hue = (hue + 3) % 360;
 
-            sCtx.lineWidth = currentBrush === 'galaxy' ? 2 : 6;
+            sCtx.lineWidth = currentBrush === 'galaxy' ? 1.5 : (currentBrush === 'neon' ? 3 : 2.5); // Traits plus fins
             
             if (currentBrush === 'neon') {
                 sCtx.strokeStyle = `hsl(${hue}, 100%, 70%)`;
                 sCtx.shadowBlur = 15;
                 sCtx.shadowColor = sCtx.strokeStyle;
             } else if (currentBrush === 'rainbow') {
-                sCtx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
+                sCtx.strokeStyle = `hsl(${hue}, 100%, 60%)`;
                 sCtx.shadowBlur = 0;
             } else if (currentBrush === 'lava') {
-                sCtx.strokeStyle = `hsl(${Math.random() * 20 + 10}, 100%, 50%)`;
-                sCtx.shadowBlur = 10;
+                // Style Feu : Rouge/Orange + particules montantes
+                sCtx.strokeStyle = `hsl(${Math.random() * 40}, 100%, 60%)`;
+                sCtx.shadowBlur = 15;
                 sCtx.shadowColor = '#ff4500';
-            } else if (currentBrush === 'galaxy') {
-                sCtx.strokeStyle = 'white';
+                for(let i=0; i<2; i++) {
+                    // Particules qui montent (y - random)
+                    const pX = x + (Math.random()-0.5) * 15;
+                    const pY = y - Math.random() * 25;
+                    sCtx.fillStyle = `rgba(255, ${Math.floor(Math.random()*150)}, 0, 0.7)`;
+                    sCtx.beginPath(); sCtx.arc(pX, pY, Math.random()*2, 0, Math.PI*2); sCtx.fill();
+                }
+            } else if (currentBrush === 'ice') {
+                // Style Glace : Blanc/Cyan + flocons descendants
+                sCtx.strokeStyle = `rgba(224, 242, 254, 0.9)`;
                 sCtx.shadowBlur = 10;
+                sCtx.shadowColor = '#0ea5e9';
+                for(let i=0; i<2; i++) {
+                    // Particules qui descendent (y + random)
+                    const pX = x + (Math.random()-0.5) * 15;
+                    const pY = y + Math.random() * 25;
+                    sCtx.fillStyle = `rgba(255, 255, 255, 0.8)`;
+                    sCtx.beginPath(); sCtx.arc(pX, pY, Math.random()*1.5, 0, Math.PI*2); sCtx.fill();
+                }
+            } else if (currentBrush === 'electric') {
+                // Style Électrique : Trait zébré
+                sCtx.strokeStyle = '#fef08a';
+                sCtx.shadowBlur = 20;
+                sCtx.shadowColor = '#facc15';
+                const jitterX = x + (Math.random()-0.5) * 10;
+                const jitterY = y + (Math.random()-0.5) * 10;
+                sCtx.lineTo(jitterX, jitterY); // Zigzag
+            } else if (currentBrush === 'galaxy') {
+                sCtx.strokeStyle = 'rgba(255,255,255,0.8)';
+                sCtx.shadowBlur = 8;
                 sCtx.shadowColor = `hsl(${hue}, 100%, 80%)`;
                 for(let i=0; i<3; i++) {
                     sCtx.beginPath();
-                    sCtx.arc(x + (Math.random()-0.5)*20, y + (Math.random()-0.5)*20, Math.random()*2, 0, Math.PI*2);
+                    sCtx.arc(x + (Math.random()-0.5)*20, y + (Math.random()-0.5)*20, Math.random()*1.5, 0, Math.PI*2);
                     sCtx.fillStyle = 'white';
                     sCtx.fill();
                 }
             }
 
-            sCtx.lineTo(x, y);
+            // Pour l'électrique on a déjà fait un lineTo jitter, pour les autres on lineTo normal
+            if (currentBrush !== 'electric') sCtx.lineTo(x, y);
+            
             sCtx.stroke();
             sCtx.beginPath();
             sCtx.moveTo(x, y);
@@ -762,6 +799,19 @@
 
         function reinitialiserCle() { localStorage.removeItem('BOITE_GEMINI_KEY'); localStorage.removeItem('BOITE_AZURE_KEY'); localStorage.removeItem('BOITE_AZURE_REGION'); localStorage.removeItem('BOITE_FINAL_KEY_2026'); location.reload(); }
         function oublierTout() { localStorage.removeItem('BOITE_PRENOM'); localStorage.removeItem('BOITE_AGE'); localStorage.removeItem('BOITE_GENRE'); localStorage.removeItem('BOITE_COLOR'); location.reload(); }
+
+        function returnToMenu() {
+            stopAudio();
+            document.getElementById('slate-layer').style.display = 'none';
+            document.getElementById('main-interface').classList.remove('content-visible');
+            document.getElementById('main-logo-story').classList.add('hidden');
+            document.getElementById('main-logo-question').classList.add('hidden');
+            
+            document.getElementById('intro-overlay').style.display = 'flex';
+            setTimeout(() => {
+                document.getElementById('intro-overlay').classList.remove('intro-fade-out');
+            }, 50);
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             if (!GEMINI_KEY || !AZURE_KEY) verifierCles();
