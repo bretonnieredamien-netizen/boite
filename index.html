@@ -43,21 +43,12 @@
         /* --- ARDOISE & COLORIAGE --- */
         #slate-layer, #coloring-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 150; background: #0f172a; display: none; }
         #coloring-layer { background: #ffffff; }
+        #slate-canvas, #color-canvas { width: 100%; height: 100%; cursor: crosshair; touch-action: none; position: absolute; top:0; left:0; z-index: 5; }
         
-        /* Canvas de dessin (sous l'image générée) */
-        #slate-canvas, #color-canvas { 
-            width: 100%; height: 100%; cursor: crosshair; touch-action: none; 
-            position: absolute; top:0; left:0; z-index: 5; 
-        }
-        
-        /* Image générée par l'IA (au-dessus du canvas) */
         #generated-coloring-image {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 100%; height: 100%; object-fit: contain;
-            pointer-events: none; /* Laisse passer les clics vers le canvas */
-            mix-blend-mode: multiply; /* Le blanc devient transparent */
-            z-index: 10;
-            opacity: 1;
+            pointer-events: none; mix-blend-mode: multiply; z-index: 10; opacity: 1;
         }
 
         .slate-controls { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 95%; max-width: 800px; display: flex; gap: 12px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(20px); padding: 12px 20px; border-radius: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); border: 1px solid rgba(255, 255, 255, 0.2); align-items: center; z-index: 160; overflow-x: auto; justify-content: flex-start; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
@@ -261,10 +252,17 @@
             cCtx.lineTo(x, y); cCtx.stroke(); cCtx.beginPath(); cCtx.moveTo(x, y);
         }
         cCanvas.addEventListener('mousedown', (e) => { coloring = true; cCtx.beginPath(); cCtx.moveTo(e.clientX, e.clientY); }); cCanvas.addEventListener('mousemove', drawColor); window.addEventListener('mouseup', () => coloring = false); cCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); coloring = true; cCtx.beginPath(); cCtx.moveTo(e.touches[0].clientX, e.touches[0].clientY); }); cCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); drawColor(e); }); window.addEventListener('touchend', () => coloring = false);
+        
+        // --- CORRECTION DU BOUTON NOUVEAU ---
         function clearColoring() { 
             cCtx.clearRect(0,0,cCanvas.width, cCanvas.height); 
             document.getElementById('generated-coloring-image').style.display = 'none';
-            returnToMenu(); 
+            document.getElementById('coloring-layer').style.display = 'none';
+            document.getElementById('main-interface').classList.add('content-visible');
+            interactionMode = 'COLORING_INPUT'; 
+            document.getElementById('status').innerText = "Une autre idée ?";
+            speechQueue.push("D'accord, on change ! Que veux-tu colorier maintenant ?"); 
+            parler();
         }
 
         async function genererColoriage(sujet) {
