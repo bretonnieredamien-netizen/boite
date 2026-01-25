@@ -93,6 +93,11 @@
         .white-flash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 90; opacity: 0; pointer-events: none; }
         .flash-active { animation: flashAnim 1.5s ease-out forwards; }
         @keyframes flashAnim { 0% { opacity: 0; } 15% { opacity: 0.95; } 100% { opacity: 0; } }
+
+        /* --- SPOTIFY PLAYER --- */
+        #spotify-container { width: 100%; max-width: 400px; height: 0; overflow: hidden; transition: height 0.5s ease; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        #spotify-container.active { height: 152px; margin-top: 20px; }
+        iframe { border-radius: 12px; }
     </style>
 </head>
 <body class="p-6">
@@ -210,6 +215,7 @@
                 </div>
             </div>
             <div id="story-card" class="hidden transition-all duration-500"><canvas id="visualizer-canvas"></canvas></div>
+            <div id="spotify-container" class=""><iframe id="spotify-frame" style="border-radius:12px" src="" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>
             <input type="text" id="manualInput" class="hidden">
         </main>
     </div>
@@ -229,6 +235,18 @@
 
         const MODEL_ID = "models/gemini-2.5-flash"; 
         const AZURE_VOICE_NAME = "fr-FR-DeniseNeural"; 
+
+        /* --- DATA MUSIQUE SPOTIFY (PLAYLISTS) --- */
+        // On mappe des mots-clés d'ambiance à des Playlists Spotify officielles ou très populaires
+        const SPOTIFY_DB = {
+            'DISNEY': '37i9dQZF1DX8C9xQcOrE6T', // Disney Hits
+            'DODO': '37i9dQZF1DWZd79rJ6a7lp',   // Sleep Lullabies
+            'FETE': '37i9dQZF1DX2sUQqwWQbJn',   // Party Kids
+            'DECOUVERTE': '37i9dQZF1DWWHQX5fP7a70', // Dino/Adventure (Kids Road Trip)
+            'SUPERHEROS': '37i9dQZF1DXu2W0Mf8a55a', // Epic Gaming/Hero
+            'POP': '37i9dQZF1DXcBWIGoYBM5M',     // Today's Top Hits (ou Kids Pop)
+            'CLASSIQUE': '37i9dQZF1DWUvHZA1zLcjW' // Calming Classical
+        };
 
         /* --- ARDOISE NOIRE --- */
         const sCanvas = document.getElementById('slate-canvas'); const sCtx = sCanvas.getContext('2d');
@@ -294,6 +312,8 @@
             document.getElementById('main-logo-coloring').classList.add('hidden');
             document.getElementById('main-logo-music').classList.add('hidden');
             document.getElementById('intro-overlay').style.display = 'flex';
+            document.getElementById('spotify-container').classList.remove('active');
+            document.getElementById('spotify-frame').src = "";
             setTimeout(() => { document.getElementById('intro-overlay').classList.remove('intro-fade-out'); }, 50);
         }
 
@@ -415,7 +435,7 @@
                 speechQueue.push(`C'est l'heure des couleurs ! Dis-moi ${userPrenom}, que veux-tu colorier aujourd'hui ?`);
             } else if (currentAppMode === 'MUSIC') {
                 interactionMode = 'MUSIC_INPUT'; document.getElementById('status').innerText = "Quel style de musique ?";
-                speechQueue.push(`Bienvenue dans la boîte à musique ${userPrenom} ! Donne-moi un style ou un sujet, et je vais inventer une chanson pour toi.`);
+                speechQueue.push(`Bienvenue dans la boîte à musique ${userPrenom} ! Dis-moi ce que tu veux écouter : la reine des neiges, pour dormir, pour danser, ou des dinosaures ?`);
             }
             parler();
         }
@@ -450,6 +470,21 @@
                 document.getElementById('ai-thinking').classList.remove('hidden');
                 genererColoriage(texte);
             }
+        }
+
+        function playSpotify(key) {
+            const playlistId = SPOTIFY_DB[key] || SPOTIFY_DB['POP'];
+            const container = document.getElementById('spotify-container');
+            const iframe = document.getElementById('spotify-frame');
+            
+            // Masquer le visualiseur audio car Spotify prend la place
+            document.getElementById('story-card').classList.add('hidden');
+            
+            iframe.src = `https://open.spotify.com/embed/playlist/${playlistId}?utm_source=generator&theme=0`;
+            container.classList.add('active');
+            
+            speechQueue.push("C'est parti ! Musique maestro !");
+            parler();
         }
 
         function stopAudio() {
@@ -493,7 +528,7 @@
             let waitingPhrase = "Je réfléchis...";
             if (mode === 'STORY') waitingPhrase = "J'écris ton histoire...";
             else if (mode === 'QUESTION') waitingPhrase = "Je cherche...";
-            else if (mode === 'MUSIC') waitingPhrase = "Je compose...";
+            else if (mode === 'MUSIC') waitingPhrase = "Je choisis le disque...";
             
             document.getElementById('status').innerText = waitingPhrase;
 
@@ -520,11 +555,18 @@
                 ${recentHistory}
                 Réponds à l'enfant :`;
             } else if (mode === 'MUSIC') {
-                promptIA = `Tu es un compositeur de chansons magiques pour enfants. ${contextChild}
-                L'enfant veut une chanson sur le thème : "${sujet}".
-                Génère des paroles courtes (4 à 8 vers), rythmées et amusantes.
-                Ajoute des onomatopées musicales (La la la, Boom boom, Tchou tchou) si c'est pertinent.
-                NE METS PAS de titre. Commence direct. Fais en sorte que ce soit facile à lire à voix haute de manière rythmée.`;
+                promptIA = `Tu es un DJ pour enfants. L'enfant demande : "${sujet}".
+                Ta mission : Choisir la playlist Spotify la plus adaptée dans cette liste précise :
+                - DISNEY (Pour dessins animés, films, princesse, reine des neiges)
+                - DODO (Pour dormir, calme, berceuse, relax)
+                - FETE (Pour bouger, danser, rap, rock, énergie)
+                - DECOUVERTE (Animaux, dinosaures, aventure, nature, road trip)
+                - SUPERHEROS (Action, courage, jeux vidéo)
+                - CLASSIQUE (Piano, violon, très calme)
+                - POP (Musique actuelle, hits, radio, stars)
+
+                Analyse l'intention. Si tu hésites, choisis POP.
+                Réponds UNIQUEMENT par le mot clé en majuscule (ex: DISNEY). Rien d'autre.`;
             }
 
             try {
@@ -534,14 +576,23 @@
                     const { done, value } = await reader.read();
                     if (done) {
                         waves.classList.add('hidden'); statusLabel.classList.remove('hidden'); 
-                        statusLabel.innerText = "Je te réponds...";
-                        if (currentSentence.trim()) { speechQueue.push(currentSentence.trim()); fullResponseText += currentSentence.trim(); parler(); }
-                        if (mode === 'CHAT') chatHistory.push({ role: "model", content: fullResponseText });
+                        statusLabel.innerText = "C'est prêt !";
                         
-                        if (mode === 'CHAT') interactionMode = 'CHAT_INPUT';
-                        else if (mode === 'STORY') interactionMode = 'STORY_INPUT';
-                        else if (mode === 'QUESTION') interactionMode = 'QUESTION_INPUT';
-                        else if (mode === 'MUSIC') interactionMode = 'MUSIC_INPUT';
+                        if (mode === 'MUSIC') {
+                            // Nettoyage de la réponse IA pour avoir juste le mot clé
+                            const cleanKey = fullResponseText.trim().toUpperCase().replace(/[^A-Z]/g, '');
+                            playSpotify(cleanKey);
+                            interactionMode = 'MUSIC_INPUT';
+                        } else {
+                            // Comportement normal (Parole)
+                            statusLabel.innerText = "Je te réponds...";
+                            if (currentSentence.trim()) { speechQueue.push(currentSentence.trim()); fullResponseText += currentSentence.trim(); parler(); }
+                            if (mode === 'CHAT') chatHistory.push({ role: "model", content: fullResponseText });
+                            
+                            if (mode === 'CHAT') interactionMode = 'CHAT_INPUT';
+                            else if (mode === 'STORY') interactionMode = 'STORY_INPUT';
+                            else if (mode === 'QUESTION') interactionMode = 'QUESTION_INPUT';
+                        }
                         break;
                     }
                     const chunk = decoder.decode(value); const lines = chunk.split("\n");
@@ -551,10 +602,14 @@
                                 const json = JSON.parse(line.substring(6));
                                 const chunkText = json.candidates[0].content.parts[0].text;
                                 currentSentence += chunkText;
-                                if (/[.!?;:]/.test(chunkText) || chunkText.includes("\n")) {
+                                // Si ce n'est pas de la musique, on lit au fur et à mesure
+                                if (mode !== 'MUSIC' && (/[.!?;:]/.test(chunkText) || chunkText.includes("\n"))) {
                                     const parts = currentSentence.split(/([.!?;:]|\n)/);
                                     for (let i = 0; i < parts.length - 1; i += 2) { const p = (parts[i] + (parts[i+1] || "")).trim(); if (p.length > 2) { speechQueue.push(p); fullResponseText += p + " "; parler(); } }
                                     currentSentence = parts[parts.length - 1];
+                                } else {
+                                    fullResponseText += chunkText; // Pour la musique on accumule tout pour analyser à la fin
+                                    currentSentence = "";
                                 }
                             } catch(e) {}
                         }
@@ -574,13 +629,25 @@
 
         async function parler() {
             if (isSpeaking || speechQueue.length === 0) return;
-            isSpeaking = true; toggleStopButton(true); document.getElementById('main-header').classList.add('cinema-mode'); document.getElementById('story-card').classList.remove('hidden'); resizeViz(); 
+            isSpeaking = true; toggleStopButton(true); document.getElementById('main-header').classList.add('cinema-mode'); 
+            
+            // Si le mode musique est actif (iframe visible), on ne montre PAS le visualiseur
+            const spotifyActive = document.getElementById('spotify-container').classList.contains('active');
+            if(!spotifyActive) {
+                document.getElementById('story-card').classList.remove('hidden'); 
+                resizeViz();
+            }
+
             let txt = speechQueue.shift().replace(/[#*`_]/g, '');
             
             // FALLBACK VOICE IF AZURE FAILS OR RETURNS NULL
             const audioBlob = await textToSpeechAzure(txt);
             if (audioBlob) {
-                const audioUrl = URL.createObjectURL(audioBlob); currentAudio = new Audio(audioUrl); const source = audioCtx.createMediaElementSource(currentAudio); startVisualizer(source, audioCtx);
+                const audioUrl = URL.createObjectURL(audioBlob); currentAudio = new Audio(audioUrl); 
+                // Connecter le visualiseur uniquement si le cadre spotify n'est pas là (sinon conflit visuel)
+                if(!spotifyActive) {
+                    const source = audioCtx.createMediaElementSource(currentAudio); startVisualizer(source, audioCtx);
+                }
                 currentAudio.onended = () => {
                     isSpeaking = false;
                     if (speechQueue.length === 0) { 
