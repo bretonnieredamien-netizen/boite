@@ -7,12 +7,28 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;500;800;900&display=swap" rel="stylesheet">
     <style>
-        /* --- VARIABLES --- */
-        :root { --bg-1: #fff7ed; --bg-2: #fef9c3; --bg-3: #ede9fe; --bg-4: #fae8ff; --accent-color: #6366f1; --vis-1: #4f46e5; --vis-2: #9333ea; --vis-3: #db2777; }
-        
-        /* FOND ANIMÉ */
-        body { font-family: 'Lexend', sans-serif; background: linear-gradient(-45deg, var(--bg-1), var(--bg-2), var(--bg-3), var(--bg-4)); background-size: 400% 400%; animation: gradientBG 15s ease infinite; touch-action: none; overflow: hidden; min-height: 100vh; margin: 0; transition: background 2s ease; }
-        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        /* --- VARIABLES CSS DYNAMIQUES --- */
+        :root {
+            --bg-1: #fff7ed; --bg-2: #fef9c3; --bg-3: #ede9fe; --bg-4: #fae8ff;
+            --accent-color: #6366f1; 
+            --vis-1: #4f46e5; --vis-2: #9333ea; --vis-3: #db2777;
+        }
+
+        /* Fond Moderne Animé */
+        body { 
+            font-family: 'Lexend', sans-serif; 
+            background: linear-gradient(-45deg, var(--bg-1), var(--bg-2), var(--bg-3), var(--bg-4));
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            touch-action: none; 
+            overflow: hidden; min-height: 100vh; margin: 0;
+            transition: background 2s ease; 
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
 
         #starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
         .hidden { display: none !important; }
@@ -20,51 +36,87 @@
         .content-visible { opacity: 1 !important; }
 
         /* --- BOUTON MAISON --- */
-        .nav-home-btn { position: absolute; top: 1.5rem; left: 1.5rem; z-index: 200; width: 52px; height: 52px; background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(15px); border: 2px solid rgba(255, 255, 255, 0.8); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1); transition: all 0.3s; }
-        .nav-home-btn:hover { transform: scale(1.15) rotate(-10deg); background: rgba(255, 255, 255, 0.7); }
-        .nav-home-btn svg { width: 26px; height: 26px; fill: var(--accent-color); }
+        .nav-home-btn {
+            position: absolute; top: 1.5rem; left: 1.5rem; z-index: 200;
+            width: 52px; height: 52px;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .nav-home-btn:hover { transform: scale(1.15) rotate(-10deg); background: rgba(255, 255, 255, 0.7); border-color: #fff; box-shadow: 0 10px 40px rgba(99, 102, 241, 0.4); }
+        .nav-home-btn svg { width: 26px; height: 26px; fill: var(--accent-color); filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
 
-        /* --- HEADER --- */
+        /* --- OVERLAY DE CONCENTRATION --- */
+        #dim-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); 
+            z-index: 40; opacity: 0; pointer-events: none;
+            transition: opacity 3s ease-in-out; 
+        }
+        .dim-active { opacity: 1 !important; pointer-events: auto !important; }
+
+        /* --- HEADER & LOGO --- */
         #main-header { transition: opacity 1s ease, transform 1s ease; opacity: 1; transform: translateY(0); }
         .cinema-mode { opacity: 0 !important; transform: translateY(-20px) !important; pointer-events: none; }
+
         .logo-container { width: 180px; height: 180px; display: flex; justify-content: center; align-items: center; opacity: 0; animation: introFade 2s ease-out forwards; filter: drop-shadow(0 10px 25px rgba(129, 140, 248, 0.5)); }
         @keyframes introFade { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
 
-        /* --- ARDOISE --- */
+        /* --- ARDOISE MAGIQUE --- */
         #slate-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 150; background: #0f172a; display: none; }
         #slate-canvas { width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
-        .slate-controls { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 95%; max-width: 800px; display: flex; gap: 12px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(20px); padding: 12px 20px; border-radius: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); border: 1px solid rgba(255, 255, 255, 0.2); align-items: center; z-index: 160; overflow-x: auto; justify-content: flex-start; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
-        .slate-controls::-webkit-scrollbar { display: none; } 
+        
+        .slate-controls {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            width: 95%; max-width: 800px;
+            display: flex; gap: 12px; 
+            background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(20px);
+            padding: 12px 20px; border-radius: 25px; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2); 
+            align-items: center; z-index: 160;
+            overflow-x: auto; justify-content: flex-start; flex-wrap: nowrap; -webkit-overflow-scrolling: touch;
+        }
+        .slate-controls::-webkit-scrollbar { display: none; } .slate-controls { -ms-overflow-style: none; scrollbar-width: none; }
+
         .brush-btn { flex-shrink: 0; width: 48px; height: 48px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; transition: 0.2s; background: rgba(255,255,255,0.1); color: white; }
         .brush-btn.active { border-color: #6366f1; transform: scale(1.1); background: white; color: #1e293b; box-shadow: 0 0 15px rgba(99,102,241,0.5); }
         .color-picker { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.5); cursor: pointer; transition: 0.2s; }
         .color-picker.active { transform: scale(1.3); border-color: white; box-shadow: 0 0 10px white; }
         .slate-action { flex-shrink: 0; padding: 0.6rem 1.2rem; border-radius: 12px; font-weight: 800; font-size: 0.75rem; color: white; text-transform: uppercase; letter-spacing: 0.05em; background: rgba(255,255,255,0.1); white-space: nowrap; }
 
-        /* --- UI ELEMENTS --- */
+        /* --- UI --- */
         .status-box { background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px); padding: 0.6rem 1.8rem; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.5); margin-top: 1rem; min-height: 44px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; }
         .understood-flash { animation: success-pulse 0.8s ease-out !important; background: rgba(16, 185, 129, 0.2) !important; border-color: #10b981 !important; }
         @keyframes success-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); box-shadow: 0 0 60px #10b981; } 100% { transform: scale(1); } }
+
         .magic-loader { width: 24px; height: 24px; border-radius: 50%; border: 3px solid transparent; border-top-color: #22d3ee; border-right-color: #818cf8; border-bottom-color: #c084fc; animation: spinLoader 1s linear infinite; }
         @keyframes spinLoader { 100% { transform: rotate(360deg); } }
+
         #story-card { background: transparent; overflow: hidden; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 320px; height: 100px; filter: drop-shadow(0 4px 6px rgba(129, 140, 248, 0.3)); position: relative; z-index: 50; }
         #visualizer-canvas { width: 100%; height: 100%; }
-        
+
         .orbe-base { position: relative; width: 120px; height: 120px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(15px); border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.8); display: flex; align-items: center; justify-content: center; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; z-index: 50; }
         .orbe-base svg { width: 45px; height: 45px; fill: var(--accent-color); transition: fill 1s; }
         .mic-listening { background: rgba(255, 255, 255, 0.3) !important; box-shadow: 0 0 50px var(--accent-color) !important; transform: scale(1.1); }
         #btn-stop svg { fill: #f87171; }
         #stop-container.opacity-100 #btn-stop { background: rgba(248, 113, 113, 0.15); border-color: #f87171; box-shadow: 0 0 30px rgba(248, 113, 113, 0.4); }
-
-        /* --- ACCUEIL --- */
+        
         #intro-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s ease-out, visibility 0.8s; }
         .mode-selector { display: flex; gap: 1.5rem; align-items: center; justify-content: center; width: 100%; flex-wrap: wrap; padding: 0 20px; }
         .mode-card { display: flex; flex-direction: column; align-items: center; gap: 0.8rem; cursor: pointer; transition: transform 0.3s ease; }
         .mode-card:hover { transform: scale(1.1); }
         .mode-icon-box { width: 110px; height: 110px; border-radius: 25px; background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(20px); border: 2px solid rgba(255, 255, 255, 0.6); display: flex; align-items: center; justify-content: center; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
         .mode-label { font-weight: 800; color: rgba(79, 70, 229, 0.6); text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.75rem; }
+
         .god-rays { position: absolute; width: 180%; height: 180%; background: conic-gradient(from 0deg, transparent 0deg, rgba(251, 191, 36, 0.2) 20deg, transparent 40deg, rgba(139, 92, 246, 0.2) 60deg, transparent 80deg); border-radius: 50%; z-index: -1; opacity: 1; animation: spinRays 20s linear infinite; top: 50%; left: 50%; transform: translate(-50%, -50%); mix-blend-mode: overlay; pointer-events: none; }
         @keyframes spinRays { 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+
         .intro-fade-out { opacity: 0; pointer-events: none; }
         .white-flash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 90; opacity: 0; pointer-events: none; }
         .flash-active { animation: flashAnim 1.5s ease-out forwards; }
@@ -76,7 +128,9 @@
     <canvas id="starfield"></canvas>
 
     <div id="slate-layer">
-        <button class="nav-home-btn" onclick="returnToMenu()"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></button>
+        <button class="nav-home-btn" onclick="returnToMenu()">
+            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        </button>
         <canvas id="slate-canvas"></canvas>
         <div class="slate-controls">
             <div id="base-colors" class="flex gap-3 mr-2 border-r border-white/20 pr-4 flex-shrink-0">
@@ -105,6 +159,7 @@
     <div id="intro-overlay">
         <div class="god-rays"></div>
         <p id="intro-title" class="text-indigo-900/50 text-xl font-black mb-12 uppercase tracking-widest text-center">Choisis ta magie</p>
+
         <div class="mode-selector">
             <div class="mode-card" onclick="selectMode('STORY')">
                 <div class="mode-icon-box"><svg width="50" height="50" viewBox="0 0 24 24" fill="#6366f1"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg></div>
@@ -123,6 +178,7 @@
                 <span class="mode-label">Dessin</span>
             </div>
         </div>
+
         <button onclick="oublierTout()" class="mt-12 text-indigo-900/40 text-xs font-bold uppercase tracking-widest hover:text-indigo-600 transition-colors">Redéfinir mon profil</button>
     </div>
 
@@ -255,8 +311,12 @@
 
         function startInteractionSequence() {
             if (!userPrenom || !userGenre || !userAge || !userColor) {
-                speechQueue.push("Bonjour ! Avant de commencer, je vais te poser quelques questions pour créer ta boîte magique.");
-                interactionMode = 'NAME_INPUT'; document.getElementById('status').innerText = "Bonjour ! Comment t'appelles-tu ?"; speechQueue.push("D'abord, comment t'appelles-tu ?"); parler(); return;
+                // Début de l'inscription : On demande le genre en premier
+                interactionMode = 'GENDER_INPUT'; 
+                document.getElementById('status').innerText = "Garçon ou fille ?"; 
+                speechQueue.push("Bonjour ! Avant de commencer, dis-moi, es-tu un garçon ou une fille ?"); 
+                parler(); 
+                return;
             }
 
             if (currentAppMode === 'STORY') {
@@ -281,15 +341,31 @@
             document.getElementById('manualInput').value = "";
             const lowerText = texte.toLowerCase();
 
-            if (interactionMode === 'NAME_INPUT') {
-                userPrenom = texte.replace(/je m'appelle /i, "").replace(/c'est /i, "").trim(); localStorage.setItem('BOITE_PRENOM', userPrenom);
-                interactionMode = 'GENDER_INPUT'; document.getElementById('status').innerText = `Garçon ou fille ?`; speechQueue.push(`Enchantée ${userPrenom} ! Es-tu un garçon ou une fille ?`); parler();
-            } else if (interactionMode === 'GENDER_INPUT') {
-                if (lowerText.includes('garçon') || lowerText.includes('homme')) { userGenre = 'garçon'; next(); } else if (lowerText.includes('fille') || lowerText.includes('femme')) { userGenre = 'fille'; next(); } else { speechQueue.push(`Je n'ai pas bien compris. Es-tu un garçon ou une fille ?`); parler(); }
-                function next() { localStorage.setItem('BOITE_GENRE', userGenre); interactionMode = 'COLOR_INPUT'; document.getElementById('status').innerText = `Tes couleurs préférées ?`; speechQueue.push(`C'est noté. Et dis-moi, quelles sont tes couleurs préférées ?`); parler(); }
-            } else if (interactionMode === 'COLOR_INPUT') {
+            // NOUVEL ORDRE : GENRE -> NOM -> COULEUR -> AGE
+            if (interactionMode === 'GENDER_INPUT') {
+                if (lowerText.includes('garçon') || lowerText.includes('homme')) { userGenre = 'garçon'; next(); } 
+                else if (lowerText.includes('fille') || lowerText.includes('femme')) { userGenre = 'fille'; next(); } 
+                else { speechQueue.push(`Je n'ai pas bien compris. Es-tu un garçon ou une fille ?`); parler(); }
+                
+                function next() { 
+                    localStorage.setItem('BOITE_GENRE', userGenre); 
+                    interactionMode = 'NAME_INPUT'; 
+                    document.getElementById('status').innerText = `Comment t'appelles-tu ?`; 
+                    speechQueue.push(`D'accord. Et comment t'appelles-tu ?`); 
+                    parler(); 
+                }
+            } 
+            else if (interactionMode === 'NAME_INPUT') {
+                userPrenom = texte.replace(/je m'appelle /i, "").replace(/c'est /i, "").trim(); 
+                localStorage.setItem('BOITE_PRENOM', userPrenom);
+                interactionMode = 'COLOR_INPUT'; 
+                document.getElementById('status').innerText = `Tes couleurs préférées ?`; 
+                speechQueue.push(`Enchantée ${userPrenom} ! Quelles sont tes couleurs préférées ?`); 
+                parler();
+            } 
+            else if (interactionMode === 'COLOR_INPUT') {
                 userColor = texte; localStorage.setItem('BOITE_COLOR', userColor); applyMixedTheme(userColor);
-                interactionMode = 'AGE_INPUT'; document.getElementById('status').innerText = `Quel âge as-tu ?`; speechQueue.push(`Oh, j'adore ces couleurs ! Voilà ! Et maintenant, quel âge as-tu ?`); parler();
+                interactionMode = 'AGE_INPUT'; document.getElementById('status').innerText = `Quel âge as-tu ?`; speechQueue.push(`C'est noté. Et quel âge as-tu ?`); parler();
             } else if (interactionMode === 'AGE_INPUT') {
                 userAge = texte.replace(/j'ai /i, "").replace(/ans/i, "").trim(); localStorage.setItem('BOITE_AGE', userAge);
                 startInteractionSequence(); // Redirection vers le mode choisi
@@ -305,6 +381,7 @@
             if (currentAudio) { currentAudio.pause(); currentAudio = null; }
             stopVisualizer(); speechQueue = []; isSpeaking = false;
             document.getElementById('main-header').classList.remove('cinema-mode');
+            document.getElementById('dim-overlay').classList.remove('dim-active'); 
             document.getElementById('status').classList.remove('hidden');
             document.getElementById('loading-spinner').classList.add('hidden');
             
@@ -343,7 +420,7 @@
 
             const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${GEMINI_KEY}`;
             let promptIA = "";
-            let contextChild = ""; if (userPrenom) contextChild += `L'enfant s'appelle ${userPrenom}. `; if (userAge) contextChild += `L'enfant a ${userAge} ans. `;
+            let contextChild = ""; if (userPrenom) contextChild += `L'enfant s'appelle ${userPrenom} (${userGenre}, ${userAge} ans). `; 
 
             if (mode === 'STORY') {
                 promptIA = `Tu es une conteuse. ${contextChild} Raconte une aventure sur : "${sujet}".
