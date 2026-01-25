@@ -253,7 +253,6 @@
         }
         cCanvas.addEventListener('mousedown', (e) => { coloring = true; cCtx.beginPath(); cCtx.moveTo(e.clientX, e.clientY); }); cCanvas.addEventListener('mousemove', drawColor); window.addEventListener('mouseup', () => coloring = false); cCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); coloring = true; cCtx.beginPath(); cCtx.moveTo(e.touches[0].clientX, e.touches[0].clientY); }); cCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); drawColor(e); }); window.addEventListener('touchend', () => coloring = false);
         
-        // --- CORRECTION DU BOUTON NOUVEAU ---
         function clearColoring() { 
             cCtx.clearRect(0,0,cCanvas.width, cCanvas.height); 
             document.getElementById('generated-coloring-image').style.display = 'none';
@@ -345,14 +344,16 @@
             } 
             else if (mode === 'COLORING') {
                 document.getElementById('intro-overlay').classList.add('intro-fade-out');
-                // Lancer l'interface principale pour demander quoi colorier
                 setTimeout(() => {
                     document.getElementById('intro-overlay').style.display = 'none';
                     document.getElementById('main-interface').classList.add('content-visible');
                     document.getElementById('main-logo-coloring').classList.remove('hidden');
-                    document.getElementById('coloring-layer').style.display = 'block'; // Pré-afficher le layer mais caché par main-interface
-                    document.getElementById('coloring-layer').style.zIndex = "40"; // Derrière le main pour l'instant
-                    startInteractionSequence(); // "Que veux-tu colorier ?"
+                    
+                    // ON AFFICHE LE LAYER COLORIAGE MAIS EN "PREPARATION"
+                    document.getElementById('coloring-layer').style.display = 'block'; 
+                    document.getElementById('coloring-layer').style.zIndex = "40"; // Cache derrière
+                    
+                    lancerColoriageAleatoire();
                 }, 800);
             }
             else {
@@ -371,6 +372,16 @@
                 }, 1000);
                 setTimeout(() => { document.getElementById('intro-overlay').style.display = 'none'; }, 2000);
             }
+        }
+
+        function lancerColoriageAleatoire() {
+            const sujets = ["un mignon chaton", "un dinosaure gentil", "une licorne magique", "un robot rigolo", "une belle voiture de course", "un grand château", "un papillon coloré", "un super-héros courageux", "un dragon mignon", "une jolie fée"];
+            const sujet = sujets[Math.floor(Math.random() * sujets.length)];
+            
+            interactionMode = 'TELLING'; 
+            document.getElementById('status').innerText = "Je prépare ton dessin...";
+            document.getElementById('ai-thinking').classList.remove('hidden');
+            genererColoriage(sujet);
         }
 
         function startInteractionSequence() {
