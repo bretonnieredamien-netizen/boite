@@ -3,50 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ma Boîte Magique - Studio d'Art ✨</title>
+    <title>Atelier des Lumières ✨</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;500;800;900&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-1: #fff7ed; --bg-2: #fef9c3; --bg-3: #ede9fe; --bg-4: #fae8ff; --accent: #6366f1; }
-        body { font-family: 'Lexend', sans-serif; background: linear-gradient(-45deg, var(--bg-1), var(--bg-2), var(--bg-3), var(--bg-4)); background-size: 400% 400%; animation: gradientBG 15s ease infinite; margin: 0; overflow: hidden; height: 100vh; touch-action: none; }
+        :root { --bg-1: #0f172a; --bg-2: #1e1b4b; --bg-3: #312e81; --bg-4: #000000; --accent: #6366f1; }
+        body { font-family: 'Lexend', sans-serif; background: linear-gradient(-45deg, var(--bg-1), var(--bg-2), var(--bg-3), var(--bg-4)); background-size: 400% 400%; animation: gradientBG 20s ease infinite; margin: 0; overflow: hidden; height: 100vh; touch-action: none; color: white; }
         @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        #starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        #starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; opacity: 0.7; }
         .hidden { display: none !important; }
 
         /* --- DESSIN --- */
         #drawing-area { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; display: none; }
-        #draw-canvas { width: 100%; height: 100%; display: block; z-index: 52; position: relative; cursor: crosshair; }
-        #svg-layer { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; pointer-events: none; opacity: 0.4; z-index: 51; display: flex; align-items: center; justify-content: center; filter: grayscale(100%); }
-        #svg-layer svg { width: 100%; height: 100%; stroke: #1e293b; fill: none; stroke-width: 1.5; }
+        /* Le canvas doit avoir un fond transparent pour voir les étoiles, mais on dessine en mode "lumière" */
+        #draw-canvas { width: 100%; height: 100%; display: block; z-index: 52; position: relative; cursor: crosshair; mix-blend-mode: screen; }
+        /* Le calque SVG pour l'IA est maintenant blanc brillant pour le contraste */
+        #svg-layer { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; pointer-events: none; opacity: 0.8; z-index: 51; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 0 5px white); }
+        #svg-layer svg { width: 100%; height: 100%; stroke: #ffffff; fill: none; stroke-width: 2; }
 
-        /* Nouvelle barre d'outils plus large */
+        /* Barre d'outils "Verre Sombre" */
         .drawing-tools { 
             position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%); 
-            display: flex; gap: 6px; background: rgba(255,255,255,0.95); backdrop-filter: blur(15px); 
-            padding: 10px 15px; border-radius: 20px; border: 1px solid #e2e8f0; z-index: 120; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); flex-wrap: wrap; justify-content: center; 
-            width: 95%; max-width: 600px;
+            display: flex; gap: 8px; background: rgba(20, 20, 40, 0.8); backdrop-filter: blur(20px); 
+            padding: 12px 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); z-index: 120; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5); flex-wrap: wrap; justify-content: center; 
+            width: auto; max-width: 95%;
         }
-        .magic-btn { width: 38px; height: 38px; border-radius: 8px; border: 2px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; transition: 0.2s; background: #f8fafc; }
-        .magic-btn:hover { background: #e2e8f0; }
-        .magic-btn.active { transform: scale(1.1); border-color: var(--accent); background: white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25); }
-        .separator { width: 2px; height: 30px; background: #cbd5e1; margin: auto 2px; border-radius: 2px; }
+        .magic-btn { width: 44px; height: 44px; border-radius: 10px; border: 2px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; transition: 0.3s; background: rgba(255,255,255,0.1); text-shadow: 0 0 10px currentColor; }
+        .magic-btn:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
+        .magic-btn.active { transform: scale(1.15) translateY(-5px); border-color: var(--accent); background: rgba(99, 102, 241, 0.3); box-shadow: 0 0 20px var(--accent); }
+        .separator { width: 2px; height: 30px; background: rgba(255,255,255,0.2); margin: auto 5px; border-radius: 2px; }
 
-        /* Clavier & Input */
-        .input-bar { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; background: white; padding: 8px 12px; border-radius: 999px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); z-index: 150; width: 95%; max-width: 550px; align-items: center; border: 1px solid #eef2ff; }
-        .input-bar input { flex-grow: 1; border: none; outline: none; font-size: 1rem; padding: 5px; color: #1e293b; background: transparent; }
-        .action-btn { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; transition: 0.2s; flex-shrink: 0; }
-        #btn-mic.listening { background: #f87171; color: white; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-
-        /* Navigation et UI */
+        /* --- UI --- */
         .brand-header { position: absolute; top: 1.5rem; left: 1.5rem; z-index: 100; }
-        .nav-btn { background: white; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .status-box { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 160; bg-white/90; padding: 8px 20px; border-radius: 999px; border: 1px solid #e0e7ff; box-shadow: 0 4px 15px rgba(0,0,0,0.05); background: rgba(255,255,255,0.9); }
+        .nav-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+        .status-box { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 160; background: rgba(20, 20, 40, 0.8); padding: 8px 25px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); color: white; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
 
-        #intro-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,0.9); backdrop-filter: blur(15px); }
-        .mode-card { width: 130px; height: 130px; border-radius: 40px; background: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 15px 35px rgba(0,0,0,0.05); cursor: pointer; border: 2px solid #f8fafc; transition: 0.3s; }
-        .mode-card:hover { border-color: var(--accent); transform: translateY(-8px); }
+        /* Clavier & Input Sombre */
+        .input-bar { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; background: rgba(20, 20, 40, 0.9); padding: 8px 12px; border-radius: 999px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 150; width: 95%; max-width: 550px; align-items: center; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); }
+        .input-bar input { flex-grow: 1; border: none; outline: none; font-size: 1rem; padding: 5px; color: white; background: transparent; }
+        .input-bar input::placeholder { color: rgba(255,255,255,0.5); }
+        .action-btn { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; transition: 0.2s; flex-shrink: 0; background: rgba(255,255,255,0.1); }
+        #btn-mic.listening { background: #f87171; animation: pulse 1.5s infinite; box-shadow: 0 0 20px #f87171; }
+
+        /* Accueil Sombre */
+        #intro-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(10, 10, 30, 0.85); backdrop-filter: blur(20px); }
+        .mode-card { width: 130px; height: 130px; border-radius: 40px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; box-shadow: 0 15px 35px rgba(0,0,0,0.3); cursor: pointer; border: 2px solid rgba(255,255,255,0.1); transition: 0.3s; }
+        .mode-card:hover { border-color: var(--accent); transform: translateY(-8px); box-shadow: 0 0 30px var(--accent); background: rgba(99, 102, 241, 0.2); }
+        .mode-card svg { filter: drop-shadow(0 0 10px currentColor); }
     </style>
 </head>
 <body>
@@ -58,39 +62,35 @@
         <canvas id="draw-canvas"></canvas>
         
         <div class="drawing-tools">
-            <div class="magic-btn active" onclick="setBrush('pen', this)" title="Stylo Bille">🖊️</div>
-            <div class="magic-btn" onclick="setBrush('pencil', this)" title="Crayon à papier">✏️</div>
-            <div class="magic-btn" onclick="setBrush('marker', this)" title="Feutre Large">🖍️</div>
-            <div class="magic-btn" onclick="setBrush('paint', this)" title="Peinture à l'eau">🖌️</div>
+            <div class="magic-btn active" onclick="setBrush('magic', this)" title="Magie Pure" style="color: #a855f7;">✨</div>
+            <div class="magic-btn" onclick="setBrush('fire', this)" title="Feu Cosmique" style="color: #f97316;">🔥</div>
+            <div class="magic-btn" onclick="setBrush('ice', this)" title="Givre" style="color: #06b6d4;">❄️</div>
+            <div class="magic-btn" onclick="setBrush('neon', this)" title="Néon Rainbow">🌈</div>
+            <div class="magic-btn" onclick="setBrush('electric', this)" title="Électrique" style="color: #facc15;">⚡</div>
             <div class="separator"></div>
-            <div class="magic-btn" onclick="setBrush('chalk', this)" title="Craie">📏</div>
-            <div class="magic-btn" onclick="setBrush('ink', this)" title="Encre de Chine">⚫</div>
+            <div class="magic-btn" onclick="setBrush('pen', this)" title="Stylo Lumière" style="color: #e2e8f0;">🖊️</div>
             <div class="separator"></div>
-            <div class="magic-btn" onclick="setBrush('rainbow', this)" title="Arc-en-ciel">🌈</div>
-            <div class="magic-btn" onclick="setBrush('gold', this)" title="Paillettes Dorées">✨</div>
-            <div class="magic-btn" onclick="setBrush('frost', this)" title="Givre">❄️</div>
-            <div class="separator"></div>
-            <div class="magic-btn" onclick="clearBoard()" title="Tout effacer">🗑️</div>
+            <div class="magic-btn" onclick="clearBoard()" title="Tout effacer">🧽</div>
         </div>
     </div>
 
     <div id="intro-overlay">
-        <h1 class="text-indigo-900/40 text-xl font-black mb-16 uppercase tracking-widest">Ma Boîte Magique</h1>
+        <h1 class="text-white/70 text-xl font-black mb-16 uppercase tracking-widest text-center text-shadow-lg">Atelier des Lumières</h1>
         <div class="flex gap-8 justify-center flex-wrap">
-            <div class="mode-card" onclick="selectMode('STORY')"><svg width="50" height="50" fill="#6366f1" viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg></div>
-            <div class="mode-card" onclick="selectMode('QUESTION')"><svg width="50" height="50" fill="#ec4899" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg></div>
-            <div class="mode-card" onclick="selectMode('DRAW')"><svg width="50" height="50" fill="#10b981" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"/></svg></div>
+            <div class="mode-card" onclick="selectMode('STORY')" style="color:#6366f1"><svg width="55" height="55" fill="currentColor" viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg></div>
+            <div class="mode-card" onclick="selectMode('QUESTION')" style="color:#ec4899"><svg width="55" height="55" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg></div>
+            <div class="mode-card" onclick="selectMode('DRAW')" style="color:#10b981"><svg width="55" height="55" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"/></svg></div>
         </div>
     </div>
 
     <div id="ui-layer" class="hidden">
-        <div class="brand-header"><button onclick="location.reload()" class="nav-btn shadow-sm"><svg width="24" height="24" fill="#6366f1" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></button></div>
-        <div class="status-box"><p id="status" class="text-indigo-950 font-bold text-sm">Je t'écoute...</p></div>
+        <div class="brand-header"><button onclick="location.reload()" class="nav-btn text-white"><svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></button></div>
+        <div class="status-box"><p id="status" class="font-bold text-sm">Prêt à briller...</p></div>
         
         <div class="input-bar">
-            <button id="btn-mic" class="action-btn text-indigo-500 hover:bg-indigo-50"><svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/></svg></button>
-            <input type="text" id="keyboard-input" placeholder="Écris ici ton idée magique...">
-            <button id="btn-send" class="action-btn bg-indigo-500 text-white shadow-md hover:bg-indigo-600"><svg width="22" height="22" fill="white" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+            <button id="btn-mic" class="action-btn text-indigo-400"><svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/></svg></button>
+            <input type="text" id="keyboard-input" placeholder="Imagine quelque chose...">
+            <button id="btn-send" class="action-btn bg-indigo-600 text-white shadow-lg hover:bg-indigo-500"><svg width="22" height="22" fill="white" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
         </div>
     </div>
 
@@ -99,23 +99,20 @@
         const AZURE_KEY = localStorage.getItem('BOITE_AZURE_KEY');
         const AZURE_REGION = localStorage.getItem('BOITE_AZURE_REGION');
 
-        let currentMode = null, isDrawing = false, lastX = 0, lastY = 0, currentBrush = 'pen', magicParticles = [];
+        let currentMode = null, isDrawing = false, lastX = 0, lastY = 0, currentBrush = 'magic', magicParticles = [];
         const canvas = document.getElementById('draw-canvas'), ctx = canvas.getContext('2d');
+        let hue = 0;
 
-        // CONFIGURATION DES PINCEAUX (Nouvelle structure)
+        // CONFIGURATION DES PINCEAUX MAGIQUES
         const BRUSH_STYLES = {
-            'pen': { width: 2, color: '#1e293b', opacity: 1, cap: 'round', dash: [], particles: null },
-            'pencil': { width: 2, color: '#64748b', opacity: 0.6, cap: 'round', dash: [], particles: null },
-            'marker': { width: 12, color: '#ef4444', opacity: 0.8, cap: 'round', dash: [], particles: null },
-            'paint': { width: 20, color: '#3b82f6', opacity: 0.4, cap: 'round', dash: [], particles: null },
-            'ink': { width: 8, color: '#000000', opacity: 1, cap: 'round', dash: [], particles: null },
-            'chalk': { width: 6, color: '#f1f5f9', opacity: 0.8, cap: 'butt', dash: [2, 4], particles: null }, // Effet pointillé
-            'rainbow': { width: 5, dynamic: 'hsl', opacity: 1, cap: 'round', dash: [], particles: 'rainbow' },
-            'gold': { width: 4, color: '#fbbf24', opacity: 1, cap: 'round', dash: [], particles: '#f59e0b' },
-            'frost': { width: 2, color: '#bae6fd', opacity: 0.7, cap: 'round', dash: [], particles: '#e0f2fe' }
+            'magic': { width: 8, glow: 25, color: '#a855f7', sparks: 'stars', sparkCount: 3, sparkGravity: 0.05 },
+            'fire': { width: 15, glow: 40, color: '#f97316', sparks: 'fire', sparkCount: 5, sparkGravity: -0.15 }, // Monte
+            'ice': { width: 6, glow: 20, color: '#06b6d4', sparks: 'ice', sparkCount: 2, sparkGravity: 0.2 }, // Tombe vite
+            'neon': { width: 10, glow: 35, dynamic: true, sparks: 'neon', sparkCount: 3, sparkGravity: 0 },
+            'electric': { width: 4, glow: 50, color: '#facc15', sparks: 'spark', sparkCount: 4, sparkGravity: 0 },
+            'pen': { width: 3, glow: 15, color: '#ffffff', sparks: null, sparkCount: 0 }
         };
 
-        /* --- NAVIGATION --- */
         function selectMode(m) {
             currentMode = m;
             document.getElementById('intro-overlay').classList.add('hidden');
@@ -123,27 +120,23 @@
             if(m === 'DRAW') {
                 document.getElementById('drawing-area').style.display = 'block';
                 resize(); requestAnimationFrame(loopParticles);
-                updateStatus("Choisis un outil et dessine !");
+                updateStatus("Dessine avec la lumière !");
             } else {
                 updateStatus(m === 'STORY' ? "Quelle histoire inventons-nous ?" : "Quelle est ta question ?");
             }
         }
 
-        /* --- INPUT --- */
-        function handleInput() {
-            const el = document.getElementById('keyboard-input'); const val = el.value.trim();
-            if(!val) return; el.value = ''; appelIA(val);
-        }
+        function handleInput() { const el = document.getElementById('keyboard-input'); const val = el.value.trim(); if(!val) return; el.value = ''; appelIA(val); }
         document.getElementById('btn-send').onclick = handleInput;
         document.getElementById('keyboard-input').onkeydown = (e) => { if(e.key === 'Enter') handleInput(); };
 
-        /* --- IA --- */
         async function appelIA(text) {
-            updateStatus("Magie en cours...");
+            updateStatus("Invocation en cours...");
             let system = "";
-            if (currentMode === 'STORY') system = "Conteuse pour enfant. Histoire courte (5 phrases). Finis par 'FIN'. Pas de bonjour.";
-            if (currentMode === 'QUESTION') system = "Encyclopédie pour enfant. Réponse simple (3 phrases max).";
-            if (currentMode === 'DRAW') system = "Génère UNIQUEMENT le code <svg> (trait noir simple, sans fond) pour : " + text + ". AUCUN autre texte.";
+            if (currentMode === 'STORY') system = "Conteuse pour enfant. Histoire courte et magique (5 phrases). Finis par 'FIN'.";
+            if (currentMode === 'QUESTION') system = "Encyclopédie magique. Réponse simple (3 phrases max).";
+            // Le SVG doit être blanc pour ressortir sur le fond sombre
+            if (currentMode === 'DRAW') system = "Génère UNIQUEMENT le code <svg> (trait BLANC '#ffffff', simple, sans fond) pour : " + text + ". AUCUN autre texte.";
 
             try {
                 const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
@@ -156,50 +149,56 @@
                     const start = res.indexOf('<svg'); const end = res.lastIndexOf('</svg>');
                     if (start !== -1 && end !== -1) {
                         document.getElementById('svg-layer').innerHTML = res.substring(start, end + 6);
-                        updateStatus("Et voilà ! Tu peux colorier par dessus.");
+                        updateStatus("L'image est apparue !");
                     } else { throw new Error("Pas de SVG"); }
                 } else { vocal(res); }
-            } catch(e) { updateStatus("Oups, la magie a échoué. Réessaie !"); }
+            } catch(e) { updateStatus("La magie s'est dissipée. Réessaie !"); }
         }
 
-        /* --- MOTEUR DE DESSIN AMÉLIORÉ --- */
+        /* --- MOTEUR DE DESSIN LUMINEUX --- */
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         function setBrush(t, btn) { currentBrush = t; document.querySelectorAll('.magic-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
         
-        function startDrawing(e) { isDrawing = true; const p = getPos(e); [lastX, lastY] = [p.x, p.y]; draw(e); } // Draw on click too
+        function startDrawing(e) { isDrawing = true; const p = getPos(e); [lastX, lastY] = [p.x, p.y]; draw(e); }
         
         function draw(e) {
             if (!isDrawing) return;
             const p = getPos(e);
             const style = BRUSH_STYLES[currentBrush];
+            hue = (hue + 5) % 360;
 
-            // Configuration du style
-            ctx.globalAlpha = style.opacity;
+            // MODE LUMIÈRE : Les couleurs s'additionnent pour faire du blanc
+            ctx.globalCompositeOperation = 'lighter';
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
             ctx.lineWidth = style.width;
-            ctx.lineCap = style.cap;
-            ctx.setLineDash(style.dash);
-            // ZERO GLOW : On s'assure que le shadowBlur est à 0
-            ctx.shadowBlur = 0; 
+            ctx.shadowBlur = style.glow; // LE GLOW EST DE RETOUR, ET PUISSANT
             
-            // Couleur dynamique ou fixe
-            if (style.dynamic === 'hsl') {
-                ctx.strokeStyle = `hsl(${Date.now()/5 % 360}, 80%, 50%)`;
+            if (style.dynamic) {
+                 ctx.strokeStyle = `hsl(${hue}, 100%, 60%)`;
+                 ctx.shadowColor = `hsl(${hue}, 100%, 50%)`;
             } else {
                 ctx.strokeStyle = style.color;
+                ctx.shadowColor = style.color;
             }
 
-            // Tracé
             ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(p.x, p.y); ctx.stroke();
 
-            // Génération de particules si nécessaire
-            if(style.particles) {
-                const pColor = style.particles === 'rainbow' ? ctx.strokeStyle : style.particles;
-                for(let i=0; i<(style.width/2); i++) { // Plus le trait est large, plus il y a de particules
+            // Gestion des particules magiques
+            if(style.sparks) {
+                const pColor = style.dynamic ? ctx.strokeStyle : style.color;
+                for(let i=0; i < style.sparkCount; i++) {
                     magicParticles.push({
                         x: p.x + (Math.random()-0.5)*style.width, 
                         y: p.y + (Math.random()-0.5)*style.width, 
-                        vX: (Math.random()-0.5)*2, vY: (Math.random()-0.5)*2, 
-                        life: 1, color: pColor, size: Math.random()*2+1
+                        vX: (Math.random()-0.5)*4, 
+                        vY: (Math.random()-0.5)*4, 
+                        gravity: style.sparkGravity,
+                        life: 1, 
+                        color: pColor, 
+                        size: Math.random()*style.width/2 + 2,
+                        type: style.sparks
                     });
                 }
             }
@@ -208,17 +207,28 @@
 
         function loopParticles() {
             if (currentMode !== 'DRAW') return;
-            // On n'efface PAS le canvas principal, juste les particules
+            // Important : En mode "lighter", on ne peut pas juste clearRect, sinon on perd le dessin.
+            // On doit redessiner les particules par dessus. C'est un compromis pour cet effet "néon".
+            // Pour que les particules s'effacent vraiment, il faudrait un deuxième canvas au-dessus.
+            // Pour l'instant, on les laisse s'accumuler pour un effet "magie intense".
+            
             magicParticles.forEach((p, i) => {
-                p.x += p.vX; p.y += p.vY; p.life -= 0.04;
-                if (p.life > 0) {
+                p.x += p.vX; p.y += p.vY + p.gravity; 
+                p.life -= 0.02; else {
                     ctx.save(); 
-                    // Les particules peuvent avoir un léger glow pour l'effet magique, mais pas le trait
-                    ctx.shadowBlur = 5; ctx.shadowColor = p.color; 
+                    ctx.globalCompositeOperation = 'lighter'; // Elles brillent aussi
+                    ctx.shadowBlur = 10; ctx.shadowColor = p.color; 
                     ctx.globalAlpha = p.life; ctx.fillStyle = p.color;
-                    ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill(); 
+                    
+                    ctx.beginPath(); 
+                    if(p.type === 'stars' || p.type === 'electric') ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+                    else if (p.type === 'ice') ctx.rect(p.x, p.y, p.size, p.size*1.5); // Cristaux
+                    else ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); // Feu/Neon
+
+                    ctx.fill(); 
                     ctx.restore();
-                } else { magicParticles.splice(i, 1); }
+                } 
+                 if(p.life <=0) magicParticles.splice(i, 1);
             });
             requestAnimationFrame(loopParticles);
         }
@@ -226,11 +236,19 @@
         function getPos(e) { const c = e.touches ? e.touches[0] : e; return { x: c.clientX, y: c.clientY }; }
         canvas.onmousedown = startDrawing; canvas.onmousemove = draw; window.onmouseup = () => isDrawing = false;
         canvas.ontouchstart = (e) => { e.preventDefault(); startDrawing(e); }; canvas.ontouchmove = (e) => { e.preventDefault(); draw(e); };
-        function clearBoard() { ctx.clearRect(0,0,canvas.width, canvas.height); document.getElementById('svg-layer').innerHTML=''; magicParticles=[]; }
+        
+        function clearBoard() { 
+            // En mode lighter, clearRect ne suffit pas toujours si le fond n'est pas noir pur.
+            // On force un remplissage noir transparent pour "nettoyer" la lumière.
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.clearRect(0,0,canvas.width, canvas.height); 
+            document.getElementById('svg-layer').innerHTML=''; 
+            magicParticles=[]; 
+        }
 
         /* --- VOCAL & MICRO --- */
         async function vocal(t) {
-            updateStatus(t);
+            updateStatus("Je parle...");
             try {
                 const r = await fetch(`https://${AZURE_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`, {
                     method: 'POST', headers: {'Ocp-Apim-Subscription-Key': AZURE_KEY, 'Content-Type': 'application/ssml+xml', 'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3' },
@@ -260,10 +278,10 @@
         const sCanvas = document.getElementById('starfield'); const sCtx = sCanvas.getContext('2d');
         function sSize() { sCanvas.width = window.innerWidth; sCanvas.height = window.innerHeight; }
         sSize(); window.onresize = sSize;
-        let stars = Array(100).fill().map(() => ({ x: Math.random()*sCanvas.width, y: Math.random()*sCanvas.height, s: Math.random()*1.5 }));
+        let stars = Array(150).fill().map(() => ({ x: Math.random()*sCanvas.width, y: Math.random()*sCanvas.height, s: Math.random()*2 }));
         function sDraw() {
-            sCtx.clearRect(0,0,sCanvas.width, sCanvas.height); sCtx.fillStyle = "white";
-            stars.forEach(s => { sCtx.beginPath(); sCtx.arc(s.x, s.y, s.s, 0, Math.PI*2); sCtx.fill(); s.y -= 0.15; if(s.y<0) s.y=sCanvas.height; });
+            sCtx.clearRect(0,0,sCanvas.width, sCanvas.height); sCtx.fillStyle = "rgba(255,255,255,0.5)";
+            stars.forEach(s => { sCtx.beginPath(); sCtx.arc(s.x, s.y, s.s, 0, Math.PI*2); sCtx.fill(); s.y -= 0.1; if(s.y<0) s.y=sCanvas.height; });
             requestAnimationFrame(sDraw);
         }
         sDraw();
