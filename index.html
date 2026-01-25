@@ -35,6 +35,21 @@
         .content-layer { position: relative; z-index: 10; width: 100%; display: flex; flex-direction: column; align-items: center; opacity: 0; transition: opacity 1s ease-in; }
         .content-visible { opacity: 1 !important; }
 
+        /* --- BOUTON MAISON (RETOUR ACCUEIL) --- */
+        .home-btn {
+            position: absolute; top: 1.5rem; left: 1.5rem; z-index: 200;
+            width: 50px; height: 50px;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s, background 0.2s;
+        }
+        .home-btn:hover { transform: scale(1.1); background: rgba(255, 255, 255, 0.5); }
+
         /* --- OVERLAY DE CONCENTRATION --- */
         #dim-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -45,12 +60,28 @@
         .dim-active { opacity: 1 !important; pointer-events: auto !important; }
 
         /* --- HEADER & LOGO --- */
-        .brand-header { position: absolute; top: 1.5rem; left: 1.5rem; z-index: 20; transition: opacity 1s; }
         #main-header { transition: opacity 1s ease, transform 1s ease; opacity: 1; transform: translateY(0); }
         .cinema-mode { opacity: 0 !important; transform: translateY(-20px) !important; pointer-events: none; }
 
         .logo-container { width: 180px; height: 180px; display: flex; justify-content: center; align-items: center; opacity: 0; animation: introFade 2s ease-out forwards; filter: drop-shadow(0 10px 25px rgba(129, 140, 248, 0.5)); }
         @keyframes introFade { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
+
+        /* --- ARDOISE MAGIQUE (Application 3) --- */
+        #slate-layer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 150; background: #0f172a; display: none;
+        }
+        #slate-canvas { width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
+        
+        .slate-controls {
+            position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 0.8rem; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px);
+            padding: 1rem; border-radius: 999px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2); align-items: center; z-index: 160;
+        }
+        .brush-btn { width: 45px; height: 45px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: 0.2s; background: rgba(255,255,255,0.1); color: white; }
+        .brush-btn.active { border-color: #6366f1; transform: scale(1.2); background: white; color: #1e293b; }
+        .slate-action { padding: 0.5rem 1rem; border-radius: 12px; font-weight: 800; font-size: 0.7rem; color: white; text-transform: uppercase; letter-spacing: 0.05em; background: rgba(255,255,255,0.1); }
 
         /* --- UI --- */
         .status-box { 
@@ -115,10 +146,25 @@
 <body class="p-6">
 
     <canvas id="starfield"></canvas>
+    
     <div id="dim-overlay"></div>
+
+    <div id="slate-layer">
+        <button class="home-btn" onclick="returnToMenu()">🏠</button>
+        <canvas id="slate-canvas"></canvas>
+        <div class="slate-controls">
+            <button class="brush-btn active" onclick="setBrush('neon', this)" title="Néon">💡</button>
+            <button class="brush-btn" onclick="setBrush('rainbow', this)" title="Arc-en-ciel">🌈</button>
+            <button class="brush-btn" onclick="setBrush('lava', this)" title="Lave">🌋</button>
+            <button class="brush-btn" onclick="setBrush('galaxy', this)" title="Galaxie">🌌</button>
+            <div class="w-px h-8 bg-white/20 mx-2"></div>
+            <button onclick="clearSlate()" class="slate-action">Effacer</button>
+        </div>
+    </div>
 
     <div id="intro-overlay">
         <div class="god-rays"></div>
+        
         <p id="intro-title" class="text-indigo-900/50 text-xl font-black mb-12 uppercase tracking-widest text-center">Choisis ta magie</p>
 
         <div class="mode-selector">
@@ -139,13 +185,22 @@
                 </div>
                 <span class="mode-label">Questions</span>
             </div>
+
+            <div class="mode-card" onclick="selectMode('DRAW')">
+                <div class="mode-icon-box">
+                    <svg width="60" height="60" viewBox="0 0 24 24" fill="#10b981">
+                        <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"/>
+                    </svg>
+                </div>
+                <span class="mode-label">Dessin</span>
+            </div>
         </div>
     </div>
 
     <div id="white-flash" class="white-flash"></div>
 
     <div id="main-interface" class="content-layer min-h-screen">
-        <div class="brand-header"></div>
+        <button class="home-btn" onclick="returnToMenu()">🏠</button>
         <header id="main-header" class="text-center flex flex-col items-center mt-6">
             <div class="logo-container">
                 <svg id="main-logo-story" class="hidden" viewBox="0 0 24 24" fill="#6366f1" width="100" height="100"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
@@ -177,7 +232,6 @@
         </main>
 
         <footer class="mt-auto py-8 flex flex-col items-center gap-3">
-             <button onclick="window.location.reload()" class="text-indigo-400/60 text-[11px] font-bold uppercase tracking-widest hover:text-indigo-600 transition-colors">Retour au menu</button>
              <button onclick="oublierTout()" class="text-gray-400/30 text-[9px] uppercase tracking-widest hover:text-gray-400 transition-colors">Réinitialiser le profil</button>
         </footer>
     </div>
@@ -198,6 +252,81 @@
 
         const MODEL_ID = "models/gemini-2.5-flash"; 
         const AZURE_VOICE_NAME = "fr-FR-DeniseNeural"; 
+
+        /* --- ARDOISE MAGIQUE LOGIQUE --- */
+        const sCanvas = document.getElementById('slate-canvas');
+        const sCtx = sCanvas.getContext('2d');
+        let drawing = false, currentBrush = 'neon', hue = 0;
+
+        function initSlate() {
+            sCanvas.width = window.innerWidth;
+            sCanvas.height = window.innerHeight;
+            sCtx.lineCap = 'round';
+            sCtx.lineJoin = 'round';
+        }
+
+        function setBrush(b, btn) {
+            currentBrush = b;
+            document.querySelectorAll('.brush-btn').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        function draw(e) {
+            if (!drawing) return;
+            const x = e.clientX || e.touches[0].clientX;
+            const y = e.clientY || e.touches[0].clientY;
+            hue = (hue + 2) % 360;
+
+            sCtx.lineWidth = currentBrush === 'galaxy' ? 2 : 6;
+            
+            if (currentBrush === 'neon') {
+                sCtx.strokeStyle = `hsl(${hue}, 100%, 70%)`;
+                sCtx.shadowBlur = 15;
+                sCtx.shadowColor = sCtx.strokeStyle;
+            } else if (currentBrush === 'rainbow') {
+                sCtx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
+                sCtx.shadowBlur = 0;
+            } else if (currentBrush === 'lava') {
+                sCtx.strokeStyle = `hsl(${Math.random() * 20 + 10}, 100%, 50%)`;
+                sCtx.shadowBlur = 10;
+                sCtx.shadowColor = '#ff4500';
+            } else if (currentBrush === 'galaxy') {
+                sCtx.strokeStyle = 'white';
+                sCtx.shadowBlur = 10;
+                sCtx.shadowColor = `hsl(${hue}, 100%, 80%)`;
+                // Effet de poussière d'étoiles
+                for(let i=0; i<3; i++) {
+                    sCtx.beginPath();
+                    sCtx.arc(x + (Math.random()-0.5)*20, y + (Math.random()-0.5)*20, Math.random()*2, 0, Math.PI*2);
+                    sCtx.fillStyle = 'white';
+                    sCtx.fill();
+                }
+            }
+
+            sCtx.lineTo(x, y);
+            sCtx.stroke();
+            sCtx.beginPath();
+            sCtx.moveTo(x, y);
+        }
+
+        sCanvas.addEventListener('mousedown', (e) => { drawing = true; sCtx.beginPath(); sCtx.moveTo(e.clientX, e.clientY); });
+        sCanvas.addEventListener('mousemove', draw);
+        window.addEventListener('mouseup', () => drawing = false);
+        sCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing = true; sCtx.beginPath(); sCtx.moveTo(e.touches[0].clientX, e.touches[0].clientY); });
+        sCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); });
+        window.addEventListener('touchend', () => drawing = false);
+
+        function clearSlate() { sCtx.clearRect(0,0,sCanvas.width, sCanvas.height); }
+        
+        function returnToMenu() {
+            stopAudio();
+            document.getElementById('slate-layer').style.display = 'none';
+            document.getElementById('main-interface').classList.remove('content-visible');
+            document.getElementById('intro-overlay').style.display = 'flex';
+            setTimeout(() => {
+                document.getElementById('intro-overlay').classList.remove('intro-fade-out');
+            }, 50);
+        }
 
         /* --- THEMES COULEURS --- */
         const THEMES = {
@@ -311,6 +440,7 @@
             rec.onresult = (e) => { const p = e.results[0][0].transcript; document.getElementById('manualInput').value = p; traiterInput(p); };
             rec.onend = () => document.getElementById('btn-mic').classList.remove('mic-listening');
             rec.onerror = (e) => { document.getElementById('btn-mic').classList.remove('mic-listening'); 
+                // Gestion erreur ou silence
                 if (interactionMode === 'NAME_INPUT') document.getElementById('status').innerText = "Comment t'appelles-tu ?";
                 else if (interactionMode === 'GENDER_INPUT') document.getElementById('status').innerText = "Garçon ou fille ?";
                 else if (interactionMode === 'COLOR_INPUT') document.getElementById('status').innerText = "Tes couleurs préférées ?";
@@ -324,25 +454,35 @@
         /* --- SELECTION DU MODE --- */
         function selectMode(mode) {
             currentAppMode = mode;
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            playSimpleWoosh();
-            triggerBurst();
-            document.getElementById('white-flash').classList.add('flash-active');
-
-            setTimeout(() => {
+            
+            if (mode === 'DRAW') {
                 document.getElementById('intro-overlay').classList.add('intro-fade-out');
-                document.getElementById('main-interface').classList.add('content-visible');
-                
-                if(mode === 'STORY') document.getElementById('main-logo-story').classList.remove('hidden');
-                else document.getElementById('main-logo-question').classList.remove('hidden');
+                setTimeout(() => { 
+                    document.getElementById('intro-overlay').style.display = 'none';
+                    document.getElementById('slate-layer').style.display = 'block';
+                    initSlate();
+                }, 800);
+            } else {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                playSimpleWoosh();
+                triggerBurst();
+                document.getElementById('white-flash').classList.add('flash-active');
 
-                if (userColor) applyMixedTheme(userColor);
+                setTimeout(() => {
+                    document.getElementById('intro-overlay').classList.add('intro-fade-out');
+                    document.getElementById('main-interface').classList.add('content-visible');
+                    
+                    if(mode === 'STORY') document.getElementById('main-logo-story').classList.remove('hidden');
+                    else document.getElementById('main-logo-question').classList.remove('hidden');
 
-                startInteractionSequence();
-            }, 1000);
+                    if (userColor) applyMixedTheme(userColor);
 
-            setTimeout(() => { document.getElementById('intro-overlay').style.display = 'none'; }, 2000);
+                    startInteractionSequence();
+                }, 1000);
+
+                setTimeout(() => { document.getElementById('intro-overlay').style.display = 'none'; }, 2000);
+            }
         }
 
         function startInteractionSequence() {
@@ -362,7 +502,16 @@
             } else {
                 interactionMode = 'QUESTION_INPUT';
                 document.getElementById('status').innerText = "Pose ta question...";
-                speechQueue.push(`Bonjour ${userPrenom}. Je sais tout sur tout. Pose-moi ta question.`);
+                
+                // Greeting aléatoire pour la boîte à question
+                const questionGreetings = [
+                    `Bonjour ${userPrenom}. Je suis prête à t'écouter.`,
+                    `Coucou ${userPrenom}. Pose-moi ta question !`,
+                    `Je suis toute ouïe, ${userPrenom}.`,
+                    `Salut ${userPrenom}. Qu'est-ce qui t'intrigue aujourd'hui ?`
+                ];
+                const randomGreeting = questionGreetings[Math.floor(Math.random() * questionGreetings.length)];
+                speechQueue.push(randomGreeting);
             }
             parler();
         }
@@ -484,8 +633,8 @@
             let promptIA = "";
 
             if (mode === 'STORY') {
-                promptIA = `Tu es une conteuse. ${contextChild} Raconte une aventure réaliste sur : "${sujet}". Ton ton est bienveillant mais neutre. Pas de surnoms affectueux. Tu n'es pas sa maman. Phrases simples. Pas de magie. Fin positive.
-                IMPORTANT : Le héros EST l'enfant nommé ${userPrenom}. Si tu crées des amis, utilise des prénoms variés (Milo, Noor, Kenji...) et EVITE Léo/Léa.
+                promptIA = `Tu es une conteuse. ${contextChild} Raconte une aventure sur : "${sujet}". Ton ton est bienveillant. Phrases simples. Pas de magie. Fin positive.
+                IMPORTANT : Le héros NE DOIT PAS s'appeler ${userPrenom}. Utilise un prénom au hasard parmi : Milo, Noor, Kenji, Luna, Sam, Jade, Léo, Maya.
                 Commence directement par l'histoire. Termine par "FIN".`;
             } else {
                 promptIA = `Tu es une encyclopédie magique et bienveillante. ${contextChild} L'enfant te pose la question : "${sujet}".
@@ -571,6 +720,16 @@
 
         function reinitialiserCle() { localStorage.removeItem('BOITE_GEMINI_KEY'); localStorage.removeItem('BOITE_AZURE_KEY'); localStorage.removeItem('BOITE_AZURE_REGION'); localStorage.removeItem('BOITE_FINAL_KEY_2026'); location.reload(); }
         function oublierTout() { localStorage.removeItem('BOITE_PRENOM'); localStorage.removeItem('BOITE_AGE'); localStorage.removeItem('BOITE_GENRE'); localStorage.removeItem('BOITE_COLOR'); location.reload(); }
+
+        function returnToMenu() {
+            stopAudio();
+            document.getElementById('slate-layer').style.display = 'none';
+            document.getElementById('main-interface').classList.remove('content-visible');
+            document.getElementById('intro-overlay').style.display = 'flex';
+            setTimeout(() => {
+                document.getElementById('intro-overlay').classList.remove('intro-fade-out');
+            }, 50);
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             if (!GEMINI_KEY || !AZURE_KEY) verifierCles();
