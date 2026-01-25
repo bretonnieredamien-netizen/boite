@@ -13,24 +13,23 @@
         #starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
         .hidden { display: none !important; }
 
-        /* --- ZONE DESSIN --- */
+        /* --- DESSIN --- */
         #drawing-area { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; 
             display: none; background: #0f172a; transition: background 0.5s ease;
         }
         #draw-canvas { width: 100%; height: 100%; display: block; z-index: 52; position: relative; cursor: crosshair; }
         
-        /* Conteneur pour l'image générée (remplace le SVG) */
+        /* Nouveau calque pour l'image IA */
         #ai-layer { 
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-            width: 70vh; height: 70vh; pointer-events: none; z-index: 51; 
+            width: 75vh; height: 75vh; pointer-events: none; z-index: 51; 
             display: flex; align-items: center; justify-content: center;
         }
         #ai-layer img { 
-            width: 100%; height: 100%; object-fit: contain; opacity: 0.7;
-            /* Permet de rendre le blanc transparent pour voir le fond ou dessiner derrière */
-            mix-blend-mode: screen; 
-            filter: contrast(1.2) brightness(1.2);
+            width: 100%; height: 100%; object-fit: contain; opacity: 0.6;
+            mix-blend-mode: screen; /* Rend le noir transparent sur fond sombre */
+            filter: brightness(1.2) contrast(1.1);
             transition: opacity 1s ease;
         }
 
@@ -61,10 +60,9 @@
 </head>
 <body>
     <canvas id="starfield"></canvas>
-    
     <div id="drawing-area">
-        <div id="ai-layer"></div> <canvas id="draw-canvas"></canvas>
-        
+        <div id="ai-layer"></div>
+        <canvas id="draw-canvas"></canvas>
         <div class="drawing-tools">
             <div class="flex items-center gap-1.5 px-2">
                 <div class="dot active" style="background: #1e293b" onclick="setPenColor('#1e293b', this)"></div>
@@ -76,19 +74,19 @@
                 <div class="dot" style="background: #a855f7" onclick="setPenColor('#a855f7', this)"></div>
             </div>
             <div class="separator"></div>
-            <div class="magic-btn active" onclick="setBrush('pen', this)">🖋️</div>
-            <div class="magic-btn" onclick="setBrush('pencil', this)">✏️</div>
-            <div class="magic-btn" onclick="setBrush('marker', this)">🖍️</div>
-            <div class="magic-btn" onclick="setBrush('neon', this)">💡</div>
-            <div class="magic-btn" onclick="setBrush('lava', this)">🌋</div>
-            <div class="magic-btn" onclick="setBrush('nature', this)">🌿</div>
-            <div class="magic-btn" onclick="setBrush('ocean', this)">🌊</div>
-            <div class="magic-btn" onclick="setBrush('electric', this)">⚡</div>
+            <div class="magic-btn active" onclick="setBrush('pen', this)" title="Plume">🖋️</div>
+            <div class="magic-btn" onclick="setBrush('pencil', this)" title="Crayon">✏️</div>
+            <div class="magic-btn" onclick="setBrush('marker', this)" title="Feutre">🖍️</div>
+            <div class="magic-btn" onclick="setBrush('neon', this)" title="Néon">💡</div>
+            <div class="magic-btn" onclick="setBrush('lava', this)" title="Lave">🌋</div>
+            <div class="magic-btn" onclick="setBrush('nature', this)" title="Nature">🌿</div>
+            <div class="magic-btn" onclick="setBrush('ocean', this)" title="Océan">🌊</div>
+            <div class="magic-btn" onclick="setBrush('electric', this)" title="Électrique">⚡</div>
             <div class="separator"></div>
-            <div class="magic-btn" onclick="setBrush('rainbow', this)">🌈</div>
-            <div class="magic-btn" onclick="setBrush('gold', this)">✨</div>
-            <div class="magic-btn" onclick="setBrush('frost', this)">❄️</div>
-            <div class="magic-btn" onclick="setBrush('galaxy', this)">🌌</div>
+            <div class="magic-btn" onclick="setBrush('rainbow', this)" title="Arc-en-ciel">🌈</div>
+            <div class="magic-btn" onclick="setBrush('gold', this)" title="Or">✨</div>
+            <div class="magic-btn" onclick="setBrush('frost', this)" title="Givre">❄️</div>
+            <div class="magic-btn" onclick="setBrush('galaxy', this)" title="Galaxie">🌌</div>
             <div class="separator"></div>
             <div class="flex items-center gap-2 px-2">
                 <div class="dot active" style="background: #0f172a" onclick="setCanvasBg('#0f172a', this)"></div>
@@ -97,7 +95,7 @@
                 <div class="dot" style="background: #ffffff" onclick="setCanvasBg('#ffffff', this)"></div>
             </div>
             <div class="separator"></div>
-            <div class="magic-btn" onclick="clearBoard()">🗑️</div>
+            <div class="magic-btn" onclick="clearBoard()" title="Effacer">🗑️</div>
         </div>
     </div>
 
@@ -168,7 +166,6 @@
             document.getElementById('drawing-area').style.background = color;
             const isDark = color !== '#ffffff';
             const aiLayer = document.getElementById('ai-layer');
-            // On adapte le dessin à l'ambiance (négatif si fond clair)
             aiLayer.style.mixBlendMode = isDark ? "screen" : "multiply";
             BRUSH_STYLES.ink.color = isDark ? "#ffffff" : "#000000";
             document.querySelectorAll('.dot').forEach(d => { if(d.onclick.toString().includes('setCanvasBg')) d.classList.remove('active'); });
@@ -181,30 +178,32 @@
         }
         document.getElementById('keyboard-input').onkeydown = (e) => { if(e.key === 'Enter') handleInput(); };
 
-        /* --- NOUVEAU MOTEUR HYBRIDE --- */
+        /* --- MOTEUR MAGIQUE SANS ERREUR --- */
         async function appelIA(text) {
-            updateStatus("Magie en cours...");
+            updateStatus("Préparation de la magie...");
             
             if (currentMode === 'DRAW') {
-                // SOLUTION ALTERNATIVE : POLLINATIONS (STABLE DIFFUSION)
-                // On crée un dessin de type "coloriage" à partir du texte
-                const prompt = encodeURIComponent(`simple black and white line art coloring page for kids, white background, no shading, minimal detail, representing ${text}`);
-                const imageUrl = `https://image.pollinations.ai/prompt/${prompt}?width=1024&height=1024&nologo=true&model=shippo`;
+                // Utilisation de Pollinations pour un dessin sans limites et sans erreurs de code
+                const prompt = encodeURIComponent(`simple black and white line art coloring page for kids, white background, no shading, minimal detail, bold outlines, representing ${text}`);
+                const imageUrl = `https://image.pollinations.ai/prompt/${prompt}?width=1024&height=1024&nologo=true&seed=${Math.floor(Math.random()*1000)}`;
                 
                 const container = document.getElementById('ai-layer');
-                container.innerHTML = `<img src="${imageUrl}" alt="modèle" onload="updateStatus('Et voilà ! À toi de colorier !')">`;
+                container.innerHTML = `<img src="${imageUrl}" alt="dessin magique" onload="updateStatus('Et voilà ! À toi de colorier !')">`;
                 return;
             }
 
-            // Pour l'histoire et les questions, on garde Gemini
-            let sys = currentMode === 'STORY' ? "Conteuse magique courte (5 phrases)." : "Encyclopédie enfant (3 phrases).";
+            // Gemini pour l'histoire et les questions
+            let sys = currentMode === 'STORY' ? "Conteuse magique (5 phrases)." : "Encyclopédie enfant (3 phrases).";
             try {
                 const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ contents: [{ parts: [{ text: sys + "\nDemande : " + text }] }] })
                 });
-                const d = await r.json(); vocal(d.candidates[0].content.parts[0].text);
-            } catch(e) { updateStatus("Erreur..."); }
+                const d = await r.json(); 
+                vocal(d.candidates[0].content.parts[0].text);
+            } catch(e) { 
+                updateStatus("Oups, un petit nuage passe ! Réessaie ✨"); 
+            }
         }
 
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; }
@@ -215,31 +214,23 @@
             const pos = getPos(e);
             const style = BRUSH_STYLES[currentBrush];
             hue = (hue + 5) % 360;
-
             ctx.globalAlpha = style.opacity;
             ctx.lineWidth = style.width;
             ctx.shadowBlur = style.glow;
-            
             if (style.dynamic) {
                 const c = `hsl(${hue}, 100%, 50%)`;
                 ctx.strokeStyle = c; ctx.shadowColor = c;
             } else {
                 ctx.strokeStyle = style.color; ctx.shadowColor = style.color;
             }
-
             ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(pos.x, pos.y); ctx.stroke();
-
             if(style.particles) {
                 const pColor = style.dynamic ? ctx.strokeStyle : style.color;
                 for(let i=0; i<1; i++) {
                     let vx = (Math.random()-0.5)*0.5, vy = (Math.random()-0.5)*0.5;
                     if(style.particles === 'fire') vy = -Math.random()*2;
                     if(style.particles === 'bubbles') vy = -Math.random()*1;
-                    magicParticles.push({
-                        x: pos.x, y: pos.y, vx, vy,
-                        life: 1, decay: 0.02, color: pColor, 
-                        size: Math.random()*3+1, type: style.particles
-                    });
+                    magicParticles.push({ x: pos.x, y: pos.y, vx, vy, life: 1, decay: 0.02, color: pColor, size: Math.random()*3+1, type: style.particles });
                 }
             }
             [lastX, lastY] = [pos.x, pos.y];
@@ -256,9 +247,7 @@
                     if(p.type === 'bubbles') {
                         ctx.strokeStyle = p.color; ctx.lineWidth = 1;
                         ctx.arc(p.x, p.y, p.size*2, 0, Math.PI*2); ctx.stroke();
-                    } else {
-                        ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill();
-                    }
+                    } else { ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill(); }
                     ctx.restore();
                 } else { magicParticles.splice(i, 1); }
             });
