@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ma Boîte Magique - Studio d'Art ✨</title>
-    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
-    <link href="[https://fonts.googleapis.com/css2?family=Lexend:wght@300;500;800;900&display=swap](https://fonts.googleapis.com/css2?family=Lexend:wght@300;500;800;900&display=swap)" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;500;800;900&display=swap" rel="stylesheet">
     <style>
         :root { --bg-1: #fff7ed; --bg-2: #fef9c3; --bg-3: #ede9fe; --bg-4: #fae8ff; --accent: #6366f1; }
         body { font-family: 'Lexend', sans-serif; background: linear-gradient(-45deg, var(--bg-1), var(--bg-2), var(--bg-3), var(--bg-4)); background-size: 400% 400%; animation: gradientBG 15s ease infinite; margin: 0; overflow: hidden; height: 100vh; touch-action: none; }
@@ -19,9 +19,9 @@
             display: none; background: #0f172a; transition: background 0.5s ease;
         }
         #draw-canvas { width: 100%; height: 100%; display: block; z-index: 52; position: relative; cursor: crosshair; }
-        #svg-layer { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; pointer-events: none; opacity: 0.6; z-index: 51; display: flex; align-items: center; justify-content: center; }
-        /* Style du SVG généré : blanc éclatant pour le coloriage */
-        #svg-layer svg { width: 100%; height: 100%; filter: drop-shadow(0 0 10px rgba(255,255,255,0.3)); }
+        #svg-layer { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; pointer-events: none; opacity: 0.5; z-index: 51; display: flex; align-items: center; justify-content: center; }
+        /* On force le trait blanc pour les modèles IA sur fond sombre */
+        #svg-layer svg { width: 100%; height: 100%; stroke: white !important; fill: none !important; stroke-width: 2 !important; }
 
         .drawing-tools { 
             position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%); 
@@ -113,6 +113,7 @@
         const AZURE_KEY = localStorage.getItem('BOITE_AZURE_KEY');
         const AZURE_REGION = localStorage.getItem('BOITE_AZURE_REGION');
 
+        let userPrenom = localStorage.getItem('BOITE_PRENOM');
         let currentMode = null, isDrawing = false, lastX = 0, lastY = 0, currentBrush = 'pen', magicParticles = [];
         const canvas = document.getElementById('draw-canvas'), ctx = canvas.getContext('2d');
         let hue = 0, penColor = '#1e293b';
@@ -155,10 +156,8 @@
         function setCanvasBg(color, btn) {
             document.getElementById('drawing-area').style.background = color;
             const isDark = color !== '#ffffff';
-            // On gère la couleur du modèle SVG généré par l'IA ici
             const svgLayer = document.getElementById('svg-layer');
             svgLayer.style.filter = isDark ? "drop-shadow(0 0 8px rgba(255,255,255,0.4))" : "invert(1) contrast(2)";
-            
             BRUSH_STYLES.ink.color = isDark ? "#ffffff" : "#000000";
             document.querySelectorAll('.dot').forEach(d => { if(d.onclick.toString().includes('setCanvasBg')) d.classList.remove('active'); });
             btn.classList.add('active');
@@ -170,44 +169,44 @@
         }
         document.getElementById('keyboard-input').onkeydown = (e) => { if(e.key === 'Enter') handleInput(); };
 
-        /* --- NOUVEAU MOTEUR IA ROBUSTE --- */
+        /* --- LOGIQUE IA AVANCÉE POUR DESSIN --- */
         async function appelIA(text) {
-            updateStatus("Invocation magique...");
+            updateStatus("L'IA prépare sa magie...");
             
             let system = "";
             if (currentMode === 'STORY') {
-                system = "Tu es une conteuse magique. Raconte une aventure courte (5 phrases).";
+                system = "Conteuse pour enfant. Histoire courte (5 phrases). Pas de bonjour.";
             } else if (currentMode === 'QUESTION') {
-                system = "Tu es une encyclopédie pour enfants. Explique simplement en 3 phrases.";
+                system = "Encyclopédie pour enfant. 3 phrases simples.";
             } else if (currentMode === 'DRAW') {
-                // Prompt renforcé pour éviter le bavardage et forcer le blanc (plus visible sur fond sombre)
-                system = "Tu es une machine à dessiner. Génère UNIQUEMENT le code d'un élément <svg viewBox='0 0 100 100'> avec des traits BLANCS (stroke='white') et sans remplissage (fill='none') pour représenter l'objet demandé. Ne réponds RIEN d'autre, pas de texte, pas de bonjour.";
+                // On force l'IA à être extrêmement concise et à utiliser le blanc (stroke='white')
+                system = "Tu es une imprimante SVG. Génère UNIQUEMENT le code d'un <svg viewBox='0 0 100 100'> avec des traits blancs (stroke='white') et sans remplissage (fill='none') pour : " + text + ". Interdiction de parler, donne juste le code.";
             }
 
             try {
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`;
                 const r = await fetch(url, {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ contents: [{ parts: [{ text: system + "\nObjet : " + text }] }] })
+                    body: JSON.stringify({ contents: [{ parts: [{ text: system + "\nSujet : " + text }] }] })
                 });
                 
                 const d = await r.json();
                 let rawRes = d.candidates[0].content.parts[0].text;
 
                 if (currentMode === 'DRAW') {
-                    // NETTOYAGE ULTIME : Retire les balises markdown et le texte parasite
+                    // Extraction chirurgicale du SVG (ignore le texte parasite)
                     let svgMatch = rawRes.match(/<svg[\s\S]*<\/svg>/i);
                     if(svgMatch) {
                         let svgCode = svgMatch[0];
-                        // On s'assure que le trait est blanc et bien visible
-                        svgCode = svgCode.replace(/stroke="[^"]*"/g, 'stroke="white"').replace(/stroke-width="[^"]*"/g, 'stroke-width="2"');
+                        // On force la visibilité (trait blanc épais)
+                        svgCode = svgCode.replace(/stroke="[^"]*"/g, 'stroke="white"').replace(/stroke-width="[^"]*"/g, 'stroke-width="2.5"');
                         document.getElementById('svg-layer').innerHTML = svgCode;
-                        updateStatus("Le modèle est apparu !");
-                    } else { throw new Error("SVG non détecté"); }
+                        updateStatus("C'est apparu ! À toi de colorier.");
+                    } else { throw new Error("SVG absent"); }
                 } else { vocal(rawRes); }
             } catch(e) { 
                 console.error(e);
-                updateStatus("Zut, l'IA s'est endormie..."); 
+                updateStatus("Mince, l'IA a un petit bug..."); 
             }
         }
 
@@ -219,18 +218,15 @@
             const pos = getPos(e);
             const style = BRUSH_STYLES[currentBrush];
             hue = (hue + 5) % 360;
-
             ctx.globalAlpha = style.opacity;
             ctx.lineWidth = style.width;
             ctx.shadowBlur = style.glow;
-            
             if (style.dynamic) {
                 const c = `hsl(${hue}, 100%, 50%)`;
                 ctx.strokeStyle = c; ctx.shadowColor = c;
             } else {
                 ctx.strokeStyle = style.color; ctx.shadowColor = style.color;
             }
-
             ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(pos.x, pos.y); ctx.stroke();
 
             if(style.particles) {
@@ -239,11 +235,7 @@
                     let vx = (Math.random()-0.5)*0.5, vy = (Math.random()-0.5)*0.5;
                     if(style.particles === 'fire') vy = -Math.random()*2;
                     if(style.particles === 'bubbles') vy = -Math.random()*1;
-                    magicParticles.push({
-                        x: pos.x, y: pos.y, vx, vy,
-                        life: 1, decay: 0.02, color: pColor, 
-                        size: Math.random()*3+1, type: style.particles
-                    });
+                    magicParticles.push({ x: pos.x, y: pos.y, vx, vy, life: 1, decay: 0.02, color: pColor, size: Math.random()*3+1, type: style.particles });
                 }
             }
             [lastX, lastY] = [pos.x, pos.y];
@@ -260,9 +252,7 @@
                     if(p.type === 'bubbles') {
                         ctx.strokeStyle = p.color; ctx.lineWidth = 1;
                         ctx.arc(p.x, p.y, p.size*2, 0, Math.PI*2); ctx.stroke();
-                    } else {
-                        ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill();
-                    }
+                    } else { ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill(); }
                     ctx.restore();
                 } else { magicParticles.splice(i, 1); }
             });
@@ -287,8 +277,6 @@
                 const b = await r.blob(); (new Audio(URL.createObjectURL(b))).play();
             } catch(e) {}
         }
-
-        function updateStatus(t) { document.getElementById('status').innerText = t.length > 50 ? t.substring(0, 47) + "..." : t; }
 
         document.getElementById('btn-mic').onclick = () => {
             const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
