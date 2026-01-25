@@ -344,15 +344,14 @@
             } 
             else if (mode === 'COLORING') {
                 document.getElementById('intro-overlay').classList.add('intro-fade-out');
+                // Lancer l'interface principale pour demander quoi colorier
                 setTimeout(() => {
                     document.getElementById('intro-overlay').style.display = 'none';
                     document.getElementById('main-interface').classList.add('content-visible');
                     document.getElementById('main-logo-coloring').classList.remove('hidden');
-                    
-                    // ON AFFICHE LE LAYER COLORIAGE MAIS EN "PREPARATION"
-                    document.getElementById('coloring-layer').style.display = 'block'; 
-                    document.getElementById('coloring-layer').style.zIndex = "40"; // Cache derrière
-                    
+                    document.getElementById('coloring-layer').style.display = 'block'; // Pré-afficher le layer mais caché par main-interface
+                    document.getElementById('coloring-layer').style.zIndex = "40"; // Derrière le main pour l'instant
+                    initColoring(); // <--- THIS WAS MISSING
                     lancerColoriageAleatoire();
                 }, 800);
             }
