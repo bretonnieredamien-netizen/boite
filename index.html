@@ -28,20 +28,19 @@
         .brand-header { position: absolute; top: 1rem; left: 1rem; z-index: 100; display: flex; gap: 10px; }
         .nav-btn { 
             background: rgba(255,255,255,0.7); backdrop-filter: blur(10px); 
-            border: 1px solid white; width: 45px; height: 45px; border-radius: 50%; 
+            border: 1px solid white; width: 45px; height: 48px; border-radius: 50%; 
             display: flex; align-items: center; justify-content: center; cursor: pointer;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
-        /* --- DESSIN --- */
+        /* --- ZONE DESSIN --- */
         #drawing-area { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; display: none; touch-action: none; }
         #draw-canvas { width: 100%; height: 100%; display: block; }
-        
         #svg-layer { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 80%; pointer-events: none; opacity: 0.3; z-index: 51; }
         #svg-layer svg { width: 100%; height: 100%; stroke: #000; fill: none; stroke-width: 2px; }
 
         .drawing-tools {
-            position: absolute; bottom: 110px; left: 50%; transform: translateX(-50%);
+            position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%);
             display: flex; gap: 8px; background: rgba(255,255,255,0.8); backdrop-filter: blur(15px);
             padding: 8px 12px; border-radius: 999px; border: 1px solid white; z-index: 120;
             box-shadow: 0 8px 20px rgba(0,0,0,0.1); flex-wrap: wrap; justify-content: center; width: max-content;
@@ -57,21 +56,25 @@
             z-index: 150; width: 90%; max-width: 500px; align-items: center;
         }
         .input-container input { flex-grow: 1; border: none; outline: none; font-size: 1rem; padding: 5px 10px; background: transparent; }
-        .action-btn { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.2s; cursor: pointer; }
-        #btn-mic { color: #6366f1; }
-        #btn-mic.listening { background: #6366f1; color: white; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); box-shadow: 0 0 15px #6366f1; } 100% { transform: scale(1); } }
+        .action-btn { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.2s; cursor: pointer; border: none; }
+        #btn-mic { color: #6366f1; background: transparent; }
+        #btn-mic.listening { background: #ef4444; color: white; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); box-shadow: 0 0 15px #ef4444; } 100% { transform: scale(1); } }
         .send-btn { background: #6366f1; color: white; }
 
         /* --- ACCUEIL --- */
-        #intro-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); }
-        .mode-icon-box { width: 100px; height: 100px; border-radius: 30px; background: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 2px solid #f1f5f9; cursor: pointer; transition: 0.3s; }
+        #intro-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); }
+        .mode-icon-box { width: 120px; height: 120px; border-radius: 35px; background: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 2px solid #f1f5f9; cursor: pointer; transition: 0.3s; }
         .mode-icon-box:hover { transform: translateY(-5px); border-color: #6366f1; }
+
+        #dim-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 5; opacity: 0; pointer-events: none; transition: 2s; }
+        .dim-active { opacity: 0.7 !important; }
     </style>
 </head>
 <body>
 
     <canvas id="starfield"></canvas>
+    <div id="dim-overlay"></div>
 
     <div id="drawing-area">
         <div id="svg-layer"></div>
@@ -91,45 +94,44 @@
         <h1 class="text-indigo-900/60 text-xl font-black mb-12 uppercase tracking-widest text-center">Ma Boîte Magique</h1>
         <div class="flex gap-6 flex-wrap justify-center">
             <div onclick="selectMode('STORY')">
-                <div class="mode-icon-box"><svg width="40" height="40" fill="#6366f1" viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></div>
+                <div class="mode-icon-box"><svg width="45" height="45" fill="#6366f1" viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></div>
             </div>
             <div onclick="selectMode('QUESTION')">
-                <div class="mode-icon-box"><svg width="40" height="40" fill="#ec4899" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg></div>
+                <div class="mode-icon-box"><svg width="45" height="45" fill="#ec4899" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg></div>
             </div>
             <div onclick="selectMode('DRAW')">
-                <div class="mode-icon-box"><svg width="40" height="40" fill="#10b981" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9z"/></svg></div>
+                <div class="mode-icon-box"><svg width="45" height="45" fill="#10b981" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9z"/></svg></div>
             </div>
         </div>
     </div>
 
     <div id="ui-layer" class="hidden">
         <div class="brand-header">
-            <button onclick="location.reload()" class="nav-btn"><svg width="20" height="20" fill="#6366f1" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></button>
+            <button onclick="location.reload()" class="nav-btn"><svg width="24" height="24" fill="#6366f1" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></button>
         </div>
         
-        <div class="status-box absolute top-20 left-1/2 -translate-x-1/2 z-[110] bg-white/80 px-6 py-2 rounded-full border border-white shadow-sm">
-            <p id="status" class="text-indigo-900/70 font-bold text-sm text-center">Choisis ton aventure...</p>
+        <div class="status-box absolute top-20 left-1/2 -translate-x-1/2 z-[110] bg-white/80 px-8 py-3 rounded-full border border-white shadow-lg">
+            <p id="status" class="text-indigo-900/80 font-bold text-sm text-center">Choisis ton aventure...</p>
         </div>
 
         <div class="input-container">
-            <div id="btn-mic" class="action-btn"><svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/></svg></div>
+            <button id="btn-mic" class="action-btn"><svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/></svg></button>
             <input type="text" id="keyboard-input" placeholder="Tape ou parle ici...">
-            <div onclick="handleInput()" class="action-btn send-btn"><svg width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></div>
+            <button onclick="handleInput()" class="action-btn send-btn"><svg width="20" height="20" fill="white" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
         </div>
     </div>
 
     <script>
         /* --- CONFIG --- */
-        const GEMINI_KEY = localStorage.getItem('BOITE_GEMINI_KEY');
-        const AZURE_KEY = localStorage.getItem('BOITE_AZURE_KEY');
-        const AZURE_REGION = localStorage.getItem('BOITE_AZURE_REGION');
+        let GEMINI_KEY = localStorage.getItem('BOITE_GEMINI_KEY');
+        let AZURE_KEY = localStorage.getItem('BOITE_AZURE_KEY');
+        let AZURE_REGION = localStorage.getItem('BOITE_AZURE_REGION');
 
         let userPrenom = localStorage.getItem('BOITE_PRENOM');
         let currentAppMode = null, interactionMode = 'INIT';
         let isDrawing = false, lastX = 0, lastY = 0, brush = 'fine', magicParticles = [];
         const canvas = document.getElementById('draw-canvas'), ctx = canvas.getContext('2d');
 
-        /* --- INITIALISATION --- */
         function selectMode(mode) {
             currentAppMode = mode;
             document.getElementById('intro-overlay').classList.add('hidden');
@@ -137,6 +139,8 @@
             if (mode === 'DRAW') {
                 document.getElementById('drawing-area').style.display = 'block';
                 resize(); requestAnimationFrame(animateParticles);
+            } else {
+                document.getElementById('dim-overlay').classList.add('dim-active');
             }
             startFlow();
         }
@@ -151,7 +155,7 @@
             }
         }
 
-        /* --- GESTION INPUT (CLAVIER & MICRO) --- */
+        /* --- CLAVIER & MICRO --- */
         function handleInput() {
             const input = document.getElementById('keyboard-input');
             const val = input.value.trim();
@@ -160,10 +164,9 @@
             processText(val);
         }
 
-        // Ecouteur pour la touche Entrée
-        document.getElementById('keyboard-input').addEventListener('keypress', (e) => {
+        document.getElementById('keyboard-input').onkeydown = (e) => {
             if(e.key === 'Enter') handleInput();
-        });
+        };
 
         function processText(text) {
             if (interactionMode === 'NAME_INPUT') {
@@ -176,64 +179,92 @@
             appelIA(text);
         }
 
-        /* --- IA --- */
+        /* --- IA ENGINE (FIXED) --- */
         async function appelIA(text) {
+            const apiKey = localStorage.getItem('BOITE_GEMINI_KEY');
+            if (!apiKey) {
+                updateStatus("Il manque ta clé secrète !");
+                return;
+            }
+
             updateStatus("Magie en cours...");
-            let system = "";
-            if (currentAppMode === 'STORY') system = "Tu es une conteuse pour enfant. Fais une histoire très courte. Ne dis pas bonjour.";
-            if (currentAppMode === 'QUESTION') system = "Tu es une encyclopédie pour enfant. Réponse courte et simple.";
-            if (currentAppMode === 'DRAW') system = "Génère UNIQUEMENT le code <svg> noir simple sans texte pour : " + text;
+            
+            let systemPrompt = "";
+            if (currentAppMode === 'STORY') systemPrompt = "Tu es une conteuse pour enfant. Fais une histoire très courte (5-10 phrases). Finis toujours par 'FIN'. Ne dis jamais bonjour.";
+            if (currentAppMode === 'QUESTION') systemPrompt = "Tu es une encyclopédie magique pour enfant. Réponse courte et simple (3 phrases max).";
+            if (currentAppMode === 'DRAW') systemPrompt = "Génère UNIQUEMENT le code <svg> (trait noir, simple, sans couleur) pour : " + text + ". Ne mets aucun texte avant ou après.";
 
             try {
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`;
-                const r = await fetch(url, {
+                // Utilisation de v1beta qui est plus souple sur les formats
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(url, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ contents: [{ parts: [{ text: system + "\nDemande : " + text }] }] })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{ text: systemPrompt + "\nVoici ma demande : " + text }]
+                        }]
+                    })
                 });
-                const d = await r.json();
-                const res = d.candidates[0].content.parts[0].text;
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error.message || "Erreur API");
+                }
+
+                const data = await response.json();
+                const aiResult = data.candidates[0].content.parts[0].text;
                 
                 if (currentAppMode === 'DRAW') {
-                    const match = res.match(/<svg[\s\S]*<\/svg>/);
-                    if(match) {
-                        document.getElementById('svg-layer').innerHTML = match[0];
+                    const svgMatch = aiResult.match(/<svg[\s\S]*<\/svg>/);
+                    if(svgMatch) {
+                        document.getElementById('svg-layer').innerHTML = svgMatch[0];
                         updateStatus("Et voilà ton dessin !");
                     } else {
-                        say("Désolée, je n'ai pas réussi à dessiner ça.");
+                        say("Désolée, je n'ai pas réussi à dessiner ça. Essaie autre chose !");
                     }
                 } else {
-                    say(res);
+                    say(aiResult);
                 }
             } catch(e) {
-                updateStatus("Zut, un petit bug magique...");
-                console.error(e);
+                console.error("Erreur IA:", e);
+                updateStatus("Oups ! Un petit bug magique...");
+                setTimeout(() => updateStatus("Réessaie encore une fois ?"), 3000);
             }
         }
 
-        /* --- DESSIN --- */
-        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; }
+        /* --- DESSIN ENGINE --- */
+        function resize() { 
+            canvas.width = window.innerWidth; 
+            canvas.height = window.innerHeight; 
+            ctx.lineCap = 'round'; 
+            ctx.lineJoin = 'round'; 
+        }
+
         function setBrush(type, btn) {
             brush = type;
             document.querySelectorAll('.magic-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
         }
+
         function draw(e) {
             if (!isDrawing) return;
             const pos = getPos(e);
             ctx.lineWidth = brush === 'fine' ? 2 : (brush === 'pencil' ? 1 : 4);
             ctx.strokeStyle = (brush === 'rainbow') ? `hsl(${Date.now()/10 % 360}, 100%, 50%)` : (brush === 'neon' ? '#00f2fe' : '#334155');
-            ctx.globalAlpha = brush === 'pencil' ? 0.4 : 1;
+            ctx.globalAlpha = brush === 'pencil' ? 0.3 : 1;
             
             if(brush !== 'star') {
                 ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(pos.x, pos.y); ctx.stroke();
             }
 
             if(['rainbow', 'star', 'neon'].includes(brush)) {
-                for(let i=0; i<3; i++) magicParticles.push({x: pos.x, y: pos.y, vX: (Math.random()-0.5)*3, vY: (Math.random()-0.5)*3, life: 1, color: ctx.strokeStyle});
+                for(let i=0; i<2; i++) magicParticles.push({x: pos.x, y: pos.y, vX: (Math.random()-0.5)*3, vY: (Math.random()-0.5)*3, life: 1, color: ctx.strokeStyle});
             }
             [lastX, lastY] = [pos.x, pos.y];
         }
+
         function animateParticles() {
             if (currentAppMode !== 'DRAW') return;
             magicParticles.forEach((p, i) => {
@@ -245,19 +276,21 @@
             });
             requestAnimationFrame(animateParticles);
         }
-        function getPos(e) { const c = e.touches ? e.touches[0] : e; return { x: c.clientX, y: c.clientY }; }
-        canvas.addEventListener('mousedown', e => { isDrawing = true; const p = getPos(e); lastX = p.x; lastY = p.y; });
-        canvas.addEventListener('mousemove', draw);
-        window.addEventListener('mouseup', () => isDrawing = false);
-        canvas.addEventListener('touchstart', e => { e.preventDefault(); isDrawing = true; const p = getPos(e); lastX = p.x; lastY = p.y; });
-        canvas.addEventListener('touchmove', e => { e.preventDefault(); draw(e); });
-        function clearDrawing() { ctx.clearRect(0,0,canvas.width, canvas.height); document.getElementById('svg-layer').innerHTML=''; }
 
-        /* --- VOCAL --- */
+        function getPos(e) { const c = e.touches ? e.touches[0] : e; return { x: c.clientX, y: c.clientY }; }
+        canvas.onmousedown = e => { isDrawing = true; const p = getPos(e); lastX = p.x; lastY = p.y; };
+        canvas.onmousemove = draw;
+        window.onmouseup = () => isDrawing = false;
+        canvas.ontouchstart = e => { e.preventDefault(); isDrawing = true; const p = getPos(e); lastX = p.x; lastY = p.y; };
+        canvas.ontouchmove = e => { e.preventDefault(); draw(e); };
+        function clearDrawing() { ctx.clearRect(0,0,canvas.width, canvas.height); document.getElementById('svg-layer').innerHTML=''; magicParticles=[]; }
+
+        /* --- AZURE TTS --- */
         async function say(t) {
             updateStatus(t);
             try {
-                const r = await fetch(`https://${AZURE_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`, {
+                const url = `https://${AZURE_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`;
+                const r = await fetch(url, {
                     method: 'POST',
                     headers: { 'Ocp-Apim-Subscription-Key': AZURE_KEY, 'Content-Type': 'application/ssml+xml', 'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3' },
                     body: `<speak version='1.0' xml:lang='fr-FR'><voice name='fr-FR-DeniseNeural'><prosody rate="0.95">${t.replace(/[<>]/g, '')}</prosody></voice></speak>`
@@ -265,10 +298,10 @@
                 const b = await r.blob(); 
                 const audio = new Audio(URL.createObjectURL(b));
                 audio.play();
-            } catch(e) { console.error("Azure Error"); }
+            } catch(e) { console.error("TTS Error"); }
         }
 
-        function updateStatus(t) { document.getElementById('status').innerText = t.length > 50 ? t.substring(0, 47) + "..." : t; }
+        function updateStatus(t) { document.getElementById('status').innerText = t.length > 60 ? t.substring(0, 57) + "..." : t; }
 
         /* --- MICRO --- */
         document.getElementById('btn-mic').onclick = () => {
@@ -281,22 +314,22 @@
             rec.start();
         };
 
-        /* --- CLÉS --- */
+        /* --- CLÉS SETUP --- */
         if (!GEMINI_KEY || !AZURE_KEY) {
-            localStorage.setItem('BOITE_GEMINI_KEY', prompt("Clé Gemini :"));
-            localStorage.setItem('BOITE_AZURE_KEY', prompt("Clé Azure :"));
-            localStorage.setItem('BOITE_AZURE_REGION', prompt("Région (ex: francecentral) :"));
+            const g = prompt("Clé Gemini :"); if(g) localStorage.setItem('BOITE_GEMINI_KEY', g);
+            const a = prompt("Clé Azure :"); if(a) localStorage.setItem('BOITE_AZURE_KEY', a);
+            const r = prompt("Région Azure :"); if(r) localStorage.setItem('BOITE_AZURE_REGION', r);
             location.reload();
         }
 
-        // Fond étoiles
+        // Starfield background
         const sCanvas = document.getElementById('starfield'); const sCtx = sCanvas.getContext('2d');
         function sSize() { sCanvas.width = window.innerWidth; sCanvas.height = window.innerHeight; }
-        sSize(); window.addEventListener('resize', sSize);
-        let stars = Array(100).fill().map(() => ({ x: Math.random()*sCanvas.width, y: Math.random()*sCanvas.height, s: Math.random()*1.5 }));
+        sSize(); window.onresize = sSize;
+        let stars = Array(120).fill().map(() => ({ x: Math.random()*sCanvas.width, y: Math.random()*sCanvas.height, s: Math.random()*1.5 }));
         function sDraw() {
             sCtx.clearRect(0,0,sCanvas.width, sCanvas.height); sCtx.fillStyle = "white";
-            stars.forEach(s => { sCtx.beginPath(); sCtx.arc(s.x, s.y, s.s, 0, Math.PI*2); sCtx.fill(); s.y -= 0.1; if(s.y<0) s.y=sCanvas.height; });
+            stars.forEach(s => { sCtx.beginPath(); sCtx.arc(s.x, s.y, s.s, 0, Math.PI*2); sCtx.fill(); s.y -= 0.15; if(s.y<0) s.y=sCanvas.height; });
             requestAnimationFrame(sDraw);
         }
         sDraw();
