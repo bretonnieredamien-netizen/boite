@@ -229,7 +229,7 @@
         
         let currentAppMode = null; 
         let interactionMode = 'INIT'; 
-        let chatHistory = []; // Mémoire pour la discussion
+        let chatHistory = []; 
 
         const MODEL_ID = "models/gemini-2.5-flash"; 
         const AZURE_VOICE_NAME = "fr-FR-DeniseNeural"; 
@@ -403,14 +403,13 @@
             playSoftPing(); btnMic.classList.add('understood-flash'); statusLabel.classList.add('hidden'); loader.classList.remove('hidden');
             setTimeout(() => { btnMic.classList.remove('understood-flash'); toggleStopButton(true); }, 800);
             
-            // Phrases d'attente
-            let waitingPhrases = [];
-            if (mode === 'STORY') waitingPhrases = ["J'ouvre mon grand livre...", "Mmmh, bonne idée...", "L'histoire arrive..."];
-            else if (mode === 'QUESTION') waitingPhrases = ["Je cherche dans ma mémoire...", "Voyons voir...", "Très bonne question..."];
-            else waitingPhrases = ["Je réfléchis...", "Mmmh...", "Ah oui !"];
+            // Phrases d'attente (Uniquement VISUEL)
+            let waitingPhrase = "Je réfléchis...";
+            if (mode === 'STORY') waitingPhrase = "J'écris ton histoire...";
+            else if (mode === 'QUESTION') waitingPhrase = "Je cherche...";
             
-            const waitingPhrase = waitingPhrases[Math.floor(Math.random() * waitingPhrases.length)];
-            document.getElementById('status').innerText = waitingPhrase; speechQueue.push(waitingPhrase); parler();
+            document.getElementById('status').innerText = waitingPhrase;
+            // NOTE: On ne push PAS waitingPhrase dans speechQueue pour ne pas le dire.
 
             const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${GEMINI_KEY}`;
             let promptIA = "";
@@ -421,19 +420,14 @@
             } else if (mode === 'QUESTION') {
                 promptIA = `Encyclopédie bienveillante. ${contextChild} L'enfant demande : "${sujet}". Réponds simplement (3-4 phrases). Ton encourageant. Pas de bonjour.`;
             } else if (mode === 'CHAT') {
-                // Gestion de l'historique pour le chat
                 chatHistory.push({ role: "user", content: sujet });
-                // On garde les 6 derniers échanges pour le contexte
                 const recentHistory = chatHistory.slice(-6).map(msg => `${msg.role === 'user' ? 'Enfant' : 'Toi (IA)'}: ${msg.content}`).join('\n');
-                
                 promptIA = `Tu es une amie magique, joyeuse et curieuse. Tu discutes avec ${userPrenom}, ${userAge} ans.
                 Ton but est d'avoir une conversation fluide. Intéresse-toi à lui, pose-lui des questions sur ce qu'il dit, ses goûts, sa journée.
                 Réponds en 2 ou 3 phrases maximum. Sois chaleureuse.
-                
-                Historique de la conversation :
+                Historique :
                 ${recentHistory}
-                
-                Réponds à l'enfant maintenant :`;
+                Réponds à l'enfant :`;
             }
 
             try {
@@ -443,10 +437,14 @@
                     const { done, value } = await reader.read();
                     if (done) {
                         loader.classList.add('hidden'); statusLabel.classList.remove('hidden'); 
-                        statusLabel.innerText = (mode === 'CHAT') ? "À toi..." : "C'est fini !";
+                        statusLabel.innerText = "Je te réponds...";
                         if (currentSentence.trim()) { speechQueue.push(currentSentence.trim()); fullResponseText += currentSentence.trim(); parler(); }
-                        // Sauvegarde réponse IA dans l'historique si Chat
                         if (mode === 'CHAT') chatHistory.push({ role: "model", content: fullResponseText });
+                        
+                        // IMPORTANT : On prépare le mode d'interaction pour le réveil du micro
+                        if (mode === 'CHAT') interactionMode = 'CHAT_INPUT';
+                        else if (mode === 'STORY') interactionMode = 'STORY_INPUT';
+                        else if (mode === 'QUESTION') interactionMode = 'QUESTION_INPUT';
                         break;
                     }
                     const chunk = decoder.decode(value); const lines = chunk.split("\n");
@@ -488,7 +486,10 @@
                     isSpeaking = false;
                     if (speechQueue.length === 0) { 
                         document.getElementById('main-header').classList.remove('cinema-mode'); document.getElementById('dim-overlay').classList.remove('dim-active'); toggleStopButton(false); stopVisualizer(); document.getElementById('story-card').classList.add('hidden');
-                        if (['NAME_INPUT', 'GENDER_INPUT', 'COLOR_INPUT', 'AGE_INPUT', 'STORY_INPUT', 'QUESTION_INPUT', 'CHAT_INPUT'].includes(interactionMode)) setTimeout(() => { startListening(); }, 500);
+                        // REVEIL AUTOMATIQUE DU MICRO ICI
+                        if (['NAME_INPUT', 'GENDER_INPUT', 'COLOR_INPUT', 'AGE_INPUT', 'STORY_INPUT', 'QUESTION_INPUT', 'CHAT_INPUT'].includes(interactionMode)) {
+                            setTimeout(() => { startListening(); }, 500);
+                        }
                     } else parler(); 
                 };
                 currentAudio.play();
