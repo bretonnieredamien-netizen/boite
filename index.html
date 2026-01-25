@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ma Boîte Magique - Studio d'Art ✨</title>
+    <title>Ma Boîte Magique ✨</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;500;800;900&display=swap" rel="stylesheet">
     <style>
@@ -14,63 +14,82 @@
         .hidden { display: none !important; }
 
         /* --- DESSIN --- */
-        #drawing-area { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; display: none; }
+        #drawing-area { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; 
+            display: none; background: #0f172a; transition: background 0.5s ease;
+        }
         #draw-canvas { width: 100%; height: 100%; display: block; z-index: 52; position: relative; cursor: crosshair; }
-        #svg-layer { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; pointer-events: none; opacity: 0.4; z-index: 51; display: flex; align-items: center; justify-content: center; filter: grayscale(100%); }
-        #svg-layer svg { width: 100%; height: 100%; stroke: #1e293b; fill: none; stroke-width: 1.5; }
+        #svg-layer { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            width: 80vh; height: 80vh; pointer-events: none; z-index: 51; 
+            display: flex; align-items: center; justify-content: center; opacity: 0.6;
+        }
+        #svg-layer img { width: 100%; height: 100%; object-fit: contain; }
 
-        /* Nouvelle barre d'outils plus large */
         .drawing-tools { 
             position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%); 
             display: flex; gap: 6px; background: rgba(255,255,255,0.95); backdrop-filter: blur(15px); 
             padding: 10px 15px; border-radius: 20px; border: 1px solid #e2e8f0; z-index: 120; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.1); flex-wrap: wrap; justify-content: center; 
-            width: 95%; max-width: 600px;
+            width: 95%; max-width: 800px;
         }
         .magic-btn { width: 38px; height: 38px; border-radius: 8px; border: 2px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; transition: 0.2s; background: #f8fafc; }
-        .magic-btn:hover { background: #e2e8f0; }
         .magic-btn.active { transform: scale(1.1); border-color: var(--accent); background: white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25); }
+        
+        .dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid white; cursor: pointer; transition: transform 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .dot.active { outline: 2px solid var(--accent); outline-offset: 2px; transform: scale(1.1); }
         .separator { width: 2px; height: 30px; background: #cbd5e1; margin: auto 2px; border-radius: 2px; }
 
-        /* Clavier & Input */
         .input-bar { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; background: white; padding: 8px 12px; border-radius: 999px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); z-index: 150; width: 95%; max-width: 550px; align-items: center; border: 1px solid #eef2ff; }
         .input-bar input { flex-grow: 1; border: none; outline: none; font-size: 1rem; padding: 5px; color: #1e293b; background: transparent; }
-        .action-btn { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; transition: 0.2s; flex-shrink: 0; }
+        .action-btn { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; transition: 0.2s; }
         #btn-mic.listening { background: #f87171; color: white; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-
-        /* Navigation et UI */
-        .brand-header { position: absolute; top: 1.5rem; left: 1.5rem; z-index: 100; }
         .nav-btn { background: white; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .status-box { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 160; bg-white/90; padding: 8px 20px; border-radius: 999px; border: 1px solid #e0e7ff; box-shadow: 0 4px 15px rgba(0,0,0,0.05); background: rgba(255,255,255,0.9); }
-
+        .status-box { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 160; bg-white/90; padding: 8px 20px; border-radius: 999px; border: 1px solid #e0e7ff; background: rgba(255,255,255,0.9); }
         #intro-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,0.9); backdrop-filter: blur(15px); }
         .mode-card { width: 130px; height: 130px; border-radius: 40px; background: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 15px 35px rgba(0,0,0,0.05); cursor: pointer; border: 2px solid #f8fafc; transition: 0.3s; }
-        .mode-card:hover { border-color: var(--accent); transform: translateY(-8px); }
     </style>
 </head>
 <body>
-
     <canvas id="starfield"></canvas>
-
+    
     <div id="drawing-area">
         <div id="svg-layer"></div>
         <canvas id="draw-canvas"></canvas>
-        
         <div class="drawing-tools">
-            <div class="magic-btn active" onclick="setBrush('pen', this)" title="Stylo Bille">🖊️</div>
-            <div class="magic-btn" onclick="setBrush('pencil', this)" title="Crayon à papier">✏️</div>
-            <div class="magic-btn" onclick="setBrush('marker', this)" title="Feutre Large">🖍️</div>
-            <div class="magic-btn" onclick="setBrush('paint', this)" title="Peinture à l'eau">🖌️</div>
+            <div class="flex items-center gap-1.5 px-2">
+                <div class="dot active" style="background: #1e293b" onclick="setPenColor('#1e293b', this)"></div>
+                <div class="dot" style="background: #ffffff" onclick="setPenColor('#ffffff', this)"></div>
+                <div class="dot" style="background: #ef4444" onclick="setPenColor('#ef4444', this)"></div>
+                <div class="dot" style="background: #3b82f6" onclick="setPenColor('#3b82f6', this)"></div>
+                <div class="dot" style="background: #22c55e" onclick="setPenColor('#22c55e', this)"></div>
+                <div class="dot" style="background: #f59e0b" onclick="setPenColor('#f59e0b', this)"></div>
+                <div class="dot" style="background: #a855f7" onclick="setPenColor('#a855f7', this)"></div>
+            </div>
             <div class="separator"></div>
-            <div class="magic-btn" onclick="setBrush('chalk', this)" title="Craie">📏</div>
-            <div class="magic-btn" onclick="setBrush('ink', this)" title="Encre de Chine">⚫</div>
+            <div class="magic-btn active" onclick="setBrush('pen', this)">🖋️</div>
+            <div class="magic-btn" onclick="setBrush('pencil', this)">✏️</div>
+            <div class="magic-btn" onclick="setBrush('marker', this)">🖍️</div>
+            <div class="magic-btn" onclick="setBrush('neon', this)">💡</div>
+            <div class="magic-btn" onclick="setBrush('lava', this)">🌋</div>
+            <div class="magic-btn" onclick="setBrush('nature', this)">🌿</div>
+            <div class="magic-btn" onclick="setBrush('ocean', this)">🌊</div>
+            <div class="magic-btn" onclick="setBrush('electric', this)">⚡</div>
             <div class="separator"></div>
-            <div class="magic-btn" onclick="setBrush('rainbow', this)" title="Arc-en-ciel">🌈</div>
-            <div class="magic-btn" onclick="setBrush('gold', this)" title="Paillettes Dorées">✨</div>
-            <div class="magic-btn" onclick="setBrush('frost', this)" title="Givre">❄️</div>
+            <div class="magic-btn" onclick="setBrush('rainbow', this)">🌈</div>
+            <div class="magic-btn" onclick="setBrush('gold', this)">✨</div>
+            <div class="magic-btn" onclick="setBrush('frost', this)">❄️</div>
+            <div class="magic-btn" onclick="setBrush('galaxy', this)">🌌</div>
             <div class="separator"></div>
-            <div class="magic-btn" onclick="clearBoard()" title="Tout effacer">🗑️</div>
+            <div class="flex items-center gap-2 px-2">
+                <div class="dot active" style="background: #0f172a" onclick="setCanvasBg('#0f172a', this)"></div>
+                <div class="dot" style="background: #1e1b4b" onclick="setCanvasBg('#1e1b4b', this)"></div>
+                <div class="dot" style="background: #312e81" onclick="setCanvasBg('#312e81', this)"></div>
+                <div class="dot" style="background: #ffffff" onclick="setCanvasBg('#ffffff', this)"></div>
+            </div>
+            <div class="separator"></div>
+            <div class="magic-btn" onclick="clearBoard()">🗑️</div>
         </div>
     </div>
 
@@ -85,12 +104,11 @@
 
     <div id="ui-layer" class="hidden">
         <div class="brand-header"><button onclick="location.reload()" class="nav-btn shadow-sm"><svg width="24" height="24" fill="#6366f1" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></button></div>
-        <div class="status-box"><p id="status" class="text-indigo-950 font-bold text-sm">Je t'écoute...</p></div>
-        
+        <div class="status-box"><p id="status" class="text-indigo-950 font-bold text-sm">Prêt...</p></div>
         <div class="input-bar">
-            <button id="btn-mic" class="action-btn text-indigo-500 hover:bg-indigo-50"><svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/></svg></button>
-            <input type="text" id="keyboard-input" placeholder="Écris ici ton idée magique...">
-            <button id="btn-send" class="action-btn bg-indigo-500 text-white shadow-md hover:bg-indigo-600"><svg width="22" height="22" fill="white" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+            <button id="btn-mic" class="action-btn text-indigo-500"><svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/></svg></button>
+            <input type="text" id="keyboard-input" placeholder="Écris ici...">
+            <button onclick="handleInput()" class="action-btn bg-indigo-500 text-white"><svg width="20" height="20" fill="white" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
         </div>
     </div>
 
@@ -99,23 +117,27 @@
         const AZURE_KEY = localStorage.getItem('BOITE_AZURE_KEY');
         const AZURE_REGION = localStorage.getItem('BOITE_AZURE_REGION');
 
+        let userPrenom = localStorage.getItem('BOITE_PRENOM');
         let currentMode = null, isDrawing = false, lastX = 0, lastY = 0, currentBrush = 'pen', magicParticles = [];
         const canvas = document.getElementById('draw-canvas'), ctx = canvas.getContext('2d');
+        let hue = 0, penColor = '#1e293b';
 
-        // CONFIGURATION DES PINCEAUX (Nouvelle structure)
         const BRUSH_STYLES = {
-            'pen': { width: 2, color: '#1e293b', opacity: 1, cap: 'round', dash: [], particles: null },
-            'pencil': { width: 2, color: '#64748b', opacity: 0.6, cap: 'round', dash: [], particles: null },
-            'marker': { width: 12, color: '#ef4444', opacity: 0.8, cap: 'round', dash: [], particles: null },
-            'paint': { width: 20, color: '#3b82f6', opacity: 0.4, cap: 'round', dash: [], particles: null },
-            'ink': { width: 8, color: '#000000', opacity: 1, cap: 'round', dash: [], particles: null },
-            'chalk': { width: 6, color: '#f1f5f9', opacity: 0.8, cap: 'butt', dash: [2, 4], particles: null }, // Effet pointillé
-            'rainbow': { width: 5, dynamic: 'hsl', opacity: 1, cap: 'round', dash: [], particles: 'rainbow' },
-            'gold': { width: 4, color: '#fbbf24', opacity: 1, cap: 'round', dash: [], particles: '#f59e0b' },
-            'frost': { width: 2, color: '#bae6fd', opacity: 0.7, cap: 'round', dash: [], particles: '#e0f2fe' }
+            'pen': { width: 2, glow: 5, color: '#1e293b', opacity: 1 },
+            'pencil': { width: 1.5, glow: 0, color: '#64748b', opacity: 0.5 },
+            'marker': { width: 8, glow: 4, color: '#ef4444', opacity: 0.8 },
+            'ink': { width: 6, glow: 2, color: '#000000', opacity: 1 },
+            'neon': { width: 4, glow: 20, color: '#00f2fe', opacity: 1, particles: 'neon' },
+            'lava': { width: 5, glow: 18, color: '#ef4444', opacity: 1, particles: 'fire' },
+            'nature': { width: 3, glow: 12, color: '#22c55e', opacity: 1, particles: 'leaf' },
+            'ocean': { width: 6, glow: 15, color: '#0ea5e9', opacity: 0.8, particles: 'bubbles' },
+            'electric': { width: 3, glow: 25, color: '#facc15', opacity: 1, particles: 'sparks' },
+            'rainbow': { width: 4, glow: 15, dynamic: true, opacity: 1, particles: 'rainbow' },
+            'gold': { width: 3, glow: 20, color: '#fbbf24', opacity: 1, particles: 'gold' },
+            'frost': { width: 2, glow: 15, color: '#bae6fd', opacity: 0.7, particles: 'frost' },
+            'galaxy': { width: 3, glow: 25, color: '#312e81', opacity: 1, particles: 'stars' }
         };
 
-        /* --- NAVIGATION --- */
         function selectMode(m) {
             currentMode = m;
             document.getElementById('intro-overlay').classList.add('hidden');
@@ -123,100 +145,126 @@
             if(m === 'DRAW') {
                 document.getElementById('drawing-area').style.display = 'block';
                 resize(); requestAnimationFrame(loopParticles);
-                updateStatus("Choisis un outil et dessine !");
+                updateStatus("C'est l'heure de créer !");
             } else {
-                updateStatus(m === 'STORY' ? "Quelle histoire inventons-nous ?" : "Quelle est ta question ?");
+                if (!userPrenom) {
+                    vocal("Bonjour petit aventurier ! Comment t'appelles-tu ?");
+                    updateStatus("Écris ton prénom en bas.");
+                } else {
+                    updateStatus(m === 'STORY' ? `Prêt pour une histoire, ${userPrenom} ?` : `Quelle est ta question, ${userPrenom} ?`);
+                }
             }
         }
 
-        /* --- INPUT --- */
+        function setPenColor(color, btn) {
+            penColor = color;
+            BRUSH_STYLES.pen.color = color;
+            BRUSH_STYLES.pencil.color = color;
+            BRUSH_STYLES.marker.color = color;
+            document.querySelectorAll('.dot').forEach(d => { if(!d.onclick.toString().includes('setCanvasBg')) d.classList.remove('active'); });
+            btn.classList.add('active');
+        }
+
+        function setCanvasBg(color, btn) {
+            document.getElementById('drawing-area').style.background = color;
+            const isDark = color !== '#ffffff';
+            const aiContainer = document.getElementById('svg-layer');
+            aiContainer.style.mixBlendMode = isDark ? "screen" : "multiply";
+            BRUSH_STYLES.ink.color = isDark ? "#ffffff" : "#000000";
+            document.querySelectorAll('.dot').forEach(d => { if(d.onclick.toString().includes('setCanvasBg')) d.classList.remove('active'); });
+            btn.classList.add('active');
+        }
+
         function handleInput() {
             const el = document.getElementById('keyboard-input'); const val = el.value.trim();
-            if(!val) return; el.value = ''; appelIA(val);
+            if(!val) return;
+            el.value = '';
+            
+            if (!userPrenom) {
+                userPrenom = val;
+                localStorage.setItem('BOITE_PRENOM', val);
+                vocal(`Enchanté ${val} ! On commence ?`);
+                return;
+            }
+            appelIA(val);
         }
-        document.getElementById('btn-send').onclick = handleInput;
         document.getElementById('keyboard-input').onkeydown = (e) => { if(e.key === 'Enter') handleInput(); };
 
-        /* --- IA --- */
         async function appelIA(text) {
-            updateStatus("Magie en cours...");
-            let system = "";
-            if (currentMode === 'STORY') system = "Conteuse pour enfant. Histoire courte (5 phrases). Finis par 'FIN'. Pas de bonjour.";
-            if (currentMode === 'QUESTION') system = "Encyclopédie pour enfant. Réponse simple (3 phrases max).";
-            if (currentMode === 'DRAW') system = "Génère UNIQUEMENT le code <svg> (trait noir simple, sans fond) pour : " + text + ". AUCUN autre texte.";
+            updateStatus("La magie arrive...");
+            
+            if (currentMode === 'DRAW') {
+                const prompt = encodeURIComponent(`simple black and white line art coloring page for kids, white background, bold outlines, representing ${text}`);
+                const imageUrl = `https://image.pollinations.ai/prompt/${prompt}?width=1024&height=1024&nologo=true&seed=${Math.floor(Math.random()*99999)}`;
+                const container = document.getElementById('svg-layer');
+                container.innerHTML = `<img src="${imageUrl}" alt="modèle" onload="updateStatus('Et voilà ! À toi de colorier !')">`;
+                return;
+            }
+
+            let sys = currentMode === 'STORY' 
+                ? `Tu es une fée conteuse magique. Raconte une aventure courte et merveilleuse de 5 phrases maximum à ${userPrenom}.` 
+                : `Tu es un vieux sage savant. Réponds de manière simple et magique en 3 phrases maximum à ${userPrenom}.`;
 
             try {
-                const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ contents: [{ parts: [{ text: system + "\nSujet: " + text }] }] })
+                    body: JSON.stringify({ contents: [{ parts: [{ text: sys + "\nDemande : " + text }] }] })
                 });
-                const d = await r.json(); const res = d.candidates[0].content.parts[0].text;
-
-                if (currentMode === 'DRAW') {
-                    const start = res.indexOf('<svg'); const end = res.lastIndexOf('</svg>');
-                    if (start !== -1 && end !== -1) {
-                        document.getElementById('svg-layer').innerHTML = res.substring(start, end + 6);
-                        updateStatus("Et voilà ! Tu peux colorier par dessus.");
-                    } else { throw new Error("Pas de SVG"); }
-                } else { vocal(res); }
-            } catch(e) { updateStatus("Oups, la magie a échoué. Réessaie !"); }
+                
+                if (response.status === 429) {
+                    updateStatus("La magie se repose... Réessaie dans une minute ! ✨");
+                    return;
+                }
+                
+                const data = await response.json();
+                vocal(data.candidates[0].content.parts[0].text);
+            } catch(e) { 
+                updateStatus("Un petit nuage cache la magie... Réessaie ! ✨"); 
+            }
         }
 
-        /* --- MOTEUR DE DESSIN AMÉLIORÉ --- */
-        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; }
         function setBrush(t, btn) { currentBrush = t; document.querySelectorAll('.magic-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
-        
-        function startDrawing(e) { isDrawing = true; const p = getPos(e); [lastX, lastY] = [p.x, p.y]; draw(e); } // Draw on click too
         
         function draw(e) {
             if (!isDrawing) return;
-            const p = getPos(e);
+            const pos = getPos(e);
             const style = BRUSH_STYLES[currentBrush];
-
-            // Configuration du style
+            hue = (hue + 5) % 360;
             ctx.globalAlpha = style.opacity;
             ctx.lineWidth = style.width;
-            ctx.lineCap = style.cap;
-            ctx.setLineDash(style.dash);
-            // ZERO GLOW : On s'assure que le shadowBlur est à 0
-            ctx.shadowBlur = 0; 
-            
-            // Couleur dynamique ou fixe
-            if (style.dynamic === 'hsl') {
-                ctx.strokeStyle = `hsl(${Date.now()/5 % 360}, 80%, 50%)`;
+            ctx.shadowBlur = style.glow;
+            if (style.dynamic) {
+                const c = `hsl(${hue}, 100%, 50%)`;
+                ctx.strokeStyle = c; ctx.shadowColor = c;
             } else {
-                ctx.strokeStyle = style.color;
+                ctx.strokeStyle = style.color; ctx.shadowColor = style.color;
             }
-
-            // Tracé
-            ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(p.x, p.y); ctx.stroke();
-
-            // Génération de particules si nécessaire
+            ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(pos.x, pos.y); ctx.stroke();
             if(style.particles) {
-                const pColor = style.particles === 'rainbow' ? ctx.strokeStyle : style.particles;
-                for(let i=0; i<(style.width/2); i++) { // Plus le trait est large, plus il y a de particules
-                    magicParticles.push({
-                        x: p.x + (Math.random()-0.5)*style.width, 
-                        y: p.y + (Math.random()-0.5)*style.width, 
-                        vX: (Math.random()-0.5)*2, vY: (Math.random()-0.5)*2, 
-                        life: 1, color: pColor, size: Math.random()*2+1
-                    });
+                const pColor = style.dynamic ? ctx.strokeStyle : style.color;
+                for(let i=0; i<1; i++) {
+                    let vx = (Math.random()-0.5)*0.5, vy = (Math.random()-0.5)*0.5;
+                    if(style.particles === 'fire') vy = -Math.random()*2;
+                    if(style.particles === 'bubbles') vy = -Math.random()*1;
+                    magicParticles.push({ x: pos.x, y: pos.y, vx, vy, life: 1, decay: 0.02, color: pColor, size: Math.random()*3+1, type: style.particles });
                 }
             }
-            [lastX, lastY] = [p.x, p.y];
+            [lastX, lastY] = [pos.x, pos.y];
         }
 
         function loopParticles() {
             if (currentMode !== 'DRAW') return;
-            // On n'efface PAS le canvas principal, juste les particules
             magicParticles.forEach((p, i) => {
-                p.x += p.vX; p.y += p.vY; p.life -= 0.04;
+                p.x += p.vx; p.y += p.vy; p.life -= p.decay;
                 if (p.life > 0) {
-                    ctx.save(); 
-                    // Les particules peuvent avoir un léger glow pour l'effet magique, mais pas le trait
-                    ctx.shadowBlur = 5; ctx.shadowColor = p.color; 
-                    ctx.globalAlpha = p.life; ctx.fillStyle = p.color;
-                    ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill(); 
+                    ctx.save(); ctx.globalAlpha = p.life; ctx.fillStyle = p.color;
+                    ctx.shadowBlur = 5; ctx.shadowColor = p.color;
+                    ctx.beginPath();
+                    if(p.type === 'bubbles') {
+                        ctx.strokeStyle = p.color; ctx.lineWidth = 1;
+                        ctx.arc(p.x, p.y, p.size*2, 0, Math.PI*2); ctx.stroke();
+                    } else { ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill(); }
                     ctx.restore();
                 } else { magicParticles.splice(i, 1); }
             });
@@ -224,11 +272,13 @@
         }
 
         function getPos(e) { const c = e.touches ? e.touches[0] : e; return { x: c.clientX, y: c.clientY }; }
-        canvas.onmousedown = startDrawing; canvas.onmousemove = draw; window.onmouseup = () => isDrawing = false;
-        canvas.ontouchstart = (e) => { e.preventDefault(); startDrawing(e); }; canvas.ontouchmove = (e) => { e.preventDefault(); draw(e); };
+        canvas.onmousedown = e => { isDrawing = true; const p = getPos(e); [lastX, lastY] = [p.x, p.y]; draw(e); };
+        canvas.onmousemove = draw;
+        window.onmouseup = () => isDrawing = false;
+        canvas.ontouchstart = e => { e.preventDefault(); isDrawing = true; const p = getPos(e); [lastX, lastY] = [p.x, p.y]; draw(e); };
+        canvas.ontouchmove = e => { e.preventDefault(); draw(e); };
         function clearBoard() { ctx.clearRect(0,0,canvas.width, canvas.height); document.getElementById('svg-layer').innerHTML=''; magicParticles=[]; }
 
-        /* --- VOCAL & MICRO --- */
         async function vocal(t) {
             updateStatus(t);
             try {
@@ -237,8 +287,10 @@
                     body: `<speak version='1.0' xml:lang='fr-FR'><voice name='fr-FR-DeniseNeural'><prosody rate="0.95">${t.replace(/[<>]/g, '')}</prosody></voice></speak>`
                 });
                 const b = await r.blob(); (new Audio(URL.createObjectURL(b))).play();
-            } catch(e) { console.error("TTS Error"); }
+            } catch(e) {}
         }
+
+        function updateStatus(t) { document.getElementById('status').innerText = t.length > 50 ? t.substring(0, 47) + "..." : t; }
 
         document.getElementById('btn-mic').onclick = () => {
             const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -249,25 +301,23 @@
             rec.start();
         };
 
-        /* --- SETUP --- */
-        if (!GEMINI_KEY || !AZURE_KEY) {
-            localStorage.setItem('BOITE_GEMINI_KEY', prompt("Clé Gemini :"));
-            localStorage.setItem('BOITE_AZURE_KEY', prompt("Clé Azure :"));
-            localStorage.setItem('BOITE_AZURE_REGION', prompt("Région Azure :"));
-            location.reload();
-        }
-
         const sCanvas = document.getElementById('starfield'); const sCtx = sCanvas.getContext('2d');
         function sSize() { sCanvas.width = window.innerWidth; sCanvas.height = window.innerHeight; }
         sSize(); window.onresize = sSize;
         let stars = Array(100).fill().map(() => ({ x: Math.random()*sCanvas.width, y: Math.random()*sCanvas.height, s: Math.random()*1.5 }));
         function sDraw() {
             sCtx.clearRect(0,0,sCanvas.width, sCanvas.height); sCtx.fillStyle = "white";
-            stars.forEach(s => { sCtx.beginPath(); sCtx.arc(s.x, s.y, s.s, 0, Math.PI*2); sCtx.fill(); s.y -= 0.15; if(s.y<0) s.y=sCanvas.height; });
+            stars.forEach(s => { sCtx.beginPath(); sCtx.arc(s.x, s.y, s.s, 0, Math.PI*2); sCtx.fill(); s.y -= 0.1; if(s.y<0) s.y=sCanvas.height; });
             requestAnimationFrame(sDraw);
         }
         sDraw();
-        window.addEventListener('resize', resize);
+        
+        if (!GEMINI_KEY || !AZURE_KEY) {
+            localStorage.setItem('BOITE_GEMINI_KEY', prompt("Clé Gemini :"));
+            localStorage.setItem('BOITE_AZURE_KEY', prompt("Clé Azure :"));
+            localStorage.setItem('BOITE_AZURE_REGION', prompt("Région Azure :"));
+            location.reload();
+        }
     </script>
 </body>
 </html>
