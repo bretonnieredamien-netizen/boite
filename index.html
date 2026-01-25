@@ -26,11 +26,11 @@
 
         /* --- HEADER --- */
         #main-header { transition: opacity 1s ease, transform 1s ease; opacity: 1; transform: translateY(0); z-index: 50; }
-        .cinema-mode { opacity: 0 !important; transform: translateY(-20px) !important; pointer-events: none; }
+        .cinema-mode { transform: translateY(-20px); } /* Supprimé l'opacité 0 pour garder le visuel */
         .logo-container { width: 180px; height: 180px; display: flex; justify-content: center; align-items: center; opacity: 0; animation: introFade 2s ease-out forwards; filter: drop-shadow(0 10px 25px rgba(129, 140, 248, 0.5)); }
         @keyframes introFade { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
 
-        /* --- VAGUES --- */
+        /* --- VAGUES DE RÉFLEXION --- */
         .thinking-waves { display: flex; align-items: center; justify-content: center; gap: 4px; height: 24px; }
         .wave-bar { width: 6px; height: 100%; border-radius: 99px; animation: waveAnim 1s infinite ease-in-out; }
         .wave-bar:nth-child(1) { background: #a855f7; animation-delay: 0.0s; }
@@ -42,27 +42,21 @@
 
         /* --- ARDOISE & COLORIAGE --- */
         #slate-layer, #coloring-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 150; background: #0f172a; display: none; }
-        #coloring-layer { background: #ffffff; } /* Fond blanc pour le coloriage */
-        
+        #coloring-layer { background: #ffffff; }
         #slate-canvas, #color-canvas { width: 100%; height: 100%; cursor: crosshair; touch-action: none; position: absolute; top:0; left:0; }
         
-        /* Image générée par l'IA pour le coloriage */
         #generated-coloring-image {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 100%; height: 100%; object-fit: contain;
-            pointer-events: none; /* Laisse passer les clics pour dessiner dessous */
-            mix-blend-mode: multiply; /* MAGIE : Les noirs restent, le blanc devient transparent */
-            z-index: 10;
-            opacity: 0.9;
+            pointer-events: none; mix-blend-mode: multiply; z-index: 10; opacity: 0.9;
         }
 
         .slate-controls { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 95%; max-width: 800px; display: flex; gap: 12px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(20px); padding: 12px 20px; border-radius: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); border: 1px solid rgba(255, 255, 255, 0.2); align-items: center; z-index: 160; overflow-x: auto; justify-content: flex-start; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
-        /* Style spécifique pour la barre de coloriage (fond plus visible car sur blanc) */
-        #coloring-controls { background: rgba(255, 255, 255, 0.85); border: 1px solid #e2e8f0; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+        #coloring-controls { background: rgba(255, 255, 255, 0.9); border: 1px solid #e2e8f0; }
         .slate-controls::-webkit-scrollbar { display: none; } 
         
         .brush-btn { flex-shrink: 0; width: 48px; height: 48px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; transition: 0.2s; background: rgba(255,255,255,0.1); color: white; }
-        #coloring-controls .brush-btn { background: #f1f5f9; color: #334155; } /* Style clair pour coloriage */
+        #coloring-controls .brush-btn { background: #f1f5f9; color: #334155; }
         .brush-btn.active { border-color: #6366f1; transform: scale(1.1); background: white; color: #1e293b; box-shadow: 0 0 15px rgba(99,102,241,0.5); }
         
         .color-picker { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.5); cursor: pointer; transition: 0.2s; }
@@ -133,7 +127,6 @@
         <button class="nav-home-btn" onclick="returnToMenu()"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></button>
         <img id="generated-coloring-image" src="" alt="" style="display:none;">
         <canvas id="color-canvas"></canvas>
-        
         <div id="coloring-controls" class="slate-controls">
             <div class="flex gap-3 mr-4 flex-shrink-0">
                 <div class="color-picker active" style="background:#ef4444" onclick="setColoringColor('#ef4444', this)"></div>
@@ -146,7 +139,6 @@
                 <div class="color-picker" style="background:#78350f" onclick="setColoringColor('#78350f', this)"></div>
                 <div class="color-picker" style="background:#000000" onclick="setColoringColor('#000000', this)"></div>
             </div>
-            
             <button class="brush-btn active" onclick="setColoringBrush('marker', this)" title="Feutre">🖍️</button>
             <button class="brush-btn" onclick="setColoringBrush('crayon', this)" title="Crayon">✏️</button>
             <div class="w-px h-8 bg-gray-300 mx-2 flex-shrink-0"></div>
@@ -262,9 +254,8 @@
         cCanvas.addEventListener('mousedown', (e) => { coloring = true; cCtx.beginPath(); cCtx.moveTo(e.clientX, e.clientY); }); cCanvas.addEventListener('mousemove', drawColor); window.addEventListener('mouseup', () => coloring = false); cCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); coloring = true; cCtx.beginPath(); cCtx.moveTo(e.touches[0].clientX, e.touches[0].clientY); }); cCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); drawColor(e); }); window.addEventListener('touchend', () => coloring = false);
         function clearColoring() { 
             cCtx.clearRect(0,0,cCanvas.width, cCanvas.height); 
-            // Reset to intro prompt
             document.getElementById('generated-coloring-image').style.display = 'none';
-            returnToMenu(); // Simple way to reset state: go back to menu, user clicks Coloring again to start fresh
+            returnToMenu(); 
         }
 
         async function genererColoriage(sujet) {
@@ -352,6 +343,8 @@
                     document.getElementById('intro-overlay').style.display = 'none';
                     document.getElementById('main-interface').classList.add('content-visible');
                     document.getElementById('main-logo-coloring').classList.remove('hidden');
+                    document.getElementById('coloring-layer').style.display = 'block'; // Pré-afficher le layer mais caché par main-interface
+                    document.getElementById('coloring-layer').style.zIndex = "40"; // Derrière le main pour l'instant
                     startInteractionSequence(); // "Que veux-tu colorier ?"
                 }, 800);
             }
@@ -547,22 +540,37 @@
             if (isSpeaking || speechQueue.length === 0) return;
             isSpeaking = true; toggleStopButton(true); document.getElementById('main-header').classList.add('cinema-mode'); document.getElementById('story-card').classList.remove('hidden'); resizeViz(); 
             let txt = speechQueue.shift().replace(/[#*`_]/g, '');
+            
+            // FALLBACK VOICE IF AZURE FAILS OR RETURNS NULL
             const audioBlob = await textToSpeechAzure(txt);
             if (audioBlob) {
                 const audioUrl = URL.createObjectURL(audioBlob); currentAudio = new Audio(audioUrl); const source = audioCtx.createMediaElementSource(currentAudio); startVisualizer(source, audioCtx);
                 currentAudio.onended = () => {
                     isSpeaking = false;
                     if (speechQueue.length === 0) { 
-                        // D'ABORD ON RESET
                         stopAudio();
-                        // ENSUITE ON RELANCE LE MICRO SI NECESSAIRE
                         if (['NAME_INPUT', 'GENDER_INPUT', 'COLOR_INPUT', 'AGE_INPUT', 'STORY_INPUT', 'QUESTION_INPUT', 'CHAT_INPUT', 'COLORING_INPUT'].includes(interactionMode)) {
                             setTimeout(() => { startListening(); }, 500);
                         }
                     } else parler(); 
                 };
                 currentAudio.play();
-            } else { isSpeaking = false; parler(); }
+            } else {
+                // FALLBACK: BROWSER NATIVE TTS
+                const utterance = new SpeechSynthesisUtterance(txt);
+                utterance.lang = 'fr-FR';
+                utterance.rate = 0.9;
+                utterance.onend = () => {
+                    isSpeaking = false;
+                    if (speechQueue.length === 0) {
+                        stopAudio();
+                        if (['NAME_INPUT', 'GENDER_INPUT', 'COLOR_INPUT', 'AGE_INPUT', 'STORY_INPUT', 'QUESTION_INPUT', 'CHAT_INPUT', 'COLORING_INPUT'].includes(interactionMode)) {
+                            setTimeout(() => { startListening(); }, 500);
+                        }
+                    } else parler();
+                };
+                window.speechSynthesis.speak(utterance);
+            }
         }
 
         function verifierCles() {
