@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ma Boîte Magique - Studio d'Art ✨</title>
-    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
-    <link href="[https://fonts.googleapis.com/css2?family=Lexend:wght@300;500;800;900&display=swap](https://fonts.googleapis.com/css2?family=Lexend:wght@300;500;800;900&display=swap)" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;500;800;900&display=swap" rel="stylesheet">
     <style>
         :root { --bg-1: #fff7ed; --bg-2: #fef9c3; --bg-3: #ede9fe; --bg-4: #fae8ff; --accent: #6366f1; }
         body { font-family: 'Lexend', sans-serif; background: linear-gradient(-45deg, var(--bg-1), var(--bg-2), var(--bg-3), var(--bg-4)); background-size: 400% 400%; animation: gradientBG 15s ease infinite; margin: 0; overflow: hidden; height: 100vh; touch-action: none; }
@@ -13,16 +13,27 @@
         #starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
         .hidden { display: none !important; }
 
-        /* --- DESSIN --- */
+        /* --- ZONE DESSIN --- */
         #drawing-area { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; 
             display: none; background: #0f172a; transition: background 0.5s ease;
         }
         #draw-canvas { width: 100%; height: 100%; display: block; z-index: 52; position: relative; cursor: crosshair; }
-        #svg-layer { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 85%; pointer-events: none; opacity: 0.4; z-index: 51; display: flex; align-items: center; justify-content: center; filter: grayscale(100%) invert(1); }
-        #svg-layer svg { width: 100%; height: 100%; stroke: #ffffff; fill: none; stroke-width: 1.5; }
+        
+        /* Conteneur pour l'image générée (remplace le SVG) */
+        #ai-layer { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            width: 70vh; height: 70vh; pointer-events: none; z-index: 51; 
+            display: flex; align-items: center; justify-content: center;
+        }
+        #ai-layer img { 
+            width: 100%; height: 100%; object-fit: contain; opacity: 0.7;
+            /* Permet de rendre le blanc transparent pour voir le fond ou dessiner derrière */
+            mix-blend-mode: screen; 
+            filter: contrast(1.2) brightness(1.2);
+            transition: opacity 1s ease;
+        }
 
-        /* Barre d'outils optimisée */
         .drawing-tools { 
             position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%); 
             display: flex; gap: 6px; background: rgba(255,255,255,0.95); backdrop-filter: blur(15px); 
@@ -37,12 +48,11 @@
         .dot.active { outline: 2px solid var(--accent); outline-offset: 2px; transform: scale(1.1); }
         .separator { width: 2px; height: 30px; background: #cbd5e1; margin: auto 2px; border-radius: 2px; }
 
-        /* UI Basique */
         .input-bar { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; background: white; padding: 8px 12px; border-radius: 999px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); z-index: 150; width: 95%; max-width: 550px; align-items: center; border: 1px solid #eef2ff; }
         .input-bar input { flex-grow: 1; border: none; outline: none; font-size: 1rem; padding: 5px; color: #1e293b; background: transparent; }
         .action-btn { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; transition: 0.2s; }
         #btn-mic.listening { background: #f87171; color: white; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
         .nav-btn { background: white; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .status-box { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 160; bg-white/90; padding: 8px 20px; border-radius: 999px; border: 1px solid #e0e7ff; background: rgba(255,255,255,0.9); }
         #intro-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,0.9); backdrop-filter: blur(15px); }
@@ -51,9 +61,10 @@
 </head>
 <body>
     <canvas id="starfield"></canvas>
+    
     <div id="drawing-area">
-        <div id="svg-layer"></div>
-        <canvas id="draw-canvas"></canvas>
+        <div id="ai-layer"></div> <canvas id="draw-canvas"></canvas>
+        
         <div class="drawing-tools">
             <div class="flex items-center gap-1.5 px-2">
                 <div class="dot active" style="background: #1e293b" onclick="setPenColor('#1e293b', this)"></div>
@@ -65,19 +76,19 @@
                 <div class="dot" style="background: #a855f7" onclick="setPenColor('#a855f7', this)"></div>
             </div>
             <div class="separator"></div>
-            <div class="magic-btn active" onclick="setBrush('pen', this)" title="Plume">🖋️</div>
-            <div class="magic-btn" onclick="setBrush('pencil', this)" title="Crayon">✏️</div>
-            <div class="magic-btn" onclick="setBrush('marker', this)" title="Feutre">🖍️</div>
-            <div class="magic-btn" onclick="setBrush('neon', this)" title="Néon">💡</div>
-            <div class="magic-btn" onclick="setBrush('lava', this)" title="Lave">🌋</div>
-            <div class="magic-btn" onclick="setBrush('nature', this)" title="Nature">🌿</div>
-            <div class="magic-btn" onclick="setBrush('ocean', this)" title="Océan">🌊</div>
-            <div class="magic-btn" onclick="setBrush('electric', this)" title="Électrique">⚡</div>
+            <div class="magic-btn active" onclick="setBrush('pen', this)">🖋️</div>
+            <div class="magic-btn" onclick="setBrush('pencil', this)">✏️</div>
+            <div class="magic-btn" onclick="setBrush('marker', this)">🖍️</div>
+            <div class="magic-btn" onclick="setBrush('neon', this)">💡</div>
+            <div class="magic-btn" onclick="setBrush('lava', this)">🌋</div>
+            <div class="magic-btn" onclick="setBrush('nature', this)">🌿</div>
+            <div class="magic-btn" onclick="setBrush('ocean', this)">🌊</div>
+            <div class="magic-btn" onclick="setBrush('electric', this)">⚡</div>
             <div class="separator"></div>
-            <div class="magic-btn" onclick="setBrush('rainbow', this)" title="Arc-en-ciel">🌈</div>
-            <div class="magic-btn" onclick="setBrush('gold', this)" title="Or">✨</div>
-            <div class="magic-btn" onclick="setBrush('frost', this)" title="Givre">❄️</div>
-            <div class="magic-btn" onclick="setBrush('galaxy', this)" title="Galaxie">🌌</div>
+            <div class="magic-btn" onclick="setBrush('rainbow', this)">🌈</div>
+            <div class="magic-btn" onclick="setBrush('gold', this)">✨</div>
+            <div class="magic-btn" onclick="setBrush('frost', this)">❄️</div>
+            <div class="magic-btn" onclick="setBrush('galaxy', this)">🌌</div>
             <div class="separator"></div>
             <div class="flex items-center gap-2 px-2">
                 <div class="dot active" style="background: #0f172a" onclick="setCanvasBg('#0f172a', this)"></div>
@@ -86,7 +97,7 @@
                 <div class="dot" style="background: #ffffff" onclick="setCanvasBg('#ffffff', this)"></div>
             </div>
             <div class="separator"></div>
-            <div class="magic-btn" onclick="clearBoard()" title="Effacer">🗑️</div>
+            <div class="magic-btn" onclick="clearBoard()">🗑️</div>
         </div>
     </div>
 
@@ -156,7 +167,9 @@
         function setCanvasBg(color, btn) {
             document.getElementById('drawing-area').style.background = color;
             const isDark = color !== '#ffffff';
-            document.getElementById('svg-layer').style.filter = isDark ? "grayscale(100%) invert(1)" : "grayscale(100%)";
+            const aiLayer = document.getElementById('ai-layer');
+            // On adapte le dessin à l'ambiance (négatif si fond clair)
+            aiLayer.style.mixBlendMode = isDark ? "screen" : "multiply";
             BRUSH_STYLES.ink.color = isDark ? "#ffffff" : "#000000";
             document.querySelectorAll('.dot').forEach(d => { if(d.onclick.toString().includes('setCanvasBg')) d.classList.remove('active'); });
             btn.classList.add('active');
@@ -168,46 +181,30 @@
         }
         document.getElementById('keyboard-input').onkeydown = (e) => { if(e.key === 'Enter') handleInput(); };
 
-        /* --- CORRECTION LOGIQUE DESSIN IA --- */
+        /* --- NOUVEAU MOTEUR HYBRIDE --- */
         async function appelIA(text) {
             updateStatus("Magie en cours...");
-            let sys = "";
+            
             if (currentMode === 'DRAW') {
-                sys = "Tu es un assistant de dessin. Génère UNIQUEMENT le code d'un élément <svg viewBox='0 0 100 100'> simple avec des traits noirs (stroke='black', fill='none', stroke-width='2') pour dessiner l'objet demandé. Ne réponds RIEN d'autre, juste le code.";
-            } else {
-                sys = "Réponse courte pour enfant.";
+                // SOLUTION ALTERNATIVE : POLLINATIONS (STABLE DIFFUSION)
+                // On crée un dessin de type "coloriage" à partir du texte
+                const prompt = encodeURIComponent(`simple black and white line art coloring page for kids, white background, no shading, minimal detail, representing ${text}`);
+                const imageUrl = `https://image.pollinations.ai/prompt/${prompt}?width=1024&height=1024&nologo=true&model=shippo`;
+                
+                const container = document.getElementById('ai-layer');
+                container.innerHTML = `<img src="${imageUrl}" alt="modèle" onload="updateStatus('Et voilà ! À toi de colorier !')">`;
+                return;
             }
 
+            // Pour l'histoire et les questions, on garde Gemini
+            let sys = currentMode === 'STORY' ? "Conteuse magique courte (5 phrases)." : "Encyclopédie enfant (3 phrases).";
             try {
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`;
-                const r = await fetch(url, {
-                    method: 'POST', 
-                    headers: {'Content-Type': 'application/json'},
+                const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ contents: [{ parts: [{ text: sys + "\nDemande : " + text }] }] })
                 });
-                
-                const d = await r.json(); 
-                const res = d.candidates[0].content.parts[0].text;
-
-                if (currentMode === 'DRAW') {
-                    // Nettoyage Markdown (on retire les ```svg ou ```xml)
-                    const cleanCode = res.replace(/```svg/g, '').replace(/```xml/g, '').replace(/```/g, '').trim();
-                    const start = cleanCode.indexOf('<svg');
-                    const end = cleanCode.lastIndexOf('</svg>');
-                    
-                    if (start !== -1 && end !== -1) {
-                        const svgCode = cleanCode.substring(start, end + 6);
-                        document.getElementById('svg-layer').innerHTML = svgCode;
-                        updateStatus("Et voilà !");
-                    } else {
-                        updateStatus("Oups, je n'ai pas pu dessiner ça.");
-                    }
-                } else { 
-                    vocal(res); 
-                }
-            } catch(e) { 
-                updateStatus("Erreur..."); 
-            }
+                const d = await r.json(); vocal(d.candidates[0].content.parts[0].text);
+            } catch(e) { updateStatus("Erreur..."); }
         }
 
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; }
@@ -238,8 +235,6 @@
                     let vx = (Math.random()-0.5)*0.5, vy = (Math.random()-0.5)*0.5;
                     if(style.particles === 'fire') vy = -Math.random()*2;
                     if(style.particles === 'bubbles') vy = -Math.random()*1;
-                    if(style.particles === 'leaf') { vx = (Math.random()-0.5)*2; vy = Math.random()*1; }
-
                     magicParticles.push({
                         x: pos.x, y: pos.y, vx, vy,
                         life: 1, decay: 0.02, color: pColor, 
@@ -261,8 +256,6 @@
                     if(p.type === 'bubbles') {
                         ctx.strokeStyle = p.color; ctx.lineWidth = 1;
                         ctx.arc(p.x, p.y, p.size*2, 0, Math.PI*2); ctx.stroke();
-                    } else if(p.type === 'leaf') {
-                        ctx.ellipse(p.x, p.y, p.size, p.size*2, p.x, 0, Math.PI*2); ctx.fill();
                     } else {
                         ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill();
                     }
@@ -278,7 +271,7 @@
         window.onmouseup = () => isDrawing = false;
         canvas.ontouchstart = e => { e.preventDefault(); isDrawing = true; const p = getPos(e); [lastX, lastY] = [p.x, p.y]; draw(e); };
         canvas.ontouchmove = e => { e.preventDefault(); draw(e); };
-        function clearBoard() { ctx.clearRect(0,0,canvas.width, canvas.height); document.getElementById('svg-layer').innerHTML=''; magicParticles=[]; }
+        function clearBoard() { ctx.clearRect(0,0,canvas.width, canvas.height); document.getElementById('ai-layer').innerHTML=''; magicParticles=[]; }
 
         async function vocal(t) {
             updateStatus(t);
