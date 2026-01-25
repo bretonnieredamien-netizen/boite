@@ -82,8 +82,8 @@
 
         /* --- ACCUEIL --- */
         #intro-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s ease-out, visibility 0.8s; }
-        .mode-selector { display: flex; gap: 1.5rem; align-items: center; justify-content: center; width: 100%; flex-wrap: wrap; padding: 0 20px; }
-        .mode-card { display: flex; flex-direction: column; align-items: center; gap: 0.8rem; cursor: pointer; transition: transform 0.3s ease; }
+        .mode-selector { display: flex; gap: 1.5rem; align-items: center; justify-content: center; width: 100%; flex-wrap: wrap; padding: 0 20px; max-width: 900px; }
+        .mode-card { display: flex; flex-direction: column; align-items: center; gap: 0.8rem; cursor: pointer; transition: transform 0.3s ease; margin-bottom: 1rem; }
         .mode-card:hover { transform: scale(1.1); }
         .mode-icon-box { width: 90px; height: 90px; border-radius: 20px; background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(20px); border: 2px solid rgba(255, 255, 255, 0.6); display: flex; align-items: center; justify-content: center; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
         .mode-label { font-weight: 800; color: rgba(79, 70, 229, 0.6); text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.7rem; }
@@ -171,6 +171,10 @@
                 <div class="mode-icon-box"><svg width="40" height="40" viewBox="0 0 24 24" fill="#8b5cf6"><path d="M17.75 7L14 3.25l-10 10V17h3.75l10-10zm2.96-2.96c.39-.39.39-1.02 0-1.41L18.37.29c-.39-.39-1.02-.39-1.41 0L15.5 1.75l2.75 2.75 1.46-1.46z"/></svg></div>
                 <span class="mode-label">Coloriage</span>
             </div>
+            <div class="mode-card" onclick="selectMode('MUSIC')">
+                <div class="mode-icon-box"><svg width="40" height="40" viewBox="0 0 24 24" fill="#06b6d4"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg></div>
+                <span class="mode-label">Musique</span>
+            </div>
         </div>
         <button onclick="oublierTout()" class="mt-8 text-indigo-900/40 text-xs font-bold uppercase tracking-widest hover:text-indigo-600 transition-colors">Redéfinir mon profil</button>
     </div>
@@ -186,6 +190,7 @@
                 <svg id="main-logo-question" class="hidden" viewBox="0 0 24 24" fill="#ec4899" width="100" height="100"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg>
                 <svg id="main-logo-chat" class="hidden" viewBox="0 0 24 24" fill="#f59e0b" width="100" height="100"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
                 <svg id="main-logo-coloring" class="hidden" viewBox="0 0 24 24" fill="#8b5cf6" width="100" height="100"><path d="M17.75 7L14 3.25l-10 10V17h3.75l10-10zm2.96-2.96c.39-.39.39-1.02 0-1.41L18.37.29c-.39-.39-1.02-.39-1.41 0L15.5 1.75l2.75 2.75 1.46-1.46z"/></svg>
+                <svg id="main-logo-music" class="hidden" viewBox="0 0 24 24" fill="#06b6d4" width="100" height="100"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
             </div>
             <div class="status-box">
                 <p id="status" class="text-indigo-900/60 font-semibold italic text-sm">Prêt...</p>
@@ -287,6 +292,7 @@
             document.getElementById('main-logo-question').classList.add('hidden');
             document.getElementById('main-logo-chat').classList.add('hidden');
             document.getElementById('main-logo-coloring').classList.add('hidden');
+            document.getElementById('main-logo-music').classList.add('hidden');
             document.getElementById('intro-overlay').style.display = 'flex';
             setTimeout(() => { document.getElementById('intro-overlay').classList.remove('intro-fade-out'); }, 50);
         }
@@ -330,7 +336,7 @@
             rec.onstart = () => { document.getElementById('btn-mic').classList.add('mic-listening'); document.getElementById('status').innerText = "Je t'écoute..."; };
             rec.onresult = (e) => { const p = e.results[0][0].transcript; document.getElementById('manualInput').value = p; traiterInput(p); };
             rec.onend = () => document.getElementById('btn-mic').classList.remove('mic-listening');
-            rec.onerror = (e) => { document.getElementById('btn-mic').classList.remove('mic-listening'); if (interactionMode === 'NAME_INPUT') document.getElementById('status').innerText = "Comment t'appelles-tu ?"; else if (interactionMode === 'GENDER_INPUT') document.getElementById('status').innerText = "Garçon ou fille ?"; else if (interactionMode === 'COLOR_INPUT') document.getElementById('status').innerText = "Tes couleurs préférées ?"; else if (interactionMode === 'AGE_INPUT') document.getElementById('status').innerText = "Quel âge as-tu ?"; else if (interactionMode === 'STORY_INPUT' || interactionMode === 'QUESTION_INPUT' || interactionMode === 'CHAT_INPUT') document.getElementById('status').innerText = "Je n'ai pas entendu..."; };
+            rec.onerror = (e) => { document.getElementById('btn-mic').classList.remove('mic-listening'); if (interactionMode === 'NAME_INPUT') document.getElementById('status').innerText = "Comment t'appelles-tu ?"; else if (interactionMode === 'GENDER_INPUT') document.getElementById('status').innerText = "Garçon ou fille ?"; else if (interactionMode === 'COLOR_INPUT') document.getElementById('status').innerText = "Tes couleurs préférées ?"; else if (interactionMode === 'AGE_INPUT') document.getElementById('status').innerText = "Quel âge as-tu ?"; else if (interactionMode === 'STORY_INPUT' || interactionMode === 'QUESTION_INPUT' || interactionMode === 'CHAT_INPUT' || interactionMode === 'MUSIC_INPUT') document.getElementById('status').innerText = "Je n'ai pas entendu..."; };
             try { rec.start(); } catch (e) {}
         }
 
@@ -344,14 +350,13 @@
             } 
             else if (mode === 'COLORING') {
                 document.getElementById('intro-overlay').classList.add('intro-fade-out');
-                // Lancer l'interface principale pour demander quoi colorier
                 setTimeout(() => {
                     document.getElementById('intro-overlay').style.display = 'none';
                     document.getElementById('main-interface').classList.add('content-visible');
                     document.getElementById('main-logo-coloring').classList.remove('hidden');
-                    document.getElementById('coloring-layer').style.display = 'block'; // Pré-afficher le layer mais caché par main-interface
-                    document.getElementById('coloring-layer').style.zIndex = "40"; // Derrière le main pour l'instant
-                    initColoring(); // <--- THIS WAS MISSING
+                    document.getElementById('coloring-layer').style.display = 'block'; 
+                    document.getElementById('coloring-layer').style.zIndex = "40"; 
+                    initColoring(); 
                     lancerColoriageAleatoire();
                 }, 800);
             }
@@ -365,6 +370,7 @@
                     if(mode === 'STORY') document.getElementById('main-logo-story').classList.remove('hidden');
                     else if(mode === 'QUESTION') document.getElementById('main-logo-question').classList.remove('hidden');
                     else if(mode === 'CHAT') document.getElementById('main-logo-chat').classList.remove('hidden');
+                    else if(mode === 'MUSIC') document.getElementById('main-logo-music').classList.remove('hidden');
 
                     if (userColor) applyMixedTheme(userColor);
                     startInteractionSequence();
@@ -394,19 +400,22 @@
 
             if (currentAppMode === 'STORY') {
                 interactionMode = 'STORY_INPUT'; document.getElementById('status').innerText = "Quelle histoire veux-tu ?";
-                const storyGreetings = [`Coucou ${userPrenom} ! Je suis prête pour une nouvelle aventure. De quoi veux-tu que je parle ?`, `Te revoilà ${userPrenom} ! Ouvre grand tes oreilles, quelle histoire veux-tu entendre ?`, `Bonjour ${userPrenom}. J'ai plein d'histoires en tête aujourd'hui. Dis-moi un mot magique !`, `C'est l'heure de l'histoire ${userPrenom} ! Qu'allons-nous imaginer ensemble ?`, `Salut ${userPrenom} ! Choisis le thème de notre aventure !`, `Installe-toi confortablement ${userPrenom}, le voyage imaginaire va commencer. Quel est le sujet ?`, `Mon grand livre magique est ouvert, ${userPrenom}. Que veux-tu y lire ?`, `Toc toc toc ! C'est l'heure du conte ${userPrenom}. Qui sera le héros aujourd'hui ?`, `Une pincée de poussière d'étoiles et hop ! ${userPrenom}, donne-moi une idée d'histoire.`, `Je suis toute ouïe, ${userPrenom}. Emmène-moi dans ton monde imaginaire.`, `Chut... écoute le silence, ${userPrenom}. Une histoire est prête à naître. Dis-moi juste le thème.`, `Oh, ${userPrenom} ! J'attendais justement un explorateur pour raconter une histoire. Laquelle veux-tu ?`, `Prêt à décoller pour le pays des rêves, ${userPrenom} ? Quelle est notre destination ?`, `Il était une fois... toi, ${userPrenom}, qui choisissait une histoire. De quoi parle-t-elle ?`, `Mes mots magiques sont prêts, ${userPrenom}. Donne-moi le signal !`, `Bonjour petit rêveur. ${userPrenom}, quelle créature ou quel lieu veux-tu visiter ?`, `La magie flotte dans l'air, ${userPrenom}. Attrapons une histoire au vol. Laquelle ?`, `Bienvenue dans la bibliothèque invisible, ${userPrenom}. Choisis un livre !`, `Un dragon ? Une princesse ? Ou un robot ? ${userPrenom}, c'est toi qui décides !`, `Fermons les yeux et imaginons, ${userPrenom}. Dis-moi ce que tu vois.`];
+                const storyGreetings = [`Coucou ${userPrenom} ! Je suis prête pour une nouvelle aventure. De quoi veux-tu que je parle ?`, `Te revoilà ${userPrenom} ! Ouvre grand tes oreilles, quelle histoire veux-tu entendre ?`, `Bonjour ${userPrenom}. J'ai plein d'histoires en tête aujourd'hui. Dis-moi un mot magique !`, `C'est l'heure de l'histoire ${userPrenom} ! Qu'allons-nous imaginer ensemble ?`, `Salut ${userPrenom} ! Choisis le thème de notre aventure !`];
                 speechQueue.push(storyGreetings[Math.floor(Math.random() * storyGreetings.length)]);
             } else if (currentAppMode === 'QUESTION') {
                 interactionMode = 'QUESTION_INPUT'; document.getElementById('status').innerText = "Pose ta question...";
-                const questionGreetings = [`Bonjour ${userPrenom}. Je suis curieuse de t'entendre. Quelle est ta question ?`, `Salut ${userPrenom} ! Le monde est rempli de mystères. Qu'est-ce qui t'intrigue ?`, `Coucou ${userPrenom}. Je t'écoute, pose-moi n'importe quelle question.`, `Je suis prête ${userPrenom}. Qu'est-ce que tu aimerais savoir aujourd'hui ?`, `Hello ${userPrenom} ! Je suis là pour t'aider à comprendre le monde. Dis-moi tout.`];
+                const questionGreetings = [`Bonjour ${userPrenom}. Je suis curieuse de t'entendre. Quelle est ta question ?`, `Salut ${userPrenom} ! Le monde est rempli de mystères. Qu'est-ce qui t'intrigue ?`, `Coucou ${userPrenom}. Je t'écoute, pose-moi n'importe quelle question.`, `Je suis prête ${userPrenom}. Qu'est-ce que tu aimerais savoir aujourd'hui ?`];
                 speechQueue.push(questionGreetings[Math.floor(Math.random() * questionGreetings.length)]);
             } else if (currentAppMode === 'CHAT') {
                 interactionMode = 'CHAT_INPUT'; document.getElementById('status').innerText = "On discute ?";
-                const chatGreetings = [`Coucou ${userPrenom} ! Je suis contente de te voir. Raconte-moi, comment ça va aujourd'hui ?`, `Salut ${userPrenom} ! Prêt à papoter ? Qu'est-ce que tu as fait de beau ?`, `Oh ${userPrenom} ! J'avais envie de discuter avec toi. De quoi veux-tu parler ?`, `Hello ! J'adore quand on discute ensemble. Dis-moi tout !`];
+                const chatGreetings = [`Coucou ${userPrenom} ! Je suis contente de te voir. Raconte-moi, comment ça va aujourd'hui ?`, `Salut ${userPrenom} ! Prêt à papoter ? Qu'est-ce que tu as fait de beau ?`, `Oh ${userPrenom} ! J'avais envie de discuter avec toi. De quoi veux-tu parler ?`];
                 speechQueue.push(chatGreetings[Math.floor(Math.random() * chatGreetings.length)]);
             } else if (currentAppMode === 'COLORING') {
                 interactionMode = 'COLORING_INPUT'; document.getElementById('status').innerText = "Que veux-tu colorier ?";
                 speechQueue.push(`C'est l'heure des couleurs ! Dis-moi ${userPrenom}, que veux-tu colorier aujourd'hui ?`);
+            } else if (currentAppMode === 'MUSIC') {
+                interactionMode = 'MUSIC_INPUT'; document.getElementById('status').innerText = "Quel style de musique ?";
+                speechQueue.push(`Bienvenue dans la boîte à musique ${userPrenom} ! Donne-moi un style ou un sujet, et je vais inventer une chanson pour toi.`);
             }
             parler();
         }
@@ -434,6 +443,7 @@
             else if (interactionMode === 'STORY_INPUT') { interactionMode = 'TELLING'; appelIA(texte, 'STORY'); } 
             else if (interactionMode === 'QUESTION_INPUT') { interactionMode = 'TELLING'; appelIA(texte, 'QUESTION'); }
             else if (interactionMode === 'CHAT_INPUT') { interactionMode = 'TELLING'; appelIA(texte, 'CHAT'); }
+            else if (interactionMode === 'MUSIC_INPUT') { interactionMode = 'TELLING'; appelIA(texte, 'MUSIC'); }
             else if (interactionMode === 'COLORING_INPUT') { 
                 interactionMode = 'TELLING';
                 document.getElementById('status').innerText = "Je dessine...";
@@ -454,6 +464,7 @@
             else if (currentAppMode === 'QUESTION') { interactionMode = 'QUESTION_INPUT'; document.getElementById('status').innerText = "Une autre question ?"; }
             else if (currentAppMode === 'CHAT') { interactionMode = 'CHAT_INPUT'; document.getElementById('status').innerText = "À toi..."; }
             else if (currentAppMode === 'COLORING') { interactionMode = 'COLORING_INPUT'; document.getElementById('status').innerText = "Autre chose ?"; }
+            else if (currentAppMode === 'MUSIC') { interactionMode = 'MUSIC_INPUT'; document.getElementById('status').innerText = "Une autre chanson ?"; }
 
             toggleStopButton(false); document.getElementById('story-card').classList.add('hidden'); 
         }
@@ -482,6 +493,7 @@
             let waitingPhrase = "Je réfléchis...";
             if (mode === 'STORY') waitingPhrase = "J'écris ton histoire...";
             else if (mode === 'QUESTION') waitingPhrase = "Je cherche...";
+            else if (mode === 'MUSIC') waitingPhrase = "Je compose...";
             
             document.getElementById('status').innerText = waitingPhrase;
 
@@ -507,6 +519,12 @@
                 Historique :
                 ${recentHistory}
                 Réponds à l'enfant :`;
+            } else if (mode === 'MUSIC') {
+                promptIA = `Tu es un compositeur de chansons magiques pour enfants. ${contextChild}
+                L'enfant veut une chanson sur le thème : "${sujet}".
+                Génère des paroles courtes (4 à 8 vers), rythmées et amusantes.
+                Ajoute des onomatopées musicales (La la la, Boom boom, Tchou tchou) si c'est pertinent.
+                NE METS PAS de titre. Commence direct. Fais en sorte que ce soit facile à lire à voix haute de manière rythmée.`;
             }
 
             try {
@@ -523,6 +541,7 @@
                         if (mode === 'CHAT') interactionMode = 'CHAT_INPUT';
                         else if (mode === 'STORY') interactionMode = 'STORY_INPUT';
                         else if (mode === 'QUESTION') interactionMode = 'QUESTION_INPUT';
+                        else if (mode === 'MUSIC') interactionMode = 'MUSIC_INPUT';
                         break;
                     }
                     const chunk = decoder.decode(value); const lines = chunk.split("\n");
@@ -566,7 +585,7 @@
                     isSpeaking = false;
                     if (speechQueue.length === 0) { 
                         stopAudio();
-                        if (['NAME_INPUT', 'GENDER_INPUT', 'COLOR_INPUT', 'AGE_INPUT', 'STORY_INPUT', 'QUESTION_INPUT', 'CHAT_INPUT', 'COLORING_INPUT'].includes(interactionMode)) {
+                        if (['NAME_INPUT', 'GENDER_INPUT', 'COLOR_INPUT', 'AGE_INPUT', 'STORY_INPUT', 'QUESTION_INPUT', 'CHAT_INPUT', 'COLORING_INPUT', 'MUSIC_INPUT'].includes(interactionMode)) {
                             setTimeout(() => { startListening(); }, 500);
                         }
                     } else parler(); 
@@ -581,7 +600,7 @@
                     isSpeaking = false;
                     if (speechQueue.length === 0) {
                         stopAudio();
-                        if (['NAME_INPUT', 'GENDER_INPUT', 'COLOR_INPUT', 'AGE_INPUT', 'STORY_INPUT', 'QUESTION_INPUT', 'CHAT_INPUT', 'COLORING_INPUT'].includes(interactionMode)) {
+                        if (['NAME_INPUT', 'GENDER_INPUT', 'COLOR_INPUT', 'AGE_INPUT', 'STORY_INPUT', 'QUESTION_INPUT', 'CHAT_INPUT', 'COLORING_INPUT', 'MUSIC_INPUT'].includes(interactionMode)) {
                             setTimeout(() => { startListening(); }, 500);
                         }
                     } else parler();
