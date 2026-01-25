@@ -26,7 +26,7 @@
 
         /* --- HEADER --- */
         #main-header { transition: opacity 1s ease, transform 1s ease; opacity: 1; transform: translateY(0); z-index: 50; }
-        .cinema-mode { transform: translateY(-20px); } /* Supprimé l'opacité 0 pour garder le visuel */
+        .cinema-mode { transform: translateY(-20px); }
         .logo-container { width: 180px; height: 180px; display: flex; justify-content: center; align-items: center; opacity: 0; animation: introFade 2s ease-out forwards; filter: drop-shadow(0 10px 25px rgba(129, 140, 248, 0.5)); }
         @keyframes introFade { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
 
@@ -43,20 +43,29 @@
         /* --- ARDOISE & COLORIAGE --- */
         #slate-layer, #coloring-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 150; background: #0f172a; display: none; }
         #coloring-layer { background: #ffffff; }
-        #slate-canvas, #color-canvas { width: 100%; height: 100%; cursor: crosshair; touch-action: none; position: absolute; top:0; left:0; }
         
+        /* Canvas de dessin (sous l'image générée) */
+        #slate-canvas, #color-canvas { 
+            width: 100%; height: 100%; cursor: crosshair; touch-action: none; 
+            position: absolute; top:0; left:0; z-index: 5; 
+        }
+        
+        /* Image générée par l'IA (au-dessus du canvas) */
         #generated-coloring-image {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 100%; height: 100%; object-fit: contain;
-            pointer-events: none; mix-blend-mode: multiply; z-index: 10; opacity: 0.9;
+            pointer-events: none; /* Laisse passer les clics vers le canvas */
+            mix-blend-mode: multiply; /* Le blanc devient transparent */
+            z-index: 10;
+            opacity: 1;
         }
 
         .slate-controls { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 95%; max-width: 800px; display: flex; gap: 12px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(20px); padding: 12px 20px; border-radius: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); border: 1px solid rgba(255, 255, 255, 0.2); align-items: center; z-index: 160; overflow-x: auto; justify-content: flex-start; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
-        #coloring-controls { background: rgba(255, 255, 255, 0.9); border: 1px solid #e2e8f0; }
+        #coloring-controls { background: rgba(255, 255, 255, 0.95); border: 1px solid #cbd5e1; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); }
         .slate-controls::-webkit-scrollbar { display: none; } 
         
         .brush-btn { flex-shrink: 0; width: 48px; height: 48px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; transition: 0.2s; background: rgba(255,255,255,0.1); color: white; }
-        #coloring-controls .brush-btn { background: #f1f5f9; color: #334155; }
+        #coloring-controls .brush-btn { background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0; }
         .brush-btn.active { border-color: #6366f1; transform: scale(1.1); background: white; color: #1e293b; box-shadow: 0 0 15px rgba(99,102,241,0.5); }
         
         .color-picker { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.5); cursor: pointer; transition: 0.2s; }
