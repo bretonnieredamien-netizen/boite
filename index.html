@@ -20,8 +20,8 @@
             background: linear-gradient(-45deg, var(--bg-1), var(--bg-2), var(--bg-3), var(--bg-4));
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
-            touch-action: manipulation; 
-            overflow-x: hidden; min-height: 100vh; margin: 0;
+            touch-action: none; 
+            overflow: hidden; min-height: 100vh; margin: 0;
             transition: background 2s ease; 
         }
         @keyframes gradientBG {
@@ -30,38 +30,31 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* --- Poussière d'étoiles --- */
         #starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
         .hidden { display: none !important; }
         .content-layer { position: relative; z-index: 10; width: 100%; display: flex; flex-direction: column; align-items: center; opacity: 0; transition: opacity 1s ease-in; }
         .content-visible { opacity: 1 !important; }
 
-        /* --- ARDOISE DE DESSIN --- */
-        #draw-layer {
+        /* --- ARDOISE MAGIQUE (Application 3) --- */
+        #slate-layer {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 150; background: white; display: none;
+            z-index: 150; background: #0f172a; display: none;
         }
-        #draw-canvas { width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
+        #slate-canvas { width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
         
-        .draw-controls {
+        .slate-controls {
             position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
-            display: flex; gap: 1rem; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);
-            padding: 1rem 1.5rem; border-radius: 999px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            border: 1px solid #eef2ff; align-items: center;
+            display: flex; gap: 0.8rem; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px);
+            padding: 1rem; border-radius: 999px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2); align-items: center; z-index: 160;
         }
-        .color-dot { width: 35px; height: 35px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: transform 0.2s; }
-        .color-dot.active { border-color: #6366f1; transform: scale(1.2); }
-        .draw-btn { padding: 0.5rem 1rem; border-radius: 12px; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .brush-btn { width: 45px; height: 45px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: 0.2s; background: rgba(255,255,255,0.1); color: white; }
+        .brush-btn.active { border-color: #6366f1; transform: scale(1.2); background: white; color: #1e293b; }
+        .slate-action { padding: 0.5rem 1rem; border-radius: 12px; font-weight: 800; font-size: 0.7rem; color: white; text-transform: uppercase; letter-spacing: 0.05em; background: rgba(255,255,255,0.1); }
 
         /* --- UI MAGIQUE --- */
-        .status-box { 
-            background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px); 
-            padding: 0.6rem 1.8rem; border-radius: 9999px; 
-            border: 1px solid rgba(255, 255, 255, 0.5); margin-top: 1rem;
-            min-height: 44px; display: flex; align-items: center; justify-content: center;
-        }
-
-        .orbe-base { position: relative; width: 120px; height: 120px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(15px); border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.8); display: flex; align-items: center; justify-content: center; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; z-index: 50; }
+        .status-box { background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px); padding: 0.6rem 1.8rem; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.5); margin-top: 1rem; min-height: 44px; display: flex; align-items: center; justify-content: center; }
+        .orbe-base { position: relative; width: 120px; height: 120px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(15px); border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.8); display: flex; align-items: center; justify-content: center; transition: all 0.5s; cursor: pointer; z-index: 50; }
         .orbe-base svg { width: 45px; height: 45px; fill: var(--accent-color); }
         .mic-listening { background: rgba(255, 255, 255, 0.3) !important; box-shadow: 0 0 50px var(--accent-color) !important; transform: scale(1.1); }
         
@@ -71,28 +64,22 @@
         .mode-card:hover { transform: scale(1.1); }
         .mode-icon-box { width: 140px; height: 140px; border-radius: 30px; background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(20px); border: 2px solid rgba(255, 255, 255, 0.6); display: flex; align-items: center; justify-content: center; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
         .mode-label { font-weight: 800; color: rgba(79, 70, 229, 0.6); text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.8rem; }
-
-        .white-flash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 90; opacity: 0; pointer-events: none; }
-        .flash-active { animation: flashAnim 1.5s ease-out forwards; }
-        @keyframes flashAnim { 0% { opacity: 0; } 15% { opacity: 0.95; } 100% { opacity: 0; } }
     </style>
 </head>
 <body class="p-6">
 
     <canvas id="starfield"></canvas>
-    <div id="white-flash" class="white-flash"></div>
 
-    <div id="draw-layer">
-        <canvas id="draw-canvas"></canvas>
-        <div class="draw-controls">
-            <div class="color-dot active" style="background: #000000;" data-color="#000000"></div>
-            <div class="color-dot" style="background: #ef4444;" data-color="#ef4444"></div>
-            <div class="color-dot" style="background: #3b82f6;" data-color="#3b82f6"></div>
-            <div class="color-dot" style="background: #22c55e;" data-color="#22c55e"></div>
-            <div class="color-dot flex items-center justify-center text-xs border border-gray-200" style="background: #ffffff;" data-color="#ffffff">🧽</div>
-            <div class="w-px h-8 bg-gray-200 mx-2"></div>
-            <button onclick="clearCanvas()" class="draw-btn bg-gray-100 text-gray-600">Tout effacer</button>
-            <button onclick="closeDraw()" class="draw-btn bg-red-50 text-red-500">Quitter</button>
+    <div id="slate-layer">
+        <canvas id="slate-canvas"></canvas>
+        <div class="slate-controls">
+            <button class="brush-btn active" onclick="setBrush('neon', this)" title="Néon">💡</button>
+            <button class="brush-btn" onclick="setBrush('rainbow', this)" title="Arc-en-ciel">🌈</button>
+            <button class="brush-btn" onclick="setBrush('lava', this)" title="Lave">🌋</button>
+            <button class="brush-btn" onclick="setBrush('galaxy', this)" title="Galaxie">🌌</button>
+            <div class="w-px h-8 bg-white/20 mx-2"></div>
+            <button onclick="clearSlate()" class="slate-action">Effacer</button>
+            <button onclick="closeSlate()" class="slate-action" style="background: rgba(239, 68, 68, 0.2);">Quitter</button>
         </div>
     </div>
 
@@ -100,40 +87,22 @@
         <p class="text-indigo-900/50 text-xl font-black mb-12 uppercase tracking-widest text-center">Choisis ta magie</p>
         <div class="mode-selector">
             <div class="mode-card" onclick="selectMode('STORY')">
-                <div class="mode-icon-box">
-                    <svg width="60" height="60" viewBox="0 0 24 24" fill="#6366f1">
-                        <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/>
-                    </svg>
-                </div>
+                <div class="mode-icon-box"><svg width="60" height="60" viewBox="0 0 24 24" fill="#6366f1"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg></div>
                 <span class="mode-label">Histoires</span>
             </div>
-
             <div class="mode-card" onclick="selectMode('QUESTION')">
-                <div class="mode-icon-box">
-                    <svg width="60" height="60" viewBox="0 0 24 24" fill="#ec4899">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
-                    </svg>
-                </div>
+                <div class="mode-icon-box"><svg width="60" height="60" viewBox="0 0 24 24" fill="#ec4899"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg></div>
                 <span class="mode-label">Questions</span>
             </div>
-
             <div class="mode-card" onclick="selectMode('DRAW')">
-                <div class="mode-icon-box">
-                    <svg width="60" height="60" viewBox="0 0 24 24" fill="#10b981">
-                        <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"/>
-                    </svg>
-                </div>
+                <div class="mode-icon-box"><svg width="60" height="60" viewBox="0 0 24 24" fill="#10b981"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"/></svg></div>
                 <span class="mode-label">Dessin</span>
             </div>
         </div>
     </div>
 
     <div id="main-interface" class="content-layer min-h-screen">
-        <header id="main-header" class="text-center flex flex-col items-center mt-6">
-            <div class="logo-container">
-                <svg id="main-logo-story" class="hidden" viewBox="0 0 24 24" fill="#6366f1" width="100" height="100"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
-                <svg id="main-logo-question" class="hidden" viewBox="0 0 24 24" fill="#ec4899" width="100" height="100"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg>
-            </div>
+        <header class="text-center flex flex-col items-center mt-6">
             <div class="status-box">
                 <p id="status" class="text-indigo-900/60 font-semibold italic text-sm">Prêt...</p>
             </div>
@@ -143,10 +112,13 @@
             <button id="btn-mic" class="orbe-base shadow-2xl">
                 <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
             </button>
+            <div id="stop-container" class="opacity-0 pointer-events-none transition-all duration-500">
+                <button id="btn-stop" class="slate-action">ARRÊTER ⏹</button>
+            </div>
         </main>
 
         <footer class="mt-auto py-8">
-             <button onclick="window.location.reload()" class="text-indigo-400/60 text-[11px] font-bold uppercase tracking-widest hover:text-indigo-600 transition-colors">Retour au menu</button>
+             <button onclick="window.location.reload()" class="text-indigo-400/60 text-[11px] font-bold uppercase tracking-widest hover:text-indigo-600">Retour au menu</button>
         </footer>
     </div>
 
@@ -157,73 +129,89 @@
         let AZURE_REGION = localStorage.getItem('BOITE_AZURE_REGION');
         let userPrenom = localStorage.getItem('BOITE_PRENOM');
         
-        let currentAppMode = null; 
-        let interactionMode = 'INIT'; 
+        let currentAppMode = null, isSpeaking = false, currentAudio = null;
 
-        /* --- DESSIN (ARDOISE) --- */
-        const dCanvas = document.getElementById('draw-canvas');
-        const dCtx = dCanvas.getContext('2d');
-        let isDrawing = false, dColor = '#000000';
+        /* --- ARDOISE MAGIQUE LOGIQUE --- */
+        const sCanvas = document.getElementById('slate-canvas');
+        const sCtx = sCanvas.getContext('2d');
+        let drawing = false, currentBrush = 'neon', hue = 0;
 
-        function initDraw() {
-            dCanvas.width = window.innerWidth;
-            dCanvas.height = window.innerHeight;
-            dCtx.lineCap = 'round';
-            dCtx.lineWidth = 5;
+        function initSlate() {
+            sCanvas.width = window.innerWidth;
+            sCanvas.height = window.innerHeight;
+            sCtx.lineCap = 'round';
+            sCtx.lineJoin = 'round';
         }
 
-        function startDrawing(e) { isDrawing = true; draw(e); }
-        function stopDrawing() { isDrawing = false; dCtx.beginPath(); }
+        function setBrush(b, btn) {
+            currentBrush = b;
+            document.querySelectorAll('.brush-btn').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
         function draw(e) {
-            if (!isDrawing) return;
+            if (!drawing) return;
             const x = e.clientX || e.touches[0].clientX;
             const y = e.clientY || e.touches[0].clientY;
-            dCtx.strokeStyle = dColor;
-            dCtx.lineTo(x, y);
-            dCtx.stroke();
-            dCtx.beginPath();
-            dCtx.moveTo(x, y);
+            hue = (hue + 2) % 360;
+
+            sCtx.lineWidth = currentBrush === 'galaxy' ? 2 : 6;
+            
+            if (currentBrush === 'neon') {
+                sCtx.strokeStyle = `hsl(${hue}, 100%, 70%)`;
+                sCtx.shadowBlur = 15;
+                sCtx.shadowColor = sCtx.strokeStyle;
+            } else if (currentBrush === 'rainbow') {
+                sCtx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
+                sCtx.shadowBlur = 0;
+            } else if (currentBrush === 'lava') {
+                sCtx.strokeStyle = `hsl(${Math.random() * 20 + 10}, 100%, 50%)`;
+                sCtx.shadowBlur = 10;
+                sCtx.shadowColor = '#ff4500';
+            } else if (currentBrush === 'galaxy') {
+                sCtx.strokeStyle = 'white';
+                sCtx.shadowBlur = 10;
+                sCtx.shadowColor = `hsl(${hue}, 100%, 80%)`;
+                // Effet de poussière d'étoiles
+                for(let i=0; i<3; i++) {
+                    sCtx.beginPath();
+                    sCtx.arc(x + (Math.random()-0.5)*20, y + (Math.random()-0.5)*20, Math.random()*2, 0, Math.PI*2);
+                    sCtx.fillStyle = 'white';
+                    sCtx.fill();
+                }
+            }
+
+            sCtx.lineTo(x, y);
+            sCtx.stroke();
+            sCtx.beginPath();
+            sCtx.moveTo(x, y);
         }
 
-        dCanvas.onmousedown = startDrawing; dCanvas.onmousemove = draw; window.onmouseup = stopDrawing;
-        dCanvas.ontouchstart = (e) => { e.preventDefault(); startDrawing(e); };
-        dCanvas.ontouchmove = (e) => { e.preventDefault(); draw(e); };
-        dCanvas.ontouchend = stopDrawing;
+        sCanvas.addEventListener('mousedown', (e) => { drawing = true; sCtx.beginPath(); sCtx.moveTo(e.clientX, e.clientY); });
+        sCanvas.addEventListener('mousemove', draw);
+        window.addEventListener('mouseup', () => drawing = false);
+        sCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing = true; sCtx.beginPath(); sCtx.moveTo(e.touches[0].clientX, e.touches[0].clientY); });
+        sCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); });
+        window.addEventListener('touchend', () => drawing = false);
 
-        document.querySelectorAll('.color-dot').forEach(dot => {
-            dot.onclick = () => {
-                document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
-                dot.classList.add('active');
-                dColor = dot.dataset.color;
-                dCtx.lineWidth = (dColor === '#ffffff') ? 30 : 5;
-            }
-        });
-
-        function clearCanvas() { dCtx.clearRect(0,0,dCanvas.width, dCanvas.height); }
-        function closeDraw() { document.getElementById('draw-layer').style.display = 'none'; }
+        function clearSlate() { sCtx.clearRect(0,0,sCanvas.width, sCanvas.height); }
+        function closeSlate() { document.getElementById('slate-layer').style.display = 'none'; }
 
         /* --- LOGIQUE MODES --- */
         function selectMode(mode) {
             currentAppMode = mode;
-            document.getElementById('white-flash').classList.add('flash-active');
-            
-            setTimeout(() => {
-                document.getElementById('intro-overlay').classList.add('intro-fade-out');
-                
-                if(mode === 'DRAW') {
-                    document.getElementById('draw-layer').style.display = 'block';
-                    initDraw();
-                } else {
-                    document.getElementById('main-interface').classList.add('content-visible');
-                    document.getElementById(`main-logo-${mode.toLowerCase()}`).classList.remove('hidden');
-                    startInteraction();
-                }
-            }, 800);
+            document.getElementById('intro-overlay').classList.add('hidden');
+            if (mode === 'DRAW') {
+                document.getElementById('slate-layer').style.display = 'block';
+                initSlate();
+            } else {
+                document.getElementById('main-interface').classList.add('content-visible');
+                startSequence();
+            }
         }
 
-        function startInteraction() {
+        function startSequence() {
             if (!userPrenom) {
-                interactionMode = 'NAME_INPUT';
                 vocal("Coucou ! Comment t'appelles-tu ?");
             } else {
                 vocal(currentAppMode === 'STORY' ? `Prêt pour une histoire ${userPrenom} ?` : `Pose-moi ta question ${userPrenom} !`);
@@ -231,22 +219,22 @@
         }
 
         async function appelIA(text) {
-            if (interactionMode === 'NAME_INPUT') {
-                userPrenom = text; localStorage.setItem('BOITE_PRENOM', text);
-                interactionMode = 'APP_INPUT';
-                vocal(`Enchanté ${userPrenom} ! On commence ?`);
+            if (!userPrenom) {
+                userPrenom = text;
+                localStorage.setItem('BOITE_PRENOM', text);
+                vocal(`Enchanté ${userPrenom} ! De quoi veux-tu parler ?`);
                 return;
             }
-            // IA (Story/Question) Logic ici...
+
+            let sys = currentAppMode === 'STORY' ? "Conteuse magique. Histoire courte (5 phrases)." : "Savante magique. Réponse simple.";
             try {
-                const sys = currentAppMode === 'STORY' ? "Raconte une histoire très courte." : "Réponds simplement.";
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
+                const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ contents: [{ parts: [{ text: sys + " Demande : " + text }] }] })
                 });
-                const data = await response.json();
-                vocal(data.candidates[0].content.parts[0].text);
-            } catch(e) { vocal("Oups, j'ai eu un problème magique !"); }
+                const d = await r.json();
+                vocal(d.candidates[0].content.parts[0].text);
+            } catch(e) { vocal("Oups, un petit nuage cache ma magie..."); }
         }
 
         async function vocal(t) {
@@ -256,7 +244,12 @@
                     method: 'POST', headers: {'Ocp-Apim-Subscription-Key': AZURE_KEY, 'Content-Type': 'application/ssml+xml', 'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3' },
                     body: `<speak version='1.0' xml:lang='fr-FR'><voice name='fr-FR-DeniseNeural'><prosody rate="0.95">${t}</prosody></voice></speak>`
                 });
-                const b = await r.blob(); (new Audio(URL.createObjectURL(b))).play().then(() => { if(interactionMode !== 'NAME_INPUT') startListening(); });
+                const b = await r.blob();
+                if(currentAudio) currentAudio.pause();
+                currentAudio = new Audio(URL.createObjectURL(b));
+                currentAudio.onplay = () => document.getElementById('stop-container').style.opacity = '1';
+                currentAudio.onended = () => { document.getElementById('stop-container').style.opacity = '0'; startListening(); };
+                currentAudio.play();
             } catch(e) {}
         }
 
@@ -264,24 +257,28 @@
             const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
             const rec = new Speech(); rec.lang = 'fr-FR';
             rec.onstart = () => document.getElementById('btn-mic').classList.add('mic-listening');
-            rec.onresult = (e) => appelIA(e.results[0][0].transcript);
             rec.onend = () => document.getElementById('btn-mic').classList.remove('mic-listening');
+            rec.onresult = (e) => appelIA(e.results[0][0].transcript);
             rec.start();
         }
 
         document.getElementById('btn-mic').onclick = startListening;
+        document.getElementById('btn-stop').onclick = () => { if(currentAudio) currentAudio.pause(); };
 
-        /* --- STARS --- */
-        const sCanvas = document.getElementById('starfield'); const sCtx = sCanvas.getContext('2d');
-        function sResize() { sCanvas.width = window.innerWidth; sCanvas.height = window.innerHeight; }
+        /* --- ÉTOILES --- */
+        const canvas = document.getElementById('starfield'); const sCtxBg = canvas.getContext('2d');
+        function sResize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         sResize(); window.onresize = sResize;
-        let stars = Array(150).fill().map(() => ({ x: Math.random()*sCanvas.width, y: Math.random()*sCanvas.height, s: Math.random()*1.5 }));
+        let stars = Array(150).fill().map(() => ({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*1.5 }));
         function sDraw() {
-            sCtx.clearRect(0,0,sCanvas.width, sCanvas.height); sCtx.fillStyle = "white";
-            stars.forEach(s => { sCtx.beginPath(); sCtx.arc(s.x, s.y, s.s, 0, Math.PI*2); sCtx.fill(); s.y -= 0.1; if(s.y<0) s.y=sCanvas.height; });
+            sCtxBg.clearRect(0,0,canvas.width, canvas.height); sCtxBg.fillStyle = "white";
+            stars.forEach(s => { sCtxBg.beginPath(); sCtxBg.arc(s.x, s.y, s.s, 0, Math.PI*2); sCtxBg.fill(); s.y -= 0.1; if(s.y<0) s.y=canvas.height; });
             requestAnimationFrame(sDraw);
         }
         sDraw();
+
+        if(!GEMINI_KEY) localStorage.setItem('BOITE_GEMINI_KEY', prompt("Clé Gemini :"));
+        if(!AZURE_KEY) { localStorage.setItem('BOITE_AZURE_KEY', prompt("Clé Azure :")); localStorage.setItem('BOITE_AZURE_REGION', prompt("Région :")); }
     </script>
 </body>
 </html>
