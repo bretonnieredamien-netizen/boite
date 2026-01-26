@@ -40,32 +40,33 @@
         .wave-bar:nth-child(5) { background: #14b8a6; animation-delay: 0.4s; }
         @keyframes waveAnim { 0%, 100% { height: 20%; opacity: 0.5; } 50% { height: 100%; opacity: 1; transform: scaleY(1.1); } }
 
-        /* --- ARDOISE & COLORIAGE --- */
-        #slate-layer, #coloring-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 150; background: #0f172a; display: none; }
-        #coloring-layer { background: #ffffff; }
-        #slate-canvas, #color-canvas { width: 100%; height: 100%; cursor: crosshair; touch-action: none; position: absolute; top:0; left:0; z-index: 5; }
+        /* --- LAYERS (ARDOISE, COLORIAGE, MODE) --- */
+        #slate-layer, #coloring-layer, #fashion-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 150; background: #0f172a; display: none; }
+        #coloring-layer, #fashion-layer { background: #ffffff; }
+        #slate-canvas, #color-canvas, #fashion-canvas { width: 100%; height: 100%; cursor: crosshair; touch-action: none; position: absolute; top:0; left:0; z-index: 5; }
         
-        #generated-coloring-image {
+        #generated-coloring-image, #fashion-mannequin-image {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 100%; height: 100%; object-fit: contain;
-            pointer-events: none; mix-blend-mode: multiply; z-index: 10; opacity: 1;
+            pointer-events: none; mix-blend-mode: multiply; z-index: 2; opacity: 1;
         }
+        #fashion-mannequin-image { opacity: 0.7; height: 90%; }
 
         .slate-controls { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 95%; max-width: 800px; display: flex; gap: 12px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(20px); padding: 12px 20px; border-radius: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); border: 1px solid rgba(255, 255, 255, 0.2); align-items: center; z-index: 160; overflow-x: auto; justify-content: flex-start; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
-        #coloring-controls { background: rgba(255, 255, 255, 0.95); border: 1px solid #cbd5e1; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); }
+        #coloring-controls, #fashion-controls { background: rgba(255, 255, 255, 0.95); border: 1px solid #cbd5e1; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); }
         .slate-controls::-webkit-scrollbar { display: none; } 
         
         .brush-btn { flex-shrink: 0; width: 48px; height: 48px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; transition: 0.2s; background: rgba(255,255,255,0.1); color: white; }
-        #coloring-controls .brush-btn { background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0; }
+        #coloring-controls .brush-btn, #fashion-controls .brush-btn { background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0; }
         .brush-btn.active { border-color: #6366f1; transform: scale(1.1); background: white; color: #1e293b; box-shadow: 0 0 15px rgba(99,102,241,0.5); }
         
         .color-picker { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.5); cursor: pointer; transition: 0.2s; }
-        #coloring-controls .color-picker { border: 2px solid #cbd5e1; }
+        #coloring-controls .color-picker, #fashion-controls .color-picker { border: 2px solid #cbd5e1; }
         .color-picker.active { transform: scale(1.3); border-color: white; box-shadow: 0 0 10px white; }
-        #coloring-controls .color-picker.active { border-color: #6366f1; box-shadow: 0 0 10px #6366f1; }
+        #coloring-controls .color-picker.active, #fashion-controls .color-picker.active { border-color: #6366f1; box-shadow: 0 0 10px #6366f1; }
 
         .slate-action { flex-shrink: 0; padding: 0.6rem 1.2rem; border-radius: 12px; font-weight: 800; font-size: 0.75rem; color: white; text-transform: uppercase; letter-spacing: 0.05em; background: rgba(255,255,255,0.1); white-space: nowrap; }
-        #coloring-controls .slate-action { background: #fee2e2; color: #ef4444; }
+        #coloring-controls .slate-action, #fashion-controls .slate-action { background: #fee2e2; color: #ef4444; }
 
         /* --- UI ELEMENTS --- */
         .status-box { background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px); padding: 0.6rem 1.8rem; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.5); margin-top: 1rem; min-height: 44px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; }
@@ -152,6 +153,32 @@
         </div>
     </div>
 
+    <div id="fashion-layer">
+        <button class="nav-home-btn" onclick="returnToMenu()"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></button>
+        <img id="fashion-mannequin-image" src="" alt="">
+        <canvas id="fashion-canvas"></canvas>
+        <div id="fashion-controls" class="slate-controls">
+            <div class="flex gap-3 mr-4 flex-shrink-0">
+                <div class="color-picker active" style="background:#ef4444" onclick="setFashionColor('#ef4444', this)"></div>
+                <div class="color-picker" style="background:#f97316" onclick="setFashionColor('#f97316', this)"></div>
+                <div class="color-picker" style="background:#eab308" onclick="setFashionColor('#eab308', this)"></div>
+                <div class="color-picker" style="background:#22c55e" onclick="setFashionColor('#22c55e', this)"></div>
+                <div class="color-picker" style="background:#3b82f6" onclick="setFashionColor('#3b82f6', this)"></div>
+                <div class="color-picker" style="background:#a855f7" onclick="setFashionColor('#a855f7', this)"></div>
+                <div class="color-picker" style="background:#ec4899" onclick="setFashionColor('#ec4899', this)"></div>
+                <div class="color-picker" style="background:#78350f" onclick="setFashionColor('#78350f', this)"></div>
+                <div class="color-picker" style="background:#000000" onclick="setFashionColor('#000000', this)"></div>
+                <div class="color-picker" style="background:#ffffff; border:1px solid #ccc" onclick="setFashionColor('#ffffff', this)"></div>
+            </div>
+            <button class="brush-btn active" onclick="setFashionBrush('tissue', this)" title="Tissu">👕</button>
+            <button class="brush-btn" onclick="setFashionBrush('glitter', this)" title="Paillettes">✨</button>
+            <div class="w-px h-8 bg-gray-300 mx-2 flex-shrink-0"></div>
+            <button class="brush-btn" onclick="setFashionBrush('eraser', this)">🧽</button>
+            <button onclick="changerMannequin()" class="slate-action" style="background:#cffafe; color:#0891b2">Changer Modèle</button>
+            <button onclick="clearFashion()" class="slate-action">Effacer</button>
+        </div>
+    </div>
+
     <div id="intro-overlay">
         <div class="god-rays"></div>
         <p id="intro-title" class="text-indigo-900/50 text-xl font-black mb-10 uppercase tracking-widest text-center">Choisis ta magie</p>
@@ -180,6 +207,10 @@
                 <div class="mode-icon-box"><svg width="40" height="40" viewBox="0 0 24 24" fill="#06b6d4"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg></div>
                 <span class="mode-label">Musique</span>
             </div>
+            <div class="mode-card" onclick="selectMode('FASHION')">
+                <div class="mode-icon-box"><svg width="40" height="40" viewBox="0 0 24 24" fill="#fb7185"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-2 10H5V8h14v8zM6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM12 2C9.24 2 7 4.24 7 7h10c0-2.76-2.24-5-5-5z"/></svg></div>
+                <span class="mode-label">Mode</span>
+            </div>
         </div>
         <button onclick="oublierTout()" class="mt-8 text-indigo-900/40 text-xs font-bold uppercase tracking-widest hover:text-indigo-600 transition-colors">Redéfinir mon profil</button>
     </div>
@@ -196,6 +227,7 @@
                 <svg id="main-logo-chat" class="hidden" viewBox="0 0 24 24" fill="#f59e0b" width="100" height="100"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
                 <svg id="main-logo-coloring" class="hidden" viewBox="0 0 24 24" fill="#8b5cf6" width="100" height="100"><path d="M17.75 7L14 3.25l-10 10V17h3.75l10-10zm2.96-2.96c.39-.39.39-1.02 0-1.41L18.37.29c-.39-.39-1.02-.39-1.41 0L15.5 1.75l2.75 2.75 1.46-1.46z"/></svg>
                 <svg id="main-logo-music" class="hidden" viewBox="0 0 24 24" fill="#06b6d4" width="100" height="100"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                <svg id="main-logo-fashion" class="hidden" viewBox="0 0 24 24" fill="#fb7185" width="100" height="100"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-2 10H5V8h14v8zM6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM12 2C9.24 2 7 4.24 7 7h10c0-2.76-2.24-5-5-5z"/></svg>
             </div>
             <div class="status-box">
                 <p id="status" class="text-indigo-900/60 font-semibold italic text-sm">Prêt...</p>
@@ -240,57 +272,28 @@
 
         /* --- DISCOTHÈQUE GÉANTE SPOTIFY (PLAYLISTS & GENRES) --- */
         const SPOTIFY_DB = {
-            // -- POP & HITS --
-            'POP': '37i9dQZF1DXcBWIGoYBM5M',     // Hits
-            'DISNEY': '37i9dQZF1DX8C9xQcOrE6T',  // Disney
-            'FILM': '37i9dQZF1DX8C9xQcOrE6T',    // Films enfants
-            'VOITURE': '37i9dQZF1DWWHQM6sW8kDQ', // Sing Along Kids
-
-            // -- INSTRUMENTS --
-            'GUITARE': '37i9dQZF1DWZK4p8GZlQhW', // Guitare acoustique calme
-            'GUITARE_ELEC': '37i9dQZF1DWWzBc3TOlaAV', // Rock Classics
-            'PIANO': '37i9dQZF1DWUvHZA1zLcjW',   // Piano calme
-            'VIOLON': '37i9dQZF1DWV7EzJMK2FUI',  // Classical Violin
-            'BATTERIE': '37i9dQZF1DWXJKyK5MgDWz', // Drums Focus
-            'TROMPETTE': '37i9dQZF1DX6f3J34J8j5p', // Jazz Classics (Sax/Trompette)
-
-            // -- GENRES --
-            'ROCK': '37i9dQZF1DWWzBc3TOlaAV',    // Classic Rock
-            'METAL': '37i9dQZF1DX9qNs32fujYe',   // Heavy Metal (Soft)
-            'RAP': '37i9dQZF1DX0XUsuxWHRQd',     // Rap Caviar
-            'JAZZ': '37i9dQZF1DXbITWG1ZJKYt',    // Jazz Classics
-            'CLASSIQUE': '37i9dQZF1DWUvHZA1zLcjW', // Classique
-            'COUNTRY': '37i9dQZF1DX1lVhptIYRda', // Country Hits
-            'DISCO': '37i9dQZF1DX4UtSsGT1Sbe',   // All Out 80s
-
-            // -- AMBIANCES --
-            'DODO': '37i9dQZF1DWZd79rJ6a7lp',    // Berceuses
-            'CALME': '37i9dQZF1DWZd79rJ6a7lp',   // Relax
-            'FETE': '37i9dQZF1DX2sUQqwWQbJn',    // Party Kids
-            'DANSE': '37i9dQZF1DX2sUQqwWQbJn',   // Dance
-            'TRISTE': '37i9dQZF1DX3YSRoSdA634',  // Sad Songs
-            'HEUREUX': '37i9dQZF1DXdPec7aLTmlC', // Happy Hits
-            'SPORT': '37i9dQZF1DX76Wlfdnj7AP',   // Workout
-
-            // -- THÈMES SPÉCIAUX --
-            'DINOSAURE': '37i9dQZF1DWWHQX5fP7a70', // Kids Adventure
-            'SUPERHEROS': '37i9dQZF1DXu2W0Mf8a55a', // Epic Gaming
-            'JEUXVIDEO': '37i9dQZF1DXdfOcg1fm0VG',  // Video Game Scores
-            'HALLOWEEN': '37i9dQZF1EIdR77n0lqY6P',  // Spooky
-            'NOEL': '37i9dQZF1DX0A8zVl7p82B',     // Christmas
-
-            // -- NATURE & BRUITS --
-            'PLUIE': '37i9dQZF1DX8gym7ONOGCa',    // Rain Sounds
-            'OCEAN': '37i9dQZF1DX4PP3kddpbma',    // Ocean Sounds
-            'FORET': '37i9dQZF1DWX83CujKHHbD',    // Nature Sounds
-            'ANIMAUX': '37i9dQZF1DWWHQX5fP7a70',  // Animaux (Mix Kids)
-            'JUNGLE': '37i9dQZF1DWWHQX5fP7a70'    // Jungle (Mix Kids)
+            'POP': '37i9dQZF1DXcBWIGoYBM5M', 'DISNEY': '37i9dQZF1DX8C9xQcOrE6T', 'FILM': '37i9dQZF1DX8C9xQcOrE6T', 'VOITURE': '37i9dQZF1DWWHQM6sW8kDQ',
+            'GUITARE': '37i9dQZF1DWZK4p8GZlQhW', 'GUITARE_ELEC': '37i9dQZF1DWWzBc3TOlaAV', 'PIANO': '37i9dQZF1DWUvHZA1zLcjW', 'VIOLON': '37i9dQZF1DWV7EzJMK2FUI', 'BATTERIE': '37i9dQZF1DWXJKyK5MgDWz', 'TROMPETTE': '37i9dQZF1DX6f3J34J8j5p',
+            'ROCK': '37i9dQZF1DWWzBc3TOlaAV', 'METAL': '37i9dQZF1DX9qNs32fujYe', 'RAP': '37i9dQZF1DX0XUsuxWHRQd', 'JAZZ': '37i9dQZF1DXbITWG1ZJKYt', 'CLASSIQUE': '37i9dQZF1DWUvHZA1zLcjW', 'COUNTRY': '37i9dQZF1DX1lVhptIYRda', 'DISCO': '37i9dQZF1DX4UtSsGT1Sbe',
+            'DODO': '37i9dQZF1DWZd79rJ6a7lp', 'CALME': '37i9dQZF1DWZd79rJ6a7lp', 'FETE': '37i9dQZF1DX2sUQqwWQbJn', 'DANSE': '37i9dQZF1DX2sUQqwWQbJn', 'TRISTE': '37i9dQZF1DX3YSRoSdA634', 'HEUREUX': '37i9dQZF1DXdPec7aLTmlC', 'SPORT': '37i9dQZF1DX76Wlfdnj7AP',
+            'DINOSAURE': '37i9dQZF1DWWHQX5fP7a70', 'SUPERHEROS': '37i9dQZF1DXu2W0Mf8a55a', 'JEUXVIDEO': '37i9dQZF1DXdfOcg1fm0VG', 'HALLOWEEN': '37i9dQZF1EIdR77n0lqY6P', 'NOEL': '37i9dQZF1DX0A8zVl7p82B',
+            'PLUIE': '37i9dQZF1DX8gym7ONOGCa', 'OCEAN': '37i9dQZF1DX4PP3kddpbma', 'FORET': '37i9dQZF1DWX83CujKHHbD', 'ANIMAUX': '37i9dQZF1DWWHQX5fP7a70', 'JUNGLE': '37i9dQZF1DWWHQX5fP7a70'
         };
+
+        /* --- MODELE DE MANNEQUINS (Data URIs pour éviter les liens morts) --- */
+        // Silhouettes simples et clean (Garçon / Fille)
+        const MANNEQUINS = [
+            // BOY
+            "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMDAgNTAwIj48ZyBmaWxsPSJub25lIiBzdHJva2U9IiMzMzMiIHN0cm9rZS13aWR0aD0iNCI+PHBhdGggZD0iTTE1MCw1MCBDMTMwLDQ1IDEzMCw4MCAxNTAsODUgQzE3MCw4MCAxNzAsNDUgMTUwLDUwIFoiIGZpbGw9IiNmZmYiLz48cGF0aCBkPSJNMTUwLDg1IEwxNTAsMTAwIE0xNTAsMTAwIEwxMDAsMTEwIEw5MCwxODAgTDg1LDIzMCBMNTAsMjQwIE0xNTAsMTAwIEwyMDAsMTEwIEwyMTAsMTgwIEwyMTUsMjMwIEwyNTAsMjQwIE0xNTAsMTAwIEwxNTAsMjQwIE0xNTAsMjQwIEwxMTAsMjUwIEwxMTAsNDUwIEwxNDAsNDgwIE0xNTAsMjQwIEwxOTAsMjUwIEwxOTAsNDUwIEwxNjAsNDgwIi8+PC9nPjwvc3ZnPg==",
+            // GIRL
+            "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMDAgNTAwIj48ZyBmaWxsPSJub25lIiBzdHJva2U9IiMzMzMiIHN0cm9rZS13aWR0aD0iNCI+PHBhdGggZD0iTTE1MCw0NSBDMTI1LDQwIDEyNSw4NSAxNTAsOTAgQzE3NSw4NSAxNzUsNDAgMTUwLDQ1IFoiIGZpbGw9IiNmZmYiLz48cGF0aCBkPSJNMTUwLDkwIEwxNTAsMTA1IE0xNTAsMTA1IEwxMDAsMTE1IEw5NSwxOTAgTDg1LDI0MCBMNjAsMjUwIE0xNTAsMTA1IEwyMDAsMTE1IEwyMDUsMTkwIEwyMTUsMjQwIEwyNDAsMjUwIE0xNTAsMTA1IEwxMTUsMjUwIEwxMTUsNDUwIEwxNDUsNDgwIE0xNTAsMTA1IEwxODUsMjUwIEwxODUsNDUwIEwxNTUsNDgwIE0xNTAsNDUgQzEyMCw0MCAxMTAsMTAwIDExMCwxMzAgTTE1MCw0NSBDMTgwLDQwIDE5MCwxMDAgMTkwLDEzMCIvPjwvZz48L3N2Zz4="
+        ];
+        let currentMannequinIndex = 0;
 
         /* --- ARDOISE NOIRE --- */
         const sCanvas = document.getElementById('slate-canvas'); const sCtx = sCanvas.getContext('2d');
         let drawing = false, currentBrush = 'base', hue = 0, baseColor = 'white';
-        let lastX = 0, lastY = 0; // Ajout pour le dégradé du pinceau feu
+        let lastX = 0, lastY = 0; 
 
         function initSlate() { sCanvas.width = window.innerWidth; sCanvas.height = window.innerHeight; sCtx.lineCap = 'round'; sCtx.lineJoin = 'round'; }
         function setBrush(b, btn) { currentBrush = b; document.querySelectorAll('.brush-btn').forEach(el => el.classList.remove('active')); btn.classList.add('active'); }
@@ -308,24 +311,15 @@
             else if (currentBrush === 'eraser') { sCtx.globalCompositeOperation = 'destination-out'; sCtx.strokeStyle = 'rgba(0,0,0,1)'; sCtx.shadowBlur = 0; } 
             else if (currentBrush === 'neon') { sCtx.strokeStyle = `hsl(${hue}, 100%, 70%)`; sCtx.shadowBlur = 15; sCtx.shadowColor = sCtx.strokeStyle; } 
             else if (currentBrush === 'rainbow') { sCtx.strokeStyle = `hsl(${hue}, 100%, 50%)`; sCtx.shadowBlur = 0; } 
-            else if (currentBrush === 'fire') { // Pinceau FEU avec DÉGRADÉ
-                // Création du dégradé linéaire entre la position précédente et actuelle
+            else if (currentBrush === 'fire') { 
                 const grad = sCtx.createLinearGradient(lastX, lastY, x, y);
-                grad.addColorStop(0, '#ff9a00'); // Orange
-                grad.addColorStop(1, '#ff0000'); // Rouge
-                sCtx.strokeStyle = grad;
-                sCtx.lineWidth = 4;
-                sCtx.shadowBlur = 20; 
-                sCtx.shadowColor = '#ff4500'; 
-                // Effet de particules (étincelles)
+                grad.addColorStop(0, '#ff9a00'); grad.addColorStop(1, '#ff0000');
+                sCtx.strokeStyle = grad; sCtx.lineWidth = 4; sCtx.shadowBlur = 20; sCtx.shadowColor = '#ff4500'; 
                 if (Math.random() > 0.5) {
                     for(let i=0; i<2; i++) { 
-                        const pX = x + (Math.random()-0.5) * 20; 
-                        const pY = y - Math.random() * 30; // Les flammes montent
+                        const pX = x + (Math.random()-0.5) * 20; const pY = y - Math.random() * 30; 
                         sCtx.fillStyle = `rgba(255, ${Math.floor(Math.random()*150)}, 0, ${Math.random() * 0.8})`; 
-                        sCtx.beginPath(); 
-                        sCtx.arc(pX, pY, Math.random()*2.5, 0, Math.PI*2); 
-                        sCtx.fill(); 
+                        sCtx.beginPath(); sCtx.arc(pX, pY, Math.random()*2.5, 0, Math.PI*2); sCtx.fill(); 
                     } 
                 }
             } 
@@ -335,33 +329,10 @@
             else if (currentBrush === 'gold') { sCtx.strokeStyle = '#fbbf24'; sCtx.shadowBlur = 20; sCtx.shadowColor = '#f59e0b'; if(Math.random() > 0.8) { const pX = x + (Math.random()-0.5) * 20; const pY = y + (Math.random()-0.5) * 20; sCtx.fillStyle = '#fffbeb'; sCtx.beginPath(); sCtx.arc(pX, pY, Math.random()*2, 0, Math.PI*2); sCtx.fill(); } }
             
             if (currentBrush !== 'electric') sCtx.lineTo(x, y); 
-            sCtx.stroke(); 
-            sCtx.beginPath(); 
-            sCtx.moveTo(x, y);
-            
-            // Mise à jour de la dernière position pour le dégradé
-            lastX = x;
-            lastY = y;
+            sCtx.stroke(); sCtx.beginPath(); sCtx.moveTo(x, y);
+            lastX = x; lastY = y;
         }
-
-        sCanvas.addEventListener('mousedown', (e) => { 
-            drawing = true; 
-            lastX = e.clientX; lastY = e.clientY; // Init pos
-            sCtx.beginPath(); 
-            sCtx.moveTo(e.clientX, e.clientY); 
-        }); 
-        sCanvas.addEventListener('mousemove', draw); 
-        window.addEventListener('mouseup', () => drawing = false); 
-        sCanvas.addEventListener('touchstart', (e) => { 
-            e.preventDefault(); 
-            drawing = true; 
-            lastX = e.touches[0].clientX; lastY = e.touches[0].clientY; // Init pos
-            sCtx.beginPath(); 
-            sCtx.moveTo(e.touches[0].clientX, e.touches[0].clientY); 
-        }); 
-        sCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); }); 
-        window.addEventListener('touchend', () => drawing = false);
-        
+        sCanvas.addEventListener('mousedown', (e) => { drawing = true; lastX = e.clientX; lastY = e.clientY; sCtx.beginPath(); sCtx.moveTo(e.clientX, e.clientY); }); sCanvas.addEventListener('mousemove', draw); window.addEventListener('mouseup', () => drawing = false); sCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing = true; lastX = e.touches[0].clientX; lastY = e.touches[0].clientY; sCtx.beginPath(); sCtx.moveTo(e.touches[0].clientX, e.touches[0].clientY); }); sCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); }); window.addEventListener('touchend', () => drawing = false);
         function clearSlate() { sCtx.clearRect(0,0,sCanvas.width, sCanvas.height); }
 
         /* --- COLORIAGE --- */
@@ -378,42 +349,56 @@
             cCtx.lineTo(x, y); cCtx.stroke(); cCtx.beginPath(); cCtx.moveTo(x, y);
         }
         cCanvas.addEventListener('mousedown', (e) => { coloring = true; cCtx.beginPath(); cCtx.moveTo(e.clientX, e.clientY); }); cCanvas.addEventListener('mousemove', drawColor); window.addEventListener('mouseup', () => coloring = false); cCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); coloring = true; cCtx.beginPath(); cCtx.moveTo(e.touches[0].clientX, e.touches[0].clientY); }); cCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); drawColor(e); }); window.addEventListener('touchend', () => coloring = false);
-        
-        function clearColoring() { 
-            cCtx.clearRect(0,0,cCanvas.width, cCanvas.height); 
-            document.getElementById('generated-coloring-image').style.display = 'none';
-            document.getElementById('coloring-layer').style.display = 'none';
-            document.getElementById('main-interface').classList.add('content-visible');
-            interactionMode = 'COLORING_INPUT'; 
-            document.getElementById('status').innerText = "Une autre idée ?";
-            speechQueue.push("D'accord, on change ! Que veux-tu colorier maintenant ?"); 
-            parler();
-        }
+        function clearColoring() { cCtx.clearRect(0,0,cCanvas.width, cCanvas.height); document.getElementById('generated-coloring-image').style.display = 'none'; document.getElementById('coloring-layer').style.display = 'none'; document.getElementById('main-interface').classList.add('content-visible'); interactionMode = 'COLORING_INPUT'; document.getElementById('status').innerText = "Une autre idée ?"; speechQueue.push("D'accord, on change ! Que veux-tu colorier maintenant ?"); parler(); }
+        async function genererColoriage(sujet) { const encoded = encodeURIComponent(`coloring page for kids, simple line art, black and white, white background, high contrast, ${sujet}`); const url = `https://image.pollinations.ai/prompt/${encoded}?width=1024&height=1024&nologo=true&seed=${Math.floor(Math.random()*9999)}`; const img = document.getElementById('generated-coloring-image'); img.onload = () => { document.getElementById('ai-thinking').classList.add('hidden'); document.getElementById('status').innerText = "À tes crayons !"; img.style.display = 'block'; speechQueue.push("Et voilà ton coloriage ! Tu peux dessiner dessus maintenant."); parler(); }; img.src = url; }
 
-        async function genererColoriage(sujet) {
-            const encoded = encodeURIComponent(`coloring page for kids, simple line art, black and white, white background, high contrast, ${sujet}`);
-            const url = `https://image.pollinations.ai/prompt/${encoded}?width=1024&height=1024&nologo=true&seed=${Math.floor(Math.random()*9999)}`;
+        /* --- MODE FASHION --- */
+        const fCanvas = document.getElementById('fashion-canvas'); const fCtx = fCanvas.getContext('2d');
+        let fashioning = false, fColor = '#ef4444', fBrush = 'tissue';
+        function initFashion() { 
+            fCanvas.width = window.innerWidth; fCanvas.height = window.innerHeight; fCtx.lineCap = 'round'; fCtx.lineJoin = 'round'; 
+            document.getElementById('fashion-mannequin-image').src = MANNEQUINS[currentMannequinIndex];
+        }
+        function changerMannequin() {
+            currentMannequinIndex = (currentMannequinIndex + 1) % MANNEQUINS.length;
+            document.getElementById('fashion-mannequin-image').src = MANNEQUINS[currentMannequinIndex];
+            // On n'efface pas forcément le dessin pour permettre de voir le vêtement sur l'autre modèle, ou on efface ?
+            // Disons qu'on efface pour faire propre.
+            clearFashion(false); 
+        }
+        function setFashionColor(c, btn) { fColor = c; fBrush = 'tissue'; document.querySelectorAll('#fashion-controls .color-picker').forEach(el => el.classList.remove('active')); btn.classList.add('active'); document.querySelectorAll('#fashion-controls .brush-btn').forEach(el => el.classList.remove('active')); document.querySelector('#fashion-controls .brush-btn[onclick*="tissue"]').classList.add('active'); }
+        function setFashionBrush(b, btn) { fBrush = b; document.querySelectorAll('#fashion-controls .brush-btn').forEach(el => el.classList.remove('active')); btn.classList.add('active'); }
+        function drawFashion(e) { if (!fashioning) return; const x = e.clientX || e.touches[0].clientX; const y = e.clientY || e.touches[0].clientY; 
+            fCtx.globalCompositeOperation = 'source-over';
+            if (fBrush === 'tissue') { fCtx.strokeStyle = fColor; fCtx.lineWidth = 20; fCtx.globalAlpha = 0.6; fCtx.shadowBlur = 0; }
+            else if (fBrush === 'glitter') { 
+                fCtx.globalAlpha = 1; fCtx.shadowBlur = 5; fCtx.shadowColor = 'white'; 
+                fCtx.fillStyle = fColor; fCtx.beginPath(); fCtx.arc(x + (Math.random()-0.5)*10, y + (Math.random()-0.5)*10, Math.random()*3, 0, Math.PI*2); fCtx.fill(); return; // Glitter is dots
+            }
+            else if (fBrush === 'eraser') { fCtx.globalCompositeOperation = 'destination-out'; fCtx.lineWidth = 30; fCtx.globalAlpha = 1; fCtx.shadowBlur = 0; }
             
-            const img = document.getElementById('generated-coloring-image');
-            img.onload = () => {
-                document.getElementById('ai-thinking').classList.add('hidden');
-                document.getElementById('status').innerText = "À tes crayons !";
-                img.style.display = 'block';
-                speechQueue.push("Et voilà ton coloriage ! Tu peux dessiner dessus maintenant."); parler();
-            };
-            img.src = url;
+            if (fBrush !== 'glitter') { fCtx.lineTo(x, y); fCtx.stroke(); fCtx.beginPath(); fCtx.moveTo(x, y); }
+        }
+        fCanvas.addEventListener('mousedown', (e) => { fashioning = true; fCtx.beginPath(); fCtx.moveTo(e.clientX, e.clientY); }); fCanvas.addEventListener('mousemove', drawFashion); window.addEventListener('mouseup', () => fashioning = false); fCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); fashioning = true; fCtx.beginPath(); fCtx.moveTo(e.touches[0].clientX, e.touches[0].clientY); }); fCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); drawFashion(e); }); window.addEventListener('touchend', () => fashioning = false);
+        function clearFashion(talk = true) { 
+            fCtx.clearRect(0,0,fCanvas.width, fCanvas.height); 
+            if(talk) {
+                speechQueue.push("On recommence ! Crée une nouvelle tenue."); parler(); 
+            }
         }
 
         function returnToMenu() {
             stopAudio();
             document.getElementById('slate-layer').style.display = 'none';
             document.getElementById('coloring-layer').style.display = 'none';
+            document.getElementById('fashion-layer').style.display = 'none';
             document.getElementById('main-interface').classList.remove('content-visible');
             document.getElementById('main-logo-story').classList.add('hidden');
             document.getElementById('main-logo-question').classList.add('hidden');
             document.getElementById('main-logo-chat').classList.add('hidden');
             document.getElementById('main-logo-coloring').classList.add('hidden');
             document.getElementById('main-logo-music').classList.add('hidden');
+            document.getElementById('main-logo-fashion').classList.add('hidden');
             document.getElementById('intro-overlay').style.display = 'flex';
             document.getElementById('spotify-container').classList.remove('active');
             document.getElementById('spotify-frame').src = "";
@@ -481,6 +466,19 @@
                     document.getElementById('coloring-layer').style.zIndex = "40"; 
                     initColoring(); 
                     lancerColoriageAleatoire();
+                }, 800);
+            }
+            else if (mode === 'FASHION') {
+                document.getElementById('intro-overlay').classList.add('intro-fade-out');
+                setTimeout(() => {
+                    document.getElementById('intro-overlay').style.display = 'none';
+                    document.getElementById('main-interface').classList.add('content-visible');
+                    document.getElementById('main-logo-fashion').classList.remove('hidden');
+                    document.getElementById('fashion-layer').style.display = 'block'; 
+                    document.getElementById('fashion-layer').style.zIndex = "40"; 
+                    initFashion(); 
+                    speechQueue.push("Bienvenue au studio de mode ! Amuse-toi à dessiner des vêtements.");
+                    parler();
                 }, 800);
             }
             else {
