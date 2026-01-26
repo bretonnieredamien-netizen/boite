@@ -42,7 +42,8 @@
 
         /* --- LAYERS (ARDOISE, COLORIAGE, MODE) --- */
         #slate-layer, #coloring-layer, #fashion-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 150; background: #0f172a; display: none; }
-        #coloring-layer, #fashion-layer { background: #ffffff; }
+        #coloring-layer { background: #ffffff; }
+        
         #slate-canvas, #color-canvas { width: 100%; height: 100%; cursor: crosshair; touch-action: none; position: absolute; top:0; left:0; z-index: 5; }
         
         #generated-coloring-image {
@@ -51,39 +52,37 @@
             pointer-events: none; mix-blend-mode: multiply; z-index: 2; opacity: 1;
         }
 
-        /* --- STUDIO MODE SPÉCIFIQUE (OPTIMISÉ MOBILE) --- */
+        /* --- STUDIO MODE SPÉCIFIQUE --- */
+        #fashion-layer { background: #111827; } /* Fond Noir demandé */
+        
         #fashion-workspace {
-            position: relative; width: 100%; height: 100%; overflow: hidden;
-            background: radial-gradient(circle at center, #fff 0%, #e0f2fe 100%);
-            touch-action: none; 
+            position: absolute; top: 0; left: 0; width: 100%; height: 85%; /* Laisse place au menu en bas */
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden; pointer-events: none; /* Pas d'interaction directe */
         }
-        #fashion-model-container {
-            position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%);
-            height: 75vh; width: auto; z-index: 1;
-            pointer-events: none; 
+
+        /* Le mannequin et les habits sont empilés exactement au même endroit */
+        .fashion-stack-item {
+            position: absolute;
+            height: 90%; 
+            width: auto;
+            max-width: 90%;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); /* Lueur douce */
+            transition: opacity 0.3s ease;
         }
-        #fashion-mannequin-image {
-            height: 100%; width: auto;
-            /* Ombre douce pour effet papier découpé */
-            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.15));
-        }
-        .draggable-clothing {
-            position: absolute; cursor: move; z-index: 10;
-            filter: drop-shadow(0 3px 6px rgba(0,0,0,0.2));
-            transition: transform 0.1s;
-            touch-action: none;
-        }
-        .draggable-clothing:active { transform: scale(1.05); filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3)); }
 
         .slate-controls { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 95%; max-width: 800px; display: flex; gap: 12px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(20px); padding: 12px 20px; border-radius: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); border: 1px solid rgba(255, 255, 255, 0.2); align-items: center; z-index: 160; overflow-x: auto; justify-content: flex-start; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
         #coloring-controls, #fashion-controls { background: rgba(255, 255, 255, 0.95); border: 1px solid #cbd5e1; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); }
         .slate-controls::-webkit-scrollbar { display: none; } 
         
-        /* Garde-robe STYLE MENU HORIZONTAL (Comme dessin) */
+        /* Garde-robe STYLE MENU HORIZONTAL */
         #fashion-controls {
             justify-content: flex-start; 
             padding-right: 20px;
-            height: 90px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.95);
         }
         
         #wardrobe-list {
@@ -94,17 +93,18 @@
         #wardrobe-list::-webkit-scrollbar { display: none; }
 
         .wardrobe-item {
-            flex-shrink: 0; width: 60px; height: 60px; 
-            background: #fff; border: 2px solid #e2e8f0; border-radius: 15px;
+            flex-shrink: 0; width: 70px; height: 70px; 
+            background: #fff; border: 2px solid #cbd5e1; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: relative; overflow: hidden;
         }
         .wardrobe-item:active { transform: scale(0.9); border-color: #6366f1; background: #e0e7ff; }
+        .wardrobe-item.selected { border-color: #ec4899; box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.3); }
         
-        /* FIX: Classe CSS spécifique pour l'image icone */
         .wardrobe-icon-img {
-            width: 85%; height: 85%; 
-            object-fit: contain; 
+            width: 100%; height: 100%; 
+            object-fit: cover; /* Remplit bien la bulle */
             pointer-events: none; 
         }
 
@@ -209,10 +209,13 @@
         <button class="nav-home-btn" onclick="returnToMenu()"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></button>
         
         <div id="fashion-workspace">
-            <div id="fashion-model-container">
-                <img id="fashion-mannequin-image" src="" alt="Modèle">
-            </div>
-            </div>
+            <img id="fashion-mannequin-base" class="fashion-stack-item" src="" alt="Modèle">
+            <img id="fashion-wear-bottom" class="fashion-stack-item" style="opacity:0">
+            <img id="fashion-wear-top" class="fashion-stack-item" style="opacity:0">
+            <img id="fashion-wear-full" class="fashion-stack-item" style="opacity:0">
+            <img id="fashion-wear-shoes" class="fashion-stack-item" style="opacity:0">
+            <img id="fashion-wear-hat" class="fashion-stack-item" style="opacity:0">
+        </div>
 
         <div id="fashion-controls" class="slate-controls">
             <button onclick="changerMannequin()" class="brush-btn active mr-3" style="background:white; color:#0891b2;" title="Changer de modèle">🔄</button>
@@ -223,7 +226,7 @@
                 </div>
 
             <div class="w-px h-8 bg-gray-300 mx-2 flex-shrink-0"></div>
-            <button onclick="clearFashionClothes()" class="brush-btn" style="color:#ef4444" title="Tout enlever">🗑️</button>
+            <button onclick="resetOutfit()" class="brush-btn" style="color:#ef4444" title="Tout enlever">🗑️</button>
         </div>
     </div>
 
@@ -314,11 +317,9 @@
         let chatHistory = []; 
 
         const MODEL_ID = "models/gemini-2.5-flash"; 
-        
-        // --- NOUVELLE VOIX PLUS RÉALISTE ---
         const AZURE_VOICE_NAME = "fr-FR-VivienneMultilingualNeural"; 
 
-        /* --- DISCOTHÈQUE GÉANTE SPOTIFY (PLAYLISTS & GENRES) --- */
+        /* --- SPOTIFY (PLAYLISTS) --- */
         const SPOTIFY_DB = {
             'POP': '37i9dQZF1DXcBWIGoYBM5M', 'DISNEY': '37i9dQZF1DX8C9xQcOrE6T', 'FILM': '37i9dQZF1DX8C9xQcOrE6T', 'VOITURE': '37i9dQZF1DWWHQM6sW8kDQ',
             'GUITARE': '37i9dQZF1DWZK4p8GZlQhW', 'GUITARE_ELEC': '37i9dQZF1DWWzBc3TOlaAV', 'PIANO': '37i9dQZF1DWUvHZA1zLcjW', 'VIOLON': '37i9dQZF1DWV7EzJMK2FUI', 'BATTERIE': '37i9dQZF1DWXJKyK5MgDWz', 'TROMPETTE': '37i9dQZF1DX6f3J34J8j5p',
@@ -328,64 +329,74 @@
             'PLUIE': '37i9dQZF1DX8gym7ONOGCa', 'OCEAN': '37i9dQZF1DX4PP3kddpbma', 'FORET': '37i9dQZF1DWX83CujKHHbD', 'ANIMAUX': '37i9dQZF1DWWHQX5fP7a70', 'JUNGLE': '37i9dQZF1DWWHQX5fP7a70'
         };
 
-        /* --- MODELE DE MANNEQUINS & VÊTEMENTS (SVG DETAILLES / ANATOMIQUES) --- */
+        /* --- STUDIO MODE : DATA SVG (VIEWBOX 400x800 pour tous) --- */
+        // Ces SVG sont conçus pour se superposer parfaitement (même ViewBox)
         
-        // CORPS FILLE RÉALISTE (Visage, Doigts, Pieds)
-        const BODY_GIRL_SVG = `<svg viewBox="0 0 400 800" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
-            <g stroke="#000" stroke-width="2" fill="white" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M150,140 Q130,140 130,100 Q130,50 200,50 Q270,50 270,100 Q270,140 250,140 Q250,170 200,170 Q150,170 150,140"/>
-                <path d="M130,100 Q120,50 200,30 Q280,50 270,100 Q290,120 300,180 Q290,200 270,180" fill="none"/>
-                <path d="M130,100 Q110,120 100,180 Q110,200 130,180" fill="none"/>
-                <circle cx="175" cy="110" r="3" fill="black"/> <circle cx="225" cy="110" r="3" fill="black"/> <path d="M195,120 L200,125 L205,120" fill="none" stroke-width="1.5"/> <path d="M180,145 Q200,155 220,145" fill="none" stroke-width="1.5"/> <path d="M185,170 L185,190 Q150,200 140,230 M215,170 L215,190 Q250,200 260,230"/>
-                
-                <path d="M140,230 L130,350 L110,400"/>
-                <path d="M110,400 L105,415 M110,400 L110,418 M110,400 L115,418 M110,400 L120,415 M110,400 L100,410"/> <path d="M260,230 L270,350 L290,400"/>
-                <path d="M290,400 L295,415 M290,400 L290,418 M290,400 L285,418 M290,400 L280,415 M290,400 L300,410"/> <path d="M140,230 Q140,350 150,400 L150,420 L250,420 L250,400 Q260,350 260,230"/>
-                <path d="M150,420 L200,430 L250,420"/> <path d="M150,420 L155,600 L145,750 L180,750 L190,600 L195,430"/> <path d="M250,420 L245,600 L255,750 L220,750 L210,600 L205,430"/> <path d="M145,750 Q140,770 160,770 Q180,770 180,750"/>
-                <path d="M255,750 Q260,770 240,770 Q220,770 220,750"/>
-            </g>
-        </svg>`;
+        // 1. MANNEQUINS
+        const AVATAR_BOY = `<svg viewBox="0 0 400 800" xmlns="http://www.w3.org/2000/svg"><g stroke="white" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M130,220 L120,340 L110,390 M110,390 L100,405 M110,390 L105,410 M110,390 L115,410 M110,390 L120,405" /><path d="M270,220 L280,340 L290,390 M290,390 L300,405 M290,390 L295,410 M290,390 L285,410 M290,390 L280,405"/><path d="M140,420 L145,600 L140,750 L180,750 L185,600 L190,430"/><path d="M260,420 L255,600 L260,750 L220,750 L215,600 L210,430"/><path d="M130,220 L140,420 L260,420 L270,220"/><path d="M180,160 L170,180 Q140,190 130,220 M220,160 L230,180 Q260,190 270,220"/><path d="M150,130 Q130,130 130,90 Q130,40 200,40 Q270,40 270,90 Q270,130 250,130 Q250,160 200,160 Q150,160 150,130"/><path d="M130,90 Q140,30 200,20 Q260,30 270,90"/><circle cx="175" cy="100" r="3" fill="white"/> <circle cx="225" cy="100" r="3" fill="white"/><path d="M195,110 L200,115 L205,110"/><path d="M180,135 Q200,150 220,135"/></g></svg>`;
+        
+        const AVATAR_GIRL = `<svg viewBox="0 0 400 800" xmlns="http://www.w3.org/2000/svg"><g stroke="white" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M140,230 L130,350 L110,400 M110,400 L105,415 M110,400 L110,418 M110,400 L115,418 M110,400 L120,415 M110,400 L100,410"/><path d="M260,230 L270,350 L290,400 M290,400 L295,415 M290,400 L290,418 M290,400 L285,418 M290,400 L280,415 M290,400 L300,410"/><path d="M150,420 L155,600 L145,750 L180,750 L190,600 L195,430"/><path d="M250,420 L245,600 L255,750 L220,750 L210,600 L205,430"/><path d="M140,230 Q140,350 150,400 L150,420 L250,420 L250,400 Q260,350 260,230"/><path d="M185,170 L185,190 Q150,200 140,230 M215,170 L215,190 Q250,200 260,230"/><path d="M150,140 Q130,140 130,100 Q130,50 200,50 Q270,50 270,100 Q270,140 250,140 Q250,170 200,170 Q150,170 150,140"/><path d="M130,100 Q120,50 200,30 Q280,50 270,100 Q290,120 300,180 Q290,200 270,180"/><circle cx="175" cy="110" r="3" fill="white"/> <circle cx="225" cy="110" r="3" fill="white"/><path d="M195,120 L200,125 L205,120"/><path d="M180,145 Q200,160 220,145"/></g></svg>`;
 
-        // CORPS GARÇON RÉALISTE
-        const BODY_BOY_SVG = `<svg viewBox="0 0 400 800" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
-            <g stroke="#000" stroke-width="2" fill="white" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M150,130 Q130,130 130,90 Q130,40 200,40 Q270,40 270,90 Q270,130 250,130 Q250,160 200,160 Q150,160 150,130"/>
-                <path d="M130,90 Q140,30 200,20 Q260,30 270,90" fill="none"/>
-                <circle cx="175" cy="100" r="3" fill="black"/> <circle cx="225" cy="100" r="3" fill="black"/>
-                <path d="M195,110 L200,115 L205,110" fill="none" stroke-width="1.5"/>
-                <path d="M185,135 Q200,140 215,135" fill="none" stroke-width="1.5"/>
-
-                <path d="M180,160 L170,180 Q140,190 130,220 M220,160 L230,180 Q260,190 270,220"/>
-
-                <path d="M130,220 L120,340 L110,390"/>
-                <path d="M110,390 L100,405 M110,390 L105,410 M110,390 L115,410 M110,390 L120,405"/> <path d="M270,220 L280,340 L290,390"/>
-                <path d="M290,390 L300,405 M290,390 L295,410 M290,390 L285,410 M290,390 L280,405"/> <path d="M130,220 L140,420 L260,420 L270,220"/> 
-                <path d="M140,420 L200,430 L260,420"/> <path d="M140,420 L145,600 L140,750 L180,750 L185,600 L190,430"/>
-                <path d="M260,420 L255,600 L260,750 L220,750 L215,600 L210,430"/>
-
-                <path d="M140,750 Q135,770 160,770 Q180,770 180,750"/>
-                <path d="M260,750 Q265,770 240,770 Q220,770 220,750"/>
-            </g>
-        </svg>`;
-
-        const MANNEQUINS = [BODY_BOY_SVG, BODY_GIRL_SVG];
+        const MANNEQUINS = [AVATAR_BOY, AVATAR_GIRL];
         let currentMannequinIndex = 0;
 
-        // VÊTEMENTS (SVG Ajustés)
-        const CLOTHES = [
-            // T-shirts
-            { id: 't1', type: 'top', src: `<svg viewBox="0 0 400 800" xmlns="http://www.w3.org/2000/svg"><path d="M130,220 L185,220 L215,220 L270,220 L290,280 L260,290 L260,430 L140,430 L140,290 L110,280 Z" fill="white" stroke="black" stroke-width="3"/></svg>` }, 
-            { id: 't2', type: 'top', src: `<svg viewBox="0 0 400 800" xmlns="http://www.w3.org/2000/svg"><path d="M130,220 L270,220 L290,280 L260,290 L260,430 L140,430 L140,290 L110,280 Z" fill="%23bfdbfe" stroke="black" stroke-width="3"/><circle cx="200" cy="300" r="20" fill="none" stroke="black" stroke-width="2"/></svg>` }, 
-            // Bas
-            { id: 'b1', type: 'bottom', src: `<svg viewBox="0 0 400 800" xmlns="http://www.w3.org/2000/svg"><path d="M140,420 L260,420 L270,650 L220,650 L200,500 L180,650 L130,650 Z" fill="white" stroke="black" stroke-width="3"/></svg>` }, 
-            { id: 'b2', type: 'bottom', src: `<svg viewBox="0 0 400 800" xmlns="http://www.w3.org/2000/svg"><path d="M140,420 L260,420 L280,550 L120,550 Z" fill="white" stroke="black" stroke-width="3"/><line x1="140" y1="420" x2="120" y2="550" stroke="black"/><line x1="260" y1="420" x2="280" y2="550" stroke="black"/></svg>` }, 
-            // Robes
-            { id: 'f1', type: 'full', src: `<svg viewBox="0 0 400 800" xmlns="http://www.w3.org/2000/svg"><path d="M140,230 L260,230 L280,580 L120,580 Z" fill="white" stroke="black" stroke-width="3"/></svg>` },
-            // Shoes
-            { id: 's1', type: 'shoes', src: `<svg viewBox="0 0 400 800" xmlns="http://www.w3.org/2000/svg"><path d="M135,750 Q130,780 160,780 Q185,780 185,750 Z" fill="white" stroke="black" stroke-width="3"/><path d="M265,750 Q270,780 240,780 Q215,780 215,750 Z" fill="white" stroke="black" stroke-width="3"/></svg>` },
-            // Hat
-            { id: 'h1', type: 'hat', src: `<svg viewBox="0 0 400 800" xmlns="http://www.w3.org/2000/svg"><path d="M120,80 L280,80 L260,30 L140,30 Z" fill="white" stroke="black" stroke-width="3"/><rect x="130" y="75" width="140" height="5" fill="black"/></svg>` }
-        ];
+        // GENERATEUR DE VÊTEMENTS (Fonction pour créer des variations de couleurs/motifs)
+        // Tous les SVG de vêtements utilisent le même ViewBox 400x800 pour "s'aimanter" parfaitement.
+        
+        function createClothes() {
+            const colors = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#ffffff'];
+            const patterns = [
+                { name: 'uni', def: '' },
+                { name: 'rayures', def: '<pattern id="p_stripe" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M0,10 L10,0 M-2,2 L2,-2 M8,12 L12,8" stroke="rgba(0,0,0,0.1)" stroke-width="2"/></pattern>', fillUrl: 'url(#p_stripe)' },
+                { name: 'pois', def: '<pattern id="p_dot" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="2" fill="rgba(0,0,0,0.2)"/></pattern>', fillUrl: 'url(#p_dot)' }
+            ];
+
+            let items = [];
+
+            // 1. T-SHIRTS (Boy/Girl compatible)
+            colors.forEach(c => {
+                items.push({ 
+                    type: 'top', 
+                    svg: `<svg viewBox="0 0 400 800" xmlns="http://www.w3.org/2000/svg"><path d="M130,220 L270,220 L290,280 L260,290 L260,430 L140,430 L140,290 L110,280 Z" fill="${c}" stroke="white" stroke-width="3"/></svg>` 
+                });
+            });
+
+            // 2. ROBES (Girl)
+            colors.slice(4).forEach(c => { // Couleurs plus "fille" pour l'exemple
+                items.push({ 
+                    type: 'full', 
+                    svg: `<svg viewBox="0 0 400 800" xmlns="http://www.w3.org/2000/svg"><path d="M140,230 L260,230 L280,580 L120,580 Z" fill="${c}" stroke="white" stroke-width="3"/></svg>` 
+                });
+            });
+
+            // 3. PANTALONS
+            ['#1e3a8a', '#374151', '#78350f'].forEach(c => {
+                items.push({ 
+                    type: 'bottom', 
+                    svg: `<svg viewBox="0 0 400 800" xmlns="http://www.w3.org/2000/svg"><path d="M140,420 L260,420 L270,650 L220,650 L200,500 L180,650 L130,650 Z" fill="${c}" stroke="white" stroke-width="3"/></svg>` 
+                });
+            });
+
+            // 4. JUPES
+            ['#ec4899', '#8b5cf6', '#ef4444'].forEach(c => {
+                items.push({ 
+                    type: 'bottom', 
+                    svg: `<svg viewBox="0 0 400 800" xmlns="http://www.w3.org/2000/svg"><path d="M140,420 L260,420 L280,550 L120,550 Z" fill="${c}" stroke="white" stroke-width="3"/></svg>` 
+                });
+            });
+
+            // 5. CHAUSSURES
+            items.push({ type: 'shoes', svg: `<svg viewBox="0 0 400 800" xmlns="http://www.w3.org/2000/svg"><path d="M135,750 Q130,780 160,780 Q185,780 185,750 Z" fill="white" stroke="white" stroke-width="2"/><path d="M265,750 Q270,780 240,780 Q215,780 215,750 Z" fill="white" stroke="white" stroke-width="2"/></svg>` }); // Blanc
+            items.push({ type: 'shoes', svg: `<svg viewBox="0 0 400 800" xmlns="http://www.w3.org/2000/svg"><path d="M135,750 Q130,780 160,780 Q185,780 185,750 Z" fill="#333" stroke="white" stroke-width="2"/><path d="M265,750 Q270,780 240,780 Q215,780 215,750 Z" fill="#333" stroke="white" stroke-width="2"/></svg>` }); // Noir
+
+            // 6. CHAPEAUX
+            items.push({ type: 'hat', svg: `<svg viewBox="0 0 400 800" xmlns="http://www.w3.org/2000/svg"><path d="M120,80 L280,80 L260,30 L140,30 Z" fill="#ef4444" stroke="white" stroke-width="3"/></svg>` });
+            items.push({ type: 'hat', svg: `<svg viewBox="0 0 400 800" xmlns="http://www.w3.org/2000/svg"><path d="M110,90 L290,90 L250,40 L150,40 Z" fill="#f59e0b" stroke="white" stroke-width="3"/></svg>` });
+
+            return items;
+        }
+
+        const WARDROBE_ITEMS = createClothes();
 
         /* --- ARDOISE NOIRE --- */
         const sCanvas = document.getElementById('slate-canvas'); const sCtx = sCanvas.getContext('2d');
@@ -449,92 +460,76 @@
         function clearColoring() { cCtx.clearRect(0,0,cCanvas.width, cCanvas.height); document.getElementById('generated-coloring-image').style.display = 'none'; document.getElementById('coloring-layer').style.display = 'none'; document.getElementById('main-interface').classList.add('content-visible'); interactionMode = 'COLORING_INPUT'; document.getElementById('status').innerText = "Une autre idée ?"; speechQueue.push("D'accord, on change ! Que veux-tu colorier maintenant ?"); parler(); }
         async function genererColoriage(sujet) { const encoded = encodeURIComponent(`coloring page for kids, simple line art, black and white, white background, high contrast, ${sujet}`); const url = `https://image.pollinations.ai/prompt/${encoded}?width=1024&height=1024&nologo=true&seed=${Math.floor(Math.random()*9999)}`; const img = document.getElementById('generated-coloring-image'); img.onload = () => { document.getElementById('ai-thinking').classList.add('hidden'); document.getElementById('status').innerText = "À tes crayons !"; img.style.display = 'block'; speechQueue.push("Et voilà ton coloriage ! Tu peux dessiner dessus maintenant."); parler(); }; img.src = url; }
 
-        /* --- MODE FASHION (DRAG & DROP) --- */
-        let draggedItem = null;
-        let offset = { x: 0, y: 0 };
-
+        /* --- MODE FASHION (MAGNETIC SYSTEM) --- */
+        
         function initFashion() {
-            // Utilisation de Base64 pour éviter les erreurs d'affichage
-            document.getElementById('fashion-mannequin-image').src = "data:image/svg+xml;base64," + btoa(MANNEQUINS[currentMannequinIndex]);
+            // Affiche le mannequin de base
+            document.getElementById('fashion-mannequin-base').src = "data:image/svg+xml;base64," + btoa(MANNEQUINS[currentMannequinIndex]);
             
+            // Génère la liste de vêtements
             const wardrobe = document.getElementById('wardrobe-list');
             wardrobe.innerHTML = '';
-            CLOTHES.forEach(c => {
-                const item = document.createElement('div');
-                item.className = 'wardrobe-item';
-                // Insertion sécurisée de l'image
-                const imgBase64 = "data:image/svg+xml;base64," + btoa(c.src);
-                item.innerHTML = `<img src="${imgBase64}" class="wardrobe-icon-img">`;
-                item.onclick = () => addClothingToModel(c);
-                wardrobe.appendChild(item);
+            
+            WARDROBE_ITEMS.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'wardrobe-item';
+                // L'image de l'icone
+                const imgBase64 = "data:image/svg+xml;base64," + btoa(item.svg);
+                div.innerHTML = `<img src="${imgBase64}" class="wardrobe-icon-img">`;
+                
+                div.onclick = () => {
+                    // Feedback visuel
+                    document.querySelectorAll('.wardrobe-item').forEach(el => el.classList.remove('selected'));
+                    div.classList.add('selected');
+                    // Porter le vêtement
+                    wearItem(item);
+                };
+                wardrobe.appendChild(div);
             });
         }
 
         function changerMannequin() {
             currentMannequinIndex = (currentMannequinIndex + 1) % MANNEQUINS.length;
-            document.getElementById('fashion-mannequin-image').src = "data:image/svg+xml;base64," + btoa(MANNEQUINS[currentMannequinIndex]);
+            document.getElementById('fashion-mannequin-base').src = "data:image/svg+xml;base64," + btoa(MANNEQUINS[currentMannequinIndex]);
         }
 
-        function addClothingToModel(clothingData) {
-            const workspace = document.getElementById('fashion-workspace');
-            const img = document.createElement('img');
-            img.src = "data:image/svg+xml;base64," + btoa(clothingData.src);
-            img.className = 'draggable-clothing';
+        function wearItem(item) {
+            // C'est ici la magie du ViewBox partagé : on remplace juste la source de l'image calque correspondante
+            // et elle s'affiche parfaitement superposée au corps.
+            let targetId = '';
+            if (item.type === 'top') targetId = 'fashion-wear-top';
+            else if (item.type === 'bottom') targetId = 'fashion-wear-bottom';
+            else if (item.type === 'full') { targetId = 'fashion-wear-full'; }
+            else if (item.type === 'shoes') targetId = 'fashion-wear-shoes';
+            else if (item.type === 'hat') targetId = 'fashion-wear-hat';
+
+            const imgEl = document.getElementById(targetId);
             
-            // Taille auto-adaptative (hauteur du container modèle)
-            const modelHeight = document.getElementById('fashion-model-container').clientHeight;
-            img.style.height = modelHeight + 'px'; 
-            img.style.width = 'auto';
-
-            // Position de départ (au milieu du container modèle)
-            img.style.left = '50%';
-            img.style.top = '42%'; 
-            img.style.transform = 'translate(-50%, -50%)';
-
-            // Gestion Drag & Drop
-            const startDrag = (e) => {
-                e.preventDefault();
-                draggedItem = img;
-                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                const rect = img.getBoundingClientRect();
-                offset.x = clientX - rect.left;
-                offset.y = clientY - rect.top;
-                img.style.transform = 'none';
-                img.style.left = rect.left + 'px';
-                img.style.top = rect.top + 'px';
-                img.style.cursor = 'grabbing';
-            };
-
-            img.addEventListener('mousedown', startDrag);
-            img.addEventListener('touchstart', startDrag);
-            workspace.appendChild(img);
+            // Gestion logique (Si on met une robe, on enlève le haut et le bas)
+            if (item.type === 'full') {
+                document.getElementById('fashion-wear-top').style.opacity = 0;
+                document.getElementById('fashion-wear-bottom').style.opacity = 0;
+                imgEl.src = "data:image/svg+xml;base64," + btoa(item.svg);
+                imgEl.style.opacity = 1;
+            } 
+            else if (item.type === 'top' || item.type === 'bottom') {
+                document.getElementById('fashion-wear-full').style.opacity = 0; // On enlève la robe
+                imgEl.src = "data:image/svg+xml;base64," + btoa(item.svg);
+                imgEl.style.opacity = 1;
+            }
+            else {
+                // Chaussures / Chapeau
+                imgEl.src = "data:image/svg+xml;base64," + btoa(item.svg);
+                imgEl.style.opacity = 1;
+            }
         }
 
-        const moveDrag = (e) => {
-            if (!draggedItem) return;
-            e.preventDefault();
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            draggedItem.style.left = (clientX - offset.x) + 'px';
-            draggedItem.style.top = (clientY - offset.y) + 'px';
-        };
-
-        const endDrag = () => {
-            if (draggedItem) draggedItem.style.cursor = 'move';
-            draggedItem = null;
-        };
-
-        window.addEventListener('mousemove', moveDrag);
-        window.addEventListener('touchmove', moveDrag, {passive: false});
-        window.addEventListener('mouseup', endDrag);
-        window.addEventListener('touchend', endDrag);
-
-        function clearFashionClothes() {
-            const workspace = document.getElementById('fashion-workspace');
-            const clothes = workspace.querySelectorAll('.draggable-clothing');
-            clothes.forEach(el => el.remove());
-            speechQueue.push("Tout est rangé ! On recommence ?"); parler();
+        function resetOutfit() {
+            ['fashion-wear-top', 'fashion-wear-bottom', 'fashion-wear-full', 'fashion-wear-shoes', 'fashion-wear-hat'].forEach(id => {
+                document.getElementById(id).style.opacity = 0;
+            });
+            document.querySelectorAll('.wardrobe-item').forEach(el => el.classList.remove('selected'));
+            speechQueue.push("Tout propre ! On recommence."); parler();
         }
 
         function returnToMenu() {
