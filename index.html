@@ -51,42 +51,58 @@
             pointer-events: none; mix-blend-mode: multiply; z-index: 2; opacity: 1;
         }
 
-        /* --- STUDIO MODE SPÉCIFIQUE --- */
+        /* --- STUDIO MODE SPÉCIFIQUE (MOBILE OPTIMIZED) --- */
         #fashion-workspace {
             position: relative; width: 100%; height: 100%; overflow: hidden;
             background: radial-gradient(circle at center, #fff 0%, #f0f9ff 100%);
+            touch-action: none; /* Empêche le scroll natif */
         }
         #fashion-model-container {
-            position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%);
-            height: 75vh; width: auto; z-index: 1;
-            pointer-events: none; /* L'enfant ne clique pas sur le corps */
+            position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            height: 65vh; width: auto; z-index: 1;
+            pointer-events: none; 
+        }
+        #fashion-mannequin-image {
+            height: 100%; width: auto;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.15));
         }
         .draggable-clothing {
             position: absolute; cursor: move; z-index: 10;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
             transition: transform 0.1s;
             touch-action: none;
         }
-        .draggable-clothing:active { transform: scale(1.1); filter: drop-shadow(0 8px 12px rgba(0,0,0,0.2)); }
+        .draggable-clothing:active { transform: scale(1.1); filter: drop-shadow(0 15px 25px rgba(0,0,0,0.3)); }
 
         .slate-controls { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 95%; max-width: 800px; display: flex; gap: 12px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(20px); padding: 12px 20px; border-radius: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); border: 1px solid rgba(255, 255, 255, 0.2); align-items: center; z-index: 160; overflow-x: auto; justify-content: flex-start; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
         #coloring-controls, #fashion-controls { background: rgba(255, 255, 255, 0.95); border: 1px solid #cbd5e1; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); }
         .slate-controls::-webkit-scrollbar { display: none; } 
         
+        /* Garde-robe optimisée mobile */
+        #fashion-controls {
+            bottom: 10px; /* Plus bas */
+            padding: 10px;
+            height: 100px; /* Hauteur fixe pour éviter les surprises */
+            align-items: center;
+        }
+        #wardrobe-list {
+            display: flex; gap: 10px; overflow-x: auto; 
+            padding-right: 20px; align-items: center; height: 100%;
+            -webkit-overflow-scrolling: touch;
+        }
+        .wardrobe-item {
+            flex-shrink: 0; width: 70px; height: 70px; 
+            background: #fff; border: 2px solid #e2e8f0; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .wardrobe-item:active { transform: scale(0.9); border-color: #6366f1; background: #e0e7ff; }
+        .wardrobe-item img { max-width: 90%; max-height: 90%; pointer-events: none; }
+
         .brush-btn { flex-shrink: 0; width: 48px; height: 48px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; transition: 0.2s; background: rgba(255,255,255,0.1); color: white; }
         #coloring-controls .brush-btn { background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0; }
         .brush-btn.active { border-color: #6366f1; transform: scale(1.1); background: white; color: #1e293b; box-shadow: 0 0 15px rgba(99,102,241,0.5); }
         
-        /* Boutons de la garde-robe */
-        .wardrobe-item {
-            flex-shrink: 0; width: 60px; height: 60px; 
-            background: #fff; border: 2px solid #e2e8f0; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: all 0.2s;
-        }
-        .wardrobe-item:hover { transform: scale(1.1); border-color: #6366f1; }
-        .wardrobe-item img { max-width: 90%; max-height: 90%; }
-
         .color-picker { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.5); cursor: pointer; transition: 0.2s; }
         #coloring-controls .color-picker { border: 2px solid #cbd5e1; }
         .color-picker.active { transform: scale(1.3); border-color: white; box-shadow: 0 0 10px white; }
@@ -184,17 +200,19 @@
         <button class="nav-home-btn" onclick="returnToMenu()"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></button>
         
         <div id="fashion-workspace">
-            <img id="fashion-mannequin-image" src="" alt="Modèle">
+            <div id="fashion-model-container">
+                <img id="fashion-mannequin-image" src="" alt="Modèle">
+            </div>
             </div>
 
         <div id="fashion-controls" class="slate-controls">
-            <button onclick="changerMannequin()" class="slate-action mr-4" style="background:#cffafe; color:#0891b2">Changer Modèle</button>
+            <button onclick="changerMannequin()" class="slate-action mr-4" style="background:#cffafe; color:#0891b2; font-size: 1.2rem;">🔄</button>
             
-            <div id="wardrobe-list" class="flex gap-2 mr-4 overflow-x-auto items-center">
+            <div id="wardrobe-list">
                 </div>
 
             <div class="w-px h-8 bg-gray-300 mx-2 flex-shrink-0"></div>
-            <button onclick="clearFashionClothes()" class="slate-action">Tout Enlever</button>
+            <button onclick="clearFashionClothes()" class="slate-action">🗑️</button>
         </div>
     </div>
 
@@ -299,23 +317,29 @@
             'PLUIE': '37i9dQZF1DX8gym7ONOGCa', 'OCEAN': '37i9dQZF1DX4PP3kddpbma', 'FORET': '37i9dQZF1DWX83CujKHHbD', 'ANIMAUX': '37i9dQZF1DWWHQX5fP7a70', 'JUNGLE': '37i9dQZF1DWWHQX5fP7a70'
         };
 
-        /* --- MODELE DE MANNEQUINS & VÊTEMENTS (SVG) --- */
-        // AVATARS REALISTES CARTOON
-        const AVATAR_BOY = `data:image/svg+xml;utf8,<svg viewBox="0 0 300 600" xmlns="http://www.w3.org/2000/svg"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><path d="M150,120 C170,120 185,100 185,75 C185,50 170,30 150,30 C130,30 115,50 115,75 C115,100 130,120 150,120 Z" fill="%23f5d0b5"/><path d="M150,30 C130,30 115,40 115,60 C115,40 130,20 150,20 C170,20 185,40 185,60 C185,40 170,30 150,30 Z" fill="%235d4037"/><path d="M125,120 L175,120 L185,250 L200,400 L180,580 L150,550 L120,580 L100,400 L115,250 Z" fill="%23f5d0b5"/><path d="M115,250 L185,250 L185,290 L115,290 Z" fill="%23fff"/></g></svg>`;
-        const AVATAR_GIRL = `data:image/svg+xml;utf8,<svg viewBox="0 0 300 600" xmlns="http://www.w3.org/2000/svg"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><path d="M150,115 C165,115 180,100 180,75 C180,50 165,35 150,35 C135,35 120,50 120,75 C120,100 135,115 150,115 Z" fill="%23f5d0b5"/><path d="M150,35 C130,35 110,60 110,100 L110,130 C110,140 130,140 130,130 L130,80 C130,50 170,50 170,80 L170,130 C170,140 190,140 190,130 L190,100 C190,60 170,35 150,35 Z" fill="%23fdd835"/><path d="M130,115 L170,115 L180,240 L195,400 L175,580 L150,550 L125,580 L105,400 L120,240 Z" fill="%23f5d0b5"/><path d="M120,240 L180,240 L175,280 L125,280 Z" fill="%23fff"/><path d="M130,120 L170,120 L170,150 L130,150 Z" fill="%23fff"/></g></svg>`;
+        /* --- MODELE DE MANNEQUINS & VÊTEMENTS (SVG HAUTE DÉFINITION) --- */
+        // AVATAR GARÇON (Cartoon réaliste)
+        const AVATAR_BOY = `data:image/svg+xml;utf8,<svg viewBox="0 0 300 600" xmlns="http://www.w3.org/2000/svg"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><path d="M150,110 C170,110 185,90 185,65 C185,40 170,20 150,20 C130,20 115,40 115,65 C115,90 130,110 150,110 Z" fill="%23f5d0b5"/><path d="M150,20 C130,20 120,30 115,50 C115,30 130,10 150,10 C170,10 185,30 185,50 C180,30 170,20 150,20 Z" fill="%235d4037"/><path d="M125,110 L175,110 L190,230 L200,400 L180,580 L150,550 L120,580 L100,400 L110,230 Z" fill="%23f5d0b5"/><path d="M110,230 L190,230 L190,270 L110,270 Z" fill="%23fff" opacity="0.8"/></g></svg>`;
+        
+        // AVATAR FILLE (Cartoon réaliste)
+        const AVATAR_GIRL = `data:image/svg+xml;utf8,<svg viewBox="0 0 300 600" xmlns="http://www.w3.org/2000/svg"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><path d="M150,110 C165,110 180,95 180,70 C180,45 165,30 150,30 C135,30 120,45 120,70 C120,95 135,110 150,110 Z" fill="%23f5d0b5"/><path d="M150,30 C130,30 110,55 110,95 L110,140 C110,150 130,150 130,140 L130,90 C130,60 170,60 170,90 L170,140 C170,150 190,150 190,140 L190,95 C190,55 170,30 150,30 Z" fill="%23fdd835"/><path d="M130,110 L170,110 L185,230 L195,400 L175,580 L150,550 L125,580 L105,400 L115,230 Z" fill="%23f5d0b5"/><path d="M115,230 L185,230 L180,270 L120,270 Z" fill="%23fff" opacity="0.8"/><path d="M130,115 L170,115 L170,145 L130,145 Z" fill="%23fff" opacity="0.8"/></g></svg>`;
 
         const MANNEQUINS = [AVATAR_BOY, AVATAR_GIRL];
         let currentMannequinIndex = 0;
 
-        // VÊTEMENTS (SVG simples)
+        // VÊTEMENTS (SVG Ajustés pour les corps ci-dessus)
         const CLOTHES = [
-            { id: 'c1', type: 'top', src: `data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M20,20 L80,20 L90,50 L70,50 L70,90 L30,90 L30,50 L10,50 Z" fill="%23ef4444" stroke="black" stroke-width="2"/></svg>` }, // T-shirt Rouge
-            { id: 'c2', type: 'top', src: `data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M20,20 L80,20 L90,50 L70,50 L70,90 L30,90 L30,50 L10,50 Z" fill="%233b82f6" stroke="black" stroke-width="2"/></svg>` }, // T-shirt Bleu
-            { id: 'c3', type: 'bottom', src: `data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M20,10 L80,10 L85,90 L55,90 L50,40 L45,90 L15,90 Z" fill="%231e3a8a" stroke="black" stroke-width="2"/></svg>` }, // Jeans
-            { id: 'c4', type: 'bottom', src: `data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M20,10 L80,10 L95,80 L5,80 Z" fill="%23ec4899" stroke="black" stroke-width="2"/></svg>` }, // Jupe Rose
-            { id: 'c5', type: 'full', src: `data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M30,10 L70,10 L80,40 L70,40 L90,90 L10,90 L30,40 L20,40 Z" fill="%23a855f7" stroke="black" stroke-width="2"/></svg>` }, // Robe Violette
-            { id: 'c6', type: 'shoes', src: `data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><ellipse cx="30" cy="50" rx="20" ry="10" fill="black"/><ellipse cx="70" cy="50" rx="20" ry="10" fill="black"/></svg>` }, // Chaussures Noires
-            { id: 'c7', type: 'hat', src: `data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M10,60 L90,60 L90,50 L70,50 L70,20 L30,20 L30,50 L10,50 Z" fill="%2322c55e" stroke="black" stroke-width="2"/></svg>` }, // Chapeau Vert
+            // Tops
+            { id: 't1', type: 'top', src: `data:image/svg+xml;utf8,<svg viewBox="0 0 300 600" xmlns="http://www.w3.org/2000/svg"><path d="M120,110 L180,110 L200,160 L180,160 L180,240 L120,240 L120,160 L100,160 Z" fill="%23ef4444" stroke="none"/></svg>` }, 
+            { id: 't2', type: 'top', src: `data:image/svg+xml;utf8,<svg viewBox="0 0 300 600" xmlns="http://www.w3.org/2000/svg"><path d="M120,110 L180,110 L200,160 L180,160 L180,240 L120,240 L120,160 L100,160 Z" fill="%233b82f6" stroke="none"/></svg>` }, 
+            // Bottoms
+            { id: 'b1', type: 'bottom', src: `data:image/svg+xml;utf8,<svg viewBox="0 0 300 600" xmlns="http://www.w3.org/2000/svg"><path d="M115,230 L185,230 L190,400 L160,400 L150,280 L140,400 L110,400 Z" fill="%231e3a8a" stroke="none"/></svg>` }, 
+            { id: 'b2', type: 'bottom', src: `data:image/svg+xml;utf8,<svg viewBox="0 0 300 600" xmlns="http://www.w3.org/2000/svg"><path d="M120,230 L180,230 L200,350 L100,350 Z" fill="%23ec4899" stroke="none"/></svg>` }, 
+            // Robes
+            { id: 'f1', type: 'full', src: `data:image/svg+xml;utf8,<svg viewBox="0 0 300 600" xmlns="http://www.w3.org/2000/svg"><path d="M130,115 L170,115 L180,230 L210,380 L90,380 L120,230 Z" fill="%23a855f7" stroke="none" opacity="0.9"/></svg>` },
+            // Accessoires
+            { id: 'a1', type: 'shoes', src: `data:image/svg+xml;utf8,<svg viewBox="0 0 300 600" xmlns="http://www.w3.org/2000/svg"><ellipse cx="125" cy="580" rx="15" ry="10" fill="black"/><ellipse cx="175" cy="580" rx="15" ry="10" fill="black"/></svg>` },
+            { id: 'a2', type: 'hat', src: `data:image/svg+xml;utf8,<svg viewBox="0 0 300 600" xmlns="http://www.w3.org/2000/svg"><path d="M110,50 L190,50 L190,20 L160,5 L140,5 L110,20 Z" fill="%2322c55e" stroke="none"/></svg>` },
         ];
 
         /* --- ARDOISE NOIRE --- */
@@ -391,7 +415,8 @@
             CLOTHES.forEach(c => {
                 const item = document.createElement('div');
                 item.className = 'wardrobe-item';
-                item.innerHTML = `<img src="${c.src}" style="pointer-events:none">`;
+                // Affichage miniature propre
+                item.innerHTML = `<img src="${c.src}" style="pointer-events:none; width:80%; height:80%; object-fit:contain;">`;
                 item.onclick = () => addClothingToModel(c);
                 wardrobe.appendChild(item);
             });
@@ -408,14 +433,15 @@
             img.src = clothingData.src;
             img.className = 'draggable-clothing';
             
-            // Taille par défaut selon le type (ajustable)
-            if(clothingData.type === 'shoes') img.style.width = '100px';
-            else if(clothingData.type === 'hat') img.style.width = '120px';
-            else img.style.width = '200px';
+            // Calcul de la taille relative à l'écran pour rester cohérent
+            // On se base sur la hauteur de l'écran pour que ça matche le mannequin
+            const baseHeight = workspace.clientHeight * 0.65; // Approx height of mannequin
+            img.style.height = baseHeight + 'px'; 
+            img.style.width = 'auto';
 
             // Position de départ (au milieu)
             img.style.left = '50%';
-            img.style.top = '50%';
+            img.style.top = '40%'; // Match le top du mannequin container
             img.style.transform = 'translate(-50%, -50%)';
 
             // Gestion Drag & Drop Souris/Touch
@@ -424,9 +450,17 @@
                 draggedItem = img;
                 const clientX = e.touches ? e.touches[0].clientX : e.clientX;
                 const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                
+                // Calcul de l'offset par rapport au coin de l'image
                 const rect = img.getBoundingClientRect();
                 offset.x = clientX - rect.left;
                 offset.y = clientY - rect.top;
+                
+                // Retirer le centrage automatique CSS pour passer en positionnement absolu pur
+                img.style.transform = 'none';
+                img.style.left = rect.left + 'px';
+                img.style.top = rect.top + 'px';
+                
                 img.style.cursor = 'grabbing';
             };
 
@@ -445,7 +479,6 @@
             
             draggedItem.style.left = (clientX - offset.x) + 'px';
             draggedItem.style.top = (clientY - offset.y) + 'px';
-            draggedItem.style.transform = 'none'; // Enlever le centrage auto une fois bougé
         };
 
         const endDrag = () => {
@@ -555,7 +588,7 @@
                     document.getElementById('fashion-layer').style.display = 'block'; 
                     document.getElementById('fashion-layer').style.zIndex = "40"; 
                     initFashion(); 
-                    speechQueue.push("Bienvenue au studio de mode ! Amuse-toi à habiller le personnage.");
+                    speechQueue.push("Bienvenue au studio de mode !");
                     parler();
                 }, 800);
             }
