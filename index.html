@@ -3,738 +3,414 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ta boite magique ✨</title>
+    <title>Rêveur - Histoires du soir</title>
+    <meta name="theme-color" content="#0f172a">
+    <link rel="manifest" href="/manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;500;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        /* --- VARIABLES --- */
-        :root { --bg-1: #fff7ed; --bg-2: #fef9c3; --bg-3: #ede9fe; --bg-4: #fae8ff; --accent-color: #6366f1; --vis-1: #4f46e5; --vis-2: #9333ea; --vis-3: #db2777; }
+        /* --- BASE & TYPO --- */
+        body { font-family: 'Quicksand', sans-serif; background-color: #020617; color: #e2e8f0; overflow-x: hidden; }
+        h1, h2, h3, .brand-font { font-family: 'Fredoka', sans-serif; }
         
-        /* FOND ANIMÉ */
-        body { font-family: 'Lexend', sans-serif; background: linear-gradient(-45deg, var(--bg-1), var(--bg-2), var(--bg-3), var(--bg-4)); background-size: 400% 400%; animation: gradientBG 15s ease infinite; touch-action: none; overflow: hidden; min-height: 100vh; margin: 0; transition: background 2s ease; }
-        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        /* --- BACKGROUND ÉTOILÉ --- */
+        .stars-bg {
+            background: radial-gradient(circle at 50% 0%, #312e81 0%, #0f172a 60%, #020617 100%);
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+        }
+        .star { position: absolute; background: white; border-radius: 50%; opacity: 0.3; animation: twinkle 4s infinite ease-in-out; }
+        @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.2); } }
 
-        #starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
-        .hidden { display: none !important; }
-        .content-layer { position: relative; z-index: 10; width: 100%; display: flex; flex-direction: column; align-items: center; opacity: 0; transition: opacity 1s ease-in; }
-        .content-visible { opacity: 1 !important; }
-
-        /* --- BOUTON MAISON --- */
-        .nav-home-btn { position: absolute; top: 1.5rem; left: 1.5rem; z-index: 9999; width: 52px; height: 52px; background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(15px); border: 2px solid rgba(255, 255, 255, 0.8); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1); transition: all 0.3s; }
-        .nav-home-btn:hover { transform: scale(1.15) rotate(-10deg); background: rgba(255, 255, 255, 0.7); }
-        .nav-home-btn svg { width: 26px; height: 26px; fill: var(--accent-color); }
-
-        /* --- HEADER --- */
-        #main-header { transition: opacity 1s ease, transform 1s ease; opacity: 1; transform: translateY(0); z-index: 50; }
-        .cinema-mode { transform: translateY(-20px); }
-        .logo-container { width: 180px; height: 180px; display: flex; justify-content: center; align-items: center; opacity: 0; animation: introFade 2s ease-out forwards; filter: drop-shadow(0 10px 25px rgba(129, 140, 248, 0.5)); }
-        @keyframes introFade { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
-
-        /* --- VAGUES DE RÉFLEXION --- */
-        .thinking-waves { display: flex; align-items: center; justify-content: center; gap: 4px; height: 24px; }
-        .wave-bar { width: 6px; height: 100%; border-radius: 99px; animation: waveAnim 1s infinite ease-in-out; }
-        .wave-bar:nth-child(1) { background: #a855f7; animation-delay: 0.0s; }
-        .wave-bar:nth-child(2) { background: #6366f1; animation-delay: 0.1s; }
-        .wave-bar:nth-child(3) { background: #3b82f6; animation-delay: 0.2s; }
-        .wave-bar:nth-child(4) { background: #06b6d4; animation-delay: 0.3s; }
-        .wave-bar:nth-child(5) { background: #14b8a6; animation-delay: 0.4s; }
-        @keyframes waveAnim { 0%, 100% { height: 20%; opacity: 0.5; } 50% { height: 100%; opacity: 1; transform: scaleY(1.1); } }
-
-        /* --- ARDOISE & COLORIAGE --- */
-        #slate-layer, #coloring-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 150; background: #0f172a; display: none; }
-        #coloring-layer { background: #ffffff; }
-        #slate-canvas, #color-canvas { width: 100%; height: 100%; cursor: crosshair; touch-action: none; position: absolute; top:0; left:0; z-index: 5; }
-        
-        #generated-coloring-image {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 100%; height: 100%; object-fit: contain;
-            pointer-events: none; mix-blend-mode: multiply; z-index: 10; opacity: 1;
+        /* --- GLASSMORPHISM --- */
+        .glass { 
+            background: rgba(30, 41, 59, 0.4); 
+            backdrop-filter: blur(16px); 
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
         }
 
-        .slate-controls { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 95%; max-width: 800px; display: flex; gap: 12px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(20px); padding: 12px 20px; border-radius: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); border: 1px solid rgba(255, 255, 255, 0.2); align-items: center; z-index: 160; overflow-x: auto; justify-content: flex-start; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
-        #coloring-controls { background: rgba(255, 255, 255, 0.95); border: 1px solid #cbd5e1; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); }
-        .slate-controls::-webkit-scrollbar { display: none; } 
-        
-        .brush-btn { flex-shrink: 0; width: 48px; height: 48px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; transition: 0.2s; background: rgba(255,255,255,0.1); color: white; }
-        #coloring-controls .brush-btn { background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0; }
-        .brush-btn.active { border-color: #6366f1; transform: scale(1.1); background: white; color: #1e293b; box-shadow: 0 0 15px rgba(99,102,241,0.5); }
-        
-        .color-picker { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.5); cursor: pointer; transition: 0.2s; }
-        #coloring-controls .color-picker { border: 2px solid #cbd5e1; }
-        .color-picker.active { transform: scale(1.3); border-color: white; box-shadow: 0 0 10px white; }
-        #coloring-controls .color-picker.active { border-color: #6366f1; box-shadow: 0 0 10px #6366f1; }
+        /* --- INPUTS --- */
+        .modern-input {
+            width: 100%; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white; padding: 1rem 1rem 1rem 3rem; border-radius: 1rem;
+            transition: all 0.3s ease; outline: none; font-size: 1rem;
+        }
+        .modern-input:focus { border-color: #818cf8; background: rgba(15, 23, 42, 0.9); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
+        .input-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #818cf8; font-size: 1.2rem; }
 
-        .slate-action { flex-shrink: 0; padding: 0.6rem 1.2rem; border-radius: 12px; font-weight: 800; font-size: 0.75rem; color: white; text-transform: uppercase; letter-spacing: 0.05em; background: rgba(255,255,255,0.1); white-space: nowrap; }
-        #coloring-controls .slate-action { background: #fee2e2; color: #ef4444; }
+        /* --- UI UTILS --- */
+        .gender-btn {
+            flex: 1; padding: 0.8rem; border-radius: 0.8rem; border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(15, 23, 42, 0.6); color: #94a3b8; font-weight: 600; transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+        }
+        .gender-btn.active { background: #4f46e5; color: white; border-color: #6366f1; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
 
-        /* --- UI ELEMENTS --- */
-        .status-box { background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px); padding: 0.6rem 1.8rem; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.5); margin-top: 1rem; min-height: 44px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; }
-        .understood-flash { animation: success-pulse 0.8s ease-out !important; background: rgba(16, 185, 129, 0.2) !important; border-color: #10b981 !important; }
-        @keyframes success-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); box-shadow: 0 0 60px #10b981; } 100% { transform: scale(1); } }
-        #story-card { background: transparent; overflow: hidden; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 320px; height: 100px; filter: drop-shadow(0 4px 6px rgba(129, 140, 248, 0.3)); position: relative; z-index: 50; }
-        #visualizer-canvas { width: 100%; height: 100%; }
-        
-        .orbe-base { position: relative; width: 120px; height: 120px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(15px); border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.8); display: flex; align-items: center; justify-content: center; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; z-index: 50; }
-        .orbe-base svg { width: 45px; height: 45px; fill: var(--accent-color); transition: fill 1s; }
-        .mic-listening { background: rgba(255, 255, 255, 0.3) !important; box-shadow: 0 0 50px var(--accent-color) !important; transform: scale(1.1); }
-        #btn-stop svg { fill: #f87171; }
-        #stop-container.opacity-100 #btn-stop { background: rgba(248, 113, 113, 0.15); border-color: #f87171; box-shadow: 0 0 30px rgba(248, 113, 113, 0.4); }
+        .hidden-panel { display: none; }
+        .fade-in { animation: fadeInUp 0.6s ease-out; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- ACCUEIL --- */
-        #intro-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s ease-out, visibility 0.8s; }
-        .mode-selector { display: flex; gap: 1.5rem; align-items: center; justify-content: center; width: 100%; flex-wrap: wrap; padding: 0 20px; max-width: 900px; }
-        .mode-card { display: flex; flex-direction: column; align-items: center; gap: 0.8rem; cursor: pointer; transition: transform 0.3s ease; margin-bottom: 1rem; }
-        .mode-card:hover { transform: scale(1.1); }
-        .mode-icon-box { width: 90px; height: 90px; border-radius: 20px; background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(20px); border: 2px solid rgba(255, 255, 255, 0.6); display: flex; align-items: center; justify-content: center; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
-        .mode-label { font-weight: 800; color: rgba(79, 70, 229, 0.6); text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.7rem; }
-        .god-rays { position: absolute; width: 180%; height: 180%; background: conic-gradient(from 0deg, transparent 0deg, rgba(251, 191, 36, 0.2) 20deg, transparent 40deg, rgba(139, 92, 246, 0.2) 60deg, transparent 80deg); border-radius: 50%; z-index: -1; opacity: 1; animation: spinRays 20s linear infinite; top: 50%; left: 50%; transform: translate(-50%, -50%); mix-blend-mode: overlay; pointer-events: none; }
-        @keyframes spinRays { 100% { transform: translate(-50%, -50%) rotate(360deg); } }
-        .intro-fade-out { opacity: 0; pointer-events: none; }
-        .white-flash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 90; opacity: 0; pointer-events: none; }
-        .flash-active { animation: flashAnim 1.5s ease-out forwards; }
-        @keyframes flashAnim { 0% { opacity: 0; } 15% { opacity: 0.95; } 100% { opacity: 0; } }
+        /* --- STORY TEXT --- */
+        .story-text { line-height: 1.9; font-size: 1.15rem; color: #e2e8f0; white-space: pre-wrap; }
+        .chapter-marker { text-align: center; margin: 3rem 0 1.5rem 0; position: relative; opacity: 0.8; }
+        .chapter-marker::before { content: ""; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, #6366f1, transparent); opacity: 0.5; }
+        .chapter-badge { position: relative; background: #0f172a; padding: 0 1.5rem; color: #818cf8; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; font-weight: bold; border-radius: 99px; border: 1px solid rgba(99, 102, 241, 0.3); }
 
-        /* --- SPOTIFY PLAYER --- */
-        #spotify-container { width: 100%; max-width: 400px; height: 0; overflow: hidden; transition: height 0.5s ease; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        #spotify-container.active { height: 152px; margin-top: 20px; }
-        iframe { border-radius: 12px; }
+        /* Scrollbar Hide */
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="p-6">
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
 
-    <canvas id="starfield"></canvas>
-
-    <div id="slate-layer">
-        <button class="nav-home-btn" onclick="returnToMenu()"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></button>
-        <canvas id="slate-canvas"></canvas>
-        <div class="slate-controls">
-            <div id="base-colors" class="flex gap-3 mr-2 border-r border-white/20 pr-4 flex-shrink-0">
-                <div class="color-picker active" style="background:white" onclick="setBaseColor('white', this)"></div>
-                <div class="color-picker" style="background:#ef4444" onclick="setBaseColor('#ef4444', this)"></div>
-                <div class="color-picker" style="background:#3b82f6" onclick="setBaseColor('#3b82f6', this)"></div>
-                <div class="color-picker" style="background:#22c55e" onclick="setBaseColor('#22c55e', this)"></div>
-            </div>
-            <button class="brush-btn active" onclick="setBrush('base', this)">✏️</button>
-            <button class="brush-btn" onclick="setBrush('neon', this)">💡</button>
-            <button class="brush-btn" onclick="setBrush('rainbow', this)">🌈</button>
-            <button class="brush-btn" onclick="setBrush('fire', this)">🔥</button>
-            <button class="brush-btn" onclick="setBrush('ice', this)">❄️</button>
-            <button class="brush-btn" onclick="setBrush('electric', this)">⚡</button>
-            <button class="brush-btn" onclick="setBrush('galaxy', this)">🌌</button>
-            <button class="brush-btn" onclick="setBrush('gold', this)">✨</button>
-            <div class="w-px h-8 bg-white/20 mx-2 flex-shrink-0"></div>
-            <button class="brush-btn" onclick="setBrush('eraser', this)">🧽</button>
-            <button onclick="clearSlate()" class="slate-action">Effacer</button>
-        </div>
+    <div class="stars-bg">
+        <div class="star" style="top: 10%; left: 20%; width: 2px; height: 2px;"></div>
+        <div class="star" style="top: 30%; left: 80%; width: 3px; height: 3px; animation-delay: 1s;"></div>
+        <div class="star" style="top: 70%; left: 10%; width: 2px; height: 2px; animation-delay: 2s;"></div>
+        <div class="star" style="top: 50%; left: 50%; width: 1px; height: 1px;"></div>
     </div>
 
-    <div id="coloring-layer">
-        <button class="nav-home-btn" onclick="returnToMenu()"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></button>
-        <img id="generated-coloring-image" src="" alt="" style="display:none;">
-        <canvas id="color-canvas"></canvas>
-        <div id="coloring-controls" class="slate-controls">
-            <div class="flex gap-3 mr-4 flex-shrink-0">
-                <div class="color-picker active" style="background:#ef4444" onclick="setColoringColor('#ef4444', this)"></div>
-                <div class="color-picker" style="background:#f97316" onclick="setColoringColor('#f97316', this)"></div>
-                <div class="color-picker" style="background:#eab308" onclick="setColoringColor('#eab308', this)"></div>
-                <div class="color-picker" style="background:#22c55e" onclick="setColoringColor('#22c55e', this)"></div>
-                <div class="color-picker" style="background:#3b82f6" onclick="setColoringColor('#3b82f6', this)"></div>
-                <div class="color-picker" style="background:#a855f7" onclick="setColoringColor('#a855f7', this)"></div>
-                <div class="color-picker" style="background:#ec4899" onclick="setColoringColor('#ec4899', this)"></div>
-                <div class="color-picker" style="background:#78350f" onclick="setColoringColor('#78350f', this)"></div>
-                <div class="color-picker" style="background:#000000" onclick="setColoringColor('#000000', this)"></div>
-            </div>
-            <button class="brush-btn active" onclick="setColoringBrush('marker', this)" title="Feutre">🖍️</button>
-            <button class="brush-btn" onclick="setColoringBrush('crayon', this)" title="Crayon">✏️</button>
-            <div class="w-px h-8 bg-gray-300 mx-2 flex-shrink-0"></div>
-            <button class="brush-btn" onclick="setColoringBrush('eraser', this)">🧽</button>
-            <button onclick="clearColoring()" class="slate-action">Nouveau</button>
+    <div class="text-center mb-6 z-10">
+        <div class="inline-block p-3 rounded-full bg-indigo-500/20 mb-2 border border-indigo-400/20 backdrop-blur-sm">
+            <i class="fa-solid fa-moon text-3xl text-indigo-300"></i>
         </div>
+        <h1 class="text-4xl font-bold text-white tracking-wide drop-shadow-lg brand-font">Rêveur</h1>
     </div>
 
-    <div id="intro-overlay">
-        <div class="god-rays"></div>
-        <p id="intro-title" class="text-indigo-900/50 text-xl font-black mb-10 uppercase tracking-widest text-center">Choisis ta magie</p>
-        <div class="mode-selector">
-            <div class="mode-card" onclick="selectMode('STORY')">
-                <div class="mode-icon-box"><svg width="40" height="40" viewBox="0 0 24 24" fill="#6366f1"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg></div>
-                <span class="mode-label">Histoires</span>
-            </div>
-            <div class="mode-card" onclick="selectMode('QUESTION')">
-                <div class="mode-icon-box"><svg width="40" height="40" viewBox="0 0 24 24" fill="#ec4899"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg></div>
-                <span class="mode-label">Questions</span>
-            </div>
-            <div class="mode-card" onclick="selectMode('CHAT')">
-                <div class="mode-icon-box"><svg width="40" height="40" viewBox="0 0 24 24" fill="#f59e0b"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></div>
-                <span class="mode-label">Discussion</span>
-            </div>
-            <div class="mode-card" onclick="selectMode('DRAW')">
-                <div class="mode-icon-box"><svg width="40" height="40" viewBox="0 0 24 24" fill="#10b981"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"/></svg></div>
-                <span class="mode-label">Dessin</span>
-            </div>
-            <div class="mode-card" onclick="selectMode('COLORING')">
-                <div class="mode-icon-box"><svg width="40" height="40" viewBox="0 0 24 24" fill="#8b5cf6"><path d="M17.75 7L14 3.25l-10 10V17h3.75l10-10zm2.96-2.96c.39-.39.39-1.02 0-1.41L18.37.29c-.39-.39-1.02-.39-1.41 0L15.5 1.75l2.75 2.75 1.46-1.46z"/></svg></div>
-                <span class="mode-label">Coloriage</span>
-            </div>
-            <div class="mode-card" onclick="selectMode('MUSIC')">
-                <div class="mode-icon-box"><svg width="40" height="40" viewBox="0 0 24 24" fill="#06b6d4"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg></div>
-                <span class="mode-label">Musique</span>
-            </div>
-        </div>
-        <button onclick="oublierTout()" class="mt-8 text-indigo-900/40 text-xs font-bold uppercase tracking-widest hover:text-indigo-600 transition-colors">Redéfinir mon profil</button>
-    </div>
-
-    <div id="white-flash" class="white-flash"></div>
-
-    <div id="main-interface" class="content-layer min-h-screen">
-        <button class="nav-home-btn" onclick="returnToMenu()"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></button>
-
-        <header id="main-header" class="text-center flex flex-col items-center mt-6">
-            <div class="logo-container">
-                <svg id="main-logo-story" class="hidden" viewBox="0 0 24 24" fill="#6366f1" width="100" height="100"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
-                <svg id="main-logo-question" class="hidden" viewBox="0 0 24 24" fill="#ec4899" width="100" height="100"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg>
-                <svg id="main-logo-chat" class="hidden" viewBox="0 0 24 24" fill="#f59e0b" width="100" height="100"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-                <svg id="main-logo-coloring" class="hidden" viewBox="0 0 24 24" fill="#8b5cf6" width="100" height="100"><path d="M17.75 7L14 3.25l-10 10V17h3.75l10-10zm2.96-2.96c.39-.39.39-1.02 0-1.41L18.37.29c-.39-.39-1.02-.39-1.41 0L15.5 1.75l2.75 2.75 1.46-1.46z"/></svg>
-                <svg id="main-logo-music" class="hidden" viewBox="0 0 24 24" fill="#06b6d4" width="100" height="100"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-            </div>
-            <div class="status-box">
-                <p id="status" class="text-indigo-900/60 font-semibold italic text-sm">Prêt...</p>
-                <div id="ai-thinking" class="hidden thinking-waves">
-                    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+    <div id="setup-panel" class="w-full max-w-md hidden-panel fade-in">
+        <div class="glass rounded-3xl p-6 md:p-8">
+            <h2 class="text-xl text-center text-white mb-6 font-semibold">Qui écoute l'histoire ?</h2>
+            
+            <div class="space-y-5 mb-8">
+                <div class="relative">
+                    <i class="fa-solid fa-child input-icon"></i>
+                    <input type="text" id="childName" placeholder="Prénom de l'enfant" class="modern-input">
+                </div>
+                <div class="flex gap-3">
+                    <div class="relative w-1/3">
+                        <i class="fa-solid fa-cake-candles input-icon text-sm"></i>
+                        <input type="number" id="childAge" placeholder="Âge" class="modern-input pl-10 text-center">
+                    </div>
+                    <div class="flex flex-1 gap-2">
+                        <button onclick="setGender('garçon')" id="btn-boy" class="gender-btn active"><i class="fa-solid fa-mars"></i> Garçon</button>
+                        <button onclick="setGender('fille')" id="btn-girl" class="gender-btn"><i class="fa-solid fa-venus"></i> Fille</button>
+                    </div>
+                </div>
+                <div class="h-px w-full bg-white/10 my-4"></div>
+                <div class="relative">
+                    <i class="fa-solid fa-paw input-icon"></i>
+                    <input type="text" id="doudouName" placeholder="Nom du doudou" class="modern-input">
+                </div>
+                <div class="relative">
+                    <i class="fa-solid fa-wand-sparkles input-icon"></i>
+                    <input type="text" id="doudouDesc" placeholder="Il est comment ? (ex: Ours bleu)" class="modern-input">
                 </div>
             </div>
-        </header>
 
-        <main class="w-full max-w-md flex flex-col items-center gap-14 mt-8">
-            <div class="flex items-center justify-center gap-12 w-full">
-                <button id="btn-mic" class="orbe-base shadow-2xl">
-                    <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
-                </button>
-                <div id="stop-container" class="opacity-20 pointer-events-none transition-all duration-500">
-                    <button id="btn-stop" class="orbe-base shadow-xl"><svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" /></svg></button>
+            <button onclick="saveProfile()" class="w-full py-4 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold rounded-2xl shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2">
+                <span>Créer le profil</span> <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <div id="request-panel" class="w-full max-w-md hidden-panel fade-in">
+        <div class="glass p-4 rounded-2xl mb-6 flex items-center justify-between border-indigo-500/30">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center text-lg">🧸</div>
+                <div>
+                    <h3 class="font-bold text-white text-sm" id="profile-summary">Profil</h3>
+                    <p class="text-xs text-indigo-300">Prêt pour le dodo</p>
                 </div>
             </div>
-            <div id="story-card" class="hidden transition-all duration-500"><canvas id="visualizer-canvas"></canvas></div>
-            <div id="spotify-container" class=""><iframe id="spotify-frame" style="border-radius:12px" src="" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>
-            <input type="text" id="manualInput" class="hidden">
-        </main>
+            <button onclick="resetProfile()" class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 transition"><i class="fa-solid fa-pen"></i></button>
+        </div>
+
+        <div class="glass rounded-3xl p-6">
+            <h2 class="text-lg text-center text-white mb-4">De quoi parle l'histoire ce soir ?</h2>
+            
+            <div class="relative mb-4">
+                <textarea id="storyRequest" rows="4" placeholder="Ex: Peppa Pig et Lucas font un pique-nique sur la lune..." class="w-full bg-slate-900/50 border border-slate-700 rounded-2xl p-4 text-white placeholder-slate-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition outline-none resize-none"></textarea>
+                <div class="absolute bottom-3 right-3 text-indigo-500 text-xl"><i class="fa-solid fa-magic"></i></div>
+            </div>
+
+            <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-800/50 border border-white/5 cursor-pointer mb-6 hover:bg-slate-800 transition">
+                <div class="relative flex items-center">
+                    <input type="checkbox" id="includeChild" class="peer sr-only" checked>
+                    <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                </div>
+                <span class="text-sm text-gray-300 select-none">Inclure <span id="label-child-name" class="font-bold text-white">l'enfant</span> dans l'aventure ?</span>
+            </label>
+
+            <div class="flex flex-wrap gap-2 mb-6">
+                <button onclick="addTag('Dinosaures')" class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-indigo-200 hover:bg-white/10 transition">🦕 Dinosaures</button>
+                <button onclick="addTag('L\'espace')" class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-indigo-200 hover:bg-white/10 transition">🚀 L'espace</button>
+                <button onclick="addTag('La Ferme')" class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-indigo-200 hover:bg-white/10 transition">🚜 La Ferme</button>
+            </div>
+
+            <button onclick="startStory()" class="w-full py-4 bg-indigo-500 hover:bg-indigo-400 text-white font-bold rounded-2xl shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-book-open"></i> <span>Raconter l'histoire</span>
+            </button>
+            
+            <button onclick="openLibrary()" class="w-full mt-4 py-3 bg-white/5 hover:bg-white/10 text-indigo-200 text-sm font-bold rounded-2xl border border-white/5 transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-bookmark"></i> <span>Ma Bibliothèque</span>
+            </button>
+        </div>
+    </div>
+    
+    <div id="library-panel" class="w-full max-w-md hidden-panel fade-in">
+        <div class="glass rounded-3xl p-6 min-h-[50vh]">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl text-white font-bold brand-font">Mes Histoires</h2>
+                <button onclick="showPanel('request-panel')" class="text-sm text-indigo-300 hover:text-white bg-white/5 px-3 py-1 rounded-full">Retour</button>
+            </div>
+            <div id="library-list" class="space-y-3 max-h-[60vh] overflow-y-auto scrollbar-hide"></div>
+        </div>
+    </div>
+
+    <div id="reading-panel" class="w-full max-w-lg hidden-panel fade-in pb-24">
+        <div class="flex justify-between items-center mb-6 px-2 sticky top-0 z-20 py-2 bg-slate-900/0 backdrop-blur-sm rounded-xl">
+            <div class="flex items-center gap-2 text-indigo-300">
+                <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                <span class="text-xs font-bold uppercase tracking-widest">Lecture en cours</span>
+            </div>
+            <button onclick="closeStory()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/50 hover:bg-red-500/20 hover:text-red-200 transition"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div id="story-scroll-area" class="space-y-8 min-h-[50vh]"></div>
+
+        <div id="initial-loader" class="hidden flex-col items-center py-12">
+            <div class="relative w-16 h-16">
+                <div class="absolute inset-0 border-4 border-indigo-500/30 rounded-full"></div>
+                <div class="absolute inset-0 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            <p class="text-indigo-300 mt-4 text-sm animate-pulse font-medium">L'histoire commence...</p>
+        </div>
+
+        <div class="mt-8 px-4 fixed bottom-6 left-0 right-0 max-w-lg mx-auto z-30 pointer-events-none">
+            <button id="next-chapter-btn" onclick="revealNextChapter()" class="hidden w-full py-4 bg-indigo-600/90 backdrop-blur shadow-2xl shadow-indigo-900/50 border border-indigo-400/30 rounded-2xl text-white font-bold transition flex items-center justify-center gap-2 pointer-events-auto transform hover:scale-[1.02]">
+                <span>Lire la suite</span> <i class="fa-solid fa-arrow-down"></i>
+            </button>
+            <p id="preload-status" class="text-center text-[10px] text-indigo-400 mt-2 h-4 uppercase tracking-widest opacity-0 transition-opacity duration-500"></p>
+        </div>
+
+        <div id="the-end" class="hidden mt-16 mb-10 text-center opacity-0 transition-opacity duration-1000">
+            <div class="inline-block p-4 rounded-full bg-indigo-500/10 mb-4 text-4xl">😴</div>
+            <h3 class="text-2xl font-bold text-white mb-1 brand-font">Fin de l'histoire</h3>
+            <p class="text-indigo-400 text-sm">Fais de beaux rêves...</p>
+            <button id="save-btn" onclick="saveCurrentStory()" class="mt-8 mb-4 px-6 py-3 bg-pink-500/20 text-pink-200 border border-pink-500/30 rounded-full text-sm font-bold hover:bg-pink-500/40 transition flex items-center justify-center gap-2 mx-auto">
+                <i class="fa-solid fa-heart"></i> Sauvegarder l'histoire
+            </button>
+            <button onclick="closeStory()" class="mt-4 px-6 py-2 rounded-full border border-white/10 text-sm text-white/40 hover:text-white hover:bg-white/5 transition">Retour au menu</button>
+        </div>
     </div>
 
     <script>
-        let GEMINI_KEY = localStorage.getItem('BOITE_GEMINI_KEY');
-        let AZURE_KEY = localStorage.getItem('BOITE_AZURE_KEY');
-        let AZURE_REGION = localStorage.getItem('BOITE_AZURE_REGION');
-        let userPrenom = localStorage.getItem('BOITE_PRENOM');
-        let userAge = localStorage.getItem('BOITE_AGE');
-        let userGenre = localStorage.getItem('BOITE_GENRE'); 
-        let userColor = localStorage.getItem('BOITE_COLOR'); 
+        // --- VARIABLES ---
+        let userProfile = null;
+        let selectedGender = 'garçon';
+        let currentRequest = "";
+        let isChildIncluded = true; // NOUVEAU
         
-        let currentAppMode = null; 
-        let interactionMode = 'INIT'; 
-        let chatHistory = []; 
+        let currentChapterIndex = 1;
+        let totalChapters = 5; 
+        let nextChapterContent = null;
+        let isPreloading = false;
+        let storySummary = "";
+        let currentFullStory = [];
 
-        const MODEL_ID = "models/gemini-2.5-flash"; 
-        
-        // --- NOUVELLE VOIX PLUS RÉALISTE ---
-        // Ancienne : fr-FR-DeniseNeural
-        // Nouvelle : fr-FR-VivienneMultilingualNeural (Plus naturelle et humaine)
-        const AZURE_VOICE_NAME = "fr-FR-VivienneMultilingualNeural"; 
-
-        /* --- DISCOTHÈQUE GÉANTE SPOTIFY (PLAYLISTS & GENRES) --- */
-        const SPOTIFY_DB = {
-            // -- POP & HITS --
-            'POP': '37i9dQZF1DXcBWIGoYBM5M',     // Hits
-            'DISNEY': '37i9dQZF1DX8C9xQcOrE6T',  // Disney
-            'FILM': '37i9dQZF1DX8C9xQcOrE6T',    // Films enfants
-            'VOITURE': '37i9dQZF1DWWHQM6sW8kDQ', // Sing Along Kids
-
-            // -- INSTRUMENTS --
-            'GUITARE': '37i9dQZF1DWZK4p8GZlQhW', // Guitare acoustique calme
-            'GUITARE_ELEC': '37i9dQZF1DWWzBc3TOlaAV', // Rock Classics
-            'PIANO': '37i9dQZF1DWUvHZA1zLcjW',   // Piano calme
-            'VIOLON': '37i9dQZF1DWV7EzJMK2FUI',  // Classical Violin
-            'BATTERIE': '37i9dQZF1DWXJKyK5MgDWz', // Drums Focus
-            'TROMPETTE': '37i9dQZF1DX6f3J34J8j5p', // Jazz Classics (Sax/Trompette)
-
-            // -- GENRES --
-            'ROCK': '37i9dQZF1DWWzBc3TOlaAV',    // Classic Rock
-            'METAL': '37i9dQZF1DX9qNs32fujYe',   // Heavy Metal (Soft)
-            'RAP': '37i9dQZF1DX0XUsuxWHRQd',     // Rap Caviar
-            'JAZZ': '37i9dQZF1DXbITWG1ZJKYt',    // Jazz Classics
-            'CLASSIQUE': '37i9dQZF1DWUvHZA1zLcjW', // Classique
-            'COUNTRY': '37i9dQZF1DX1lVhptIYRda', // Country Hits
-            'DISCO': '37i9dQZF1DX4UtSsGT1Sbe',   // All Out 80s
-
-            // -- AMBIANCES --
-            'DODO': '37i9dQZF1DWZd79rJ6a7lp',    // Berceuses
-            'CALME': '37i9dQZF1DWZd79rJ6a7lp',   // Relax
-            'FETE': '37i9dQZF1DX2sUQqwWQbJn',    // Party Kids
-            'DANSE': '37i9dQZF1DX2sUQqwWQbJn',   // Dance
-            'TRISTE': '37i9dQZF1DX3YSRoSdA634',  // Sad Songs
-            'HEUREUX': '37i9dQZF1DXdPec7aLTmlC', // Happy Hits
-            'SPORT': '37i9dQZF1DX76Wlfdnj7AP',   // Workout
-
-            // -- THÈMES SPÉCIAUX --
-            'DINOSAURE': '37i9dQZF1DWWHQX5fP7a70', // Kids Adventure
-            'SUPERHEROS': '37i9dQZF1DXu2W0Mf8a55a', // Epic Gaming
-            'JEUXVIDEO': '37i9dQZF1DXdfOcg1fm0VG',  // Video Game Scores
-            'HALLOWEEN': '37i9dQZF1EIdR77n0lqY6P',  // Spooky
-            'NOEL': '37i9dQZF1DX0A8zVl7p82B',     // Christmas
-
-            // -- NATURE & BRUITS --
-            'PLUIE': '37i9dQZF1DX8gym7ONOGCa',    // Rain Sounds
-            'OCEAN': '37i9dQZF1DX4PP3kddpbma',    // Ocean Sounds
-            'FORET': '37i9dQZF1DWX83CujKHHbD',    // Nature Sounds
-            'ANIMAUX': '37i9dQZF1DWWHQX5fP7a70',  // Animaux (Mix Kids)
-            'JUNGLE': '37i9dQZF1DWWHQX5fP7a70'    // Jungle (Mix Kids)
-        };
-
-        /* --- ARDOISE NOIRE --- */
-        const sCanvas = document.getElementById('slate-canvas'); const sCtx = sCanvas.getContext('2d');
-        let drawing = false, currentBrush = 'base', hue = 0, baseColor = 'white';
-        function initSlate() { sCanvas.width = window.innerWidth; sCanvas.height = window.innerHeight; sCtx.lineCap = 'round'; sCtx.lineJoin = 'round'; }
-        function setBrush(b, btn) { currentBrush = b; document.querySelectorAll('.brush-btn').forEach(el => el.classList.remove('active')); btn.classList.add('active'); }
-        function setBaseColor(c, btn) { baseColor = c; currentBrush = 'base'; document.querySelectorAll('.color-picker').forEach(el => el.classList.remove('active')); btn.classList.add('active'); document.querySelectorAll('.brush-btn').forEach(el => el.classList.remove('active')); document.querySelector('.brush-btn[onclick*="base"]').classList.add('active'); }
-        function draw(e) { if (!drawing) return; const x = e.clientX || e.touches[0].clientX; const y = e.clientY || e.touches[0].clientY; hue = (hue + 2) % 360; sCtx.lineWidth = currentBrush === 'galaxy' ? 1.5 : (currentBrush === 'neon' ? 3 : (currentBrush === 'eraser' ? 20 : 2.5)); sCtx.globalCompositeOperation = 'source-over'; 
-            if (currentBrush === 'base') { sCtx.strokeStyle = baseColor; sCtx.shadowBlur = 0; } else if (currentBrush === 'eraser') { sCtx.globalCompositeOperation = 'destination-out'; sCtx.strokeStyle = 'rgba(0,0,0,1)'; sCtx.shadowBlur = 0; } else if (currentBrush === 'neon') { sCtx.strokeStyle = `hsl(${hue}, 100%, 70%)`; sCtx.shadowBlur = 15; sCtx.shadowColor = sCtx.strokeStyle; } else if (currentBrush === 'rainbow') { sCtx.strokeStyle = `hsl(${hue}, 100%, 50%)`; sCtx.shadowBlur = 0; } else if (currentBrush === 'lava') { sCtx.strokeStyle = `hsl(${Math.random() * 40}, 100%, 60%)`; sCtx.shadowBlur = 15; sCtx.shadowColor = '#ff4500'; for(let i=0; i<2; i++) { const pX = x + (Math.random()-0.5) * 15; const pY = y - Math.random() * 25; sCtx.fillStyle = `rgba(255, ${Math.floor(Math.random()*150)}, 0, 0.7)`; sCtx.beginPath(); sCtx.arc(pX, pY, Math.random()*2, 0, Math.PI*2); sCtx.fill(); } } else if (currentBrush === 'ice') { sCtx.strokeStyle = `rgba(224, 242, 254, 0.9)`; sCtx.shadowBlur = 10; sCtx.shadowColor = '#0ea5e9'; for(let i=0; i<2; i++) { const pX = x + (Math.random()-0.5) * 15; const pY = y + Math.random() * 25; sCtx.fillStyle = `rgba(255, 255, 255, 0.8)`; sCtx.beginPath(); sCtx.arc(pX, pY, Math.random()*1.5, 0, Math.PI*2); sCtx.fill(); } } else if (currentBrush === 'electric') { sCtx.strokeStyle = '#fef08a'; sCtx.shadowBlur = 20; sCtx.shadowColor = '#facc15'; const jitterX = x + (Math.random()-0.5) * 10; const jitterY = y + (Math.random()-0.5) * 10; sCtx.lineTo(jitterX, jitterY); } else if (currentBrush === 'galaxy') { sCtx.strokeStyle = 'rgba(255,255,255,0.8)'; sCtx.shadowBlur = 8; sCtx.shadowColor = `hsl(${hue}, 100%, 80%)`; for(let i=0; i<3; i++) { sCtx.beginPath(); sCtx.arc(x + (Math.random()-0.5)*20, y + (Math.random()-0.5)*20, Math.random()*1.5, 0, Math.PI*2); sCtx.fillStyle = 'white'; sCtx.fill(); } } else if (currentBrush === 'nature') { sCtx.strokeStyle = `hsl(120, 60%, 40%)`; sCtx.shadowBlur = 5; sCtx.shadowColor = '#166534'; for(let i=0; i<1; i++) { const pX = x + (Math.random()-0.5) * 20; const pY = y + (Math.random()-0.5) * 20; sCtx.fillStyle = `rgba(34, 197, 94, 0.8)`; sCtx.beginPath(); sCtx.ellipse(pX, pY, 3, 6, Math.random()*Math.PI, 0, Math.PI*2); sCtx.fill(); } } else if (currentBrush === 'ocean') { sCtx.strokeStyle = `hsl(200, 80%, 50%)`; sCtx.shadowBlur = 10; sCtx.shadowColor = '#0284c7'; for(let i=0; i<1; i++) { const pX = x + (Math.random()-0.5) * 15; const pY = y - Math.random() * 20; sCtx.strokeStyle = `rgba(255, 255, 255, 0.6)`; sCtx.beginPath(); sCtx.arc(pX, pY, Math.random()*3, 0, Math.PI*2); sCtx.stroke(); } sCtx.strokeStyle = `hsl(200, 80%, 50%)`; } else if (currentBrush === 'gold') { sCtx.strokeStyle = '#fbbf24'; sCtx.shadowBlur = 20; sCtx.shadowColor = '#f59e0b'; if(Math.random() > 0.8) { const pX = x + (Math.random()-0.5) * 20; const pY = y + (Math.random()-0.5) * 20; sCtx.fillStyle = '#fffbeb'; sCtx.beginPath(); sCtx.arc(pX, pY, Math.random()*2, 0, Math.PI*2); sCtx.fill(); } } else if (currentBrush === 'candy') { sCtx.strokeStyle = '#f472b6'; sCtx.shadowBlur = 5; sCtx.shadowColor = '#ec4899'; for(let i=0; i<2; i++) { const pX = x + (Math.random()-0.5) * 20; const pY = y + (Math.random()-0.5) * 20; sCtx.fillStyle = `hsl(${Math.random()*360}, 100%, 75%)`; sCtx.beginPath(); sCtx.arc(pX, pY, Math.random()*2.5, 0, Math.PI*2); sCtx.fill(); } }
-            if (currentBrush !== 'electric') sCtx.lineTo(x, y); sCtx.stroke(); sCtx.beginPath(); sCtx.moveTo(x, y);
+        // --- UI HELPERS ---
+        function setGender(g) {
+            selectedGender = g;
+            document.getElementById('btn-boy').className = `gender-btn ${g === 'garçon' ? 'active' : ''}`;
+            document.getElementById('btn-girl').className = `gender-btn ${g === 'fille' ? 'active' : ''}`;
         }
-        sCanvas.addEventListener('mousedown', (e) => { drawing = true; sCtx.beginPath(); sCtx.moveTo(e.clientX, e.clientY); }); sCanvas.addEventListener('mousemove', draw); window.addEventListener('mouseup', () => drawing = false); sCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing = true; sCtx.beginPath(); sCtx.moveTo(e.touches[0].clientX, e.touches[0].clientY); }); sCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); }); window.addEventListener('touchend', () => drawing = false);
-        function clearSlate() { sCtx.clearRect(0,0,sCanvas.width, sCanvas.height); }
-
-        /* --- COLORIAGE --- */
-        const cCanvas = document.getElementById('color-canvas'); const cCtx = cCanvas.getContext('2d');
-        let coloring = false, cColor = '#ef4444', cBrush = 'marker';
-        function initColoring() { cCanvas.width = window.innerWidth; cCanvas.height = window.innerHeight; cCtx.lineCap = 'round'; cCtx.lineJoin = 'round'; }
-        function setColoringColor(c, btn) { cColor = c; cBrush = 'marker'; document.querySelectorAll('#coloring-controls .color-picker').forEach(el => el.classList.remove('active')); btn.classList.add('active'); document.querySelectorAll('#coloring-controls .brush-btn').forEach(el => el.classList.remove('active')); document.querySelector('#coloring-controls .brush-btn[onclick*="marker"]').classList.add('active'); }
-        function setColoringBrush(b, btn) { cBrush = b; document.querySelectorAll('#coloring-controls .brush-btn').forEach(el => el.classList.remove('active')); btn.classList.add('active'); }
-        function drawColor(e) { if (!coloring) return; const x = e.clientX || e.touches[0].clientX; const y = e.clientY || e.touches[0].clientY; 
-            cCtx.strokeStyle = cColor; cCtx.globalCompositeOperation = 'source-over';
-            if (cBrush === 'marker') { cCtx.lineWidth = 15; cCtx.globalAlpha = 0.5; } 
-            else if (cBrush === 'crayon') { cCtx.lineWidth = 5; cCtx.globalAlpha = 1; }
-            else if (cBrush === 'eraser') { cCtx.globalCompositeOperation = 'destination-out'; cCtx.lineWidth = 30; cCtx.globalAlpha = 1; }
-            cCtx.lineTo(x, y); cCtx.stroke(); cCtx.beginPath(); cCtx.moveTo(x, y);
+        function addTag(tag) {
+            const area = document.getElementById('storyRequest');
+            if(area.value.length > 0) area.value += " ";
+            area.value += tag;
         }
-        cCanvas.addEventListener('mousedown', (e) => { coloring = true; cCtx.beginPath(); cCtx.moveTo(e.clientX, e.clientY); }); cCanvas.addEventListener('mousemove', drawColor); window.addEventListener('mouseup', () => coloring = false); cCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); coloring = true; cCtx.beginPath(); cCtx.moveTo(e.touches[0].clientX, e.touches[0].clientY); }); cCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); drawColor(e); }); window.addEventListener('touchend', () => coloring = false);
-        
-        function clearColoring() { 
-            cCtx.clearRect(0,0,cCanvas.width, cCanvas.height); 
-            document.getElementById('generated-coloring-image').style.display = 'none';
-            document.getElementById('coloring-layer').style.display = 'none';
-            document.getElementById('main-interface').classList.add('content-visible');
-            interactionMode = 'COLORING_INPUT'; 
-            document.getElementById('status').innerText = "Une autre idée ?";
-            speechQueue.push("D'accord, on change ! Que veux-tu colorier maintenant ?"); 
-            parler();
+        function showPanel(id) {
+            ['setup-panel', 'request-panel', 'reading-panel', 'library-panel'].forEach(p => {
+                const el = document.getElementById(p);
+                if (p === id) { el.style.display = 'block'; el.classList.add('fade-in'); } else { el.style.display = 'none'; }
+            });
         }
 
-        async function genererColoriage(sujet) {
-            const encoded = encodeURIComponent(`coloring page for kids, simple line art, black and white, white background, high contrast, ${sujet}`);
-            const url = `https://image.pollinations.ai/prompt/${encoded}?width=1024&height=1024&nologo=true&seed=${Math.floor(Math.random()*9999)}`;
-            
-            const img = document.getElementById('generated-coloring-image');
-            img.onload = () => {
-                document.getElementById('ai-thinking').classList.add('hidden');
-                document.getElementById('status').innerText = "À tes crayons !";
-                img.style.display = 'block';
-                speechQueue.push("Et voilà ton coloriage ! Tu peux dessiner dessus maintenant."); parler();
-            };
-            img.src = url;
-        }
-
-        function returnToMenu() {
-            stopAudio();
-            document.getElementById('slate-layer').style.display = 'none';
-            document.getElementById('coloring-layer').style.display = 'none';
-            document.getElementById('main-interface').classList.remove('content-visible');
-            document.getElementById('main-logo-story').classList.add('hidden');
-            document.getElementById('main-logo-question').classList.add('hidden');
-            document.getElementById('main-logo-chat').classList.add('hidden');
-            document.getElementById('main-logo-coloring').classList.add('hidden');
-            document.getElementById('main-logo-music').classList.add('hidden');
-            document.getElementById('intro-overlay').style.display = 'flex';
-            document.getElementById('spotify-container').classList.remove('active');
-            document.getElementById('spotify-frame').src = "";
-            setTimeout(() => { document.getElementById('intro-overlay').classList.remove('intro-fade-out'); }, 50);
-        }
-
-        /* --- THEMES --- */
-        const THEMES = { 'defaut': { bg: ['#fff7ed', '#fef9c3', '#ede9fe', '#fae8ff'], star: '251, 191, 36', accent: '#6366f1', vis: ['#4f46e5', '#9333ea', '#db2777'] }, 'bleu': { bg: ['#eff6ff', '#dbeafe', '#bfdbfe', '#93c5fd'], star: '96, 165, 250', accent: '#2563eb', vis: ['#1e40af', '#3b82f6', '#93c5fd'] }, 'rose': { bg: ['#fff1f2', '#ffe4e6', '#fecdd3', '#fda4af'], star: '244, 114, 182', accent: '#db2777', vis: ['#9d174d', '#db2777', '#f472b6'] }, 'rouge': { bg: ['#fef2f2', '#fee2e2', '#fecaca', '#fca5a5'], star: '248, 113, 113', accent: '#dc2626', vis: ['#991b1b', '#ef4444', '#f87171'] }, 'vert': { bg: ['#f0fdf4', '#dcfce7', '#bbf7d0', '#86efac'], star: '74, 222, 128', accent: '#16a34a', vis: ['#166534', '#22c55e', '#86efac'] }, 'violet': { bg: ['#f5f3ff', '#ede9fe', '#ddd6fe', '#c4b5fd'], star: '167, 139, 250', accent: '#7c3aed', vis: ['#5b21b6', '#8b5cf6', '#c4b5fd'] }, 'jaune': { bg: ['#fefce8', '#fef9c3', '#fef08a', '#fde047'], star: '234, 179, 8', accent: '#ca8a04', vis: ['#854d0e', '#eab308', '#fef08a'] }, 'sombre': { bg: ['#1e1b4b', '#312e81', '#4338ca', '#3730a3'], star: '255, 255, 255', accent: '#818cf8', vis: ['#4338ca', '#6366f1', '#a5b4fc'] } };
-        const KEYWORDS = { 'bleu': 'bleu', 'mer': 'bleu', 'ciel': 'bleu', 'azur': 'bleu', 'rose': 'rose', 'fée': 'rose', 'princesse': 'rose', 'rouge': 'rouge', 'feu': 'rouge', 'pompier': 'rouge', 'vert': 'vert', 'nature': 'vert', 'foret': 'vert', 'herbe': 'vert', 'violet': 'violet', 'lilas': 'violet', 'mauve': 'violet', 'jaune': 'jaune', 'soleil': 'jaune', 'or': 'jaune', 'noir': 'sombre', 'sombre': 'sombre', 'nuit': 'sombre', 'espace': 'sombre' };
-        let currentTheme = THEMES['defaut'], speechQueue = [], isSpeaking = false, audioCtx = null, currentAudio = null;
-        function applyMixedTheme(inputText) { if (!inputText) return; const text = inputText.toLowerCase(); const detectedKeys = new Set(); for (const [key, val] of Object.entries(KEYWORDS)) { if (text.includes(key)) detectedKeys.add(val); } const themes = Array.from(detectedKeys).map(k => THEMES[k]); if (themes.length === 0) return; else if (themes.length === 1) currentTheme = themes[0]; else { const t1 = themes[0]; const t2 = themes[themes.length - 1]; currentTheme = { bg: [t1.bg[0], t2.bg[1], t1.bg[2], t2.bg[3]], star: t1.star, accent: t2.accent, vis: [t1.vis[0], t2.vis[1], t1.vis[2]] }; } const r = document.querySelector(':root'); r.style.setProperty('--bg-1', currentTheme.bg[0]); r.style.setProperty('--bg-2', currentTheme.bg[1]); r.style.setProperty('--bg-3', currentTheme.bg[2]); r.style.setProperty('--bg-4', currentTheme.bg[3]); r.style.setProperty('--accent-color', currentTheme.accent); r.style.setProperty('--vis-1', currentTheme.vis[0]); r.style.setProperty('--vis-2', currentTheme.vis[1]); r.style.setProperty('--vis-3', currentTheme.vis[2]); particles.forEach(p => { if (themes.length > 1) p.color = Math.random() > 0.5 ? themes[0].star : themes[1].star; else p.color = currentTheme.star; }); }
-
-        const canvas = document.getElementById('starfield'); const ctx = canvas.getContext('2d'); let particles = []; let burstParticles = [];
-        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        class Particle { constructor() { this.reset(); } reset() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 2.5 + 0.5; this.speed = Math.random() * 0.02 + 0.01; this.opacity = Math.random() * 0.9; this.color = currentTheme.star; } update() { this.y -= this.speed; this.x += Math.sin(this.y * 0.01) * 0.2; if (this.y < 0) this.reset(); } draw() { ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); } }
-        class BurstParticle { constructor(x, y) { this.x = x; this.y = y; const angle = Math.random() * Math.PI * 2; const speed = Math.random() * 15 + 5; this.vx = Math.cos(angle) * speed; this.vy = Math.sin(angle) * speed; this.life = 1.0; this.decay = Math.random() * 0.015 + 0.005; this.color = Math.random() > 0.5 ? "#fbbf24" : "#ffffff"; this.size = Math.random() * 5 + 2; } update() { this.x += this.vx; this.y += this.vy; this.vy += 0.2; this.vx *= 0.96; this.vy *= 0.96; this.life -= this.decay; } draw() { ctx.globalAlpha = this.life; ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1.0; } }
-        function initParticles() { particles = []; for (let i = 0; i < 300; i++) particles.push(new Particle()); }
-        function triggerBurst() { const centerX = window.innerWidth / 2; const centerY = window.innerHeight / 2; for (let i = 0; i < 300; i++) burstParticles.push(new BurstParticle(centerX, centerY)); }
-        function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); for (let i = burstParticles.length - 1; i >= 0; i--) { const p = burstParticles[i]; p.update(); p.draw(); if (p.life <= 0) burstParticles.splice(i, 1); } requestAnimationFrame(animate); }
-        window.addEventListener('resize', resize); resize(); initParticles(); animate();
-
-        const vizCanvas = document.getElementById('visualizer-canvas'); const vizCtx = vizCanvas.getContext('2d'); let analyser = null; let dataArray = null; let visualizerAnimationId = null;
-        function resizeViz() { if(vizCanvas.parentElement) { vizCanvas.width = vizCanvas.parentElement.offsetWidth; vizCanvas.height = vizCanvas.parentElement.offsetHeight; } }
-        window.addEventListener('resize', resizeViz);
-        function startVisualizer(audioSource, context) { resizeViz(); if (!analyser) { analyser = context.createAnalyser(); analyser.fftSize = 64; } audioSource.connect(analyser); analyser.connect(context.destination); const bufferLength = analyser.frequencyBinCount; dataArray = new Uint8Array(bufferLength); drawVisualizer(); }
-        function drawVisualizer() { visualizerAnimationId = requestAnimationFrame(drawVisualizer); analyser.getByteFrequencyData(dataArray); vizCtx.clearRect(0, 0, vizCanvas.width, vizCanvas.height); const bufferLength = analyser.frequencyBinCount; const gap = 6; const barWidth = (vizCanvas.width / bufferLength) - gap; let barHeight; let x = gap / 2; let gradient = vizCtx.createLinearGradient(0, vizCanvas.height, 0, 0); gradient.addColorStop(0, currentTheme.vis[0]); gradient.addColorStop(0.5, currentTheme.vis[1]); gradient.addColorStop(1, currentTheme.vis[2]); vizCtx.fillStyle = gradient; for (let i = 0; i < bufferLength; i++) { barHeight = (dataArray[i] / 255) * vizCanvas.height; if (barHeight < 5) barHeight = 5; const y = (vizCanvas.height - barHeight) / 2; roundRect(vizCtx, x, y, barWidth, barHeight, 50); x += barWidth + gap; } }
-        function roundRect(ctx, x, y, width, height, radius) { if (width < 2 * radius) radius = width / 2; if (height < 2 * radius) radius = height / 2; ctx.beginPath(); ctx.moveTo(x + radius, y); ctx.arcTo(x + width, y, x + width, y + height, radius); ctx.arcTo(x + width, y + height, x, y + height, radius); ctx.arcTo(x, y + height, x, y, radius); ctx.arcTo(x, y, x + width, y, radius); ctx.closePath(); ctx.fill(); }
-        function stopVisualizer() { if (visualizerAnimationId) cancelAnimationFrame(visualizerAnimationId); vizCtx.clearRect(0, 0, vizCanvas.width, vizCanvas.height); }
-
-        function playSimpleWoosh() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); const t = audioCtx.currentTime; const bufferSize = audioCtx.sampleRate * 4.0; const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate); const data = buffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1; const noise = audioCtx.createBufferSource(); noise.buffer = buffer; const filter = audioCtx.createBiquadFilter(); filter.type = 'lowpass'; filter.Q.value = 1; filter.frequency.setValueAtTime(100, t); filter.frequency.exponentialRampToValueAtTime(3000, t + 1.5); filter.frequency.exponentialRampToValueAtTime(100, t + 4.0); const gain = audioCtx.createGain(); gain.gain.setValueAtTime(0, t); gain.gain.linearRampToValueAtTime(0.1, t + 1.0); gain.gain.linearRampToValueAtTime(0, t + 4.0); noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination); noise.start(t); noise.stop(t + 4.0); }
-        function playSoftPing() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1); gain.gain.setValueAtTime(0, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.05); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.3); }
-
-        function startListening() {
-            const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!Speech) return; 
-            
-            if (isSpeaking) {
-                stopAudio();
-                return;
-            }
-
-            const rec = new Speech(); rec.lang = 'fr-FR'; rec.interimResults = false;
-            rec.onstart = () => { document.getElementById('btn-mic').classList.add('mic-listening'); document.getElementById('status').innerText = "Je t'écoute..."; };
-            rec.onresult = (e) => { const p = e.results[0][0].transcript; document.getElementById('manualInput').value = p; traiterInput(p); };
-            rec.onend = () => document.getElementById('btn-mic').classList.remove('mic-listening');
-            rec.onerror = (e) => { document.getElementById('btn-mic').classList.remove('mic-listening'); if (interactionMode === 'NAME_INPUT') document.getElementById('status').innerText = "Comment t'appelles-tu ?"; else if (interactionMode === 'GENDER_INPUT') document.getElementById('status').innerText = "Garçon ou fille ?"; else if (interactionMode === 'COLOR_INPUT') document.getElementById('status').innerText = "Tes couleurs préférées ?"; else if (interactionMode === 'AGE_INPUT') document.getElementById('status').innerText = "Quel âge as-tu ?"; else if (interactionMode === 'STORY_INPUT' || interactionMode === 'QUESTION_INPUT' || interactionMode === 'CHAT_INPUT' || interactionMode === 'MUSIC_INPUT') document.getElementById('status').innerText = "Je n'ai pas entendu..."; };
-            try { rec.start(); } catch (e) {}
-        }
-
-        function selectMode(mode) {
-            currentAppMode = mode;
-            if (mode === 'CHAT') chatHistory = []; 
-            
-            if (mode === 'DRAW') {
-                document.getElementById('intro-overlay').classList.add('intro-fade-out');
-                setTimeout(() => { document.getElementById('intro-overlay').style.display = 'none'; document.getElementById('slate-layer').style.display = 'block'; initSlate(); }, 800);
-            } 
-            else if (mode === 'COLORING') {
-                document.getElementById('intro-overlay').classList.add('intro-fade-out');
-                setTimeout(() => {
-                    document.getElementById('intro-overlay').style.display = 'none';
-                    document.getElementById('main-interface').classList.add('content-visible');
-                    document.getElementById('main-logo-coloring').classList.remove('hidden');
-                    document.getElementById('coloring-layer').style.display = 'block'; 
-                    document.getElementById('coloring-layer').style.zIndex = "40"; 
-                    initColoring(); 
-                    lancerColoriageAleatoire();
-                }, 800);
-            }
-            else {
-                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume();
-                playSimpleWoosh(); triggerBurst(); document.getElementById('white-flash').classList.add('flash-active');
-                setTimeout(() => {
-                    document.getElementById('intro-overlay').classList.add('intro-fade-out');
-                    document.getElementById('main-interface').classList.add('content-visible');
-                    
-                    if(mode === 'STORY') document.getElementById('main-logo-story').classList.remove('hidden');
-                    else if(mode === 'QUESTION') document.getElementById('main-logo-question').classList.remove('hidden');
-                    else if(mode === 'CHAT') document.getElementById('main-logo-chat').classList.remove('hidden');
-                    else if(mode === 'MUSIC') document.getElementById('main-logo-music').classList.remove('hidden');
-
-                    if (userColor) applyMixedTheme(userColor);
-                    startInteractionSequence();
-                }, 1000);
-                setTimeout(() => { document.getElementById('intro-overlay').style.display = 'none'; }, 2000);
-            }
-        }
-
-        function lancerColoriageAleatoire() {
-            const sujets = ["un mignon chaton", "un dinosaure gentil", "une licorne magique", "un robot rigolo", "une belle voiture de course", "un grand château", "un papillon coloré", "un super-héros courageux", "un dragon mignon", "une jolie fée"];
-            const sujet = sujets[Math.floor(Math.random() * sujets.length)];
-            
-            interactionMode = 'TELLING'; 
-            document.getElementById('status').innerText = "Je prépare ton dessin...";
-            document.getElementById('ai-thinking').classList.remove('hidden');
-            genererColoriage(sujet);
-        }
-
-        function startInteractionSequence() {
-            if (!userPrenom || !userGenre || !userAge || !userColor) {
-                speechQueue.push("Bonjour ! Avant de commencer, dis-moi, es-tu un garçon ou une fille ?");
-                interactionMode = 'GENDER_INPUT'; 
-                document.getElementById('status').innerText = "Garçon ou fille ?"; 
-                parler(); 
-                return;
-            }
-
-            if (currentAppMode === 'STORY') {
-                interactionMode = 'STORY_INPUT'; document.getElementById('status').innerText = "Quelle histoire veux-tu ?";
-                const storyGreetings = [`Coucou ${userPrenom} ! Je suis prête pour une nouvelle aventure. De quoi veux-tu que je parle ?`, `Te revoilà ${userPrenom} ! Ouvre grand tes oreilles, quelle histoire veux-tu entendre ?`, `Bonjour ${userPrenom}. J'ai plein d'histoires en tête aujourd'hui. Dis-moi un mot magique !`, `C'est l'heure de l'histoire ${userPrenom} ! Qu'allons-nous imaginer ensemble ?`, `Salut ${userPrenom} ! Choisis le thème de notre aventure !`];
-                speechQueue.push(storyGreetings[Math.floor(Math.random() * storyGreetings.length)]);
-            } else if (currentAppMode === 'QUESTION') {
-                interactionMode = 'QUESTION_INPUT'; document.getElementById('status').innerText = "Pose ta question...";
-                const questionGreetings = [`Bonjour ${userPrenom}. Je suis curieuse de t'entendre. Quelle est ta question ?`, `Salut ${userPrenom} ! Le monde est rempli de mystères. Qu'est-ce qui t'intrigue ?`, `Coucou ${userPrenom}. Je t'écoute, pose-moi n'importe quelle question.`, `Je suis prête ${userPrenom}. Qu'est-ce que tu aimerais savoir aujourd'hui ?`];
-                speechQueue.push(questionGreetings[Math.floor(Math.random() * questionGreetings.length)]);
-            } else if (currentAppMode === 'CHAT') {
-                interactionMode = 'CHAT_INPUT'; document.getElementById('status').innerText = "On discute ?";
-                const chatGreetings = [`Coucou ${userPrenom} ! Je suis contente de te voir. Raconte-moi, comment ça va aujourd'hui ?`, `Salut ${userPrenom} ! Prêt à papoter ? Qu'est-ce que tu as fait de beau ?`, `Oh ${userPrenom} ! J'avais envie de discuter avec toi. De quoi veux-tu parler ?`];
-                speechQueue.push(chatGreetings[Math.floor(Math.random() * chatGreetings.length)]);
-            } else if (currentAppMode === 'COLORING') {
-                interactionMode = 'COLORING_INPUT'; document.getElementById('status').innerText = "Que veux-tu colorier ?";
-                speechQueue.push(`C'est l'heure des couleurs ! Dis-moi ${userPrenom}, que veux-tu colorier aujourd'hui ?`);
-            } else if (currentAppMode === 'MUSIC') {
-                interactionMode = 'MUSIC_INPUT'; document.getElementById('status').innerText = "Que veux-tu écouter ?";
-                speechQueue.push(`Bienvenue dans la boîte à musique ${userPrenom} ! Dis-moi ce que tu veux : de la guitare, du piano, des chansons de Noël, ou du rock ?`);
-            }
-            parler();
-        }
-
-        function traiterInput(texte) {
-            if (!texte.trim()) return;
-            stopAudio(); 
-            document.getElementById('manualInput').value = "";
-            const lowerText = texte.toLowerCase();
-
-            if (interactionMode === 'GENDER_INPUT') {
-                if (lowerText.includes('garçon') || lowerText.includes('homme')) { userGenre = 'garçon'; next(); } else if (lowerText.includes('fille') || lowerText.includes('femme')) { userGenre = 'fille'; next(); } else { speechQueue.push(`Je n'ai pas bien compris. Es-tu un garçon ou une fille ?`); parler(); }
-                function next() { localStorage.setItem('BOITE_GENRE', userGenre); interactionMode = 'NAME_INPUT'; document.getElementById('status').innerText = `Comment t'appelles-tu ?`; speechQueue.push(`D'accord. Et comment t'appelles-tu ?`); parler(); }
-            } else if (interactionMode === 'NAME_INPUT') {
-                userPrenom = texte.replace(/je m'appelle /i, "").replace(/c'est /i, "").trim(); localStorage.setItem('BOITE_PRENOM', userPrenom);
-                interactionMode = 'COLOR_INPUT'; document.getElementById('status').innerText = `Tes couleurs préférées ?`; speechQueue.push(`Enchantée ${userPrenom} ! Quelles sont tes couleurs préférées ?`); parler();
-            } else if (interactionMode === 'COLOR_INPUT') {
-                userColor = texte; localStorage.setItem('BOITE_COLOR', userColor); applyMixedTheme(userColor);
-                interactionMode = 'AGE_INPUT'; document.getElementById('status').innerText = `Quel âge as-tu ?`; speechQueue.push(`C'est noté. Et quel âge as-tu ?`); parler();
-            } else if (interactionMode === 'AGE_INPUT') {
-                userAge = texte.replace(/j'ai /i, "").replace(/ans/i, "").trim(); localStorage.setItem('BOITE_AGE', userAge);
-                startInteractionSequence(); 
-            } 
-            
-            else if (interactionMode === 'STORY_INPUT') { interactionMode = 'TELLING'; appelIA(texte, 'STORY'); } 
-            else if (interactionMode === 'QUESTION_INPUT') { interactionMode = 'TELLING'; appelIA(texte, 'QUESTION'); }
-            else if (interactionMode === 'CHAT_INPUT') { interactionMode = 'TELLING'; appelIA(texte, 'CHAT'); }
-            else if (interactionMode === 'MUSIC_INPUT') { interactionMode = 'TELLING'; appelIA(texte, 'MUSIC'); }
-            else if (interactionMode === 'COLORING_INPUT') { 
-                interactionMode = 'TELLING';
-                document.getElementById('status').innerText = "Je dessine...";
-                document.getElementById('ai-thinking').classList.remove('hidden');
-                genererColoriage(texte);
-            }
-        }
-
-        function playSpotify(key) {
-            const playlistId = SPOTIFY_DB[key] || SPOTIFY_DB['POP'];
-            const container = document.getElementById('spotify-container');
-            const iframe = document.getElementById('spotify-frame');
-            
-            // Masquer le visualiseur audio car Spotify prend la place
-            document.getElementById('story-card').classList.add('hidden');
-            
-            // Format URL Spotify standard et fiable
-            iframe.src = `https://open.spotify.com/embed/playlist/${playlistId}?utm_source=generator&theme=0`;
-            container.classList.add('active');
-            
-            speechQueue.push("C'est parti ! Musique maestro !");
-            parler();
-        }
-
-        function stopAudio() {
-            if (currentAudio) { currentAudio.pause(); currentAudio = null; }
-            stopVisualizer(); speechQueue = []; isSpeaking = false;
-            document.getElementById('main-header').classList.remove('cinema-mode');
-            document.getElementById('status').classList.remove('hidden');
-            document.getElementById('ai-thinking').classList.add('hidden');
-            
-            if (['NAME_INPUT', 'GENDER_INPUT', 'COLOR_INPUT', 'AGE_INPUT'].includes(interactionMode)) {} 
-            else if (currentAppMode === 'STORY') { interactionMode = 'STORY_INPUT'; document.getElementById('status').innerText = "Une autre histoire ?"; } 
-            else if (currentAppMode === 'QUESTION') { interactionMode = 'QUESTION_INPUT'; document.getElementById('status').innerText = "Une autre question ?"; }
-            else if (currentAppMode === 'CHAT') { interactionMode = 'CHAT_INPUT'; document.getElementById('status').innerText = "À toi..."; }
-            else if (currentAppMode === 'COLORING') { interactionMode = 'COLORING_INPUT'; document.getElementById('status').innerText = "Autre chose ?"; }
-            else if (currentAppMode === 'MUSIC') { interactionMode = 'MUSIC_INPUT'; document.getElementById('status').innerText = "Une autre chanson ?"; }
-
-            toggleStopButton(false); document.getElementById('story-card').classList.add('hidden'); 
-        }
-
-        function toggleStopButton(active) {
-            const container = document.getElementById('stop-container');
-            if (active) { container.classList.remove('opacity-20', 'pointer-events-none'); container.classList.add('opacity-100'); } else { container.classList.add('opacity-20', 'pointer-events-none'); container.classList.remove('opacity-100'); }
-        }
-
-        async function appelIA(sujet, mode) {
-            if (!GEMINI_KEY || !AZURE_KEY || !AZURE_REGION) { verifierCles(); return; }
-            stopAudio();
-            interactionMode = 'TELLING'; 
-            
-            const btnMic = document.getElementById('btn-mic');
-            const statusLabel = document.getElementById('status');
-            const waves = document.getElementById('ai-thinking');
-            
-            playSoftPing(); btnMic.classList.add('understood-flash'); 
-            statusLabel.classList.add('hidden'); 
-            waves.classList.remove('hidden');
-            
-            setTimeout(() => { btnMic.classList.remove('understood-flash'); toggleStopButton(true); }, 800);
-            
-            // Phrases d'attente (Uniquement VISUEL)
-            let waitingPhrase = "Je réfléchis...";
-            if (mode === 'STORY') waitingPhrase = "J'écris ton histoire...";
-            else if (mode === 'QUESTION') waitingPhrase = "Je cherche...";
-            else if (mode === 'MUSIC') waitingPhrase = "Je fouille mes disques...";
-            
-            document.getElementById('status').innerText = waitingPhrase;
-
-            const url = `https://generativelanguage.googleapis.com/v1beta/${MODEL_ID}:streamGenerateContent?alt=sse&key=${GEMINI_KEY}`;
-            let promptIA = "";
-            let contextChild = ""; if (userPrenom) contextChild += `L'enfant s'appelle ${userPrenom} (${userGenre}, ${userAge} ans). `; 
-
-            if (mode === 'STORY') {
-                promptIA = `Tu es une conteuse. ${contextChild} Raconte une aventure sur : "${sujet}".
-                RÈGLES IMPORTANTES :
-                1. Si la demande concerne un personnage connu (ex: Peppa Pig, Trotro, Pat Patrouille, un super-héros...), raconte l'histoire de CE personnage.
-                2. Si la demande est générale (ex: un château, une forêt, un lapin...), invente un héros. Dans ce cas, choisis un prénom au hasard (Milo, Noor, Kenji, Luna, Sam) mais N'UTILISE PAS le prénom de l'enfant (${userPrenom}).
-                3. Ton ton est doux et bienveillant. Phrases simples. Fin heureuse.
-                Commence directement par l'histoire. Termine par "FIN".`;
-            } else if (mode === 'QUESTION') {
-                promptIA = `Encyclopédie bienveillante. ${contextChild} L'enfant demande : "${sujet}". Réponds simplement (3-4 phrases). Ton encourageant. Pas de bonjour.`;
-            } else if (mode === 'CHAT') {
-                chatHistory.push({ role: "user", content: sujet });
-                const recentHistory = chatHistory.slice(-6).map(msg => `${msg.role === 'user' ? 'Enfant' : 'Toi (IA)'}: ${msg.content}`).join('\n');
-                promptIA = `Tu es une amie magique, joyeuse et curieuse. Tu discutes avec ${userPrenom}, ${userAge} ans.
-                Ton but est d'avoir une conversation fluide. Intéresse-toi à lui, pose-lui des questions sur ce qu'il dit, ses goûts, sa journée.
-                Réponds en 2 ou 3 phrases maximum. Sois chaleureuse.
-                Historique :
-                ${recentHistory}
-                Réponds à l'enfant :`;
-            } else if (mode === 'MUSIC') {
-                // Construction dynamique de la liste des clés disponibles pour aider Gemini
-                const availableKeys = Object.keys(SPOTIFY_DB).join(', ');
-                
-                promptIA = `Tu es un DJ expert pour enfants. L'enfant demande : "${sujet}".
-                
-                Ta mission est de trouver la MEILLEURE correspondance dans ma base de données de playlists.
-                Voici les clés disponibles : ${availableKeys}.
-                
-                Règles de correspondance :
-                - Si l'enfant dit "guitare électrique" -> GUITARE_ELEC ou ROCK.
-                - Si "piano calme" -> PIANO.
-                - Si "bruit de pluie" -> PLUIE.
-                - Si "je veux danser" -> DANSE ou FETE.
-                - Si c'est un truc triste -> TRISTE.
-                - Si tu ne trouves rien de précis, choisis POP.
-                
-                Réponds UNIQUEMENT par le mot clé en majuscule (ex: ROCK). Rien d'autre. Pas de phrase.`;
-            }
-
-            try {
-                const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: promptIA }] }] }) });
-                const reader = response.body.getReader(); const decoder = new TextDecoder("utf-8"); let currentSentence = ""; let fullResponseText = "";
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) {
-                        waves.classList.add('hidden'); statusLabel.classList.remove('hidden'); 
-                        statusLabel.innerText = "C'est prêt !";
-                        
-                        if (mode === 'MUSIC') {
-                            // Nettoyage de la réponse IA pour avoir juste le mot clé (ex: "ROCK")
-                            const cleanKey = fullResponseText.trim().toUpperCase().replace(/[^A-Z_]/g, ''); // Accepte les underscores
-                            playSpotify(cleanKey);
-                            interactionMode = 'MUSIC_INPUT';
-                        } else {
-                            // Comportement normal (Parole)
-                            statusLabel.innerText = "Je te réponds...";
-                            if (currentSentence.trim()) { speechQueue.push(currentSentence.trim()); fullResponseText += currentSentence.trim(); parler(); }
-                            if (mode === 'CHAT') chatHistory.push({ role: "model", content: fullResponseText });
-                            
-                            if (mode === 'CHAT') interactionMode = 'CHAT_INPUT';
-                            else if (mode === 'STORY') interactionMode = 'STORY_INPUT';
-                            else if (mode === 'QUESTION') interactionMode = 'QUESTION_INPUT';
-                        }
-                        break;
-                    }
-                    const chunk = decoder.decode(value); const lines = chunk.split("\n");
-                    for (const line of lines) {
-                        if (line.startsWith("data: ")) {
-                            try {
-                                const json = JSON.parse(line.substring(6));
-                                const chunkText = json.candidates[0].content.parts[0].text;
-                                currentSentence += chunkText;
-                                // Si ce n'est pas de la musique, on lit au fur et à mesure
-                                if (mode !== 'MUSIC' && (/[.!?;:]/.test(chunkText) || chunkText.includes("\n"))) {
-                                    const parts = currentSentence.split(/([.!?;:]|\n)/);
-                                    for (let i = 0; i < parts.length - 1; i += 2) { const p = (parts[i] + (parts[i+1] || "")).trim(); if (p.length > 2) { speechQueue.push(p); fullResponseText += p + " "; parler(); } }
-                                    currentSentence = parts[parts.length - 1];
-                                } else {
-                                    fullResponseText += chunkText; // Pour la musique on accumule tout pour analyser à la fin
-                                    currentSentence = "";
-                                }
-                            } catch(e) {}
-                        }
-                    }
-                }
-            } catch (e) { waves.classList.add('hidden'); statusLabel.classList.remove('hidden'); statusLabel.innerText = "Erreur technique..."; }
-        }
-
-        async function textToSpeechAzure(text) {
-            const url = `https://${AZURE_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`;
-            const ssml = `<speak version='1.0' xml:lang='fr-FR'><voice xml:lang='fr-FR' xml:gender='Female' name='${AZURE_VOICE_NAME}'><prosody rate="0.9">${text}</prosody></voice></speak>`;
-            try {
-                const response = await fetch(url, { method: 'POST', headers: { 'Ocp-Apim-Subscription-Key': AZURE_KEY, 'Content-Type': 'application/ssml+xml', 'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3' }, body: ssml });
-                if (!response.ok) throw new Error("Erreur Azure"); return await response.blob();
-            } catch (e) { return null; }
-        }
-
-        async function parler() {
-            if (isSpeaking || speechQueue.length === 0) return;
-            isSpeaking = true; toggleStopButton(true); document.getElementById('main-header').classList.add('cinema-mode'); 
-            
-            // Si le mode musique est actif (iframe visible), on ne montre PAS le visualiseur
-            const spotifyActive = document.getElementById('spotify-container').classList.contains('active');
-            if(!spotifyActive) {
-                document.getElementById('story-card').classList.remove('hidden'); 
-                resizeViz();
-            }
-
-            let txt = speechQueue.shift().replace(/[#*`_]/g, '');
-            
-            // FALLBACK VOICE IF AZURE FAILS OR RETURNS NULL
-            const audioBlob = await textToSpeechAzure(txt);
-            if (audioBlob) {
-                const audioUrl = URL.createObjectURL(audioBlob); currentAudio = new Audio(audioUrl); 
-                // Connecter le visualiseur uniquement si le cadre spotify n'est pas là (sinon conflit visuel)
-                if(!spotifyActive) {
-                    const source = audioCtx.createMediaElementSource(currentAudio); startVisualizer(source, audioCtx);
-                }
-                currentAudio.onended = () => {
-                    isSpeaking = false;
-                    if (speechQueue.length === 0) { 
-                        stopAudio();
-                        if (['NAME_INPUT', 'GENDER_INPUT', 'COLOR_INPUT', 'AGE_INPUT', 'STORY_INPUT', 'QUESTION_INPUT', 'CHAT_INPUT', 'COLORING_INPUT', 'MUSIC_INPUT'].includes(interactionMode)) {
-                            setTimeout(() => { startListening(); }, 500);
-                        }
-                    } else parler(); 
-                };
-                currentAudio.play();
+        // --- PROFILE ---
+        function loadProfile() {
+            const saved = localStorage.getItem('reveur_profile');
+            if (saved) {
+                userProfile = JSON.parse(saved);
+                showPanel('request-panel');
+                document.getElementById('profile-summary').innerText = `${userProfile.childName} & ${userProfile.doudouName}`;
+                document.getElementById('label-child-name').innerText = userProfile.childName; // Mise à jour du label du switch
             } else {
-                // FALLBACK: BROWSER NATIVE TTS
-                const utterance = new SpeechSynthesisUtterance(txt);
-                utterance.lang = 'fr-FR';
-                utterance.rate = 0.9;
-                utterance.onend = () => {
-                    isSpeaking = false;
-                    if (speechQueue.length === 0) {
-                        stopAudio();
-                        if (['NAME_INPUT', 'GENDER_INPUT', 'COLOR_INPUT', 'AGE_INPUT', 'STORY_INPUT', 'QUESTION_INPUT', 'CHAT_INPUT', 'COLORING_INPUT', 'MUSIC_INPUT'].includes(interactionMode)) {
-                            setTimeout(() => { startListening(); }, 500);
-                        }
-                    } else parler();
-                };
-                window.speechSynthesis.speak(utterance);
+                showPanel('setup-panel');
             }
         }
-
-        function verifierCles() {
-            if (!GEMINI_KEY) { const k = prompt("Entre ta clé d'activation magique N°1 (Google) :"); if (k) { localStorage.setItem('BOITE_GEMINI_KEY', k); GEMINI_KEY = k; } }
-            if (!AZURE_KEY) { const k = prompt("Entre ta clé d'activation magique N°2 (Azure) :"); const r = prompt("Entre ta région Azure (ex: francecentral) :"); if (k && r) { localStorage.setItem('BOITE_AZURE_KEY', k); localStorage.setItem('BOITE_AZURE_REGION', r); AZURE_KEY = k; AZURE_REGION = r; } }
-            if (GEMINI_KEY && AZURE_KEY && AZURE_REGION) location.reload();
+        function saveProfile() {
+            const name = document.getElementById('childName').value;
+            if(!name) return alert("Comment s'appelle l'enfant ?");
+            const profile = {
+                childName: name, childAge: document.getElementById('childAge').value || '3',
+                childGender: selectedGender, doudouName: document.getElementById('doudouName').value || 'Doudou',
+                doudouDesc: document.getElementById('doudouDesc').value || 'tout doux'
+            };
+            localStorage.setItem('reveur_profile', JSON.stringify(profile));
+            loadProfile();
         }
-        function oublierTout() { localStorage.removeItem('BOITE_PRENOM'); localStorage.removeItem('BOITE_AGE'); localStorage.removeItem('BOITE_GENRE'); localStorage.removeItem('BOITE_COLOR'); location.reload(); }
+        function resetProfile() { localStorage.removeItem('reveur_profile'); loadProfile(); }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            if (!GEMINI_KEY || !AZURE_KEY) verifierCles();
-            document.getElementById('btn-mic').onclick = () => { startListening(); };
-            document.getElementById('btn-stop').onclick = stopAudio;
-        });
+        // --- STORY ENGINE ---
+        async function startStory() {
+            currentRequest = document.getElementById('storyRequest').value;
+            if (!currentRequest) return alert("Il manque le thème de l'histoire !");
+            
+            // Récupère l'état du switch
+            isChildIncluded = document.getElementById('includeChild').checked;
+
+            // Reset UI
+            currentChapterIndex = 1; totalChapters = 5; storySummary = ""; nextChapterContent = null; currentFullStory = [];
+            document.getElementById('story-scroll-area').innerHTML = "";
+            document.getElementById('the-end').classList.add('hidden');
+            document.getElementById('the-end').style.opacity = '0';
+            document.getElementById('save-btn').style.display = 'flex';
+            document.getElementById('next-chapter-btn').classList.add('hidden');
+            
+            showPanel('reading-panel');
+            await fetchAndDisplayChapter(1);
+        }
+
+        async function fetchAndDisplayChapter(chapterNum) {
+            document.getElementById('initial-loader').classList.remove('hidden');
+            document.getElementById('next-chapter-btn').classList.add('hidden');
+            document.getElementById('preload-status').style.opacity = '0';
+
+            try {
+                let text = "";
+                if (chapterNum > 1 && nextChapterContent) {
+                    text = nextChapterContent;
+                    nextChapterContent = null;
+                } else {
+                    text = await callAI(chapterNum);
+                }
+
+                addTextToPage(text, chapterNum);
+                document.getElementById('initial-loader').classList.add('hidden');
+
+                if (chapterNum < totalChapters) {
+                    preloadNextChapter(chapterNum + 1);
+                } else {
+                    document.getElementById('the-end').classList.remove('hidden');
+                    setTimeout(() => { document.getElementById('the-end').style.opacity = '1'; }, 100);
+                }
+            } catch (e) { alert("Oups : " + e.message); closeStory(); }
+        }
+
+        async function preloadNextChapter(nextChapterNum) {
+            if (isPreloading) return;
+            isPreloading = true;
+            document.getElementById('preload-status').style.opacity = '1';
+            document.getElementById('preload-status').innerText = "La suite s'écrit...";
+            try {
+                nextChapterContent = await callAI(nextChapterNum);
+                document.getElementById('next-chapter-btn').classList.remove('hidden');
+                document.getElementById('preload-status').style.opacity = '0';
+            } catch (e) { console.error(e); } finally { isPreloading = false; }
+        }
+
+        async function callAI(chapter) {
+            const res = await fetch('/api/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    profile: userProfile, 
+                    request: currentRequest, 
+                    chapter: chapter, 
+                    previousSummary: storySummary,
+                    includeChild: isChildIncluded // Envoi du paramètre
+                })
+            });
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+            if (data.totalChapters) totalChapters = data.totalChapters;
+            storySummary = data.text.slice(-300);
+            return data.text;
+        }
+
+        function addTextToPage(text, chapterNum) {
+            currentFullStory[chapterNum - 1] = text; 
+            const container = document.getElementById('story-scroll-area');
+            if (chapterNum > 1) {
+                const marker = document.createElement('div'); marker.className = "chapter-marker fade-in";
+                marker.innerHTML = `<span class="chapter-badge">Chapitre ${chapterNum} / ${totalChapters}</span>`;
+                container.appendChild(marker);
+            }
+            const p = document.createElement('div');
+            p.className = "story-text fade-in glass p-6 md:p-8 rounded-2xl border-l-4 border-indigo-500 shadow-lg";
+            p.innerText = text;
+            container.appendChild(p);
+            if(chapterNum > 1) setTimeout(() => { p.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+        }
+
+        function revealNextChapter() { if (nextChapterContent) { currentChapterIndex++; fetchAndDisplayChapter(currentChapterIndex); } }
+        function closeStory() { showPanel('request-panel'); document.getElementById('storyRequest').value = ""; }
+
+        // --- LIBRARY ---
+        function saveCurrentStory() {
+            if(currentFullStory.length === 0) return;
+            const title = currentRequest.substring(0, 30) + "...";
+            const storyData = { id: Date.now(), title: title, date: new Date().toLocaleDateString(), fullText: currentFullStory, profile: userProfile.childName, totalChapters: totalChapters };
+            let library = JSON.parse(localStorage.getItem('reveur_library') || '[]');
+            library.unshift(storyData);
+            localStorage.setItem('reveur_library', JSON.stringify(library));
+            alert("Sauvegardé ! ❤️");
+            document.getElementById('save-btn').style.display = 'none';
+        }
+
+        function openLibrary() {
+            showPanel('library-panel');
+            const list = document.getElementById('library-list');
+            const library = JSON.parse(localStorage.getItem('reveur_library') || '[]');
+            list.innerHTML = "";
+            if(library.length === 0) { list.innerHTML = '<div class="text-center mt-10 text-indigo-400/50">Aucune histoire.</div>'; return; }
+            library.forEach(story => {
+                const item = document.createElement('div');
+                item.className = "p-4 bg-slate-800/50 rounded-xl border border-white/5 flex justify-between items-center mb-3 cursor-pointer hover:bg-slate-700/50";
+                item.innerHTML = `<div onclick="readSavedStory(${story.id})" class="flex-1"><h3 class="text-white font-bold text-sm">${story.title}</h3><p class="text-xs text-indigo-400">${story.date}</p></div><button onclick="deleteStory(${story.id})" class="text-slate-500 hover:text-red-400"><i class="fa-solid fa-trash"></i></button>`;
+                list.appendChild(item);
+            });
+        }
+
+        function readSavedStory(id) {
+            const story = JSON.parse(localStorage.getItem('reveur_library') || '[]').find(s => s.id === id);
+            if(!story) return;
+            showPanel('reading-panel');
+            document.getElementById('story-scroll-area').innerHTML = "";
+            document.getElementById('next-chapter-btn').classList.add('hidden');
+            document.getElementById('initial-loader').classList.add('hidden');
+            document.getElementById('the-end').classList.remove('hidden');
+            document.getElementById('the-end').style.opacity = '1';
+            document.getElementById('save-btn').style.display = 'none';
+            const container = document.getElementById('story-scroll-area');
+            story.fullText.forEach((text, i) => {
+                const num = i + 1;
+                if (num > 1) { const m = document.createElement('div'); m.className = "chapter-marker"; m.innerHTML = `<span class="chapter-badge">Chapitre ${num} / ${story.totalChapters}</span>`; container.appendChild(m); }
+                const p = document.createElement('div'); p.className = "story-text glass p-6 rounded-2xl border-l-4 border-indigo-500 mb-6"; p.innerText = text; container.appendChild(p);
+            });
+        }
+
+        function deleteStory(id) {
+            if(!confirm("Supprimer ?")) return;
+            let lib = JSON.parse(localStorage.getItem('reveur_library') || '[]');
+            localStorage.setItem('reveur_library', JSON.stringify(lib.filter(s => s.id !== id)));
+            openLibrary();
+        }
+
+        loadProfile();
     </script>
 </body>
 </html>
