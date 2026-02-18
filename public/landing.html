@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArchiAdmin Studio - Retrouvez le temps de créer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Merriweather:ital@0;1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; color: #1E293B; }
+        .font-serif { font-family: 'Merriweather', serif; }
+        .gradient-text { background: linear-gradient(135deg, #0F172A 0%, #3B82F6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .blob { position: absolute; filter: blur(80px); opacity: 0.4; z-index: -1; }
+        .blob-1 { top: 0; left: 0; width: 500px; height: 500px; background-color: #DBEAFE; border-radius: 50%; }
+        .blob-2 { bottom: 0; right: 0; width: 600px; height: 600px; background-color: #F1F5F9; border-radius: 50%; }
+        
+        .shadow-card { box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08); transition: transform 0.3s ease; }
+        .shadow-card:hover { transform: translateY(-5px); }
+        
+        .before-after-card { border-left: 4px solid #CBD5E1; padding-left: 20px; margin-bottom: 30px; }
+        .pain-point { color: #EF4444; margin-bottom: 8px; font-size: 0.95rem; }
+        .pleasure-point { color: #10B981; font-weight: 700; font-size: 1.05rem; }
+
+        .feature-icon { width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.5rem; margin-bottom: 1rem; }
+        
+        /* Pricing highlight */
+        .best-value-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #2563EB; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3); }
+    </style>
+</head>
+<body class="overflow-x-hidden relative">
+
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <nav class="fixed w-full z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="font-black text-2xl tracking-tighter text-slate-900">ArchiAdmin<span class="text-blue-600">.</span></div>
+            <div class="hidden md:flex items-center gap-8 font-medium text-sm">
+                <a href="#problem" class="hover:text-blue-600 transition">Le Constat</a>
+                <a href="#features" class="hover:text-blue-600 transition">Fonctionnalités</a>
+                <a href="#pricing" class="hover:text-blue-600 transition">Tarifs</a>
+                <a href="#pricing" class="bg-slate-900 text-white px-6 py-3 rounded-full font-bold hover:bg-blue-600 transition shadow-lg shadow-blue-900/20">Essai 1 Mois Gratuit</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="pt-40 pb-24 text-center px-6">
+        <div class="max-w-4xl mx-auto">
+            <span class="inline-block py-1 px-3 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-xs font-bold uppercase tracking-wide mb-8">Architectes • Maîtres d'Œuvre • Ingénieurs</span>
+            <h1 class="text-5xl md:text-7xl font-black mb-8 leading-[1.1] tracking-tight">
+                Vous avez signé pour <br> <span class="gradient-text">Dessiner</span>, pas pour <br> remplir des formulaires.
+            </h1>
+            <p class="text-xl text-slate-500 mb-10 max-w-2xl mx-auto leading-relaxed">
+                Votre premier <strong>Assistant de Studio Virtuel</strong> est là. Il rédige vos CCTP, vérifie vos plans et écrit vos comptes-rendus. 
+                <br><span class="text-slate-800 font-bold">Retrouvez 10h de conception par semaine.</span>
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="#pricing" class="bg-blue-600 text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-blue-700 transition shadow-xl shadow-blue-600/30 w-full sm:w-auto">
+                    Je teste gratuitement (1 mois)
+                </a>
+                <a href="#demo" class="bg-white text-slate-700 border border-gray-200 px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-50 transition w-full sm:w-auto">
+                    Voir la démo
+                </a>
+            </div>
+            <p class="text-xs text-slate-400 mt-4"><i class="fa-solid fa-lock mr-1"></i> Aucune carte bancaire requise pour tester.</p>
+        </div>
+    </header>
+
+    <section id="problem" class="py-24 bg-white">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-16 items-center">
+                <div>
+                    <h2 class="text-3xl font-black mb-6 leading-tight">Le dimanche soir,<br> c'est pour la famille.<br> <span class="text-slate-400">Pas pour les CR de chantier.</span></h2>
+                    <p class="text-lg text-slate-600 mb-8 leading-relaxed">
+                        Être architecte aujourd'hui, c'est 20% de création et 80% de gestion administrative, juridique et normative. 
+                        C'est la peur d'oublier une règle PMR. C'est la frustration de copier-coller des notices PC4 à 23h.
+                    </p>
+                    <div class="space-y-6">
+                        <div class="flex gap-4">
+                            <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center text-red-500 text-xl shrink-0"><i class="fa-solid fa-clock"></i></div>
+                            <div>
+                                <h4 class="font-bold text-slate-900">La charge mentale</h4>
+                                <p class="text-sm text-slate-500">Gérer 15 chantiers, les appels d'offres, les visas, et les relances clients simultanément.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center text-red-500 text-xl shrink-0"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                            <div>
+                                <h4 class="font-bold text-slate-900">Le risque juridique</h4>
+                                <p class="text-sm text-slate-500">Un cul-de-sac trop long sur un plan ? Une non-conformité incendie ? C'est votre responsabilité.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative">
+                    <div class="absolute inset-0 bg-blue-600 blur-3xl opacity-10 rounded-full"></div>
+                    <img src="https://placehold.co/600x700/f8fafc/cbd5e1?text=Votre+Pile+de+Dossiers" class="relative rounded-2xl shadow-2xl border border-gray-100 transform rotate-2 hover:rotate-0 transition duration-500" alt="Bureau encombré">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="demo" class="py-24 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <span class="text-blue-600 font-bold uppercase text-xs tracking-widest">Avant / Après</span>
+                <h2 class="text-4xl font-black mt-2 text-slate-900">Un changement radical de quotidien</h2>
+                <p class="text-slate-500 mt-4">Voici comment l'Assistant intervient dans vos journées.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white p-8 rounded-2xl shadow-card border border-gray-100">
+                    <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-2xl mb-6"><i class="fa-solid fa-cloud-rain"></i></div>
+                    <h3 class="font-bold text-xl mb-4">Mardi, 10h : Visite Chantier</h3>
+                    <div class="before-after-card">
+                        <div class="pain-point"><i class="fa-solid fa-xmark mr-2"></i> <strong>Avant :</strong> Notes griffonnées sur un carnet mouillé. 2h de réécriture au bureau le soir.</div>
+                        <div class="pleasure-point"><i class="fa-solid fa-check mr-2"></i> <strong>Avec l'Assistant :</strong></div>
+                    </div>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        Vous prenez des photos. Vous dictez au micro : <em>"Le peintre doit reprendre le plafond..."</em>. En montant dans votre voiture, le rapport PDF est déjà prêt et envoyé.
+                    </p>
+                </div>
+                <div class="bg-white p-8 rounded-2xl shadow-card border border-gray-100">
+                    <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-2xl mb-6"><i class="fa-solid fa-file-contract"></i></div>
+                    <h3 class="font-bold text-xl mb-4">Jeudi, 16h : Dossier PC</h3>
+                    <div class="before-after-card">
+                        <div class="pain-point"><i class="fa-solid fa-xmark mr-2"></i> <strong>Avant :</strong> Syndrome de la page blanche pour la notice PC4. Copier-coller risqué.</div>
+                        <div class="pleasure-point"><i class="fa-solid fa-check mr-2"></i> <strong>Avec l'Assistant :</strong></div>
+                    </div>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        Vous glissez votre perspective 3D. L'Assistant analyse l'image et rédige : <em>"Le projet s'implante en retrait... Toiture deux pentes..."</em>. Une notice parfaite en 10 secondes.
+                    </p>
+                </div>
+                <div class="bg-white p-8 rounded-2xl shadow-card border border-gray-100">
+                    <div class="w-14 h-14 bg-red-100 text-red-600 rounded-xl flex items-center justify-center text-2xl mb-6"><i class="fa-solid fa-ruler-combined"></i></div>
+                    <h3 class="font-bold text-xl mb-4">Vendredi, 14h : Doute Technique</h3>
+                    <div class="before-after-card">
+                        <div class="pain-point"><i class="fa-solid fa-xmark mr-2"></i> <strong>Avant :</strong> Envoyer au BE, attendre 1 semaine, payer, recevoir un avis défavorable.</div>
+                        <div class="pleasure-point"><i class="fa-solid fa-check mr-2"></i> <strong>Avec l'Assistant :</strong></div>
+                    </div>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        Vous soumettez votre plan 2D. Vous cliquez sur "Audit Évacuation". Résultat immédiat : <em>"Attention, cul-de-sac du R+1 ~14m (Max 10m). Non conforme."</em>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-black text-slate-900">L'Arsenal complet de l'Architecte</h2>
+                <p class="text-slate-500 mt-4">6 Experts dédiés réunis dans une seule interface simple.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <div class="p-6 border border-gray-200 rounded-2xl hover:shadow-xl transition group">
+                    <div class="feature-icon bg-red-50 text-red-600 group-hover:bg-red-600 group-hover:text-white transition"><i class="fa-solid fa-shield-halved"></i></div>
+                    <h3 class="font-bold text-lg mb-2">Bureau de Contrôle</h3>
+                    <p class="text-sm text-slate-600 mb-4">Ne laissez plus passer d'erreur. L'Assistant lit vos plans et vérifie les normes (Culs-de-sac, Désenfumage).</p>
+                </div>
+
+                <div class="p-6 border border-gray-200 rounded-2xl hover:shadow-xl transition group">
+                    <div class="feature-icon bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition"><i class="fa-solid fa-file-signature"></i></div>
+                    <h3 class="font-bold text-lg mb-2">Permis & Administratif</h3>
+                    <p class="text-sm text-slate-600 mb-4">Rédaction automatique de la Notice PC4 via l'image 3D et choix assisté du CERFA.</p>
+                </div>
+
+                <div class="p-6 border border-gray-200 rounded-2xl hover:shadow-xl transition group">
+                    <div class="feature-icon bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition"><i class="fa-solid fa-calendar-days"></i></div>
+                    <h3 class="font-bold text-lg mb-2">Planning Expert</h3>
+                    <p class="text-sm text-slate-600 mb-4">Générez un calendrier de chantier prévisionnel cohérent (Gantt) avec gestion des séchages.</p>
+                </div>
+
+                <div class="p-6 border border-gray-200 rounded-2xl hover:shadow-xl transition group">
+                    <div class="feature-icon bg-slate-100 text-slate-600 group-hover:bg-slate-800 group-hover:text-white transition"><i class="fa-solid fa-scale-balanced"></i></div>
+                    <h3 class="font-bold text-lg mb-2">Économie & CCTP</h3>
+                    <p class="text-sm text-slate-600 mb-4">Comparatif CCTP vs Devis pour détecter les oublis et validation des Situations de Travaux.</p>
+                </div>
+
+                <div class="p-6 border border-gray-200 rounded-2xl hover:shadow-xl transition group">
+                    <div class="feature-icon bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition"><i class="fa-solid fa-map"></i></div>
+                    <h3 class="font-bold text-lg mb-2">Urbanisme Localisé</h3>
+                    <p class="text-sm text-slate-600 mb-4">Extraction ciblée des règles (Hauteur, Emprise) dans un PLU PDF par zone.</p>
+                </div>
+
+                <div class="p-6 border border-gray-200 rounded-2xl hover:shadow-xl transition group">
+                    <div class="feature-icon bg-yellow-50 text-yellow-600 group-hover:bg-yellow-600 group-hover:text-white transition"><i class="fa-solid fa-book"></i></div>
+                    <h3 class="font-bold text-lg mb-2">Juridique & Normes</h3>
+                    <p class="text-sm text-slate-600 mb-4">Rédaction de Mises en Demeure formelles et recherche de Normes DTU.</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="pricing" class="py-24 bg-slate-50">
+        <div class="max-w-6xl mx-auto px-6">
+            
+            <div class="grid lg:grid-cols-5 gap-12 items-center">
+                <div class="lg:col-span-2 text-left">
+                    <span class="text-green-600 font-bold uppercase text-xs tracking-widest bg-green-100 px-3 py-1 rounded-full"><i class="fa-solid fa-gift mr-2"></i> Offre de Lancement</span>
+                    <h2 class="text-4xl font-black mt-4 mb-6 text-slate-900 leading-tight">Moins cher qu'une heure d'honoraires.</h2>
+                    
+                    <p class="text-lg text-slate-600 mb-8 leading-relaxed">
+                        Ne calculez pas ce que cela vous coûte, mais ce que cela vous rapporte.
+                        <br><br>
+                        Si l'Assistant vous évite <strong>une seule erreur</strong> sur un chantier ou vous fait gagner <strong>30 minutes</strong> de rédaction par mois, votre abonnement est déjà remboursé.
+                    </p>
+
+                    <div class="space-y-6">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0"><i class="fa-regular fa-calendar-check"></i></div>
+                            <div>
+                                <h4 class="font-bold text-slate-900">1 Mois d'Essai Gratuit</h4>
+                                <p class="text-xs text-slate-500 mt-1">Testez toute la puissance de l'outil sur vos projets actuels. Aucune carte bancaire requise.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0"><i class="fa-solid fa-user-check"></i></div>
+                            <div>
+                                <h4 class="font-bold text-slate-900">Remplace un Secrétariat</h4>
+                                <p class="text-xs text-slate-500 mt-1">Un secrétaire technique coûte 2000€/mois. L'Assistant coûte 29€.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0"><i class="fa-solid fa-unlock"></i></div>
+                            <div>
+                                <h4 class="font-bold text-slate-900">Liberté Totale</h4>
+                                <p class="text-xs text-slate-500 mt-1">Exportez vos données quand vous voulez. Annulez en 1 clic.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-3 grid md:grid-cols-2 gap-6">
+                    <div class="p-8 border border-gray-200 bg-white rounded-2xl flex flex-col hover:border-slate-400 transition">
+                        <h3 class="text-xl font-bold text-slate-500 mb-2">Liberté</h3>
+                        <div class="text-4xl font-black text-slate-900 mb-2">39€ <span class="text-sm font-normal text-gray-400">HT /mois</span></div>
+                        <p class="text-xs text-gray-400 mb-6">Facturation mensuelle sans engagement.</p>
+                        
+                        <ul class="text-left space-y-3 mb-8 text-sm text-slate-600 flex-1">
+                            <li><i class="fa-solid fa-check text-green-500 mr-2"></i> Accès illimité à l'Assistant</li>
+                            <li><i class="fa-solid fa-check text-green-500 mr-2"></i> Toutes les fonctions</li>
+                            <li><i class="fa-solid fa-check text-green-500 mr-2"></i> Exports PDF & Excel</li>
+                        </ul>
+                        <a href="#" class="block w-full py-3 border-2 border-slate-900 text-slate-900 font-bold rounded-xl hover:bg-slate-50 transition text-center">Choisir Mensuel</a>
+                    </div>
+
+                    <div class="p-8 border-2 border-blue-600 bg-white rounded-2xl relative shadow-xl flex flex-col transform md:-translate-y-4">
+                        <div class="best-value-badge">Recommandé</div>
+                        <h3 class="text-xl font-bold text-blue-600 mb-2">Pro Annuel</h3>
+                        <div class="text-4xl font-black text-slate-900 mb-2">29€ <span class="text-sm font-normal text-gray-400">HT /mois</span></div>
+                        <p class="text-xs text-gray-400 mb-6">Facturé 348€ / an (2 mois offerts).</p>
+                        
+                        <ul class="text-left space-y-3 mb-8 text-sm text-slate-600 flex-1">
+                            <li><i class="fa-solid fa-check text-blue-500 mr-2"></i> <strong>Tout l'illimité</strong></li>
+                            <li><i class="fa-solid fa-check text-blue-500 mr-2"></i> <strong>1 Mois OFFERT (Essai)</strong></li>
+                            <li><i class="fa-solid fa-check text-blue-500 mr-2"></i> Support Prioritaire 24h/24</li>
+                            <li><i class="fa-solid fa-check text-blue-500 mr-2"></i> Formation démarrage</li>
+                        </ul>
+                        <a href="#" class="block w-full py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/30 text-center">
+                            Commencer l'essai gratuit
+                        </a>
+                        <p class="text-[10px] text-center text-gray-400 mt-3">30 jours pour changer d'avis.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-slate-900 text-white py-16">
+        <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="text-center md:text-left">
+                <div class="font-black text-2xl mb-2 text-white">ArchiAdmin.</div>
+                <p class="text-slate-400 text-sm">Le studio de production des architectes libres.</p>
+            </div>
+            <div class="flex gap-8 text-sm font-medium text-slate-300">
+                <a href="#" class="hover:text-white">Contact</a>
+                <a href="#" class="hover:text-white">Mentions Légales</a>
+                <a href="#" class="hover:text-white">CGV</a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
