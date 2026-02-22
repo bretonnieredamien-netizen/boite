@@ -3,62 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArchiAdmin Studio v73</title>
+    <title>ArchiAdmin Studio vCloud</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #E5E7EB; color: #1F2937; overflow: hidden; }
-        
-        /* Navigation */
         .nav-btn { text-align: left; padding: 12px 16px; width: 100%; border-radius: 8px; font-size: 13px; font-weight: 500; color: #64748B; transition: 0.2s; display: flex; align-items: center; gap: 12px; }
         .nav-btn:hover { background: #F1F5F9; color: #0F172A; }
         .nav-btn.active { background: #0F172A; color: #fff; font-weight: 600; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        
-        /* Listes Projets */
         .folder-item { padding: 12px 14px; border-bottom: 1px solid #F1F5F9; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; border-left: 4px solid transparent; }
         .folder-item:hover { background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .folder-item.active { background: white; border-right: 1px solid #E5E7EB; }
         .file-item { padding: 12px; background: white; border: 1px solid #E2E8F0; border-radius: 8px; cursor: pointer; transition: 0.2s; margin-bottom: 8px; position: relative; }
         .file-item:hover { border-color: #3B82F6; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-
-        /* Page Layout */
         .sheet-container { background-color: #525659; padding: 40px; overflow-y: auto; height: 100%; width: 100%; display: flex; justify-content: center; align-items: flex-start; }
-        .paper-sheet { background: white; width: 210mm; min-height: 297mm; height: auto; padding: 20mm; box-shadow: 0 4px 20px rgba(0,0,0,0.3); font-family: 'Inter', sans-serif; font-size: 11px; color: #111; line-height: 1.5; box-sizing: border-box; margin-bottom: 50px; overflow: visible; }
-
-        /* Documentation Style */
+        .paper-sheet { background: white; width: 210mm; min-height: 297mm; height: auto; padding: 20mm; box-shadow: 0 4px 20px rgba(0,0,0,0.3); font-family: 'Inter', sans-serif; font-size: 11px; color: #111; line-height: 1.5; box-sizing: border-box; margin-bottom: 50px; overflow: visible; max-width: 100%; }
+        
         .doc-section { margin-bottom: 30px; background: white; padding: 25px; border-radius: 12px; border: 1px solid #E5E7EB; }
         .doc-title { font-size: 18px; font-weight: 800; color: #111; margin-bottom: 15px; border-bottom: 2px solid #F3F4F6; padding-bottom: 10px; }
-        .doc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .doc-item h4 { font-weight: 700; color: #2563EB; margin-bottom: 5px; font-size: 13px; }
-        .doc-item p { font-size: 12px; color: #4B5563; line-height: 1.5; margin-bottom: 10px; }
-        .key-badge { display: inline-block; background: #1F2937; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; margin-right: 5px; }
-
-        /* Markdown Styles - TABLEAU COMPACT */
+        
         .markdown-body h1 { font-size: 18px; font-weight: 900; text-transform: uppercase; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
         .markdown-body h2 { font-size: 13px; font-weight: 800; text-transform: uppercase; color: #2563EB; background: #EFF6FF; padding: 5px 10px; margin-top: 20px; border-left: 4px solid #2563EB; }
-        .markdown-body table { width: 100% !important; border-collapse: collapse; margin: 15px 0; border: 1px solid #CBD5E1; border-radius: 4px; font-size: 9px; }
-        .markdown-body th { background: #1E293B; color: white; padding: 6px 8px; text-align: left; text-transform: uppercase; font-weight: 700; border: 1px solid #334155; }
-        .markdown-body td { padding: 6px 8px; border: 1px solid #E2E8F0; vertical-align: middle; }
-        .markdown-body td:last-child { font-weight: 800; text-align: center; background-color: #F8FAFC; }
-
-        /* UI Components */
+        .markdown-body table { width: 100% !important; border-collapse: collapse; margin: 15px 0; border: 1px solid #CBD5E1; border-radius: 4px; font-size: 8px; }
+        .markdown-body th { background: #1E293B; color: white; padding: 5px 4px; text-align: left; text-transform: uppercase; font-weight: 700; border: 1px solid #334155; }
+        .markdown-body td { padding: 5px 4px; border: 1px solid #E2E8F0; vertical-align: middle; text-align: center; }
+        .markdown-body td:nth-child(1), .markdown-body td:nth-child(2) { text-align: left; font-weight: bold; }
+        .markdown-body td:contains("X") { background-color: #EFF6FF; color: #2563EB; font-weight: 900; }
+        .markdown-body img { max-width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: 20px 0; }
+        
+        .table-responsive { width: 100%; overflow-x: auto; margin: 15px 0; border-radius: 4px; box-shadow: 0 0 0 1px #CBD5E1; }
         .checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 5px; }
         .check-item { display: flex; align-items: center; gap: 6px; font-size: 10px; color: #475569; cursor: pointer; padding: 4px 6px; border: 1px solid #E2E8F0; border-radius: 4px; transition: 0.2s; background: white; }
         .check-item:hover { border-color: #94A3B8; background: #F8FAFC; }
         .check-item input:checked + span { font-weight: 800; color: #2563EB; }
-        .drop-zone { border: 2px dashed #CBD5E1; border-radius: 8px; transition: 0.2s; background: #F8FAFC; }
+        .drop-zone { border: 2px dashed #CBD5E1; border-radius: 8px; transition: 0.2s; background: #F8FAFC; position: relative; }
         .drop-zone:hover { border-color: #64748B; background: #fff; }
         .color-swatch { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
         .color-swatch.selected { border-color: #000; box-shadow: 0 0 0 2px white, 0 0 0 4px #000; }
-        
-        /* Utils */
-        .mic-active { color: #EF4444 !important; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         .d-none { display: none !important; }
         .grouped-cell { border-top: none !important; color: transparent !important; }
         #config-modal.hidden, #project-modal.hidden { display: none; pointer-events: none; opacity: 0; }
@@ -69,10 +60,27 @@
 </head>
 <body class="h-screen flex overflow-hidden text-sm">
 
+    <div id="login-screen" class="fixed inset-0 bg-slate-900 z-[100] flex flex-col items-center justify-center text-white transition-opacity duration-500">
+        <div class="bg-white text-slate-900 p-8 rounded-xl shadow-2xl w-96 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-purple-600"></div>
+            <h2 class="text-3xl font-black mb-1 text-center mt-2">ArchiAdmin.</h2>
+            <p class="text-[10px] text-slate-400 text-center mb-6 uppercase tracking-widest font-bold"><i class="fa-solid fa-cloud text-blue-500"></i> Agence Cloud Connectée</p>
+            
+            <label class="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Email Collaborateur</label>
+            <input type="email" id="login-email" class="w-full border border-gray-300 rounded px-3 py-2.5 mb-4 text-sm font-bold outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition">
+            
+            <label class="text-[10px] font-bold uppercase text-slate-500 mb-1 block">Mot de passe</label>
+            <input type="password" id="login-pass" class="w-full border border-gray-300 rounded px-3 py-2.5 mb-6 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition">
+            
+            <button onclick="loginApp()" id="btn-login" class="w-full bg-slate-900 text-white font-bold py-3 rounded-lg text-xs hover:bg-slate-800 transition shadow-lg transform active:scale-95">SE CONNECTER</button>
+            <p id="login-error" class="text-red-500 text-xs text-center mt-4 hidden font-bold"></p>
+        </div>
+    </div>
+
     <aside class="w-64 bg-white border-r border-gray-200 flex flex-col z-20 hidden md:flex">
         <div class="p-6 border-b border-gray-100">
             <h1 id="brand-name" class="text-xl font-black tracking-tight text-slate-900">ArchiAdmin.</h1>
-            <p class="text-[10px] text-gray-400 font-bold uppercase mt-1">Studio v73</p>
+            <p class="text-[10px] text-emerald-500 font-bold uppercase mt-1"><i class="fa-solid fa-wifi"></i> Cloud Sync</p>
         </div>
         <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
             <div class="text-[10px] font-bold text-gray-400 uppercase px-3 mb-2 tracking-wider">Technique</div>
@@ -80,6 +88,7 @@
             <button onclick="switchMode('control')" id="btn-control" class="nav-btn"><i class="fa-solid fa-shield-halved w-5"></i> Bureau Contrôle</button>
             <button onclick="switchMode('acoustic')" id="btn-acoustic" class="nav-btn"><i class="fa-solid fa-volume-high w-5"></i> Expert Acoustique</button>
             <button onclick="switchMode('cctp')" id="btn-cctp" class="nav-btn"><i class="fa-solid fa-file-contract w-5"></i> CCTP</button>
+            <button onclick="switchMode('dpgf')" id="btn-dpgf" class="nav-btn"><i class="fa-solid fa-ruler-combined w-5"></i> Pré-Métré DPGF</button>
             <button onclick="switchMode('comparison')" id="btn-comparison" class="nav-btn"><i class="fa-solid fa-scale-balanced w-5"></i> Devis</button>
             
             <div class="text-[10px] font-bold text-gray-400 uppercase px-3 mb-2 mt-6 tracking-wider">Chantier</div>
@@ -97,7 +106,7 @@
             </div>
         </nav>
         <div class="p-4 border-t border-gray-100">
-            <button onclick="UI.toggleConfig()" class="w-full text-left font-bold text-gray-500 hover:text-black flex items-center gap-2"><i class="fa-solid fa-sliders"></i> Réglages</button>
+            <button onclick="UI.toggleConfig()" class="w-full text-left font-bold text-gray-500 hover:text-black flex items-center gap-2"><i class="fa-solid fa-sliders"></i> Réglages Agence</button>
         </div>
     </aside>
 
@@ -108,10 +117,9 @@
                 <span id="active-project-display" class="font-bold text-blue-700 bg-blue-50 px-3 py-1.5 rounded-md text-xs">Général</span>
             </div>
             <div id="header-tools" class="flex gap-2">
-                <button id="check-text-btn" onclick="showExtractedText()" class="hidden text-[10px] text-gray-400 hover:text-black mr-2 flex items-center gap-1"><i class="fa-solid fa-eye"></i> SOURCE</button>
                 <button id="share-btn" onclick="shareToOffice()" class="hidden bg-emerald-600 text-white px-3 py-2 rounded-md font-bold hover:bg-emerald-700 text-xs flex items-center gap-2 transition animate-pulse"><i class="fa-solid fa-paper-plane"></i> ENVOYER</button>
                 <button id="excel-btn" onclick="exportToExcel()" class="hidden bg-green-600 text-white px-3 py-2 rounded-md font-bold hover:bg-green-700 text-xs flex items-center gap-2 transition"><i class="fa-solid fa-table"></i> EXCEL</button>
-                <button id="save-btn" onclick="saveDocument()" class="hidden bg-blue-600 text-white px-3 py-2 rounded-md font-bold hover:bg-blue-700 text-xs flex items-center gap-2 transition"><i class="fa-solid fa-save"></i> ARCHIVER</button>
+                <button id="save-btn" onclick="saveDocument()" class="hidden bg-blue-600 text-white px-3 py-2 rounded-md font-bold hover:bg-blue-700 text-xs flex items-center gap-2 transition"><i class="fa-solid fa-cloud-arrow-up"></i> SAUVEGARDER (CLOUD)</button>
                 <button onclick="exportPDF()" class="bg-slate-900 text-white px-3 py-2 rounded-md font-bold hover:bg-slate-800 text-xs flex items-center gap-2 transition"><i class="fa-solid fa-file-pdf"></i> PDF</button>
             </div>
         </header>
@@ -129,9 +137,9 @@
                 </div>
 
                 <div id="planning-form" class="d-none flex-col gap-4">
-                    <div><label class="text-[10px] font-bold uppercase text-gray-400">Projet</label><input type="text" id="plan-desc" class="w-full border-b border-gray-300 py-1 text-sm font-bold outline-none"></div>
-                    <div><label class="text-[10px] font-bold uppercase text-gray-400">Date Démarrage</label><input type="date" id="plan-date" class="w-full border border-gray-200 rounded p-2 text-xs font-bold"></div>
-                    <div><label class="text-[10px] font-bold uppercase text-gray-400">Lots</label>
+                    <div><label class="text-[10px] font-bold uppercase text-gray-400">Projet (Indiquer Surface)</label><input type="text" id="plan-desc" placeholder="Ex: Maison 150m2..." class="w-full border-b border-gray-300 py-1 text-sm font-bold outline-none focus:border-black"></div>
+                    <div><label class="text-[10px] font-bold uppercase text-gray-400">Date Démarrage</label><input type="date" id="plan-date" class="w-full border border-gray-200 rounded p-2 text-xs font-bold focus:border-black"></div>
+                    <div><label class="text-[10px] font-bold uppercase text-gray-400 mb-1">Lots (Pour mode Chantier)</label>
                         <div class="checkbox-grid">
                             <label class="check-item"><input type="checkbox" value="Terrassement" checked><span>Terrassement</span></label>
                             <label class="check-item"><input type="checkbox" value="Fondations" checked><span>Fondations</span></label>
@@ -147,36 +155,46 @@
                             <label class="check-item"><input type="checkbox" value="VRD/Extérieur"><span>VRD</span></label>
                         </div>
                     </div>
+                    <div class="flex gap-2 pt-2">
+                        <button onclick="triggerPlanningAction('etudes')" class="flex-1 bg-indigo-50 text-indigo-700 py-3 rounded text-[10px] font-bold border border-indigo-100 hover:bg-indigo-100 transition shadow-sm"><i class="fa-solid fa-pen-ruler mb-1 block text-sm"></i> ÉTUDES (ARCHI)</button>
+                        <button onclick="triggerPlanningAction('chantier')" class="flex-1 bg-amber-50 text-amber-700 py-3 rounded text-[10px] font-bold border border-amber-100 hover:bg-amber-100 transition shadow-sm"><i class="fa-solid fa-person-digging mb-1 block text-sm"></i> CHANTIER</button>
+                    </div>
                 </div>
 
                 <div id="permit-form" class="d-none flex-col gap-4">
-                    <div><label class="text-[10px] font-bold uppercase text-gray-400">Destination (Classement)</label><select id="permit-class" class="w-full border-b border-gray-300 py-1 text-sm font-bold outline-none bg-transparent"><option value="MI">Maison Individuelle</option><option value="LC">Logement Collectif</option><option value="ERP">ERP / Commerce</option><option value="AGRI">Agricole / Industriel</option><option value="ANNEXE">Annexe</option></select></div>
-                    <div><label class="text-[10px] font-bold uppercase text-gray-400">Type de Travaux</label><select id="permit-work" class="w-full border-b border-gray-300 py-1 text-sm font-bold outline-none bg-transparent"><option value="NEUF">Construction Neuve</option><option value="EXT_S">Extension < 40m²</option><option value="EXT_L">Extension > 40m²</option><option value="FACADE">Modif. Façade</option><option value="CHANGE">Changement de destination</option><option value="DIV">Division parcellaire</option></select></div>
+                    <div><label class="text-[10px] font-bold uppercase text-gray-400">Destination (Classement)</label><select id="permit-class" class="w-full border-b border-gray-300 py-1 text-sm font-bold outline-none bg-transparent"><option value="MI">Maison Individuelle</option><option value="LC">Logement Collectif</option><option value="ERP">ERP / Commerce</option><option value="AGRI">Agricole / Industriel</option><option value="ANNEXE">Annexe (Garage/Piscine)</option></select></div>
+                    <div><label class="text-[10px] font-bold uppercase text-gray-400">Type de Travaux</label><select id="permit-work" class="w-full border-b border-gray-300 py-1 text-sm font-bold outline-none bg-transparent"><option value="NEUF">Construction Neuve</option><option value="EXT_S">Extension < 40m²</option><option value="EXT_L">Extension > 40m²</option><option value="FACADE">Modif. Façade / Toiture</option><option value="CHANGE">Changement de destination</option><option value="DIV">Division parcellaire</option></select></div>
                     <div class="flex gap-2 pt-2"><button onclick="triggerPermitAction('notice')" class="flex-1 bg-blue-50 text-blue-700 py-3 rounded text-[10px] font-bold border border-blue-100 hover:bg-blue-100 transition shadow-sm"><i class="fa-solid fa-pen-fancy mb-1 block text-sm"></i> NOTICE</button><button onclick="triggerPermitAction('cerfa')" class="flex-1 bg-slate-100 text-slate-700 py-3 rounded text-[10px] font-bold border border-slate-200 hover:bg-slate-200 transition shadow-sm"><i class="fa-solid fa-file-contract mb-1 block text-sm"></i> CERFA ?</button></div>
                 </div>
 
                 <div id="control-form" class="d-none flex-col gap-4">
-                    <div><label class="text-[10px] font-bold uppercase text-gray-400">Réglementation</label><select id="ctrl-reg" class="w-full border-b border-gray-300 py-1 text-sm font-bold outline-none bg-transparent"><option value="ERP_5">ERP 5ème Cat.</option><option value="ERP_G">ERP 1-4 Cat.</option><option value="CDT">Code du Travail</option><option value="HAB">Habitation</option><option value="ICPE">ICPE</option></select></div>
+                    <div><label class="text-[10px] font-bold uppercase text-gray-400">Réglementation</label><select id="ctrl-reg" class="w-full border-b border-gray-300 py-1 text-sm font-bold outline-none bg-transparent"><option value="ERP_5">ERP 5ème Cat.</option><option value="ERP_G">ERP 1-4 Cat.</option><option value="CDT">Code du Travail (ERT)</option><option value="HAB">Habitation</option><option value="ICPE">ICPE</option></select></div>
                     <div><label class="text-[10px] font-bold uppercase text-gray-400">Activité (Si ERP)</label><input type="text" id="ctrl-type" placeholder="Ex: Magasin (M)..." class="w-full border-b border-gray-300 py-1 text-sm font-bold outline-none"></div>
-                    <div class="grid grid-cols-2 gap-2 pt-2"><button onclick="triggerControlAction('general')" class="col-span-2 bg-red-50 text-red-700 py-3 rounded text-[10px] font-bold border border-red-100 hover:bg-red-100 transition shadow-sm"><i class="fa-solid fa-clipboard-check mb-1 block text-sm"></i> AUDIT GLOBAL</button><button onclick="triggerControlAction('evac')" class="bg-orange-50 text-orange-700 py-2 rounded text-[10px] font-bold border border-orange-100 hover:bg-orange-100 transition"><i class="fa-solid fa-person-running mb-1 block"></i> ÉVACUATION</button><button onclick="triggerControlAction('smoke')" class="bg-gray-100 text-gray-700 py-2 rounded text-[10px] font-bold border border-gray-200 hover:bg-gray-200 transition"><i class="fa-solid fa-wind mb-1 block"></i> DÉSENFUMAGE</button></div>
+                    
+                    <div class="grid grid-cols-2 gap-2 pt-2">
+                        <button onclick="triggerControlAction('general')" class="col-span-2 bg-red-50 text-red-700 py-3 rounded text-[10px] font-bold border border-red-100 hover:bg-red-100 transition shadow-sm"><i class="fa-solid fa-clipboard-check mb-1 block text-sm"></i> AUDIT GLOBAL (COMPLET)</button>
+                        <button onclick="triggerControlAction('evac')" class="bg-orange-50 text-orange-700 py-2 rounded text-[10px] font-bold border border-orange-100 hover:bg-orange-100 transition"><i class="fa-solid fa-person-running mb-1 block"></i> ÉVACUATION</button>
+                        <button onclick="triggerControlAction('smoke')" class="bg-gray-100 text-gray-700 py-2 rounded text-[10px] font-bold border border-gray-200 hover:bg-gray-200 transition"><i class="fa-solid fa-wind mb-1 block"></i> DÉSENFUMAGE</button>
+                        <button onclick="triggerControlAction('pmr')" class="col-span-2 bg-blue-50 text-blue-700 py-2 rounded text-[10px] font-bold border border-blue-200 hover:bg-blue-200 transition"><i class="fa-solid fa-wheelchair mb-1 block"></i> AUDIT ACCÈS PMR</button>
+                    </div>
                 </div>
 
                 <div id="acoustic-form" class="d-none flex-col gap-4">
                     <div>
                         <label class="text-[10px] font-bold uppercase text-gray-400">Type de Bâtiment</label>
                         <select id="acou-type" class="w-full border-b border-gray-300 py-1 text-sm font-bold outline-none bg-transparent">
-                            <option value="LOGEMENT">Logement (NRA 2000)</option>
                             <option value="BUREAU">Bureaux (NF S 31-080)</option>
+                            <option value="LOGEMENT">Logement (NRA 2000)</option>
                             <option value="ECOLE">Enseignement</option>
-                            <option value="HOTEL">Hôtel / Hébergement</option>
-                            <option value="SANTE">Établissement de Santé</option>
+                            <option value="HOTEL">Hôtel</option>
+                            <option value="SANTE">Santé</option>
                         </select>
                     </div>
                     <div>
                         <label class="text-[10px] font-bold uppercase text-gray-400">Environnement Extérieur</label>
                         <select id="acou-env" class="w-full border-b border-gray-300 py-1 text-sm font-bold outline-none bg-transparent">
                             <option value="CALME">Calme (Campagne/Résid.)</option>
-                            <option value="BR2">Bruyant (Rue passante - 30dB)</option>
+                            <option value="BR2">Bruyant (Rue - 30dB)</option>
                             <option value="BR3">Très Bruyant (Voie rapide - 35dB)</option>
                             <option value="BR4">Point Noir Bruit (Ferroviaire)</option>
                         </select>
@@ -188,9 +206,41 @@
                 </div>
 
                 <div id="inputs-files">
-                    <div id="zone-a" class="flex flex-col mb-4"><label id="label-a" class="text-[10px] font-bold uppercase text-gray-400 mb-1">Source A</label><div class="drop-zone h-20 flex flex-col items-center justify-center cursor-pointer" onclick="document.getElementById('input-a').click()"><input type="file" id="input-a" class="hidden" onchange="loadFile(this, 'A')"><div id="ph-a" class="text-center text-gray-400"><i class="fa-solid fa-file-arrow-up mb-1 text-lg"></i><div class="text-[9px] font-bold">FICHIER</div></div><div id="ok-a" class="hidden text-center text-emerald-600 font-bold text-[10px] truncate px-2"></div></div></div>
-                    <div id="zone-b" class="hidden flex-col mb-4"><label class="text-[10px] font-bold uppercase text-gray-400 mb-1">Comparatif B</label><div class="drop-zone h-20 flex flex-col items-center justify-center cursor-pointer" onclick="document.getElementById('input-b').click()"><input type="file" id="input-b" class="hidden" onchange="loadFile(this, 'B')"><div id="ph-b" class="text-center text-gray-400"><i class="fa-solid fa-upload"></i></div><div id="ok-b" class="hidden text-center text-blue-600 font-bold text-[10px] truncate px-2"></div></div></div>
-                    <div id="zone-img" class="hidden flex-col mb-4"><label id="label-img" class="text-[10px] font-bold uppercase text-gray-400 mb-1">Photos</label><div class="drop-zone p-2 flex flex-col items-center justify-center cursor-pointer" onclick="document.getElementById('input-img').click()"><input type="file" id="input-img" multiple class="hidden" onchange="loadImages(this.files)"><div id="ph-img" class="text-center text-gray-400 py-2"><i class="fa-solid fa-camera"></i></div><div id="prev-img" class="hidden grid grid-cols-3 gap-1 w-full"></div></div></div>
+                    <div id="zone-a" class="flex flex-col mb-4">
+                        <label id="label-a" class="text-[10px] font-bold uppercase text-gray-400 mb-1">Source A</label>
+                        <div class="drop-zone h-20 flex flex-col items-center justify-center cursor-pointer group" onclick="document.getElementById('input-a').click()">
+                            <input type="file" id="input-a" class="hidden" onchange="loadFile(this, 'A')">
+                            <div id="ph-a" class="text-center text-gray-400"><i class="fa-solid fa-file-arrow-up mb-1 text-lg"></i><div class="text-[9px] font-bold">FICHIER</div></div>
+                            <div id="ok-a" class="hidden text-center w-full relative px-2">
+                                <span id="name-a" class="text-emerald-600 font-bold text-[10px] truncate block px-4"></span>
+                                <button onclick="clearFile(event, 'A')" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition bg-white rounded-full"><i class="fa-solid fa-times-circle text-lg"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="zone-b" class="hidden flex-col mb-4">
+                        <label class="text-[10px] font-bold uppercase text-gray-400 mb-1">Comparatif B</label>
+                        <div class="drop-zone h-20 flex flex-col items-center justify-center cursor-pointer group" onclick="document.getElementById('input-b').click()">
+                            <input type="file" id="input-b" class="hidden" onchange="loadFile(this, 'B')">
+                            <div id="ph-b" class="text-center text-gray-400"><i class="fa-solid fa-upload"></i></div>
+                            <div id="ok-b" class="hidden text-center w-full relative px-2">
+                                <span id="name-b" class="text-blue-600 font-bold text-[10px] truncate block px-4"></span>
+                                <button onclick="clearFile(event, 'B')" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition bg-white rounded-full"><i class="fa-solid fa-times-circle text-lg"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="zone-img" class="hidden flex-col mb-4">
+                        <label id="label-img" class="text-[10px] font-bold uppercase text-gray-400 mb-1">Photos</label>
+                        <div class="drop-zone p-2 flex flex-col items-center justify-center cursor-pointer relative group" onclick="document.getElementById('input-img').click()">
+                            <input type="file" id="input-img" multiple class="hidden" onchange="loadImages(this.files)">
+                            <div id="ph-img" class="text-center text-gray-400 py-2"><i class="fa-solid fa-camera text-xl"></i></div>
+                            <div id="prev-img" class="hidden w-full relative p-2">
+                                <div id="img-grid" class="grid grid-cols-3 gap-1"></div>
+                                <button onclick="clearFile(event, 'IMG')" class="absolute -top-3 -right-2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition bg-white rounded-full shadow"><i class="fa-solid fa-times-circle text-xl"></i></button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="text-input-zone" class="flex-1 flex flex-col">
@@ -204,7 +254,15 @@
                 <div id="tutorial-view" class="d-none w-full h-full bg-gray-100 overflow-y-auto p-10">
                     <div class="max-w-4xl mx-auto space-y-8 pb-20">
                         <div class="text-center mb-10"><h1 class="text-3xl font-black text-slate-900 mb-2">Manuel ArchiAdmin</h1><p class="text-slate-500 text-sm">Le compagnon digital de l'architecte.</p></div>
-                        <div class="doc-section"><h2 class="doc-title"><i class="fa-solid fa-shield-halved text-red-600 mr-2"></i> Bureau de Contrôle</h2><p>Ce module transforme l'IA en contrôleur technique. Chargez votre plan (image de préférence).</p><p><strong>Audit Sécurité :</strong> Analyse globale des risques et cohérence.</p><p><strong>Évacuation :</strong> L'IA cherche les cotes INTÉRIEURES sur le plan pour se calibrer, ignore l'extérieur, et vérifie scrupuleusement les culs-de-sac et unités de passage.</p><p><strong>Désenfumage :</strong> Identifie les locaux aveugles ou circulations nécessitant un balayage.</p></div>
+                        <div class="doc-section">
+                            <h2 class="doc-title"><i class="fa-solid fa-shield-halved text-red-600 mr-2"></i> Bureau de Contrôle</h2>
+                            <p><strong>Audit Sécurité :</strong> L'IA vérifie scrupuleusement les culs-de-sac et unités de passage.</p>
+                            <p><strong>Audit PMR :</strong> L'IA vérifie les girations, passages utiles, et sanitaires.</p>
+                        </div>
+                        <div class="doc-section">
+                            <h2 class="doc-title"><i class="fa-solid fa-ruler-combined text-emerald-600 mr-2"></i> Pré-Métré DPGF</h2>
+                            <p>L'IA scanne le plan que vous lui soumettez et dresse un tableau exhaustif des ouvrages à chiffrer par lots, vous permettant de préparer vos budgets sans rien oublier.</p>
+                        </div>
                     </div>
                 </div>
                 <div id="sheet-wrapper" class="sheet-container">
@@ -220,15 +278,286 @@
 
     <aside class="w-72 bg-white border-l border-gray-200 flex flex-col z-20">
         <div class="flex-1 flex flex-col overflow-hidden border-b border-gray-200"><div class="p-4 bg-slate-50 border-b border-gray-200 flex justify-between items-center"><span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">MES PROJETS</span><button onclick="openProjectModal()" class="bg-slate-900 text-white w-6 h-6 rounded flex items-center justify-center hover:bg-slate-700 shadow"><i class="fa-solid fa-plus text-xs"></i></button></div><div id="folder-list" class="flex-1 overflow-y-auto"></div></div>
-        <div class="h-2/5 flex flex-col overflow-hidden"><div class="p-3 bg-slate-50 border-b border-gray-200 flex justify-between items-center"><span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">ARCHIVES</span><button onclick="deleteDoc()" class="text-slate-400 hover:text-red-500 text-[10px] flex items-center gap-1"><i class="fa-solid fa-trash-can"></i></button></div><div id="file-list" class="flex-1 overflow-y-auto bg-slate-50/50"></div></div>
+        <div class="h-2/5 flex flex-col overflow-hidden"><div class="p-3 bg-slate-50 border-b border-gray-200 flex justify-between items-center"><span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">DOCUMENTS DU PROJET</span></div><div id="file-list" class="flex-1 overflow-y-auto bg-slate-50/50"></div></div>
     </aside>
 
     <div id="project-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center"><div class="bg-white p-6 rounded-xl w-80 shadow-2xl"><h3 class="font-bold text-lg mb-4">Nouveau Projet</h3><input id="new-project-name" type="text" class="w-full border-b-2 py-2 mb-6 font-bold outline-none focus:border-black" placeholder="Nom du projet"><p class="text-[10px] font-bold uppercase text-gray-400 mb-2">Couleur</p><div class="flex justify-between mb-6" id="color-picker"><div class="color-swatch bg-blue-500 selected" data-color="blue" onclick="selectColor(this)"></div><div class="color-swatch bg-emerald-500" data-color="emerald" onclick="selectColor(this)"></div><div class="color-swatch bg-orange-500" data-color="orange" onclick="selectColor(this)"></div><div class="color-swatch bg-purple-500" data-color="purple" onclick="selectColor(this)"></div><div class="color-swatch bg-pink-500" data-color="pink" onclick="selectColor(this)"></div><div class="color-swatch bg-slate-500" data-color="slate" onclick="selectColor(this)"></div></div><div class="flex gap-2"><button onclick="closeProjectModal()" class="flex-1 bg-gray-100 py-2 rounded text-xs font-bold">Annuler</button><button onclick="createNewProject()" class="flex-1 bg-black text-white py-2 rounded text-xs font-bold">Créer</button></div></div></div>
-    <div id="config-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center"><div class="bg-white p-8 rounded-xl w-96 shadow-2xl"><h3 class="font-bold text-lg mb-6">Paramètres</h3><input id="cfg-name" type="text" class="w-full border-b-2 py-2 mb-6 font-bold outline-none" placeholder="Nom Agence"><div class="flex gap-2 mb-6"><button onclick="backupData()" class="flex-1 bg-blue-50 text-blue-600 py-2 rounded text-[10px] font-bold">EXPORTER</button><button onclick="document.getElementById('restore-input').click()" class="flex-1 bg-white border border-slate-200 text-slate-600 py-2 rounded text-[10px] font-bold">IMPORTER</button><input type="file" id="restore-input" class="hidden" onchange="restoreData(this)"></div><button onclick="UI.toggleConfig()" class="w-full bg-black text-white py-3 rounded-lg text-xs font-bold">FERMER</button></div></div>
+    
+    <div id="config-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div class="bg-white p-8 rounded-xl w-[450px] shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-black text-xl">Paramètres Agence</h3>
+                <button onclick="UI.toggleConfig()" class="text-gray-400 hover:text-black"><i class="fa-solid fa-times"></i></button>
+            </div>
+            
+            <div class="space-y-4 mb-6">
+                <div>
+                    <label class="text-[10px] font-bold uppercase text-gray-400 block mb-1">Logo</label>
+                    <input type="file" accept="image/*" class="text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 w-full" onchange="encodeImg(this, 'logo')">
+                    <img id="cfg-logo-preview" class="mt-2 h-12 object-contain hidden border border-gray-200 p-1 rounded">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold uppercase text-gray-400 block mb-1">Nom de l'entreprise</label>
+                    <input id="cfg-name" type="text" class="w-full border border-gray-300 rounded px-3 py-2 text-sm font-bold outline-none focus:border-blue-500" placeholder="Ex: Studio Archi">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold uppercase text-gray-400 block mb-1">Adresse complète</label>
+                    <input id="cfg-address" type="text" class="w-full border border-gray-300 rounded px-3 py-2 text-sm outline-none focus:border-blue-500" placeholder="Ex: 12 Rue de la Paix, 75001 Paris">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold uppercase text-gray-400 block mb-1">Téléphone</label>
+                        <input id="cfg-phone" type="text" class="w-full border border-gray-300 rounded px-3 py-2 text-sm outline-none focus:border-blue-500" placeholder="Ex: 01 23 45 67 89">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold uppercase text-gray-400 block mb-1">Email</label>
+                        <input id="cfg-email" type="text" class="w-full border border-gray-300 rounded px-3 py-2 text-sm outline-none focus:border-blue-500" placeholder="Ex: contact@agence.fr">
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="saveConfig()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg text-xs hover:bg-blue-700 transition mb-6 shadow-md shadow-blue-600/20">ENREGISTRER SUR LE CLOUD</button>
+
+            <div class="border-t border-gray-100 pt-6">
+                <button onclick="exportData()" class="w-full bg-slate-100 text-slate-700 py-2 rounded text-[10px] font-bold hover:bg-slate-200 transition mb-3"><i class="fa-solid fa-download mr-1"></i> EXPORTER UNE SAUVEGARDE LOCALE</button>
+                <button onclick="logoutApp()" class="w-full bg-red-50 text-red-600 py-2 rounded text-[10px] font-bold hover:bg-red-100 transition border border-red-200"><i class="fa-solid fa-power-off mr-1"></i> DÉCONNEXION</button>
+            </div>
+        </div>
+    </div>
+    
     <div id="toast-container" class="bg-slate-900 text-white px-5 py-3 rounded-lg shadow-xl flex items-center gap-3"><span id="toast-msg" class="text-xs font-bold">OK</span></div>
 
     <script>
-        // ... (Logique Projets inchangée) ...
+        // 1. CONFIGURATION FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyDOjXwxvmllhEW79ldTSSB-U_NbjOBvkms",
+            authDomain: "archiadmin-6be75.firebaseapp.com",
+            projectId: "archiadmin-6be75",
+            storageBucket: "archiadmin-6be75.firebasestorage.app",
+            messagingSenderId: "126740785188",
+            appId: "1:126740785188:web:a0c2241767bc191f2d50b1"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // 2. VARIABLES GLOBALES
+        let folders = [];
+        let docs = [];
+        let config = {name: "ARCHI"};
+        let currentFolder = "Général"; 
+        let currentMode = "plu", inputA = "", inputB = "", inputImgs = [], selectedColor = 'blue';
+
+        // 3. AUTHENTIFICATION
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // Connecté : On cache l'écran de login et on charge les données Cloud
+                document.getElementById('login-screen').style.opacity = '0';
+                setTimeout(() => document.getElementById('login-screen').classList.add('hidden'), 500);
+                loadDataFromFirebase();
+            } else {
+                // Déconnecté : On affiche l'écran de login
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('login-screen').style.opacity = '1';
+            }
+        });
+
+        function loginApp() {
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-pass').value;
+            const errorP = document.getElementById('login-error');
+            const btn = document.getElementById('btn-login');
+            
+            if(!email || !pass) return;
+            btn.innerText = "CONNEXION EN COURS...";
+            
+            auth.signInWithEmailAndPassword(email, pass)
+                .then(() => { errorP.classList.add('hidden'); btn.innerText = "SE CONNECTER"; })
+                .catch((error) => {
+                    errorP.innerText = "Identifiants incorrects.";
+                    errorP.classList.remove('hidden');
+                    btn.innerText = "SE CONNECTER";
+                });
+        }
+
+        function logoutApp() {
+            auth.signOut().then(() => {
+                UI.toggleConfig();
+            });
+        }
+
+        // 4. SYNCHRONISATION CLOUD (FIRESTORE)
+        function loadDataFromFirebase() {
+            // A. Charger la configuration de l'agence
+            db.collection("agency").doc("config").onSnapshot(doc => {
+                if (doc.exists) {
+                    config = doc.data();
+                    applyConfigUI();
+                }
+            });
+
+            // B. Charger les dossiers (Projets) en temps réel
+            db.collection("folders").onSnapshot(snap => {
+                folders = [];
+                snap.forEach(doc => folders.push(doc.data()));
+                
+                if (folders.length === 0) {
+                    // Création du dossier par défaut si la base est vide
+                    db.collection("folders").doc("Général").set({name: "Général", color: "blue"});
+                } else {
+                    // Vérifier si le dossier courant existe toujours
+                    if (!folders.find(f => f.name === currentFolder)) {
+                        currentFolder = folders[0].name;
+                    }
+                    renderFolders();
+                    renderDocs(); // Rafraîchir les docs du dossier actif
+                }
+            });
+
+            // C. Charger les documents
+            db.collection("docs").orderBy("id", "desc").onSnapshot(snap => {
+                docs = [];
+                snap.forEach(doc => docs.push(doc.data()));
+                renderDocs();
+            });
+        }
+
+        // 5. FONCTIONS DE MISE A JOUR DE L'INTERFACE
+        function applyConfigUI() {
+            document.getElementById('brand-name').innerText = config.name || 'ArchiAdmin.'; 
+            document.getElementById('cfg-name').value = config.name || '';
+            document.getElementById('cfg-address').value = config.address || '';
+            document.getElementById('cfg-phone').value = config.phone || '';
+            document.getElementById('cfg-email').value = config.email || '';
+            if(config.logo) {
+                const img = document.getElementById('cfg-logo-preview');
+                img.src = config.logo;
+                img.classList.remove('hidden');
+            }
+            if(document.getElementById('result-output').innerHTML !== "") {
+                // Si un document est déjà affiché, on ne le recharge pas violemment, on laisse l'utilisateur travailler
+            }
+        }
+
+        function getHeaderHTML() {
+            let logoContent = config.logo ? `<img src="${config.logo}" style="max-height: 50px; max-width: 180px; object-fit: contain;">` : `<h2 style="margin:0; font-size: 20px; font-weight: 900; color: #0F172A; text-transform: uppercase; letter-spacing: -0.5px;">${config.name || 'AGENCE'}</h2>`;
+            return `
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #E2E8F0; padding-bottom: 20px; margin-bottom: 30px;">
+                <div style="flex: 0 0 50%;">
+                    ${logoContent}
+                </div>
+                <div style="flex: 0 0 50%; text-align: right; font-size: 10px; color: #64748B; line-height: 1.5; font-family: 'Inter', sans-serif;">
+                    <strong style="color: #0F172A; font-size: 12px; text-transform: uppercase;">${config.name || 'AGENCE'}</strong><br>
+                    ${config.address ? `${config.address}<br>` : ''}
+                    ${config.phone ? `${config.phone} &bull; ` : ''} ${config.email ? `${config.email}` : ''}
+                </div>
+            </div>
+            `;
+        }
+
+        function renderFolders() { 
+            const list = document.getElementById('folder-list'); 
+            list.innerHTML = ""; 
+            folders.forEach(f => { 
+                const div = document.createElement('div'); 
+                const colorClass = `border-l-${f.color}-500`; 
+                const bgClass = f.name === currentFolder ? `bg-${f.color}-50` : ''; 
+                const textClass = f.name === currentFolder ? `text-${f.color}-700` : 'text-slate-600'; 
+                div.className = `folder-item ${bgClass} ${textClass} ${f.name === currentFolder ? colorClass : 'border-l-transparent'}`; 
+                
+                let html = `<span onclick="selectFolder('${f.name}')" class="truncate flex items-center gap-2"><i class="fa-regular fa-folder opacity-50"></i> ${f.name}</span>`; 
+                if(f.name !== "Général" && f.name !== "General") {
+                    html += `<i onclick="deleteFolder('${f.name}')" class="fa-solid fa-times opacity-20 hover:opacity-100 hover:text-red-500"></i>`; 
+                }
+                div.innerHTML = html; 
+                list.appendChild(div); 
+            }); 
+            document.getElementById('active-project-display').innerText = currentFolder; 
+        }
+
+        function renderDocs() { 
+            const list = document.getElementById('file-list'); 
+            list.innerHTML = ""; 
+            const filtered = docs.filter(d => d.folder === currentFolder); 
+            if(filtered.length === 0) { 
+                list.innerHTML = "<p class='text-[10px] text-slate-300 text-center mt-4'>Aucun document</p>"; 
+                return; 
+            } 
+            filtered.forEach(d => { 
+                const div = document.createElement('div'); 
+                div.className = "file-item group"; 
+                div.onclick = () => loadDoc(d.id); 
+                div.innerHTML = `<div class="flex justify-between font-bold text-slate-500 mb-1"><span class="uppercase text-[9px] bg-slate-100 px-1 rounded">${d.mode}</span><span class="text-[8px]">${d.date}</span></div><div class="flex justify-between items-center"><span class="text-[10px] font-bold text-slate-700">Ouvrir le rapport</span><button onclick="event.stopPropagation(); deleteDoc('${d.id}')" class="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100"><i class="fa-solid fa-trash"></i></button></div>`; 
+                list.appendChild(div); 
+            }); 
+        }
+
+        // 6. ACTIONS SUR LA BASE DE DONNÉES CLOUD
+        function createNewProject() { 
+            const name = document.getElementById('new-project-name').value; 
+            if(name && name.trim()) { 
+                const cleanName = name.trim(); 
+                if(!folders.find(f => f.name === cleanName)) { 
+                    db.collection("folders").doc(cleanName).set({ name: cleanName, color: selectedColor });
+                    selectFolder(cleanName); 
+                    closeProjectModal(); 
+                } 
+            } 
+        }
+
+        function deleteFolder(name) { 
+            if(confirm("Supprimer ce projet et tous ses documents pour toute l'agence ?")) { 
+                db.collection("folders").doc(name).delete();
+                // Supprimer aussi les documents liés
+                docs.filter(d => d.folder === name).forEach(d => {
+                    db.collection("docs").doc(d.id.toString()).delete();
+                });
+            } 
+        }
+
+        function saveConfig() { 
+            config.name = document.getElementById('cfg-name').value; 
+            config.address = document.getElementById('cfg-address').value; 
+            config.phone = document.getElementById('cfg-phone').value; 
+            config.email = document.getElementById('cfg-email').value; 
+            db.collection("agency").doc("config").set(config).then(() => {
+                UI.toast("Agence synchronisée"); 
+                UI.toggleConfig(); 
+            });
+        }
+
+        function saveDocument() { 
+            const content = document.getElementById('result-output').innerHTML; 
+            if(!content || content.length < 50) return; 
+            const docId = Date.now().toString();
+            const newDoc = { 
+                id: docId, 
+                folder: currentFolder, 
+                mode: currentMode, 
+                date: new Date().toLocaleDateString(), 
+                content: content 
+            }; 
+            db.collection("docs").doc(docId).set(newDoc).then(() => {
+                UI.toast("Sauvegardé sur le Cloud"); 
+            });
+        }
+
+        function deleteDoc(id) { 
+            if(id) { 
+                if(confirm("Supprimer ce document ?")) { 
+                    db.collection("docs").doc(id.toString()).delete();
+                } 
+            } 
+        }
+
+        // =========================================================
+        // LOGIQUE MÉTIER ET IA (INCHANGÉE)
+        // =========================================================
+        function selectFolder(name) { currentFolder = name; renderFolders(); renderDocs(); }
+        function openProjectModal() { document.getElementById('project-modal').classList.remove('hidden'); document.getElementById('new-project-name').focus(); }
+        function closeProjectModal() { document.getElementById('project-modal').classList.add('hidden'); }
+        function selectColor(el) { document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected')); el.classList.add('selected'); selectedColor = el.dataset.color; }
+
         async function locateZone() {
             const addr = document.getElementById('plu-address').value;
             if(!addr) return alert("Veuillez entrer une adresse.");
@@ -243,40 +572,32 @@
             } catch (e) { alert("Erreur réseau."); }
         }
 
-        let rawFolders = JSON.parse(localStorage.getItem('folders') || '["Général"]');
-        let folders = rawFolders.map(f => typeof f === 'string' ? {name: f, color: 'blue'} : f);
-        let docs = JSON.parse(localStorage.getItem('docs') || '[]');
-        let config = JSON.parse(localStorage.getItem('config') || '{"name":"ARCHI"}');
-        let currentFolder = folders[0].name; 
-        let currentMode = "plu", inputA = "", inputB = "", inputImgs = [], selectedColor = 'blue';
-
-        function openProjectModal() { document.getElementById('project-modal').classList.remove('hidden'); document.getElementById('new-project-name').focus(); }
-        function closeProjectModal() { document.getElementById('project-modal').classList.add('hidden'); }
-        function selectColor(el) { document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected')); el.classList.add('selected'); selectedColor = el.dataset.color; }
-        function createNewProject() { const name = document.getElementById('new-project-name').value; if(name && name.trim()) { const cleanName = removeAccents(name.trim()); if(!folders.find(f => f.name === cleanName)) { folders.push({ name: cleanName, color: selectedColor }); localStorage.setItem('folders', JSON.stringify(folders)); renderFolders(); selectFolder(cleanName); closeProjectModal(); } } }
-        function renderFolders() { const list = document.getElementById('folder-list'); list.innerHTML = ""; folders.forEach(f => { const div = document.createElement('div'); const colorClass = `border-l-${f.color}-500`; const bgClass = f.name === currentFolder ? `bg-${f.color}-50` : ''; const textClass = f.name === currentFolder ? `text-${f.color}-700` : 'text-slate-600'; div.className = `folder-item ${bgClass} ${textClass} ${f.name === currentFolder ? colorClass : 'border-l-transparent'}`; let html = `<span onclick="selectFolder('${f.name}')" class="truncate flex items-center gap-2"><i class="fa-regular fa-folder opacity-50"></i> ${f.name}</span>`; if(f.name !== "Général" && f.name !== "General") html += `<i onclick="deleteFolder('${f.name}')" class="fa-solid fa-times opacity-20 hover:opacity-100 hover:text-red-500"></i>`; div.innerHTML = html; list.appendChild(div); }); document.getElementById('active-project-display').innerText = currentFolder; }
-        function selectFolder(name) { currentFolder = name; renderFolders(); renderDocs(); }
-        function deleteFolder(name) { if(confirm("Supprimer ?")) { folders = folders.filter(f => f.name !== name); docs = docs.filter(d => d.folder !== name); localStorage.setItem('folders', JSON.stringify(folders)); localStorage.setItem('docs', JSON.stringify(docs)); selectFolder(folders[0].name); } }
-
         function getWeekNumber(d) { d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7)); var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1)); return Math.ceil((((d - yearStart) / 86400000) + 1) / 7); }
-        function removeAccents(str) { return str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
+        
         function formatModernText(text) {
-            let clean = removeAccents(text);
+            let clean = text.replace(/```(?:markdown|html)?\n?/gi, '').replace(/```\n?/g, '').trim();
             clean = clean.replace(/^# (.*$)/gim, '<h1>$1</h1>').replace(/^## (.*$)/gim, '<h2>$1</h2>').replace(/^### (.*$)/gim, '<h3>$1</h3>').replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>').replace(/\n/g, '<br>');
             if(clean.includes('|')) {
                 const rows = clean.split('<br>').filter(r => r.includes('|') && !r.includes('---'));
                 if(rows.length > 0) {
-                    let t = '<table>';
-                    if(rows[0]) t += '<tr>' + rows[0].split('|').filter(c => c.trim()).map(c => `<th>${c.trim()}</th>`).join('') + '</tr>';
+                    let t = '<div class="table-responsive"><table>';
+                    if(rows[0]) t += '<tr>' + rows[0].split('|').filter(c => c.trim() !== "").map(c => `<th>${c.trim()}</th>`).join('') + '</tr>';
                     for(let i=1; i<rows.length; i++) {
-                        let cells = rows[i].split('|').filter(c => c.trim()); let rHTML = '<tr>';
-                        cells.forEach(c => rHTML += `<td>${c.trim()}</td>`); rHTML += '</tr>'; t += rHTML;
+                        let cells = rows[i].split('|');
+                        if(cells[0].trim() === "") cells.shift();
+                        if(cells[cells.length-1].trim() === "") cells.pop();
+                        let rHTML = '<tr>';
+                        cells.forEach(c => rHTML += `<td>${c.trim()}</td>`); 
+                        rHTML += '</tr>'; 
+                        t += rHTML;
                     }
-                    t += '</table>'; clean = clean.replace(/(\|.*\|.*<br>)+/g, t);
+                    t += '</table></div>'; 
+                    clean = clean.replace(/(\|.*\|.*<br>)+/g, t);
                 }
             }
             return clean;
         }
+
         function optimizeTable() { const table = document.querySelector('table'); if(!table) return; const rows = table.querySelectorAll('tr'); let lastPhase = ""; for(let i=1; i<rows.length; i++) { const cell = rows[i].cells[0]; if(currentMode === 'planning' && cell) { const txt = cell.innerText.trim(); if(txt === lastPhase && txt !== "") { cell.classList.add('grouped-cell'); } else { lastPhase = txt; } } } }
 
         const modeInfos = {
@@ -285,18 +606,104 @@
             comparison: { t: "Comparatif", d: "Ecarts prix Devis vs CCTP." },
             situation: { t: "Situation", d: "Validation avancement." },
             report: { t: "Rapport", d: "Compte-rendu photos." },
-            planning: { t: "Planning Expert", d: "Calcul S01... avec regle sechage dalle 21j." },
+            planning: { t: "Planning Expert", d: "Calcul chronologique des phases Études ou Chantier." },
             expertise: { t: "Expertise", d: "Questions techniques DTU." },
             legal: { t: "Juridique", d: "OS et mises en demeure." },
             permit: { t: "Notice & Cerfa", d: "Chargez vos images 3D/Façades pour rédiger la Notice ou trouver le Cerfa." },
-            control: { t: "Bureau de Contrôle", d: "Audit réglementaire (Sécurité, Évacuation, Désenfumage) sur Plan." },
+            control: { t: "Bureau de Contrôle", d: "Audit réglementaire complet (Incendie, Évacuation, Désenfumage et Accessibilité PMR) sur Plan." },
             acoustic: { t: "Expert Acoustique", d: "Vérification des isolements (Façade, Cloisons) et points de vigilance phonique." },
+            dpgf: { t: "Pré-Métré DPGF", d: "Extraction détaillée des quantitatifs et ouvrages depuis votre plan pour préparer le budget." },
             tutorial: { t: "Tutoriels", d: "Documentation" }
         };
 
-        document.addEventListener('DOMContentLoaded', () => { document.getElementById('brand-name').innerText = config.name; renderFolders(); selectFolder(folders[0].name); switchMode('plu'); });
+        function clearFile(e, slot) {
+            if(e) e.stopPropagation();
+            if (slot === 'A') {
+                inputA = ""; document.getElementById('input-a').value = ""; document.getElementById('ok-a').classList.add('hidden'); document.getElementById('ph-a').classList.remove('hidden');
+            } else if (slot === 'B') {
+                inputB = ""; document.getElementById('input-b').value = ""; document.getElementById('ok-b').classList.add('hidden'); document.getElementById('ph-b').classList.remove('hidden');
+            } else if (slot === 'IMG') {
+                inputImgs = []; document.getElementById('input-img').value = ""; document.getElementById('prev-img').classList.add('hidden'); document.getElementById('ph-img').classList.remove('hidden'); document.getElementById('img-grid').innerHTML = "";
+            }
+        }
 
-        function showExtractedText() { if(!inputA) return alert("Rien"); const w = window.open("", "D", "width=600,height=600"); w.document.write("<pre>"+inputA+"</pre>"); }
+        async function loadFile(input, slot) { 
+            const file = input.files[0]; 
+            if(!file) return; 
+            const okDiv = document.getElementById(`ok-${slot.toLowerCase()}`);
+            const nameSpan = document.getElementById(`name-${slot.toLowerCase()}`);
+            document.getElementById(`ph-${slot.toLowerCase()}`).classList.add('hidden'); 
+            nameSpan.innerText = "Lecture..."; 
+            okDiv.classList.remove('hidden'); 
+            setTimeout(async () => {
+                try {
+                    if(file.type.includes('pdf')) { 
+                        const data=await file.arrayBuffer(); 
+                        const pdf=await pdfjsLib.getDocument({data}).promise; 
+                        let txt=""; 
+                        for(let i=1;i<=pdf.numPages;i++) { txt+=(await (await pdf.getPage(i)).getTextContent()).items.map(s=>s.str).join(' '); }
+                        if(slot==='A') { inputA=txt; } else inputB=txt; 
+                    } else {
+                        if(slot==='A') { inputA="[Image chargée]"; } 
+                    }
+                    nameSpan.innerText = file.name;
+                } catch(e) {
+                    nameSpan.innerText = "Erreur";
+                }
+            }, 50);
+        }
+
+        function loadImages(files) { 
+            if(!files || files.length === 0) return;
+            inputImgs=[]; const grid=document.getElementById('img-grid'); grid.innerHTML=""; 
+            document.getElementById('ph-img').classList.add('hidden'); document.getElementById('prev-img').classList.remove('hidden'); 
+            Array.from(files).forEach(f=>{ 
+                const r=new FileReader(); 
+                r.onload=e=>{ inputImgs.push(e.target.result.split(',')[1]); grid.innerHTML+=`<img src="${e.target.result}" class="h-10 w-full object-cover rounded border">`; }; 
+                r.readAsDataURL(f); 
+            }); 
+        }
+
+        function triggerPlanningAction(type) {
+            const desc = document.getElementById('plan-desc').value || "Projet standard";
+            const dateVal = document.getElementById('plan-date').value;
+            const lots = Array.from(document.querySelectorAll('.checkbox-grid input:checked')).map(cb => cb.value).join(", ");
+            let startWeek = "S01"; let year = new Date().getFullYear();
+            if(dateVal) { const d = new Date(dateVal); const w = getWeekNumber(d); year = d.getFullYear(); startWeek = `S${w < 10 ? '0'+w : w}`; }
+            let instruction = "";
+            if (type === 'chantier') {
+                instruction = `AGIS COMME: Planificateur Expert BTP. PROJET: ${desc}. DÉBUT: Semaine ${startWeek} (${year}). LOTS: ${lots}. CONSIGNE: Tableau Markdown GANTT en cascade (waterfall). Une tâche commence quand la précédente finit. Ajoute "Séchage Maçonnerie" (3 sem) après Maçonnerie. Format: | Phase | Tâche | Durée (sem) | ${startWeek} | ... | Remplis avec 'X' les semaines actives, laisse vide sinon.`;
+            } else if (type === 'etudes') {
+                instruction = `AGIS COMME: Architecte Directeur. PROJET: ${desc}. DÉBUT: Semaine ${startWeek} (${year}). MISSION: Planning Loi MOP Client. Estime les durées selon l'ampleur "${desc}". CHRONOLOGIE STRICTE: 1.Relevé > 2.ESQ > 3.APS > 4.APD > 5.DPC > 6.Instruction Mairie (8-12 sem) > 7.PRO/DCE > 8.ACT. Format: | Phase | Tâche | Durée (sem) | ${startWeek} | ... | Remplis avec 'X' les semaines actives, laisse vide sinon.`;
+            }
+            runAI(instruction);
+        }
+        
+        function triggerControlAction(subMode) {
+            const reg = document.getElementById('ctrl-reg').value;
+            const type = document.getElementById('ctrl-type').value || "Non spécifié";
+            let rulesContext = "";
+            if(reg.includes("HAB")) rulesContext = "Habitation (CCH). Culs-de-sac 10m/15m.";
+            if(reg.includes("ERP")) rulesContext = "ERP (Arrêté 1980). 1UP=0.90m. Culs-de-sac < 10m.";
+            if(reg.includes("CDT")) rulesContext = "Code Travail. Culs-de-sac < 30m.";
+            
+            let instruction = `MISSION: BUREAU DE CONTRÔLE. RÉGLEMENTATION: ${reg} (${type}). RÈGLES: ${rulesContext}. TACHE: Audit plan détaillé. IGNORE joints dilatation. RÈGLE CRITIQUE : Cherche textes 'IS' ou 'Issue' ou portes extérieures comme points de fuite pour mesurer distances.`;
+            
+            if (subMode === 'general') instruction += `\nFOCUS : AUDIT GLOBAL (Incendie, Evacuation, Désenfumage ET Accessibilité PMR).`; 
+            else if (subMode === 'evac') instruction += `\nFOCUS : Évacuation & Culs-de-sac.`; 
+            else if (subMode === 'smoke') instruction += `\nFOCUS : Désenfumage.`;
+            else if (subMode === 'pmr') instruction += `\nFOCUS : Accessibilité PMR.`;
+            
+            runAI(instruction);
+        }
+
+        function triggerAcousticAction(action) {
+            const type = document.getElementById('acou-type').value;
+            const env = document.getElementById('acou-env').value;
+            let instruction = `RÔLE : Ingénieur Acousticien. PROJET : ${type}. ENVIRONNEMENT : ${env}. MISSION : Analyse plan.`;
+            if (action === 'audit') instruction += `\n1. Conflits acoustiques (WC/Chambre). 2. Isolement Façade. 3. Isolement Intérieur.`; else if (action === 'partition') instruction += `\nFOCUS CLOISONS : Préconise matériaux (SAD, Placostil) et portes (dB).`;
+            runAI(instruction);
+        }
 
         async function runAI(hiddenInstruction = null) {
             document.getElementById('loader').classList.remove('hidden');
@@ -306,14 +713,6 @@
             if (hiddenInstruction) {
                 p = hiddenInstruction + "\n\nCONTEXTE UTILISATEUR & NOTES : " + userInput;
             }
-            else if(currentMode === "planning") {
-                const desc = document.getElementById('plan-desc').value || "Maison";
-                const dateVal = document.getElementById('plan-date').value;
-                const lots = Array.from(document.querySelectorAll('.checkbox-grid input:checked')).map(cb => cb.value).join(", ");
-                let startWeek = "S01"; let year = new Date().getFullYear();
-                if(dateVal) { const d = new Date(dateVal); const w = getWeekNumber(d); year = d.getFullYear(); startWeek = `S${w < 10 ? '0'+w : w}`; }
-                p = `ROLE: Expert Planification. PROJET: ${desc}. DEBUT: Semaine ${startWeek} (${year}). LOTS: ${lots}. CONSIGNE: Tableau (Phase | Tache | Duree | Semaines ${startWeek}+). Regle sechage 21j pour maconnerie. Pas de numeros.`;
-            } 
             else if (currentMode === "plu") {
                 const zone = document.getElementById('plu-zone').value || "Non definie";
                 const adresse = document.getElementById('plu-address').value || "Non definie";
@@ -324,173 +723,97 @@
             try {
                 const res = await fetch('/api/archi_tool', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ mode: currentMode, projectName: currentFolder, pdfContent: inputA, quoteContent: inputB, images: inputImgs, inputData: p, currentDate: new Date().toLocaleDateString() }) });
                 const rawText = await res.text();
+                
                 let html = formatModernText(rawText);
-                if(currentMode === "plu") { const addr = document.getElementById('plu-address').value; if(addr) html = `<h1>ANALYSE URBAINE - ${addr.toUpperCase()}</h1>` + html; }
+                html = getHeaderHTML() + html;
+
+                if(currentMode === "plu") { 
+                    const addr = document.getElementById('plu-address').value; 
+                    if(addr) html = html.replace(getHeaderHTML(), getHeaderHTML() + `<h1>ANALYSE URBAINE - ${addr.toUpperCase()}</h1>`); 
+                }
+
+                if (currentMode === "report" && inputImgs.length > 0) {
+                    html += `<h2 style="margin-top: 40px; border-bottom: 2px solid #000; padding-bottom: 10px;">ANNEXE PHOTOGRAPHIQUE</h2><div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px;">`;
+                    inputImgs.forEach((imgBase64, idx) => { html += `<div style="break-inside: avoid;"><img src="data:image/jpeg;base64,${imgBase64}" style="width: 100%; border-radius: 8px; border: 1px solid #CBD5E1;"><p style="text-align: center; font-size: 9px; font-weight: bold; color: #64748B; margin-top: 5px;">Photo ${idx + 1}</p></div>`; }); html += `</div>`;
+                } else if ((currentMode === "permit" || currentMode === "control" || currentMode === "acoustic" || currentMode === "dpgf") && inputImgs.length > 0) {
+                    html += `<h2 style="margin-top: 40px; border-bottom: 2px solid #000; padding-bottom: 10px;">DOCUMENTS GRAPHIQUES</h2><div style="margin-top: 15px; text-align: center;">`;
+                    inputImgs.forEach((imgBase64) => { html += `<img src="data:image/jpeg;base64,${imgBase64}" style="max-width: 100%; max-height: 800px; border-radius: 8px; border: 1px solid #CBD5E1; margin-bottom: 15px; display: inline-block; break-inside: avoid;">`; }); html += `</div>`;
+                }
                 document.getElementById('result-output').innerHTML = html;
+                
                 document.getElementById('empty-state').classList.add('hidden'); 
                 document.getElementById('save-btn').classList.remove('hidden');
                 document.getElementById('share-btn').classList.remove('hidden');
-                if(html.includes('<table')) { document.getElementById('excel-btn').classList.remove('hidden'); setTimeout(optimizeTable, 100); }
+                if(document.getElementById('result-output').innerHTML.includes('<table')) { document.getElementById('excel-btn').classList.remove('hidden'); setTimeout(optimizeTable, 100); }
             } catch(e) { alert("Erreur IA"); } finally { document.getElementById('loader').classList.add('hidden'); }
         }
-        
-        function triggerPermitAction(action) {
-            const classement = document.getElementById('permit-class').value;
-            const travaux = document.getElementById('permit-work').value;
-            let instruction = "";
-            if (action === 'notice') instruction = `ACTION: RÉDACTION NOTICE PC4. TYPE: ${classement} - ${travaux}. TACHE: Analyse visuelle (Façades, 3D) pour notice.`;
-            else if (action === 'cerfa') instruction = `ACTION: IDENTIFICATION CERFA. TYPE: ${classement} - ${travaux}. TACHE: Indique le CERFA exact.`;
-            runAI(instruction);
-        }
 
-        function triggerControlAction(subMode) {
-            const reg = document.getElementById('ctrl-reg').value;
-            const type = document.getElementById('ctrl-type').value || "Non spécifié";
-            let rulesContext = "";
-            if(reg.includes("HAB")) rulesContext = "Habitation (CCH). Culs-de-sac 10m/15m.";
-            if(reg.includes("ERP")) rulesContext = "ERP (CO). 1UP=0.90m, 2UP=1.40m. Culs-de-sac < 10m.";
-            if(reg.includes("CDT")) rulesContext = "Code Travail. Culs-de-sac < 30m.";
-            let instruction = `MISSION: BUREAU DE CONTRÔLE. RÉGLEMENTATION: ${reg} (${type}). RÈGLES: ${rulesContext}. TACHE: Audit plan. IGNORE cotes extérieures. FOCUS cotes intérieures.`;
-            if (subMode === 'general') instruction += `\nFOCUS : Vue d'ensemble.`;
-            else if (subMode === 'evac') instruction += `\nFOCUS : Évacuation & Culs-de-sac.`;
-            else if (subMode === 'smoke') instruction += `\nFOCUS : Désenfumage.`;
-            runAI(instruction);
-        }
-
-        function triggerAcousticAction(action) {
-            const type = document.getElementById('acou-type').value;
-            const env = document.getElementById('acou-env').value;
-            let instruction = `RÔLE : Ingénieur Acousticien. PROJET : ${type}. ENVIRONNEMENT : ${env}. MISSION : Analyse plan.`;
-            if (action === 'audit') instruction += `\n1. Conflits acoustiques (WC/Chambre). 2. Isolement Façade. 3. Isolement Intérieur.`;
-            else if (action === 'partition') instruction += `\nFOCUS CLOISONS : Préconise matériaux (SAD, Placostil) et portes (dB).`;
-            runAI(instruction);
-        }
-
-        async function shareToOffice() { const content = document.getElementById('result-output').innerText; if(!content || content.length < 10) return alert("Rien"); const title = `ArchiAdmin - ${currentMode.toUpperCase()} - ${currentFolder}`; if (navigator.share) { try { await navigator.share({ title: title, text: content }); } catch (err) {} } else { window.location.href = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(content)}`; } }
-
-        function switchMode(mode) {
-            currentMode = mode; 
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); document.getElementById('btn-'+mode).classList.add('active');
-            const info = modeInfos[mode]; document.getElementById('help-title').innerText = info.t; document.getElementById('help-desc').innerText = info.d;
-            
-            document.getElementById('result-output').innerHTML = ""; 
-            document.getElementById('prompt-input').value = ""; 
-            document.getElementById('empty-state').classList.remove('hidden'); 
-            document.getElementById('save-btn').classList.add('hidden'); 
-            document.getElementById('share-btn').classList.add('hidden');
-            document.getElementById('excel-btn').classList.add('hidden');
-            document.getElementById('run-btn').classList.remove('d-none'); 
-
-            document.getElementById('planning-form').classList.add('d-none');
-            document.getElementById('plu-form').classList.add('d-none');
-            document.getElementById('permit-form').classList.add('d-none');
-            document.getElementById('control-form').classList.add('d-none');
-            document.getElementById('acoustic-form').classList.add('d-none'); // RESET ACOUSTIC
-            document.getElementById('inputs-files').classList.add('d-none');
-            document.getElementById('text-input-zone').classList.add('d-none');
-            document.getElementById('tutorial-view').classList.add('d-none');
-            document.getElementById('sheet-wrapper').classList.add('d-none');
-            document.getElementById('header-tools').classList.remove('d-none'); 
-
-            if (mode === 'tutorial') {
-                document.getElementById('left-panel').classList.add('d-none'); 
-                document.getElementById('tutorial-view').classList.remove('d-none'); 
-                document.getElementById('header-tools').classList.add('d-none'); 
-            } 
-            else {
-                document.getElementById('left-panel').classList.remove('d-none'); 
-                document.getElementById('sheet-wrapper').classList.remove('d-none'); 
-
-                if(mode === 'planning') { 
-                    document.getElementById('planning-form').classList.remove('d-none'); document.getElementById('planning-form').style.display = 'flex'; 
-                }
-                else if(mode === 'plu') {
-                    document.getElementById('plu-form').classList.remove('d-none'); 
-                    document.getElementById('inputs-files').classList.remove('d-none'); 
-                    document.getElementById('label-a').innerText = "Règlement (PDF)"; 
-                    document.getElementById('zone-a').style.display = 'flex'; 
-                }
-                else if(mode === 'permit') {
-                    document.getElementById('permit-form').classList.remove('d-none');
-                    document.getElementById('permit-form').style.display = 'flex';
-                    document.getElementById('inputs-files').classList.remove('d-none');
-                    document.getElementById('text-input-zone').classList.remove('d-none');
-                    document.getElementById('zone-img').style.display = 'flex';
-                    document.getElementById('label-img').innerText = "Façades / 3D";
-                    document.getElementById('zone-a').style.display = 'none'; 
-                    document.getElementById('zone-b').style.display = 'none';
-                    document.getElementById('label-prompt').innerText = "Notes Visuelles";
-                    document.getElementById('run-btn').classList.add('d-none'); 
-                }
-                else if (mode === 'control') {
-                    document.getElementById('control-form').classList.remove('d-none');
-                    document.getElementById('control-form').style.display = 'flex';
-                    document.getElementById('inputs-files').classList.remove('d-none');
-                    document.getElementById('text-input-zone').classList.remove('d-none');
-                    document.getElementById('zone-img').style.display = 'flex';
-                    document.getElementById('label-img').innerText = "PLAN (Image)";
-                    document.getElementById('zone-a').style.display = 'flex';
-                    document.getElementById('label-a').innerText = "Plan (PDF)";
-                    document.getElementById('zone-b').style.display = 'none';
-                    document.getElementById('label-prompt').innerText = "Notes Techniques";
-                    document.getElementById('run-btn').classList.add('d-none'); 
-                }
-                else if (mode === 'acoustic') {
-                    // MODE ACOUSTIC
-                    document.getElementById('acoustic-form').classList.remove('d-none');
-                    document.getElementById('acoustic-form').style.display = 'flex';
-                    document.getElementById('inputs-files').classList.remove('d-none');
-                    document.getElementById('text-input-zone').classList.remove('d-none');
-                    document.getElementById('zone-img').style.display = 'flex';
-                    document.getElementById('label-img').innerText = "PLAN (Image)";
-                    document.getElementById('zone-a').style.display = 'flex';
-                    document.getElementById('label-a').innerText = "Plan (PDF)";
-                    document.getElementById('zone-b').style.display = 'none';
-                    document.getElementById('label-prompt').innerText = "Notes Acoustiques";
-                    document.getElementById('run-btn').classList.add('d-none'); 
-                }
-                else { 
-                    document.getElementById('inputs-files').classList.remove('d-none');
-                    document.getElementById('text-input-zone').classList.remove('d-none');
-                    
-                    const isC = (mode==='comparison'||mode==='situation'), isR = (mode==='report'||mode==='situation');
-                    document.getElementById('zone-b').style.display = isC?'flex':'none'; 
-                    document.getElementById('zone-img').style.display = isR?'flex':'none'; 
-                    if(isR) document.getElementById('label-img').innerText = "Photos Chantier";
-                    document.getElementById('zone-a').style.display = (isR&&!isC)?'none':'flex'; 
-                    document.getElementById('label-a').innerText = isC?'CCTP / Ref':'Fichier';
-                    document.getElementById('prompt-input').placeholder = "Instructions..."; 
-                    document.getElementById('label-prompt').innerText = "NOTES"; 
-                }
-            }
-        }
-        
-        // ... (Reste des fonctions inchangées) ...
-        function saveDocument() { const content = document.getElementById('result-output').innerHTML; if(!content) return; docs.unshift({ id: Date.now(), folder: currentFolder, mode: currentMode, date: new Date().toLocaleDateString(), preview: "Doc...", content: content }); localStorage.setItem('docs', JSON.stringify(docs)); renderDocs(); UI.toast("Enregistre"); }
-        function renderDocs() { const list = document.getElementById('file-list'); list.innerHTML = ""; const filtered = docs.filter(d => d.folder === currentFolder); if(filtered.length === 0) { list.innerHTML = "<p class='text-[10px] text-slate-300 text-center mt-4'>Vide</p>"; return; } filtered.forEach(d => { const div = document.createElement('div'); div.className = "file-item group"; div.onclick = () => loadDoc(d.id); div.innerHTML = `<div class="flex justify-between font-bold text-slate-500 mb-1"><span class="uppercase text-[9px] bg-slate-100 px-1 rounded">${d.mode}</span><span class="text-[8px]">${d.date}</span></div><div class="flex justify-between items-center"><span class="text-[10px] font-bold text-slate-700">Ouvrir</span><button onclick="event.stopPropagation(); deleteDoc(${d.id})" class="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100"><i class="fa-solid fa-trash"></i></button></div>`; list.appendChild(div); }); }
         function loadDoc(id) { 
             const d = docs.find(doc => doc.id === id); 
+            if(!d) return;
             document.getElementById('result-output').innerHTML = d.content; 
-            document.getElementById('sheet-wrapper').classList.remove('d-none');
+            document.getElementById('sheet-wrapper').classList.remove('d-none'); 
             document.getElementById('empty-state').classList.add('hidden'); 
             document.getElementById('save-btn').classList.remove('hidden'); 
             document.getElementById('share-btn').classList.remove('hidden'); 
             if(d.content.includes('<table')) document.getElementById('excel-btn').classList.remove('hidden'); else document.getElementById('excel-btn').classList.add('hidden'); 
             switchMode(d.mode); 
             document.getElementById('result-output').innerHTML = d.content; 
-            document.getElementById('empty-state').classList.add('hidden');
+            document.getElementById('empty-state').classList.add('hidden'); 
             setTimeout(optimizeTable, 100); 
         }
-        function deleteDoc(id) { if(id) { if(confirm("Supprimer ?")) { docs = docs.filter(d => d.id !== id); localStorage.setItem('docs', JSON.stringify(docs)); renderDocs(); } } else { if(confirm("Vider ?")) { docs = docs.filter(d => d.folder !== currentFolder); localStorage.setItem('docs', JSON.stringify(docs)); renderDocs(); } } }
-        async function loadFile(input, slot) { const file = input.files[0]; if(!file) return; document.getElementById(`ph-${slot.toLowerCase()}`).classList.add('hidden'); document.getElementById(`ok-${slot.toLowerCase()}`).innerText = file.name; document.getElementById(`ok-${slot.toLowerCase()}`).classList.remove('hidden'); if(file.type.includes('pdf')) { const data=await file.arrayBuffer(); const pdf=await pdfjsLib.getDocument({data}).promise; let txt=""; for(let i=1;i<=Math.min(pdf.numPages,50);i++) txt+=(await (await pdf.getPage(i)).getTextContent()).items.map(s=>s.str).join(' '); if(slot==='A') { inputA=txt; document.getElementById('check-text-btn').classList.remove('hidden'); } else inputB=txt; } }
-        function loadImages(files) { inputImgs=[]; const prev=document.getElementById('prev-img'); prev.innerHTML=""; document.getElementById('ph-img').classList.add('hidden'); prev.classList.remove('hidden'); Array.from(files).forEach(f=>{ const r=new FileReader(); r.onload=e=>{ inputImgs.push(e.target.result.split(',')[1]); prev.innerHTML+=`<img src="${e.target.result}" class="h-10 w-full object-cover rounded border">`; }; r.readAsDataURL(f); }); }
+
+        async function shareToOffice() { const content = document.getElementById('result-output').innerText; if(!content || content.length < 10) return alert("Rien"); const title = `ArchiAdmin - ${currentMode.toUpperCase()} - ${currentFolder}`; if (navigator.share) { try { await navigator.share({ title: title, text: content }); } catch (err) {} } else { window.location.href = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(content)}`; } }
+
+        function switchMode(mode) {
+            currentMode = mode; 
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); 
+            
+            // Sécurité : Vérifie que le bouton existe avant d'ajouter la classe
+            const btn = document.getElementById('btn-'+mode);
+            if(btn) btn.classList.add('active');
+            
+            const info = modeInfos[mode]; 
+            document.getElementById('help-title').innerText = info.t; 
+            document.getElementById('help-desc').innerText = info.d;
+            
+            document.getElementById('result-output').innerHTML = ""; document.getElementById('prompt-input').value = ""; 
+            document.getElementById('empty-state').classList.remove('hidden'); document.getElementById('save-btn').classList.add('hidden'); document.getElementById('share-btn').classList.add('hidden'); document.getElementById('excel-btn').classList.add('hidden');
+            document.getElementById('run-btn').classList.remove('d-none'); 
+
+            document.getElementById('planning-form').classList.add('d-none'); document.getElementById('plu-form').classList.add('d-none'); document.getElementById('permit-form').classList.add('d-none'); document.getElementById('control-form').classList.add('d-none'); document.getElementById('acoustic-form').classList.add('d-none'); document.getElementById('inputs-files').classList.add('d-none'); document.getElementById('text-input-zone').classList.add('d-none'); document.getElementById('tutorial-view').classList.add('d-none'); document.getElementById('sheet-wrapper').classList.add('d-none'); document.getElementById('header-tools').classList.remove('d-none'); 
+            document.getElementById('zone-a').style.display = 'none'; document.getElementById('zone-b').style.display = 'none'; document.getElementById('zone-img').style.display = 'none';
+
+            if (mode === 'tutorial') { document.getElementById('left-panel').classList.add('d-none'); document.getElementById('tutorial-view').classList.remove('d-none'); document.getElementById('header-tools').classList.add('d-none'); } 
+            else {
+                document.getElementById('left-panel').classList.remove('d-none'); document.getElementById('sheet-wrapper').classList.remove('d-none'); 
+                if(mode === 'planning') { document.getElementById('planning-form').classList.remove('d-none'); document.getElementById('planning-form').style.display = 'flex'; document.getElementById('run-btn').classList.add('d-none'); }
+                else if(mode === 'plu') { document.getElementById('plu-form').classList.remove('d-none'); document.getElementById('inputs-files').classList.remove('d-none'); document.getElementById('label-a').innerText = "Règlement (PDF)"; document.getElementById('zone-a').style.display = 'flex'; document.getElementById('text-input-zone').classList.remove('d-none'); document.getElementById('label-prompt').innerText = "Instructions Supplémentaires"; }
+                else if(mode === 'permit') { document.getElementById('permit-form').classList.remove('d-none'); document.getElementById('permit-form').style.display = 'flex'; document.getElementById('inputs-files').classList.remove('d-none'); document.getElementById('text-input-zone').classList.remove('d-none'); document.getElementById('zone-img').style.display = 'flex'; document.getElementById('label-img').innerText = "Façades / 3D"; document.getElementById('label-prompt').innerText = "Notes Visuelles"; document.getElementById('run-btn').classList.add('d-none'); }
+                else if (mode === 'control') { document.getElementById('control-form').classList.remove('d-none'); document.getElementById('control-form').style.display = 'flex'; document.getElementById('inputs-files').classList.remove('d-none'); document.getElementById('text-input-zone').classList.remove('d-none'); document.getElementById('zone-img').style.display = 'flex'; document.getElementById('label-img').innerText = "PLAN (Image)"; document.getElementById('zone-a').style.display = 'flex'; document.getElementById('label-a').innerText = "Plan (PDF)"; document.getElementById('label-prompt').innerText = "Notes Techniques"; document.getElementById('run-btn').classList.add('d-none'); }
+                else if (mode === 'acoustic') { document.getElementById('acoustic-form').classList.remove('d-none'); document.getElementById('acoustic-form').style.display = 'flex'; document.getElementById('inputs-files').classList.remove('d-none'); document.getElementById('text-input-zone').classList.remove('d-none'); document.getElementById('zone-img').style.display = 'flex'; document.getElementById('label-img').innerText = "PLAN (Image)"; document.getElementById('zone-a').style.display = 'flex'; document.getElementById('label-a').innerText = "Plan (PDF)"; document.getElementById('label-prompt').innerText = "Notes Acoustiques"; document.getElementById('run-btn').classList.add('d-none'); }
+                else if (mode === 'dpgf') { 
+                    document.getElementById('inputs-files').classList.remove('d-none'); document.getElementById('text-input-zone').classList.remove('d-none'); 
+                    document.getElementById('zone-img').style.display = 'flex'; document.getElementById('label-img').innerText = "PLAN (Image)"; 
+                    document.getElementById('zone-a').style.display = 'flex'; document.getElementById('label-a').innerText = "Plan (PDF)"; 
+                    document.getElementById('label-prompt').innerText = "Lots spécifiques ou Instructions"; 
+                }
+                else { 
+                    document.getElementById('inputs-files').classList.remove('d-none'); document.getElementById('text-input-zone').classList.remove('d-none');
+                    const isC = (mode==='comparison'||mode==='situation'), isR = (mode==='report'||mode==='situation');
+                    document.getElementById('zone-b').style.display = isC?'flex':'none'; document.getElementById('zone-img').style.display = isR?'flex':'none'; 
+                    if(isR) document.getElementById('label-img').innerText = "Photos Chantier";
+                    document.getElementById('zone-a').style.display = (isR&&!isC)?'none':'flex'; document.getElementById('label-a').innerText = isC?'CCTP / Ref':'Fichier';
+                    document.getElementById('prompt-input').placeholder = "Instructions..."; document.getElementById('label-prompt').innerText = "NOTES"; 
+                }
+            }
+        }
+        
         function exportPDF() { const element = document.getElementById('result-output'); const opt = { margin: 15, filename: `${currentFolder}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }; html2pdf().set(opt).from(element).save(); }
-        function exportToExcel() { let table = document.querySelector("table"); if (!table) return; let csv = []; let rows = table.querySelectorAll("tr"); for (let i = 0; i < rows.length; i++) { let row = [], cols = rows[i].querySelectorAll("td, th"); for (let j = 0; j < cols.length; j++) row.push('"' + cols[j].innerText.replace(/"/g, '""') + '"'); csv.push(row.join(";")); } let link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv.join("\n")], { type: "text/csv;charset=utf-8;" })); link.download = `Planning.csv`; link.click(); }
+        function exportToExcel() { let table = document.querySelector("table"); if (!table) return; let csv = []; let rows = table.querySelectorAll("tr"); for (let i = 0; i < rows.length; i++) { let row = [], cols = rows[i].querySelectorAll("td, th"); for (let j = 0; j < cols.length; j++) row.push('"' + cols[j].innerText.replace(/"/g, '""') + '"'); csv.push(row.join(";")); } let link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv.join("\n")], { type: "text/csv;charset=utf-8;" })); link.download = `Export.csv`; link.click(); }
         const UI = { toggleConfig: () => document.getElementById('config-modal').classList.toggle('hidden'), toast: (m) => { document.getElementById('toast-msg').innerText=m; document.getElementById('toast-container').classList.add('show'); setTimeout(()=>document.getElementById('toast-container').classList.remove('show'), 2000); } };
-        function backupData() { const b=new Blob([JSON.stringify({folders,docs,config})],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`Backup.json`; a.click(); }
-        function restoreData(input) { const f=input.files[0]; if(!f)return; const r=new FileReader(); r.onload=e=>{ try{ const d=JSON.parse(e.target.result); if(d.folders&&confirm("Restaurer ?")) { localStorage.setItem('folders',JSON.stringify(d.folders)); localStorage.setItem('docs',JSON.stringify(d.docs)); localStorage.setItem('config',JSON.stringify(d.config)); location.reload(); } }catch(e){alert("Invalide");} }; r.readAsText(f); }
-        function encodeImg(i,k) { const r=new FileReader(); r.onload=e=>config[k]=e.target.result; r.readAsDataURL(i.files[0]); }
-        function saveConfig() { config.name=document.getElementById('cfg-name').value; localStorage.setItem('config',JSON.stringify(config)); location.reload(); }
+        function exportData() { const b=new Blob([JSON.stringify({folders,docs,config})],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`Sauvegarde_Locale_ArchiAdmin.json`; a.click(); }
+        function encodeImg(input, key) { const r = new FileReader(); r.onload = e => { config[key] = e.target.result; if(key === 'logo') { const img = document.getElementById('cfg-logo-preview'); img.src = e.target.result; img.classList.remove('hidden'); } }; r.readAsDataURL(input.files[0]); }
         let recognition; if('webkitSpeechRecognition' in window) { recognition=new webkitSpeechRecognition(); recognition.continuous=true; recognition.onresult=e=>{ let t=""; for(let i=e.resultIndex;i<e.results.length;++i) if(e.results[i].isFinal) t+=e.results[i][0].transcript; document.getElementById('prompt-input').value+=t+" "; }; }
         function toggleDictation() { const b=document.getElementById('mic-btn'); if(b.classList.contains('mic-active')) { recognition.stop(); b.classList.remove('mic-active'); } else { recognition.start(); b.classList.add('mic-active'); } }
     </script>

@@ -1,149 +1,27 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manuel Expert - ArchiAdmin</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; color: #334155; scroll-behavior: smooth; }
-        
-        /* Navigation */
-        .nav-link { display: flex; align-items: center; gap: 10px; padding: 10px 15px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; color: #64748B; transition: all 0.2s; }
-        .nav-link:hover, .nav-link.active { background: #fff; color: #0F172A; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .nav-section { font-size: 0.7rem; text-transform: uppercase; font-weight: 800; color: #94A3B8; margin: 20px 0 10px 15px; letter-spacing: 0.05em; }
-        
-        /* Structure Standardisée des Fiches */
-        .function-card { background: white; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden; margin-bottom: 30px; transition: 0.2s; }
-        .function-card:hover { border-color: #CBD5E1; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
-        
-        .card-header { padding: 20px; border-bottom: 1px solid #F1F5F9; display: flex; align-items: center; gap: 12px; background: #F8FAFC; }
-        .card-title { font-weight: 800; color: #1E293B; font-size: 1.1rem; }
-        .icon-box { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 16px; }
-        
-        .card-body { padding: 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
-        
-        /* Blocs internes */
-        .step-block h4 { font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #94A3B8; margin-bottom: 10px; letter-spacing: 0.05em; }
-        .step-content { font-size: 0.9rem; color: #475569; line-height: 1.6; }
-        .step-content ul { list-style: none; padding: 0; }
-        .step-content li { position: relative; padding-left: 15px; margin-bottom: 6px; }
-        .step-content li::before { content: "•"; color: #CBD5E1; position: absolute; left: 0; font-weight: bold; }
-        
-        /* Badges */
-        .badge-input { background: #EFF6FF; color: #1D4ED8; padding: 2px 6px; rounded: 4px; font-size: 0.75rem; font-weight: 700; border: 1px solid #DBEAFE; }
-        .badge-action { background: #F0FDF4; color: #15803D; padding: 2px 6px; rounded: 4px; font-size: 0.75rem; font-weight: 700; border: 1px solid #DCFCE7; }
-    </style>
-</head>
-<body class="flex h-screen overflow-hidden">
-
-    <aside class="w-64 bg-slate-50 border-r border-gray-200 hidden md:flex flex-col z-10 overflow-y-auto shrink-0">
-        <div class="p-6 border-b border-gray-200">
-            <h1 class="font-black text-xl tracking-tight text-slate-900">ArchiAdmin<span class="text-blue-600">.Doc</span></h1>
-            <p class="text-[10px] font-bold uppercase text-gray-400 mt-1">Manuel v73</p>
-        </div>
-        <nav class="p-3">
-            <a href="#intro" class="nav-link"><i class="fa-solid fa-power-off"></i> Accueil</a>
-            
-            <div class="nav-section">Technique</div>
-            <a href="#control" class="nav-link text-red-600 bg-red-50"><i class="fa-solid fa-shield-halved"></i> Bureau Contrôle</a>
-            <a href="#plu" class="nav-link"><i class="fa-solid fa-map"></i> PLU Localisé</a>
-            <a href="#cctp" class="nav-link"><i class="fa-solid fa-scale-balanced"></i> Comparatif Devis</a>
-
-            <div class="nav-section">Chantier</div>
-            <a href="#report" class="nav-link"><i class="fa-solid fa-camera"></i> Rapport Photos</a>
-            <a href="#situation" class="nav-link"><i class="fa-solid fa-percent"></i> Situations</a>
-            <a href="#planning" class="nav-link"><i class="fa-solid fa-calendar-days"></i> Planning</a>
-
-            <div class="nav-section">Bureau</div>
-            <a href="#permit" class="nav-link text-blue-600 bg-blue-50"><i class="fa-solid fa-file-signature"></i> Permis & Notice</a>
-            <a href="#legal" class="nav-link"><i class="fa-solid fa-book"></i> Normes & Juridique</a>
-
-            <div class="nav-section">Transverse</div>
-            <a href="#tools" class="nav-link"><i class="fa-solid fa-paper-plane"></i> Envoi & Export</a>
-        </nav>
-    </aside>
-
-    <main class="flex-1 overflow-y-auto scroll-smooth bg-white">
-        <div class="max-w-4xl mx-auto p-10 pb-40">
-            
-            <section id="intro" class="mb-12">
-                <h2 class="text-3xl font-black text-slate-900 mb-6">Prise en main</h2>
-                <div class="p-6 bg-slate-900 text-white rounded-xl shadow-lg">
-                    <h3 class="font-bold text-lg mb-2"><i class="fa-solid fa-robot mr-2"></i> Votre Assistant Contextuel</h3>
-                    <p class="text-sm text-slate-300 leading-relaxed">
-                        ArchiAdmin est un assistant intelligent qui change de rôle selon le bouton activé. 
-                        Il ne faut pas lui parler de la même manière si vous êtes en mode "Planning" ou en mode "Juridique".
-                        <br><br>
-                        <strong>Règle d'or :</strong> Sélectionnez toujours le bon mode dans la colonne de gauche avant de charger un fichier.
-                    </p>
-                </div>
-            </section>
-
-            <hr class="border-gray-100 mb-12">
-
-            <section id="control" class="mb-16">
+<section id="acoustic" class="mb-16">
                 <div class="flex items-center gap-3 mb-6">
-                    <h2 class="text-2xl font-black text-red-600">Bureau de Contrôle</h2>
-                    <span class="text-[10px] font-bold bg-red-100 text-red-600 px-2 py-1 rounded border border-red-200 uppercase">Expert</span>
+                    <h2 class="text-2xl font-black text-indigo-600">Expert Acoustique</h2>
+                    <span class="feature-tag tag-new">Nouveau</span>
                 </div>
 
                 <div class="function-card">
                     <div class="card-header">
-                        <div class="icon-box bg-red-100 text-red-600"><i class="fa-solid fa-shield-halved"></i></div>
-                        <div class="card-title">Audit Réglementaire sur Plan</div>
+                        <div class="icon-box bg-indigo-100 text-indigo-600"><i class="fa-solid fa-volume-high"></i></div>
+                        <div class="card-title">Audit Phonique & Réglementaire</div>
                     </div>
                     <div class="card-body">
                         <div>
                             <div class="step-block">
                                 <h4>Le But</h4>
-                                <p class="step-content">L'Assistant vérifie la conformité de votre plan avant envoi aux bureaux d'études. Il détecte les erreurs d'évacuation et de sécurité.</p>
-                            </div>
-                            <div class="step-block mt-4">
-                                <h4>Les Entrées (Inputs)</h4>
-                                <div class="step-content">
-                                    <ul>
-                                        <li><span class="badge-input">Fichier</span> Image du plan (JPG/PNG recommandé) chargée dans la zone "PLAN".</li>
-                                        <li><span class="badge-input">Paramètre</span> Choix du règlement (ERP, Code Travail, Habitation).</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="step-block">
-                                <h4>L'Action</h4>
-                                <p class="step-content">Cliquez sur un des 3 boutons : <span class="badge-action">AUDIT GLOBAL</span>, <span class="badge-action">ÉVACUATION</span> ou <span class="badge-action">DÉSENFUMAGE</span>.</p>
-                            </div>
-                            <div class="step-block mt-4">
-                                <h4>Le Résultat</h4>
-                                <p class="step-content">Un rapport technique sous forme de tableau. L'Assistant lit les <strong>cotes intérieures</strong> pour valider l'échelle et mesurer visuellement les culs-de-sac.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="plu" class="mb-16">
-                <h2 class="text-2xl font-black text-indigo-600 mb-6">Urbanisme (PLU)</h2>
-                <div class="function-card">
-                    <div class="card-header">
-                        <div class="icon-box bg-indigo-100 text-indigo-600"><i class="fa-solid fa-map"></i></div>
-                        <div class="card-title">Extraction Réglementaire</div>
-                    </div>
-                    <div class="card-body">
-                        <div>
-                            <div class="step-block">
-                                <h4>Le But</h4>
-                                <p class="step-content">Extraire les règles de gabarit d'un PDF de 300 pages en quelques secondes pour une parcelle donnée.</p>
+                                <p class="step-content">Valider le confort acoustique et le respect de la NRA 2000 avant d'envoyer les plans au bureau d'études spécialisé.</p>
                             </div>
                             <div class="step-block mt-4">
                                 <h4>Les Entrées</h4>
                                 <div class="step-content">
                                     <ul>
-                                        <li><span class="badge-input">Fichier</span> PDF du règlement complet.</li>
-                                        <li><span class="badge-input">Texte</span> Nom de la Zone (ex: UA, N).</li>
+                                        <li><span class="badge-input">Plan</span> Image ou PDF du projet.</li>
+                                        <li><span class="badge-input">Classement</span> Type de bâtiment (Logement, Bureau...).</li>
+                                        <li><span class="badge-input">Environnement</span> Niveau de bruit extérieur (Calme, Rue bruyante...).</li>
                                     </ul>
                                 </div>
                             </div>
@@ -151,242 +29,16 @@
                         <div>
                             <div class="step-block">
                                 <h4>L'Action</h4>
-                                <p class="step-content">Cliquez sur <span class="badge-action">LANCER</span>.</p>
+                                <p class="step-content">
+                                    <span class="badge-action">AUDIT PLAN</span> : Analyse globale des isolements aux bruits aériens et de chocs.<br>
+                                    <span class="badge-action">CLOISONS ?</span> : Focus sur le choix des matériaux (Placo, Béton, Vitrages) pour atteindre les objectifs.
+                                </p>
                             </div>
                             <div class="step-block mt-4">
                                 <h4>Le Résultat</h4>
-                                <p class="step-content">Un tableau synthétique : Retrait, Hauteur, Emprise au sol, Stationnement. L'Assistant cite la page du PDF pour vérification.</p>
+                                <p class="step-content">Un rapport professionnel citant les normes (NF S 31-080) et préconisant des solutions concrètes (SAD 180, Porte 40dB...).</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
-
-            <section id="cctp" class="mb-16">
-                <h2 class="text-2xl font-black text-slate-800 mb-6">Comparatif & Marchés</h2>
-                <div class="function-card">
-                    <div class="card-header">
-                        <div class="icon-box bg-slate-100 text-slate-600"><i class="fa-solid fa-scale-balanced"></i></div>
-                        <div class="card-title">Comparatif CCTP vs Devis</div>
-                    </div>
-                    <div class="card-body">
-                        <div>
-                            <div class="step-block">
-                                <h4>Le But</h4>
-                                <p class="step-content">Vérifier si l'entreprise a bien chiffré tout ce qui est demandé dans le CCTP, et détecter les oublis.</p>
-                            </div>
-                            <div class="step-block mt-4">
-                                <h4>Les Entrées</h4>
-                                <div class="step-content">
-                                    <ul>
-                                        <li><span class="badge-input">Source A</span> Le CCTP (Cahier des Charges).</li>
-                                        <li><span class="badge-input">Source B</span> Le Devis de l'entreprise.</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="step-block">
-                                <h4>L'Action</h4>
-                                <p class="step-content">Cliquez sur <span class="badge-action">LANCER</span>.</p>
-                            </div>
-                            <div class="step-block mt-4">
-                                <h4>Le Résultat</h4>
-                                <p class="step-content">Un tableau comparatif ligne à ligne pointant les écarts, les oublis ou les surplus de prestations.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="report" class="mb-16">
-                <h2 class="text-2xl font-black text-slate-800 mb-6">Rapport de Chantier</h2>
-                <div class="function-card">
-                    <div class="card-header">
-                        <div class="icon-box bg-slate-100 text-slate-600"><i class="fa-solid fa-camera"></i></div>
-                        <div class="card-title">Compte-rendu Photo</div>
-                    </div>
-                    <div class="card-body">
-                        <div>
-                            <div class="step-block">
-                                <h4>Le But</h4>
-                                <p class="step-content">Générer un CR de visite structuré par corps d'état à partir de notes en vrac et de photos.</p>
-                            </div>
-                            <div class="step-block mt-4">
-                                <h4>Les Entrées</h4>
-                                <div class="step-content">
-                                    <ul>
-                                        <li><span class="badge-input">Photos</span> Chargez vos photos en vrac.</li>
-                                        <li><span class="badge-input">Micro</span> Dictez vos remarques : <em>"Le peintre doit reprendre le salon, le maçon doit nettoyer."</em></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="step-block">
-                                <h4>L'Action</h4>
-                                <p class="step-content">Cliquez sur <span class="badge-action">LANCER</span>.</p>
-                            </div>
-                            <div class="step-block mt-4">
-                                <h4>Le Résultat</h4>
-                                <p class="step-content">Un document PDF prêt à envoyer, où chaque remarque est classée par lot (Peinture, Maçonnerie) et associée aux photos.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="situation" class="mb-16">
-                <h2 class="text-2xl font-black text-slate-800 mb-6">Situation de Travaux</h2>
-                <div class="function-card">
-                    <div class="card-header">
-                        <div class="icon-box bg-slate-100 text-slate-600"><i class="fa-solid fa-percent"></i></div>
-                        <div class="card-title">Validation Paiement</div>
-                    </div>
-                    <div class="card-body">
-                        <div>
-                            <div class="step-block">
-                                <h4>Le But</h4>
-                                <p class="step-content">Valider le pourcentage d'avancement d'une entreprise pour débloquer son paiement.</p>
-                            </div>
-                            <div class="step-block mt-4">
-                                <h4>Les Entrées</h4>
-                                <div class="step-content">
-                                    <ul>
-                                        <li><span class="badge-input">Source A</span> Le Devis initial ou DQE.</li>
-                                        <li><span class="badge-input">Photos</span> Photos de l'état actuel du chantier.</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="step-block">
-                                <h4>L'Action</h4>
-                                <p class="step-content">Cliquez sur <span class="badge-action">LANCER</span>.</p>
-                            </div>
-                            <div class="step-block mt-4">
-                                <h4>Le Résultat</h4>
-                                <p class="step-content">L'Assistant estime visuellement l'avancement (ex: "Placo posé à 50%") et génère un tableau de validation.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="permit" class="mb-16">
-                <h2 class="text-2xl font-black text-blue-600 mb-6">Permis de Construire</h2>
-                <div class="function-card">
-                    <div class="card-header">
-                        <div class="icon-box bg-blue-100 text-blue-600"><i class="fa-solid fa-pen-fancy"></i></div>
-                        <div class="card-title">Rédaction Notice PC4</div>
-                    </div>
-                    <div class="card-body">
-                        <div>
-                            <div class="step-block">
-                                <h4>Le But</h4>
-                                <p class="step-content">Rédiger la notice architecturale obligatoire en décrivant le projet visuellement.</p>
-                            </div>
-                            <div class="step-block mt-4">
-                                <h4>Les Entrées</h4>
-                                <div class="step-content">
-                                    <ul>
-                                        <li><span class="badge-input">Image</span> Perspective 3D ou Façade.</li>
-                                        <li><span class="badge-input">Notes</span> Petites précisions (ex: "Enduit ton pierre").</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="step-block">
-                                <h4>L'Action</h4>
-                                <p class="step-content">Cliquez sur <span class="badge-action">RÉDIGER NOTICE</span>.</p>
-                            </div>
-                            <div class="step-block mt-4">
-                                <h4>Le Résultat</h4>
-                                <p class="step-content">Un texte juridique structuré (État initial, Insertion, Matériaux) prêt à être copié dans le Cerfa.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="legal" class="mb-16">
-                <h2 class="text-2xl font-black text-slate-800 mb-6">Juridique & Normes</h2>
-                <div class="function-card">
-                    <div class="card-header">
-                        <div class="icon-box bg-slate-100 text-slate-600"><i class="fa-solid fa-book"></i></div>
-                        <div class="card-title">Expertise Technique</div>
-                    </div>
-                    <div class="card-body">
-                        <div>
-                            <div class="step-block">
-                                <h4>Le But</h4>
-                                <p class="step-content">Obtenir une réponse normative précise (DTU) ou rédiger un courrier formel (Mise en demeure).</p>
-                            </div>
-                            <div class="step-block mt-4">
-                                <h4>Les Entrées</h4>
-                                <div class="step-content">
-                                    <ul>
-                                        <li><span class="badge-input">Texte</span> Votre question ou le contexte du litige.</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="step-block">
-                                <h4>L'Action</h4>
-                                <p class="step-content">Cliquez sur <span class="badge-action">LANCER</span>.</p>
-                            </div>
-                            <div class="step-block mt-4">
-                                <h4>Le Résultat</h4>
-                                <p class="step-content">Une réponse citant les articles de loi (CCAG Travaux) ou les normes NF-DTU en vigueur.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="tools" class="mb-16">
-                <h2 class="text-2xl font-black text-emerald-600 mb-6">Outils Transverses</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="p-6 bg-slate-900 text-white rounded-xl shadow-lg">
-                        <div class="flex items-center gap-3 mb-3">
-                            <i class="fa-solid fa-paper-plane text-emerald-400 text-xl"></i>
-                            <h3 class="font-bold">Envoyer</h3>
-                        </div>
-                        <p class="text-sm text-slate-300">
-                            Fonction clé pour le mobile. Une fois un document généré, cliquez sur ce bouton pour l'envoyer immédiatement par <strong>Email</strong>, <strong>WhatsApp</strong> ou le sauvegarder sur <strong>Drive</strong>.
-                        </p>
-                    </div>
-
-                    <div class="p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
-                        <div class="flex items-center gap-3 mb-3">
-                            <i class="fa-solid fa-table text-green-600 text-xl"></i>
-                            <h3 class="font-bold text-slate-800">Export Excel</h3>
-                        </div>
-                        <p class="text-sm text-slate-500">
-                            Ce bouton n'apparaît que si l'Assistant a généré un tableau (Planning, Devis, Audit). Il télécharge un fichier <code>.csv</code> exploitable.
-                        </p>
-                    </div>
-
-                    <div class="p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
-                        <div class="flex items-center gap-3 mb-3">
-                            <i class="fa-solid fa-file-pdf text-red-600 text-xl"></i>
-                            <h3 class="font-bold text-slate-800">Export PDF</h3>
-                        </div>
-                        <p class="text-sm text-slate-500">
-                            Génère instantanément une mise en page A4 propre de tout ce qui est affiché à l'écran, prêt à être imprimé.
-                        </p>
-                    </div>
-                </div>
-            </section>
-
-            <footer class="text-center text-xs text-gray-400 mt-20 pb-10">
-                <p>ArchiAdmin Studio - Documentation Officielle v73</p>
-            </footer>
-
-        </div>
-    </main>
-
-</body>
-</html>
