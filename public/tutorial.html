@@ -1,44 +1,292 @@
-<section id="acoustic" class="mb-16">
-                <div class="flex items-center gap-3 mb-6">
-                    <h2 class="text-2xl font-black text-indigo-600">Expert Acoustique</h2>
-                    <span class="feature-tag tag-new">Nouveau</span>
-                </div>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manuel d'utilisation - BatiPilot Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; color: #1E293B; scroll-behavior: smooth; }
+        h2 { scroll-margin-top: 100px; }
+        .sidebar-link { display: block; padding: 8px 16px; color: #64748B; font-size: 13px; font-weight: 600; border-left: 3px solid transparent; transition: 0.2s; }
+        .sidebar-link:hover { color: #3B82F6; background: #EFF6FF; border-left-color: #3B82F6; }
+        .feature-card { background: white; border: 1px solid #E2E8F0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .step-badge { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: #3B82F6; color: white; border-radius: 50%; font-weight: bold; font-size: 12px; margin-right: 8px; }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row min-h-screen">
 
-                <div class="function-card">
-                    <div class="card-header">
-                        <div class="icon-box bg-indigo-100 text-indigo-600"><i class="fa-solid fa-volume-high"></i></div>
-                        <div class="card-title">Audit Phonique & Réglementaire</div>
-                    </div>
-                    <div class="card-body">
+    <aside class="w-full md:w-72 bg-white border-r border-gray-200 sticky top-0 h-screen overflow-y-auto hidden md:block z-10">
+        <div class="p-6 border-b border-gray-100">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" width="160" height="48">
+                <g stroke="#E2E8F0" stroke-width="1"><line x1="10" y1="30" x2="110" y2="30" /><line x1="10" y1="60" x2="110" y2="60" /><line x1="10" y1="90" x2="110" y2="90" /><line x1="30" y1="10" x2="30" y2="110" /><line x1="60" y1="10" x2="60" y2="110" /><line x1="90" y1="10" x2="90" y2="110" /></g>
+                <rect x="15" y="15" width="90" height="90" fill="none" stroke="#CBD5E1" stroke-width="2" stroke-dasharray="6 4" rx="8" />
+                <polygon points="60,25 25,85 60,70" fill="#3B82F6" />
+                <polygon points="60,25 95,85 60,70" fill="#1E293B" />
+                <text x="125" y="72" font-family="'Inter', sans-serif" font-size="52" letter-spacing="-1.5"><tspan font-weight="900" fill="#0F172A">Bati</tspan><tspan font-weight="300" fill="#3B82F6">Pilot</tspan><tspan font-weight="900" fill="#10B981">.</tspan></text>
+            </svg>
+            <p class="text-xs font-bold text-slate-400 mt-2 tracking-widest uppercase">Manuel Officiel</p>
+        </div>
+        <nav class="py-4">
+            <a href="#intro" class="sidebar-link"><i class="fa-solid fa-play w-5"></i> 1. Prise en main & Cloud</a>
+            <a href="#chat" class="sidebar-link text-blue-600"><i class="fa-regular fa-comment-dots w-5"></i> 2. Chatbot Expert BTP</a>
+            <a href="#projets" class="sidebar-link"><i class="fa-solid fa-folder-tree w-5"></i> 3. Gestion des Projets</a>
+            
+            <a href="#technique" class="sidebar-link mt-4 text-blue-600 uppercase text-[10px] tracking-widest font-black">Pôle Technique</a>
+            <a href="#plu" class="sidebar-link">Analyse PLU</a>
+            <a href="#sol" class="sidebar-link">Étude de Sol (G2)</a>
+            <a href="#bureau-controle" class="sidebar-link">Bureau de Contrôle</a>
+            <a href="#acoustique" class="sidebar-link">Expert Acoustique</a>
+            <a href="#cctp" class="sidebar-link">Analyse & Rédaction CCTP</a>
+            <a href="#dpgf" class="sidebar-link">Pré-Métré DPGF</a>
+            <a href="#devis" class="sidebar-link">Devis Honoraires & Comp.</a>
+            
+            <a href="#chantier" class="sidebar-link mt-4 text-orange-500 uppercase text-[10px] tracking-widest font-black">Pôle Chantier</a>
+            <a href="#reunion" class="sidebar-link">CR de Réunion</a>
+            <a href="#rapport" class="sidebar-link">Rapport & Situation</a>
+            <a href="#reserves" class="sidebar-link">Levée de Réserves</a>
+            <a href="#planning" class="sidebar-link">Planning (Gantt)</a>
+            
+            <a href="#bureau" class="sidebar-link mt-4 text-emerald-600 uppercase text-[10px] tracking-widest font-black">Pôle Bureau</a>
+            <a href="#legal" class="sidebar-link">Courriers & Ordres de Service</a>
+            <a href="#permis" class="sidebar-link">Permis & Cerfa</a>
+            
+            <a href="#export" class="sidebar-link mt-4 text-slate-800 uppercase text-[10px] tracking-widest font-black"><i class="fa-solid fa-file-export mr-1"></i> Export & Partage</a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 p-8 md:p-12 overflow-y-auto">
+        <div class="max-w-4xl mx-auto">
+            
+            <header class="mb-12 border-b border-gray-200 pb-8">
+                <h1 class="text-4xl font-black text-slate-900 mb-4">Bienvenue sur BatiPilot</h1>
+                <p class="text-lg text-slate-600 leading-relaxed">Ce manuel vous guide à travers toutes les fonctionnalités de l'assistant BatiPilot. Découvrez comment automatiser vos tâches chronophages, de la conception à la réception du chantier.</p>
+            </header>
+
+            <section id="intro" class="mb-16">
+                <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-3"><i class="fa-solid fa-cloud text-blue-500"></i> 1. Prise en main & Cloud Collaboratif</h2>
+                
+                <div class="feature-card">
+                    <h3 class="font-bold text-lg mb-2">Architecture SaaS et Sécurité</h3>
+                    <p class="text-sm text-slate-600 mb-4">BatiPilot enregistre vos données en temps réel sur des serveurs sécurisés. Si vous actualisez la page ou changez d'ordinateur, vous ne perdez rien.</p>
+                    <ul class="space-y-3 text-sm text-slate-700">
+                        <li><span class="font-bold text-purple-600">Rôle Administrateur :</span> Le créateur du compte principal a accès au bouton <strong>Paramètres Agence</strong>. Il peut y modifier le cartouche de l'entreprise (Nom, Adresse complète, Logo) qui figurera sur tous les documents générés.</li>
+                        <li><span class="font-bold text-emerald-600">Créer un compte Collaborateur :</span> Dans les <em>Paramètres Agence</em>, l'administrateur peut inscrire ses employés. Ils partageront le même espace de travail, verront les mêmes projets, mais n'auront pas les droits d'administration.</li>
+                        <li><span class="font-bold text-blue-600">Tags Rapides :</span> Au-dessus de la zone de texte, BatiPilot vous propose des "Tags" cliquables (+ Ton très ferme, + Respect RE2020...). Cliquez dessus pour les ajouter instantanément à vos instructions sans avoir à taper de longues phrases !</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="chat" class="mb-16">
+                <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-3"><i class="fa-regular fa-comment-dots text-blue-600"></i> 2. L'Assistant Chatbot Instantané</h2>
+                
+                <div class="feature-card border-l-4 border-l-blue-600 bg-blue-50/50">
+                    <h3 class="font-bold text-lg mb-2 text-slate-900">Une question technique rapide ?</h3>
+                    <p class="text-sm text-slate-600 mb-4">Vous n'avez pas toujours besoin de générer un document complet. Utilisez la bulle de chat flottante (en bas à droite de l'écran) pour interroger <strong>l'assistant</strong> en temps réel.</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                         <div>
-                            <div class="step-block">
-                                <h4>Le But</h4>
-                                <p class="step-content">Valider le confort acoustique et le respect de la NRA 2000 avant d'envoyer les plans au bureau d'études spécialisé.</p>
-                            </div>
-                            <div class="step-block mt-4">
-                                <h4>Les Entrées</h4>
-                                <div class="step-content">
-                                    <ul>
-                                        <li><span class="badge-input">Plan</span> Image ou PDF du projet.</li>
-                                        <li><span class="badge-input">Classement</span> Type de bâtiment (Logement, Bureau...).</li>
-                                        <li><span class="badge-input">Environnement</span> Niveau de bruit extérieur (Calme, Rue bruyante...).</li>
-                                    </ul>
-                                </div>
-                            </div>
+                            <h4 class="font-bold text-xs uppercase text-slate-500 mb-2">Exemples d'utilisation :</h4>
+                            <ul class="space-y-2 text-sm text-slate-700 list-disc pl-4">
+                                <li><em>"Quelle est la hauteur réglementaire d'un garde-corps ?"</em></li>
+                                <li><em>"Résume-moi le DTU 40.21 sur les toitures."</em></li>
+                                <li><em>"Quels sont les temps de séchage pour une dalle béton ?"</em></li>
+                            </ul>
                         </div>
-                        <div>
-                            <div class="step-block">
-                                <h4>L'Action</h4>
-                                <p class="step-content">
-                                    <span class="badge-action">AUDIT PLAN</span> : Analyse globale des isolements aux bruits aériens et de chocs.<br>
-                                    <span class="badge-action">CLOISONS ?</span> : Focus sur le choix des matériaux (Placo, Béton, Vitrages) pour atteindre les objectifs.
-                                </p>
-                            </div>
-                            <div class="step-block mt-4">
-                                <h4>Le Résultat</h4>
-                                <p class="step-content">Un rapport professionnel citant les normes (NF S 31-080) et préconisant des solutions concrètes (SAD 180, Porte 40dB...).</p>
-                            </div>
+                        <div class="bg-white p-4 rounded border border-blue-100">
+                            <h4 class="font-bold text-xs uppercase text-blue-500 mb-2"><i class="fa-solid fa-gauge-high mr-1"></i> Quotas Journaliers</h4>
+                            <p class="text-xs text-slate-500 mb-2">Pour garantir la disponibilité du service, le nombre de questions au Chatbot est limité par jour :</p>
+                            <ul class="space-y-1 text-xs font-bold text-slate-700">
+                                <li class="flex justify-between"><span>Plan SOLO :</span> <span>20 questions / jour</span></li>
+                                <li class="flex justify-between text-purple-600"><span>Plan AGENCE :</span> <span>100 questions / jour</span></li>
+                            </ul>
                         </div>
                     </div>
                 </div>
             </section>
+
+            <section id="projets" class="mb-16">
+                <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-3"><i class="fa-solid fa-folder-tree text-blue-500"></i> 3. Gestion des Projets et de l'En-tête</h2>
+                
+                <div class="feature-card">
+                    <p class="text-sm text-slate-600 mb-4">La structure de BatiPilot repose sur le classement par "Projets" (colonne de droite de l'application).</p>
+                    <ul class="space-y-3 text-sm text-slate-700">
+                        <li><span class="step-badge">1</span> <strong>Créer un projet :</strong> Cliquez sur le <i class="fa-solid fa-plus bg-slate-900 text-white p-1 rounded text-[10px]"></i> dans "Projets de l'agence".</li>
+                        <li><span class="step-badge">2</span> <strong>L'importance de l'adresse :</strong> Renseignez l'adresse du projet lors de sa création. L'assistant l'utilisera automatiquement pour rédiger vos courriers, vos OS et vos notices de permis de construire. L'adresse apparaîtra également dans le cartouche bleu en haut de vos documents PDF et Word exportés.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <div class="my-10 border-t border-dashed border-gray-300"></div>
+
+            <section id="technique" class="mb-16">
+                <div class="inline-block bg-blue-100 text-blue-700 px-3 py-1 rounded font-black text-xs uppercase tracking-widest mb-4">Pôle Technique</div>
+                
+                <div id="plu" class="feature-card border-l-4 border-l-blue-500">
+                    <h3 class="font-bold text-lg mb-2"><i class="fa-solid fa-map text-blue-500 mr-2"></i> Analyse PLU (Localisée)</h3>
+                    <p class="text-sm text-slate-600 mb-4">Permet d'extraire instantanément les règles de constructibilité d'un règlement d'urbanisme lourd.</p>
+                    <ul class="list-disc pl-5 space-y-2 text-sm text-slate-700">
+                        <li><strong>Action :</strong> Chargez le règlement du PLU en PDF (Fichier A).</li>
+                        <li><strong>Paramètres :</strong> Tapez la Zone (ex: "UA") et l'adresse. Cliquez sur l'icône de localisation pour vérifier la parcelle sur le Géoportail de l'Urbanisme.</li>
+                        <li><strong>Résultat :</strong> L'assistant dresse un tableau clair (Implantation, Hauteur, Stationnement) avec la preuve extraite du texte.</li>
+                    </ul>
+                </div>
+
+                <div id="sol" class="feature-card border-l-4 border-l-amber-700">
+                    <h3 class="font-bold text-lg mb-2"><i class="fa-solid fa-layer-group text-amber-700 mr-2"></i> Étude de Sol (G2)</h3>
+                    <p class="text-sm text-slate-600 mb-4">Résume les rapports géotechniques indigestes pour aller droit à l'essentiel.</p>
+                    <ul class="list-disc pl-5 space-y-2 text-sm text-slate-700">
+                        <li><strong>Action :</strong> Chargez le PDF de l'étude de sol.</li>
+                        <li><strong>Résultat :</strong> L'assistant extrait instantanément les 4 données clés : le type de fondations préconisées, la profondeur de la garde au gel, le niveau de la nappe phréatique et les risques majeurs (argiles gonflantes, sismicité).</li>
+                    </ul>
+                </div>
+
+                <div id="bureau-controle" class="feature-card border-l-4 border-l-red-500">
+                    <h3 class="font-bold text-lg mb-2"><i class="fa-solid fa-shield-halved text-red-500 mr-2"></i> Bureau de Contrôle (Incendie & PMR)</h3>
+                    <p class="text-sm text-slate-600 mb-4">L'assistant audite vos plans comme un vrai contrôleur technique agréé.</p>
+                    <ul class="list-disc pl-5 space-y-2 text-sm text-slate-700">
+                        <li><strong>Action :</strong> Chargez l'image d'un plan d'étage.</li>
+                        <li><strong>Réglages vitaux :</strong> Choisissez la réglementation (ERP, Code du travail...). Renseignez la nature (ex: Magasin) et surtout <strong>l'Effectif prévu</strong>. Si vous renseignez l'effectif, l'assistant calculera rigoureusement les Unités de Passage (UP) sur cette base.</li>
+                        <li><strong>Boutons d'action :</strong> Lancez un audit global, ou un focus spécifique (Uniquement PMR, ou uniquement Désenfumage).</li>
+                    </ul>
+                </div>
+
+                <div id="acoustique" class="feature-card border-l-4 border-l-indigo-500">
+                    <h3 class="font-bold text-lg mb-2"><i class="fa-solid fa-volume-high text-indigo-500 mr-2"></i> Expert Acoustique</h3>
+                    <p class="text-sm text-slate-600 mb-4">Vérifie la conformité de vos plans selon la NRA 2000 ou NF S 31-080.</p>
+                    <ul class="list-disc pl-5 space-y-2 text-sm text-slate-700">
+                        <li><strong>Action :</strong> Chargez un plan et indiquez l'environnement extérieur (ex: Rue bruyante BR3).</li>
+                        <li>L'assistant identifie les conflits (ex: un WC adossé à une chambre) et vous préconise des cloisons spécifiques (SAD, etc.).</li>
+                    </ul>
+                </div>
+                
+                <div id="cctp" class="feature-card border-l-4 border-l-blue-600">
+                    <h3 class="font-bold text-lg mb-2"><i class="fa-solid fa-file-contract text-blue-600 mr-2"></i> CCTP : Génération et Analyse</h3>
+                    <p class="text-sm text-slate-600 mb-4">Ce module à double fonction vous permet de créer un Cahier des Clauses Techniques Particulières de zéro, ou de vérifier la pertinence de celui d'un tiers.</p>
+                    <ul class="list-disc pl-5 space-y-2 text-sm text-slate-700">
+                        <li><strong>Onglet "Rédiger CCTP" :</strong> Choisissez la nature des travaux et cochez les lots désirés (Gros Œuvre, Menuiseries, Enduit...). L'assistant rédigera un document complet, structuré et prescriptif, en incluant automatiquement les normes et DTU en vigueur.</li>
+                        <li><strong>Onglet "Analyser CCTP" :</strong> Chargez un CCTP existant en PDF. L'assistant l'analysera en profondeur pour détecter les oublis normatifs ou les ambiguïtés qui pourraient vous porter préjudice.</li>
+                    </ul>
+                </div>
+
+                <div id="dpgf" class="feature-card border-l-4 border-l-emerald-500">
+                    <h3 class="font-bold text-lg mb-2"><i class="fa-solid fa-ruler-combined text-emerald-500 mr-2"></i> Pré-Métré DPGF</h3>
+                    <p class="text-sm text-slate-600 mb-4">Génère l'ossature de votre budget estimatif directement depuis le plan.</p>
+                    <ul class="list-disc pl-5 space-y-2 text-sm text-slate-700">
+                        <li><strong>Action :</strong> Chargez le plan de votre projet.</li>
+                        <li><strong>Résultat :</strong> L'assistant va créer un grand tableau listant tous les lots et les ouvrages qu'il détecte sur le plan (ex: "Création cloison 72/48", "Pose porte âme pleine 83cm").</li>
+                    </ul>
+                </div>
+                
+                <div id="devis" class="feature-card border-l-4 border-l-teal-500">
+                    <h3 class="font-bold text-lg mb-2"><i class="fa-solid fa-scale-balanced text-teal-500 mr-2"></i> Devis d'Honoraires & Comparatif</h3>
+                    <p class="text-sm text-slate-600 mb-4">Générez vos propres devis de Maîtrise d'Œuvre en quelques secondes, ou auditez les devis des entreprises.</p>
+                    <ul class="list-disc pl-5 space-y-2 text-sm text-slate-700">
+                        <li><strong>Onglet "Créer Devis (Honoraires)" :</strong> Entrez le nom de votre client et cochez les phases de votre mission (ESQ, APS, APD, PRO, DET...). Saisissez le prix de chaque phase. L'assistant génère un devis officiel intégrant automatiquement vos coordonnées d'agence, calcule les totaux HT, la TVA et le TTC.</li>
+                        <li><strong>Onglet "Analyser (Devis Ent.)" :</strong> Idéal pour l'analyse des offres (ACT). Chargez le devis d'une entreprise et votre CCTP de référence. L'assistant pointera les oublis ou les matériaux non-conformes au CCTP.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <div class="my-10 border-t border-dashed border-gray-300"></div>
+
+            <section id="chantier" class="mb-16">
+                <div class="inline-block bg-orange-100 text-orange-700 px-3 py-1 rounded font-black text-xs uppercase tracking-widest mb-4">Pôle Chantier</div>
+                
+                <div id="reunion" class="feature-card border-l-4 border-l-orange-500">
+                    <h3 class="font-bold text-lg mb-2"><i class="fa-solid fa-users text-orange-500 mr-2"></i> Compte-Rendu de Réunion</h3>
+                    <p class="text-sm text-slate-600 mb-4">Ne perdez plus de temps à mettre au propre vos notes de réunion de chantier.</p>
+                    <ul class="list-disc pl-5 space-y-2 text-sm text-slate-700">
+                        <li><strong>Action :</strong> Cliquez sur le bouton Micro (ou tapez) et déversez vos notes de manière brute et désordonnée. (ex: *"Le maçon doit refaire l'arase pour mardi. Le plombier n'est pas venu..."*)</li>
+                        <li><strong>Résultat :</strong> L'assistant transforme vos notes en un tableau structuré listant les Constats, les Actions requises, les Entreprises concernées et les Délais.</li>
+                    </ul>
+                </div>
+
+                <div id="rapport" class="feature-card border-l-4 border-l-orange-500">
+                    <h3 class="font-bold text-lg mb-2"><i class="fa-solid fa-camera text-orange-500 mr-2"></i> Rapport de Chantier</h3>
+                    <p class="text-sm text-slate-600 mb-4">Crée un compte-rendu professionnel intégrant vos remarques vocales et visuelles.</p>
+                    <ul class="list-disc pl-5 space-y-2 text-sm text-slate-700">
+                        <li><strong>Action :</strong> Importez plusieurs photos de votre visite.</li>
+                        <li><strong>Résultat :</strong> L'assistant rédige un CR propre, classé par corps d'état, et met en page toutes vos photos dans une <strong>Annexe Photographique</strong> en fin de document.</li>
+                    </ul>
+                </div>
+
+                <div id="reserves" class="feature-card border-l-4 border-l-orange-500">
+                    <h3 class="font-bold text-lg mb-2"><i class="fa-solid fa-list-check text-orange-500 mr-2"></i> Levée de Réserves (OPR)</h3>
+                    <p class="text-sm text-slate-600 mb-4">L'outil indispensable pour la réception des travaux.</p>
+                    <ul class="list-disc pl-5 space-y-2 text-sm text-slate-700">
+                        <li><strong>Action :</strong> Importez les photos des défauts constatés et listez-les rapidement.</li>
+                        <li><strong>Résultat :</strong> L'assistant crée un Procès-Verbal sous forme de tableau. Il regroupe les défauts par Lot/Artisan et génère de vraies cases à cocher (☑) permettant aux entreprises de signer une fois les reprises effectuées.</li>
+                    </ul>
+                </div>
+
+                <div id="planning" class="feature-card border-l-4 border-l-orange-500">
+                    <h3 class="font-bold text-lg mb-2"><i class="fa-solid fa-calendar-days text-orange-500 mr-2"></i> Planning Chronologique (Gantt)</h3>
+                    <p class="text-sm text-slate-600 mb-4">Concevez la timeline de votre projet en 1 clic.</p>
+                    <ul class="list-disc pl-5 space-y-2 text-sm text-slate-700">
+                        <li><strong>Action :</strong> Indiquez la surface, la date de démarrage, et cochez les lots concernés.</li>
+                        <li>L'assistant génère un tableau croisé. Il intègre la logique métier de la construction (ex: Il ajoutera de lui-même 3 semaines de séchage après le lot Maçonnerie avant de faire intervenir le plaquiste).</li>
+                    </ul>
+                </div>
+            </section>
+
+            <div class="my-10 border-t border-dashed border-gray-300"></div>
+
+            <section id="bureau" class="mb-16">
+                <div class="inline-block bg-emerald-100 text-emerald-700 px-3 py-1 rounded font-black text-xs uppercase tracking-widest mb-4">Pôle Bureau & Administratif</div>
+                
+                <div id="legal" class="feature-card border-l-4 border-l-slate-700">
+                    <h3 class="font-bold text-lg mb-2"><i class="fa-solid fa-envelope text-slate-700 mr-2"></i> Courriers et Ordres de Service (OS)</h3>
+                    <p class="text-sm text-slate-600 mb-4">Rédigez des injonctions légales inattaquables.</p>
+                    <ul class="list-disc pl-5 space-y-2 text-sm text-slate-700">
+                        <li><strong>Paramétrage :</strong> Sélectionnez le type (OS, Mise en Demeure, Constat). Renseignez l'entreprise visée et le motif principal.</li>
+                        <li><strong>Expéditeur Automatique :</strong> L'assistant récupère les coordonnées complètes de votre agence pour formater l'en-tête et la signature du courrier.</li>
+                        <li><strong>Preuves à l'appui :</strong> Vous pouvez joindre des photos constatant des malfaçons. L'assistant les décrira finement dans le texte du courrier et les mettra en page dans une "Annexe Photographique".</li>
+                    </ul>
+                </div>
+
+                <div id="permis" class="feature-card border-l-4 border-l-slate-700">
+                    <h3 class="font-bold text-lg mb-2"><i class="fa-solid fa-file-signature text-slate-700 mr-2"></i> Permis de construire & Cerfa</h3>
+                    <p class="text-sm text-slate-600 mb-4">Rédigez la fastidieuse notice descriptive (PC4 / DP11) instantanément.</p>
+                    <ul class="list-disc pl-5 space-y-2 text-sm text-slate-700">
+                        <li><strong>Destination :</strong> Le menu intègre toutes les destinations légales du Code de l'Urbanisme (Maison, Bureaux / Espace de travail, Commerce, Industrie, etc.).</li>
+                        <li><strong>Action :</strong> Chargez l'image 3D ou les façades du projet. Cliquez sur "NOTICE". L'assistant analyse l'image pour décrire l'insertion paysagère, les couleurs et les matériaux.</li>
+                        <li>Le bouton <em>CERFA</em> analyse le périmètre de votre projet et vous indique précisément quel formulaire administratif remplir.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="export" class="mt-20 bg-slate-900 text-white p-8 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-bold mb-4"><i class="fa-solid fa-file-export text-emerald-400 mr-2"></i> Export & Partage</h2>
+                <p class="text-sm text-slate-300 mb-6">Une fois le document généré, vous pouvez modifier le texte en cliquant directement dessus (comme dans Word) avant de l'exporter.</p>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-slate-800 p-4 rounded text-center border border-slate-700">
+                        <i class="fa-solid fa-file-pdf text-red-400 text-2xl mb-2 block"></i>
+                        <span class="font-bold text-sm block mb-1">Export PDF</span>
+                        <span class="text-[10px] text-slate-400 leading-tight block">Génère un A4 propre avec le cartouche de l'agence et les photos.</span>
+                    </div>
+                    <div class="bg-slate-800 p-4 rounded text-center border border-slate-700">
+                        <i class="fa-solid fa-file-word text-blue-400 text-2xl mb-2 block"></i>
+                        <span class="font-bold text-sm block mb-1">Export Word</span>
+                        <span class="text-[10px] text-slate-400 leading-tight block">Télécharge un fichier .doc modifiable conservant la mise en page.</span>
+                    </div>
+                    <div class="bg-slate-800 p-4 rounded text-center border border-slate-700">
+                        <i class="fa-solid fa-envelope-open-text text-yellow-400 text-2xl mb-2 block"></i>
+                        <span class="font-bold text-sm block mb-1">Copier E-mail</span>
+                        <span class="text-[10px] text-slate-400 leading-tight block">L'assistant rédige le mail d'accompagnement et le copie pour vous.</span>
+                    </div>
+                    <div class="bg-slate-800 p-4 rounded text-center border border-slate-700">
+                        <i class="fa-solid fa-table text-green-400 text-2xl mb-2 block"></i>
+                        <span class="font-bold text-sm block mb-1">Export Excel</span>
+                        <span class="text-[10px] text-slate-400 leading-tight block">Apparaît si le doc contient un tableau (Planning, DPGF...).</span>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Logiciel Levée de Réserves & OPR | BatiPilot</title>
+    <meta name="description" content="Gérez vos Opérations Préalables à la Réception (OPR) sans fichier Excel. Pointez les défauts, assignez les artisans et générez vos listes de levée de réserves sur le terrain.">
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%225%22 y=%225%22 width=%2290%22 height=%2290%22 fill=%22white%22 stroke=%22%23CBD5E1%22 stroke-width=%225%22 stroke-dasharray=%2210%22 rx=%2210%22/><path d=%22M50 20 L20 80 L50 65 z%22 fill=%22%233B82F6%22/><path d=%22M50 20 L80 80 L50 65 z%22 fill=%22%231E293B%22/></svg>" type="image/svg+xml">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #FFFFFF; color: #0F172A; scroll-behavior: smooth; }
+        .gradient-text { background: linear-gradient(135deg, #10B981 0%, #059669 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+        details[open] summary ~ * { animation: sweep .5s ease-in-out; }
+        @keyframes sweep { 0% {opacity: 0; transform: translateY(-10px)} 100% {opacity: 1; transform: translateY(0)} }
+    </style>
+</head>
+<body class="antialiased bg-slate-50">
+
+    <nav class="bg-white/90 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <a href="index.html" class="flex items-center hover:opacity-80 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" width="160" height="48">
+                    <rect x="15" y="15" width="90" height="90" fill="none" stroke="#CBD5E1" stroke-width="2" rx="8" />
+                    <polygon points="60,25 25,85 60,70" fill="#3B82F6" />
+                    <polygon points="60,25 95,85 60,70" fill="#1E293B" />
+                    <text x="125" y="72" font-family="'Inter', sans-serif" font-size="52" letter-spacing="-1.5"><tspan font-weight="900" fill="#0F172A">Bati</tspan><tspan font-weight="300" fill="#3B82F6">Pilot</tspan><tspan font-weight="900" fill="#10B981">.</tspan></text>
+                </svg>
+            </a>
+            <div class="hidden md:flex space-x-8">
+                <a href="index.html#features" class="text-sm font-bold text-slate-600 hover:text-blue-600 transition py-2">Toutes les fonctionnalités</a>
+                <a href="index.html#pricing" class="text-sm font-bold text-slate-600 hover:text-blue-600 transition py-2">Tarifs</a>
+            </div>
+            <div class="flex space-x-3">
+                <a href="app.html" class="px-5 py-2.5 text-sm font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 rounded-lg transition">Connexion</a>
+                <a href="index.html#pricing" class="px-5 py-2.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-lg shadow-blue-500/20 transition transform hover:scale-105">Essai gratuit</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="relative bg-white pt-20 pb-16 overflow-hidden border-b border-slate-100">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-full bg-emerald-50 rounded-full blur-[100px] opacity-50 -z-10"></div>
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 text-emerald-700 font-bold text-[11px] uppercase tracking-widest mb-6 border border-emerald-100">
+                <i class="fa-solid fa-list-check"></i> Réception & OPR
+            </div>
+            
+            <h1 class="text-4xl md:text-6xl font-black tracking-tight mb-6 text-slate-900 leading-[1.1]">
+                Vos OPR et levées de réserves gérées <span class="gradient-text">sans aucun fichier Excel</span>.
+            </h1>
+            
+            <p class="text-lg md:text-xl text-slate-600 mx-auto mb-10 leading-relaxed font-medium">
+                La phase de réception est souvent la plus chaotique du projet. Oubliez les post-its perdus et les tableaux à rallonge. BatiPilot vous permet de pointer les défauts sur place, d'assigner automatiquement les tâches aux artisans et de suivre les levées de réserves en temps réel.
+            </p>
+            
+            <a href="index.html#pricing" class="inline-flex px-8 py-4 text-lg font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-xl shadow-emerald-600/20 transition transform hover:-translate-y-1">
+                Démarrer mon essai gratuit (14 jours)
+            </a>
+            <p class="text-xs text-slate-400 mt-4 font-medium"><i class="fa-solid fa-check text-emerald-500 mr-1"></i> Idéal sur tablette lors des visites de réception.</p>
+        </div>
+    </section>
+
+    <section class="py-20 bg-slate-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-20">
+                <div class="order-2 md:order-1 flex justify-center">
+                    <div class="bg-white p-2 rounded-2xl shadow-xl border border-slate-200 relative w-full">
+                        <img src="OPR1.png" alt="Interface de saisie des réserves et défauts sur tablette avec BatiPilot" class="w-full h-auto rounded-xl border border-slate-100" onerror="this.src='https://placehold.co/600x450/f1f5f9/94a3b8?text=Capture+Saisie+Réserves'">
+                    </div>
+                </div>
+                <div class="order-1 md:order-2">
+                    <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-xl mb-6 shadow-sm"><i class="fa-solid fa-crosshairs"></i></div>
+                    <h2 class="text-3xl font-black text-slate-900 mb-4">Capturez et localisez chaque réserve en un clin d'œil</h2>
+                    <p class="text-slate-600 leading-relaxed mb-6">
+                        Lors de vos Opérations Préalables à la Réception (OPR), la vitesse et la précision sont primordiales. Avec votre tablette ou smartphone en main, photographiez la malfaçon ou le défaut de finition.
+                    </p>
+                    <p class="text-slate-600 leading-relaxed font-bold text-slate-800 border-l-4 border-emerald-500 pl-4 mb-4">
+                        Notre assistant vous permet de localiser instantanément la réserve (ex: Bâtiment A, Étage 2, Chambre 3) et d'y annoter vos commentaires visuels pour qu'aucune contestation ne soit possible.
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-20">
+                <div>
+                    <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-xl mb-6 shadow-sm"><i class="fa-solid fa-users-gear"></i></div>
+                    <h2 class="text-3xl font-black text-slate-900 mb-4">Une liste de tâches spécifique pour chaque entreprise</h2>
+                    <p class="text-slate-600 leading-relaxed mb-6">
+                        La pire erreur lors d'une réception est d'envoyer un document global de 50 pages à tous les sous-traitants. Chacun se renvoie la balle. BatiPilot résout ce problème à la source.
+                    </p>
+                    <ul class="space-y-3 text-slate-600 font-medium mb-6">
+                        <li class="flex items-start gap-3"><i class="fa-solid fa-check text-emerald-500 mt-1"></i> <strong>Filtre par lot :</strong> Chaque réserve saisie est affectée au lot responsable (Peintre, Électricien, Menuisier...).</li>
+                        <li class="flex items-start gap-3"><i class="fa-solid fa-check text-emerald-500 mt-1"></i> <strong>Listes personnalisées :</strong> Générez une fiche de levée de réserves unique par entreprise, contenant uniquement ce qui les concerne.</li>
+                        <li class="flex items-start gap-3"><i class="fa-solid fa-check text-emerald-500 mt-1"></i> <strong>Cases à cocher :</strong> Les artisans disposent d'un document clair avec des actions précises à valider.</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-2 rounded-2xl shadow-xl border border-slate-200">
+                    <img src="OPR2.png" alt="Rapport PDF de levée de réserves trié par lot et par entreprise" class="w-full h-auto rounded-xl border border-slate-100" onerror="this.src='https://placehold.co/600x450/f1f5f9/94a3b8?text=Capture+Rapport+Artisan'">
+                </div>
+            </div>
+
+            <div class="bg-slate-900 rounded-3xl p-8 md:p-12 text-white shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-500 rounded-full blur-[100px] opacity-20"></div>
+                <div class="relative z-10 md:w-2/3">
+                    <h2 class="text-3xl font-black mb-4">Générez vos PV de réception en toute conformité</h2>
+                    <p class="text-slate-300 leading-relaxed mb-6">
+                        Le suivi des réserves levées et non levées s'affiche dans un tableau de bord intuitif. Vous savez en temps réel quel artisan bloque la livraison finale du chantier.
+                    </p>
+                    <p class="text-slate-300 leading-relaxed">
+                        Une fois les travaux de reprise terminés, validez les statuts ("À lever" -> "Levée") et exportez instantanément vos Procès-Verbaux de levée de réserves officiels. Une clôture de chantier propre, rapide et sans litige.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="py-20 bg-slate-50 border-t border-slate-200">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-black text-slate-900 mb-4">Un écosystème complet pour votre agence</h3>
+                <p class="text-slate-600">BatiPilot vous accompagne de l'esquisse jusqu'à la remise des clés. Découvrez nos autres modules experts.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <a href="logiciel-cctp-automatique.html" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-blue-500 transition group flex flex-col h-full">
+                    <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-file-contract"></i></div>
+                    <h4 class="font-black text-slate-900 mb-2 group-hover:text-blue-600 transition">Rédacteur de CCTP</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed mb-4 flex-1">Générez des CCTP par lots avec intégration automatique des dernières normes DTU et pré-chiffrage DPGF.</p>
+                    <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest flex items-center gap-1">Découvrir <i class="fa-solid fa-arrow-right transform group-hover:translate-x-1 transition"></i></span>
+                </a>
+
+                <a href="compte-rendu-chantier-dictee-vocale.html" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-orange-500 transition group flex flex-col h-full">
+                    <div class="w-12 h-12 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-microphone-lines"></i></div>
+                    <h4 class="font-black text-slate-900 mb-2 group-hover:text-orange-600 transition">Comptes-Rendus Dictés</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed mb-4 flex-1">Dictez vos notes sur le chantier. L'assistant les transforme en tableau structuré (constats, actions, entreprises, délais).</p>
+                    <span class="text-[10px] font-bold text-orange-600 uppercase tracking-widest flex items-center gap-1">Découvrir <i class="fa-solid fa-arrow-right transform group-hover:translate-x-1 transition"></i></span>
+                </a>
+
+                <a href="analyse-plu-assistee.html" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-blue-500 transition group flex flex-col h-full">
+                    <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-map-location-dot"></i></div>
+                    <h4 class="font-black text-slate-900 mb-2 group-hover:text-blue-600 transition">Analyse PLU Assistée</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed mb-4 flex-1">Extrayez instantanément les règles de constructibilité (hauteur, emprise, reculs) depuis le règlement de la commune.</p>
+                    <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest flex items-center gap-1">Découvrir <i class="fa-solid fa-arrow-right transform group-hover:translate-x-1 transition"></i></span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 bg-white border-t border-slate-100">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h3 class="text-3xl font-black text-center text-slate-900 mb-12">Foire Aux Questions</h3>
+            
+            <div class="space-y-4">
+                <details class="group bg-slate-50 rounded-xl border border-slate-200 open:border-emerald-500 transition-all duration-300">
+                    <summary class="flex cursor-pointer items-center justify-between p-6 font-bold text-slate-800 hover:text-emerald-600">
+                        L'application fonctionne-t-elle sans connexion internet dans les sous-sols ?
+                        <span class="ml-4 flex h-8 w-8 items-center justify-center rounded-full bg-white border border-slate-200 group-open:rotate-45 transition"><i class="fa-solid fa-plus text-slate-500"></i></span>
+                    </summary>
+                    <div class="px-6 pb-6 text-slate-600 text-sm leading-relaxed">
+                        En tant qu'application Web optimisée, BatiPilot nécessite une connexion pour synchroniser les données et utiliser l'assistant de traitement. Cependant, vous pouvez prendre vos photos hors ligne et effectuer la synchronisation et la structuration de vos réserves dès que vous retrouvez du réseau.
+                    </div>
+                </details>
+
+                <details class="group bg-slate-50 rounded-xl border border-slate-200 open:border-emerald-500 transition-all duration-300">
+                    <summary class="flex cursor-pointer items-center justify-between p-6 font-bold text-slate-800 hover:text-emerald-600">
+                        Les artisans ont-ils besoin d'un compte BatiPilot pour recevoir leurs réserves ?
+                        <span class="ml-4 flex h-8 w-8 items-center justify-center rounded-full bg-white border border-slate-200 group-open:rotate-45 transition"><i class="fa-solid fa-plus text-slate-500"></i></span>
+                    </summary>
+                    <div class="px-6 pb-6 text-slate-600 text-sm leading-relaxed">
+                        Non, absolument pas. L'objectif est de vous simplifier la vie, pas d'imposer un logiciel à vos sous-traitants. BatiPilot génère des rapports PDF clairs, triés par entreprise, que vous pouvez leur envoyer directement par e-mail en un clic.
+                    </div>
+                </details>
+
+                <details class="group bg-slate-50 rounded-xl border border-slate-200 open:border-emerald-500 transition-all duration-300">
+                    <summary class="flex cursor-pointer items-center justify-between p-6 font-bold text-slate-800 hover:text-emerald-600">
+                        Puis-je personnaliser l'en-tête de mes rapports d'OPR ?
+                        <span class="ml-4 flex h-8 w-8 items-center justify-center rounded-full bg-white border border-slate-200 group-open:rotate-45 transition"><i class="fa-solid fa-plus text-slate-500"></i></span>
+                    </summary>
+                    <div class="px-6 pb-6 text-slate-600 text-sm leading-relaxed">
+                        Oui, tous les documents PDF générés par BatiPilot (Comptes-rendus, OPR) peuvent inclure le logo de votre agence, les informations de votre cabinet et les coordonnées du projet pour un rendu 100% professionnel.
+                    </div>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 bg-emerald-600 text-center px-4">
+        <h3 class="text-3xl md:text-4xl font-black text-white mb-6">Réussissez vos réceptions sans stress.</h3>
+        <p class="text-emerald-100 mb-10 text-lg max-w-2xl mx-auto">Rejoignez les maîtres d'œuvre qui clôturent leurs chantiers plus rapidement et sans litige.</p>
+        <a href="index.html#pricing" class="inline-block px-10 py-5 bg-white text-emerald-700 font-black text-lg rounded-xl shadow-2xl hover:bg-slate-50 transition transform hover:scale-105">
+            Testez gratuitement BatiPilot.app
+        </a>
+    </section>
+
+    <footer class="bg-white text-slate-500 py-12 border-t border-slate-100 text-center">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>&copy; 2026 BatiPilot Studio. <span class="text-xs opacity-70">Made in France 🇫🇷</span></p>
+            <div class="mt-4 flex justify-center gap-6 text-sm">
+                <a href="index.html" class="hover:text-slate-800 transition">Accueil</a>
+                <a href="tutorial.html" class="hover:text-slate-800 transition">Manuel d'utilisation</a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

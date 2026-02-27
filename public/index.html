@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BatiPilot - L'Assistant Expert des Maîtres d'Œuvre et Architectes</title>
+<script defer src="/_vercel/insights/script.js"></script>
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%225%22 y=%225%22 width=%2290%22 height=%2290%22 fill=%22white%22 stroke=%22%23CBD5E1%22 stroke-width=%225%22 stroke-dasharray=%2210%22 rx=%2210%22/><path d=%22M50 20 L20 80 L50 65 z%22 fill=%22%233B82F6%22/><path d=%22M50 20 L80 80 L50 65 z%22 fill=%22%231E293B%22/></svg>" type="image/svg+xml">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #FFFFFF; color: #0F172A; scroll-behavior: smooth; }
+        
+        .gradient-text { 
+            background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
+
+        /* --- SECTION AGENTS HERO --- */
+        .agents-hero-section {
+            background-color: #020617; position: relative; overflow: hidden; padding: 120px 0; text-align: center; color: white;
+        }
+        .agents-glow-bg {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 80%;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(2, 6, 23, 0) 70%); pointer-events: none; z-index: 0;
+        }
+        .floating-agent-card {
+            position: absolute; background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(8px); border: 1px solid #334155;
+            padding: 8px 16px; border-radius: 99px; display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 600;
+            color: #E2E8F0; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: float-agent 6s ease-in-out infinite; z-index: 10;
+        }
+        .agent-avatar { width: 24px; height: 24px; border-radius: 50%; background-color: #3B82F6; display: flex; align-items: center; justify-content: center; font-size: 10px; color: white; }
+        .agent-arrow { position: absolute; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 10px solid #3B82F6; transform: rotate(-45deg); }
+        @keyframes float-agent { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .bottom-feature-card { background: rgba(15, 23, 42, 0.6); border: 1px solid #1E293B; border-radius: 20px; padding: 20px; display: flex; align-items: flex-start; gap: 16px; text-align: left; transition: all 0.3s ease; }
+        .bottom-feature-card:hover { background: rgba(30, 41, 59, 0.8); border-color: #3B82F6; }
+        .bottom-icon { width: 40px; height: 40px; background: #1E293B; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #3B82F6; flex-shrink: 0; }
+
+        /* --- VIDEO SECTION --- */
+        .video-browser-frame { background: #0F172A; border-radius: 12px; border: 1px solid #334155; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); overflow: hidden; position: relative; }
+        .browser-header { height: 36px; background: #1E293B; border-bottom: 1px solid #334155; display: flex; align-items: center; padding: 0 16px; gap: 8px; }
+        .browser-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .stat-glass-card { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border: 1px solid #E2E8F0; border-radius: 16px; padding: 20px; text-align: center; transition: all 0.3s; }
+        .stat-glass-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-color: #3B82F6; }
+
+        /* --- STYLES TESTIMONIALS --- */
+        .testimonials-section-dark {
+            background-color: #020617; position: relative; padding: 100px 0; border-top: 1px solid #1E293B;
+        }
+        .testimonial-hero-card {
+            background: #1E293B; border: 1px solid #334155; border-radius: 32px; overflow: hidden;
+            display: grid; grid-template-columns: 1fr 1fr; align-items: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4); position: relative; max-width: 1000px; margin: 0 auto; min-height: 450px;
+        }
+        .testimonial-content { padding: 60px; }
+        .testimonial-image-col {
+            background: #0F172A; height: 100%; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden;
+        }
+        .nav-btn-circle {
+            width: 44px; height: 44px; border-radius: 50%; background: #1E293B; border: 1px solid #334155;
+            color: #94A3B8; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; font-size: 14px;
+        }
+        .nav-btn-circle:hover { background: #334155; color: white; border-color: #475569; }
+        .fade-enter-active { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 768px) {
+            .testimonial-hero-card { grid-template-columns: 1fr; }
+            .testimonial-image-col { height: 250px; }
+            .testimonial-content { padding: 30px; }
+        }
+
+        /* --- CERVEAU & CONNECTIONS (ANIMATED) --- */
+        .brain-section { background-color: #0F172A; position: relative; overflow: hidden; padding: 100px 0; background-image: radial-gradient(#1E293B 1px, transparent 1px); background-size: 30px 30px; }
+        .brain-grid { display: grid; grid-template-columns: 1fr 280px 1fr; gap: 40px; align-items: center; max-width: 1280px; margin: 0 auto; position: relative; z-index: 10; }
+        .brain-column { display: flex; flex-direction: column; gap: 30px; position: relative; z-index: 20; }
+        .node-card { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(12px); border: 1px solid #334155; border-radius: 16px; padding: 20px; color: white; transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .node-card:hover { transform: scale(1.02); border-color: #3B82F6; background: rgba(30, 41, 59, 0.95); box-shadow: 0 0 25px rgba(59, 130, 246, 0.15); }
+        .node-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
+        .node-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+        
+        /* Central Brain Circle */
+        .central-brain-container { display: flex; justify-content: center; align-items: center; height: 100%; position: relative; }
+        .central-brain-glow {
+            width: 180px; height: 180px;
+            background: radial-gradient(circle at center, rgba(15,23,42,1) 40%, rgba(59,130,246,0.2) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            border-radius: 50%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            box-shadow: 0 0 60px rgba(59, 130, 246, 0.3), inset 0 0 30px rgba(59, 130, 246, 0.2);
+            position: relative; z-index: 20;
+            backdrop-filter: blur(5px);
+        }
+        /* Rotating borders */
+        .central-brain-glow::after {
+            content: ''; position: absolute; inset: -5px; border-radius: 50%;
+            border: 2px solid transparent; border-top-color: #3B82F6; border-bottom-color: #3B82F6;
+            animation: spin-slow 8s linear infinite; opacity: 0.8;
+        }
+        .central-brain-glow::before {
+            content: ''; position: absolute; inset: -15px; border-radius: 50%;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            animation: pulse-ring 3s ease-out infinite;
+        }
+        
+        @keyframes spin-slow { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulse-ring { 0% { transform: scale(0.9); opacity: 0.5; } 100% { transform: scale(1.3); opacity: 0; } }
+
+        /* Animated Connections SVG */
+        .connections-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        .conn-track { fill: none; stroke: #1E293B; stroke-width: 1.5; opacity: 0.5; }
+        .conn-flow {
+            fill: none; stroke: #3B82F6; stroke-width: 2;
+            stroke-dasharray: 10 300; /* Short dash, long gap */
+            stroke-linecap: round;
+            animation: flow-animation 3s linear infinite;
+            filter: drop-shadow(0 0 5px #3B82F6);
+        }
+        @keyframes flow-animation { to { stroke-dashoffset: -310; } }
+
+        @media (max-width: 1023px) { .brain-grid { grid-template-columns: 1fr; gap: 40px; padding: 0 20px; } .central-brain-container { order: -1; margin-bottom: 20px; } .connections-svg { display: none; } .node-card:hover { transform: translateY(-5px); } }
+
+        /* --- FEATURES --- */
+        .feature-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); border: 1px solid #E2E8F0; transition: all 0.3s ease; display: flex; flex-direction: column; height: 100%; }
+        .feature-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); border-color: #3B82F6; }
+        .feature-icon-header { height: 140px; display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 1px solid #F1F5F9; transition: all 0.3s ease; }
+        .feature-main-icon { font-size: 3.5rem; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .feature-card:hover .feature-main-icon { transform: scale(1.1) rotate(-5deg); }
+        .theme-blue { background-color: #EFF6FF; color: #3B82F6; }
+        .theme-orange { background-color: #FFF7ED; color: #F97316; }
+        .mini-card { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 12px; transition: all 0.2s; }
+        .mini-card:hover { background: white; border-color: #3B82F6; box-shadow: 0 4px 10px rgba(0,0,0,0.05); transform: translateY(-2px); }
+        .mini-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+
+        /* --- AUTOMATION & FLOW --- */
+        .automation-card { background-color: #0F172A; border: 1px solid #334155; border-radius: 16px; padding: 20px; display: flex; align-items: flex-start; gap: 16px; transition: 0.3s; }
+        .automation-card:hover { border-color: #10B981; background-color: #1E293B; }
+        .check-circle { width: 24px; height: 24px; border-radius: 50%; background: #10B981; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .check-circle i { color: #020617; font-size: 12px; }
+        .flow-card { background-color: #1E293B; border: 1px solid #334155; border-radius: 16px; padding: 20px; color: white; position: absolute; width: 280px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); animation: float-slow 6s ease-in-out infinite; z-index: 10; }
+        .flow-card h5 { font-size: 11px; font-weight: 700; color: #94A3B8; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 1px; }
+        .flow-card p { font-size: 14px; font-weight: 500; line-height: 1.4; }
+        .flow-avatar { width: 24px; height: 24px; border-radius: 50%; background-color: #3B82F6; border: 2px solid #0F172A; position: absolute; bottom: -10px; right: -10px; }
+        @keyframes float-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+        /* --- PRICING DARK --- */
+        .pricing-section-dark { background-color: #020617; position: relative; overflow: hidden; padding: 100px 0; }
+        .pricing-toggle-container { background: #1E293B; border-radius: 99px; padding: 4px; display: inline-flex; position: relative; border: 1px solid #334155; }
+        .pricing-toggle-btn { padding: 8px 24px; border-radius: 99px; font-size: 13px; font-weight: 600; color: #94A3B8; cursor: pointer; position: relative; z-index: 10; transition: all 0.3s ease; }
+        .pricing-toggle-btn.active { color: white; }
+        .pricing-slider { position: absolute; top: 4px; left: 4px; height: calc(100% - 8px); width: 100px; background: #334155; border-radius: 99px; transition: all 0.3s ease; }
+        .pricing-card { background-color: #0F172A; border: 1px solid #334155; border-radius: 24px; padding: 32px; display: flex; flex-direction: column; transition: all 0.3s ease; position: relative; }
+        .pricing-card:hover { border-color: #3B82F6; transform: translateY(-5px); }
+        .pricing-card.highlight { border: 2px solid #3B82F6; box-shadow: 0 0 40px rgba(59, 130, 246, 0.15); background: #172033; }
+        .badge-best { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: white; color: #020617; font-weight: 800; font-size: 11px; padding: 4px 12px; border-radius: 99px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .pricing-check-list li { position: relative; padding-left: 24px; margin-bottom: 12px; color: #94A3B8; font-size: 13px; }
+        .pricing-check-list li::before { content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; left: 0; top: 2px; color: #3B82F6; }
+        .price-strike { text-decoration: line-through; color: #64748B; font-size: 18px; margin-right: 8px; font-weight: 500; }
+
+        /* --- ROADMAP INFINITY STYLE --- */
+        .roadmap-section { background-color: #020617; position: relative; padding: 120px 0; overflow: hidden; border-top: 1px solid #1E293B; }
+        .roadmap-line-container { position: absolute; top: 50%; left: 0; width: 100%; height: 4px; background: #1e293b; transform: translateY(-50%); z-index: 0; }
+        .roadmap-line-progress { position: absolute; top: 0; left: 0; height: 100%; width: 25%; background: linear-gradient(90deg, #3B82F6, #10B981); box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+        .roadmap-card { background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(12px); border: 1px solid #334155; padding: 24px; border-radius: 20px; position: relative; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 10; min-height: 220px; display: flex; flex-direction: column; }
+        .roadmap-card:hover { background: rgba(30, 41, 59, 0.9); border-color: #3B82F6; transform: translateY(-10px) scale(1.02); box-shadow: 0 20px 40px -10px rgba(59, 130, 246, 0.2); }
+        .roadmap-dot { width: 16px; height: 16px; background: #0F172A; border: 2px solid #475569; border-radius: 50%; position: absolute; top: -48px; left: 50%; transform: translateX(-50%); z-index: 20; transition: 0.3s; }
+        .roadmap-card.active .roadmap-dot { background: #3B82F6; border-color: #60A5FA; box-shadow: 0 0 15px #3B82F6; }
+        .roadmap-card.active { border-color: #3B82F6; background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.1), rgba(30, 41, 59, 0.6)); }
+        .roadmap-date { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; display: inline-block; padding: 4px 12px; border-radius: 99px; background: #0F172A; border: 1px solid #334155; color: #94A3B8; }
+        .roadmap-card.active .roadmap-date { background: #172554; color: #60A5FA; border-color: #1E40AF; }
+        @media (max-width: 1024px) {
+            .roadmap-line-container { left: 20px; width: 4px; height: 100%; top: 0; transform: none; }
+            .roadmap-dot { top: 50%; left: -42px; transform: translateY(-50%); }
+        }
+
+        /* --- REVIEWS DARK GRID STYLE --- */
+        .reviews-section-dark { background-color: #020617; padding: 100px 0; border-top: 1px solid #1E293B; border-bottom: 1px solid #1E293B; }
+        .review-card-dark { background-color: #1E293B; border: 1px solid #334155; border-radius: 24px; padding: 32px; display: flex; flex-direction: column; height: 100%; transition: all 0.3s ease; }
+        .review-card-dark:hover { border-color: #3B82F6; transform: translateY(-5px); }
+
+        /* UTILITAIRES */
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+        details[open] summary ~ * { animation: sweep .5s ease-in-out; }
+        @keyframes sweep { 0% {opacity: 0; transform: translateY(-10px)} 100% {opacity: 1; transform: translateY(0)} }
+        
+        .check-list li { position: relative; padding-left: 1.5rem; margin-bottom: 0.5rem; color: #334155; font-size: 0.85rem; font-weight: 500; }
+        .check-list li::before { content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; left: 0; top: 2px; color: #10B981; }
+        
+        .toggle-checkbox:checked { right: 0; border-color: #10B981; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #10B981; }
+        .modern-glow { position: absolute; inset: -20px; background: linear-gradient(45deg, rgba(59, 130, 246, 0.4), rgba(16, 185, 129, 0.4)); filter: blur(50px); z-index: 0; opacity: 0.7; animation: pulse-glow 4s infinite alternate; }
+        @keyframes pulse-glow { 0% { opacity: 0.5; transform: scale(0.95); } 100% { opacity: 0.8; transform: scale(1.05); } }
+    </style>
+</head>
+<body class="antialiased bg-white">
+
+    <nav class="bg-white/90 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" width="160" height="48">
+                    <rect x="15" y="15" width="90" height="90" fill="none" stroke="#CBD5E1" stroke-width="2" rx="8" />
+                    <polygon points="60,25 25,85 60,70" fill="#3B82F6" />
+                    <polygon points="60,25 95,85 60,70" fill="#1E293B" />
+                    <text x="125" y="72" font-family="'Inter', sans-serif" font-size="52" letter-spacing="-1.5"><tspan font-weight="900" fill="#0F172A">Bati</tspan><tspan font-weight="300" fill="#3B82F6">Pilot</tspan><tspan font-weight="900" fill="#10B981">.</tspan></text>
+                </svg>
+            </div>
+            <div class="hidden md:flex space-x-8">
+                <a href="#brain" class="text-sm font-bold text-slate-600 hover:text-blue-600 transition py-2">Notre Écosystème</a>
+                <a href="#features" class="text-sm font-bold text-slate-600 hover:text-blue-600 transition py-2">Fonctionnalités</a>
+                <a href="#pricing" class="text-sm font-bold text-slate-600 hover:text-blue-600 transition py-2">Tarifs</a>
+            </div>
+            <div class="flex space-x-3">
+                <a href="app.html" class="px-5 py-2.5 text-sm font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 rounded-lg transition">Connexion</a>
+                <a href="#pricing" class="px-5 py-2.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-lg shadow-blue-500/20 transition transform hover:scale-105">Essai gratuit</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="relative bg-white pt-24 pb-20 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900 text-white font-bold text-[11px] uppercase tracking-widest mb-8 border border-slate-700 shadow-xl">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Plus d'architecture, moins d'administratif
+            </div>
+            <h1 class="text-5xl md:text-7xl font-black tracking-tight mb-8 text-slate-900 leading-[1.1]">
+                Votre Assistant Technique<br>
+                <span class="gradient-text">qui libère votre temps de conception.</span>
+            </h1>
+            <p class="text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
+                CCTP, Analyse PLU, Comptes-rendus de chantier, Courriers juridiques...<br>
+                BatiPilot divise par 4 le temps passé sur vos tâches administratives et techniques grâce à un assistant expert formé aux normes BTP.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="#pricing" class="px-8 py-4 text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-2xl transition transform hover:-translate-y-1">
+                    Commencer l'essai (14 jours)
+                </a>
+                <a href="#brain" class="px-8 py-4 text-lg font-bold text-slate-700 bg-white border border-slate-200 hover:border-blue-300 hover:text-blue-600 rounded-xl shadow-sm transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-layer-group"></i> Voir l'écosystème
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="agents-hero-section">
+        <div class="agents-glow-bg"></div>
+        <div class="max-w-7xl mx-auto px-4 relative z-10">
+            
+            <div class="floating-agent-card" style="top: 10%; left: 10%; animation-delay: 0s;">
+                <div class="agent-avatar"><i class="fa-solid fa-file-contract"></i></div>
+                <span>Module CCTP</span>
+                <div class="agent-arrow" style="top: 100%; left: 50%; border-bottom-color:transparent; border-top:10px solid #334155;"></div>
+            </div>
+             <div class="floating-agent-card" style="top: 15%; right: 12%; animation-delay: 1.5s;">
+                <div class="agent-avatar bg-amber-500"><i class="fa-solid fa-book"></i></div>
+                <span>Expert Normes</span>
+            </div>
+            <div class="floating-agent-card" style="bottom: 30%; left: 8%; animation-delay: 2.5s;">
+                <div class="agent-avatar bg-emerald-500"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                <span>Assistant Devis</span>
+            </div>
+             <div class="floating-agent-card" style="bottom: 35%; right: 15%; animation-delay: 1s;">
+                <div class="agent-avatar bg-red-500"><i class="fa-solid fa-shield-halved"></i></div>
+                <span>Contrôle Sécurité</span>
+            </div>
+
+            <div class="max-w-3xl mx-auto mb-16 pt-10">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 block">BatiPilot V3 - Découvrez les nouveautés <i class="fa-solid fa-arrow-right ml-1"></i></span>
+                <h2 class="text-5xl md:text-6xl font-black mb-6 leading-tight">
+                    Une équipe d'experts techniques<br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-white">dédiée à votre productivité.</span>
+                </h2>
+                <p class="text-slate-400 text-lg mb-10 leading-relaxed">
+                    Construisez, développez et sécurisez vos projets avec une suite de modules experts disponibles à la demande pour chaque tâche ingrate.
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4 mb-12">
+                    <a href="#pricing" class="px-8 py-4 bg-white text-slate-900 font-bold rounded-full hover:bg-blue-50 transition shadow-[0_0_20px_rgba(255,255,255,0.3)] flex items-center justify-center gap-2">
+                        Essayer gratuitement <span class="w-6 h-6 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white text-[10px]"><i class="fa-solid fa-chevron-right"></i></span>
+                    </a>
+                </div>
+                <div class="flex items-center justify-center gap-6 text-sm text-slate-400 font-medium">
+                    <div class="flex items-center gap-1"><i class="fa-solid fa-star text-emerald-400"></i><i class="fa-solid fa-star text-emerald-400"></i><i class="fa-solid fa-star text-emerald-400"></i><i class="fa-solid fa-star text-emerald-400"></i><i class="fa-solid fa-star text-emerald-400"></i> <span class="text-white ml-2">4.9/5</span></div>
+                    <div class="flex items-center gap-2"><i class="fa-solid fa-check-circle text-blue-500"></i> Conforme DTU</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left relative z-20">
+                <div class="bottom-feature-card">
+                    <div class="bottom-icon"><i class="fa-solid fa-pen-nib"></i></div>
+                    <div>
+                        <h4 class="font-bold text-white text-sm mb-1">Votre rédacteur CCTP</h4>
+                        <p class="text-xs text-slate-400">Génère des documents parfaits en un éclair.</p>
+                    </div>
+                </div>
+                <div class="bottom-feature-card">
+                    <div class="bottom-icon text-emerald-400"><i class="fa-solid fa-chart-line"></i></div>
+                    <div>
+                        <h4 class="font-bold text-white text-sm mb-1">Votre atelier chiffrage</h4>
+                        <p class="text-xs text-slate-400">DPGF et Devis honoraires automatiques.</p>
+                    </div>
+                </div>
+                <div class="bottom-feature-card">
+                    <div class="bottom-icon text-purple-400"><i class="fa-solid fa-comments"></i></div>
+                    <div>
+                        <h4 class="font-bold text-white text-sm mb-1">Votre expert relationnel</h4>
+                        <p class="text-xs text-slate-400">Courriers juridiques et comptes-rendus gérés seuls.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="pb-32 relative pt-20 overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1/2 bg-slate-950 skew-y-2 origin-top-left -z-10"></div>
+        
+        <div class="max-w-6xl mx-auto px-4 relative z-10">
+            <div class="relative group mx-auto">
+                <div class="absolute -inset-2 bg-gradient-to-r from-blue-600 to-emerald-500 rounded-2xl blur-xl opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+                
+                <div class="video-browser-frame">
+                    <div class="browser-header">
+                        <div class="flex gap-2">
+                            <div class="browser-dot bg-red-500/80"></div>
+                            <div class="browser-dot bg-yellow-500/80"></div>
+                            <div class="browser-dot bg-green-500/80"></div>
+                        </div>
+                        <div class="ml-4 bg-slate-800/50 px-3 py-1 rounded text-[10px] text-slate-400 font-mono w-full max-w-xs text-center border border-slate-700/50">app.batipilot.com/dashboard</div>
+                    </div>
+                    <div class="aspect-video bg-slate-900 relative">
+                        <video class="w-full h-full object-cover" autoplay loop muted playsinline poster="https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=2000">
+                            <source src="https://firebasestorage.googleapis.com/v0/b/archiadmin-6be75.firebasestorage.app/o/videocomplete.mp4?alt=media&token=87444393-4d4c-40e7-9027-7de5ad9807ab" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="stat-glass-card">
+                    <div class="text-4xl font-black text-slate-900 mb-1">-15h</div>
+                    <div class="text-xs text-slate-500 font-bold uppercase tracking-wide">Gagnées / mois</div>
+                </div>
+                <div class="stat-glass-card">
+                    <div class="text-4xl font-black text-slate-900 mb-1">15</div>
+                    <div class="text-xs text-slate-500 font-bold uppercase tracking-wide">Modules Experts</div>
+                </div>
+                <div class="stat-glass-card">
+                    <div class="text-4xl font-black text-slate-900 mb-1">100%</div>
+                    <div class="text-xs text-slate-500 font-bold uppercase tracking-wide">Conforme DTU</div>
+                </div>
+                <div class="stat-glass-card">
+                    <div class="text-4xl font-black text-slate-900 mb-1">0€</div>
+                    <div class="text-xs text-slate-500 font-bold uppercase tracking-wide">Installation</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="testimonials-section-dark">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-black mb-6 text-white leading-tight">Parce qu'ils en parlent <br><span class="text-slate-500">mieux que nous.</span></h2>
+            <div class="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-white text-slate-900 font-bold text-xs uppercase tracking-widest shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> +350 Architectes convaincus
+            </div>
+        </div>
+
+        <div class="testimonial-hero-card">
+            <div class="testimonial-content text-left" id="testimonial-content">
+                </div>
+
+            <div class="testimonial-image-col">
+                <img id="testimonial-image" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=800" class="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay transition-opacity duration-500" alt="Client">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#0F172A] to-transparent"></div>
+            </div>
+        </div>
+
+        <div class="flex justify-center gap-4 mt-12">
+            <button class="nav-btn-circle" onclick="changeTestimonial(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+            <button class="nav-btn-circle" onclick="changeTestimonial(1)"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+    </section>
+
+    <section id="brain" class="brain-section">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-5xl font-black text-white mb-6">Le Cerveau Central de votre agence</h2>
+                <p class="text-slate-400 text-lg max-w-2xl mx-auto">
+                    BatiPilot ne se contente pas d'écrire. Il connecte votre savoir technique, les normes en vigueur et vos données projets pour alimenter <strong>8 modules experts</strong> en temps réel.
+                </p>
+            </div>
+
+            <div class="brain-grid">
+                
+                <div class="brain-column">
+                    <div class="node-card">
+                        <div class="node-header">
+                            <div class="node-icon bg-blue-500/20 text-blue-400"><i class="fa-solid fa-map-location-dot"></i></div>
+                            <h4 class="font-bold text-sm text-white">Analyse PLU</h4>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">Extraction immédiate des règles d'urbanisme (Hauteur, Emprise, Recul) pour valider la faisabilité.</p>
+                    </div>
+
+                    <div class="node-card">
+                        <div class="node-header">
+                            <div class="node-icon bg-blue-500/20 text-blue-400"><i class="fa-solid fa-file-contract"></i></div>
+                            <h4 class="font-bold text-sm text-white">CCTP & DPGF</h4>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">Rédaction complète des pièces écrites et chiffrage estimatif par lot, conformes aux derniers DTU.</p>
+                    </div>
+
+                    <div class="node-card">
+                        <div class="node-header">
+                            <div class="node-icon bg-red-500/20 text-red-400"><i class="fa-solid fa-shield-halved"></i></div>
+                            <h4 class="font-bold text-sm text-white">Bureau Contrôle</h4>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">Pré-audit Sécurité Incendie & Accessibilité PMR direct sur vos plans avant dépôt.</p>
+                    </div>
+                    
+                    <div class="node-card">
+                        <div class="node-header">
+                            <div class="node-icon bg-amber-500/20 text-amber-400"><i class="fa-solid fa-layer-group"></i></div>
+                            <h4 class="font-bold text-sm text-white">Étude de Sol</h4>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">Synthèse des contraintes géotechniques (G2) et préconisations de fondations.</p>
+                    </div>
+                </div>
+
+                <div class="central-brain-container">
+                    <svg class="connections-svg hidden lg:block" viewBox="0 0 1200 800" preserveAspectRatio="none">
+                        <path d="M 100 80 Q 500 80 600 400" class="conn-track"/>
+                        <path d="M 100 80 Q 500 80 600 400" class="conn-flow" style="animation-delay: 0s;"/>
+
+                        <path d="M 100 280 Q 450 280 600 400" class="conn-track"/>
+                        <path d="M 100 280 Q 450 280 600 400" class="conn-flow" style="animation-delay: 0.5s;"/>
+
+                        <path d="M 100 520 Q 450 520 600 400" class="conn-track"/>
+                        <path d="M 100 520 Q 450 520 600 400" class="conn-flow" style="animation-delay: 1s;"/>
+
+                        <path d="M 100 720 Q 500 720 600 400" class="conn-track"/>
+                        <path d="M 100 720 Q 500 720 600 400" class="conn-flow" style="animation-delay: 1.5s;"/>
+
+                        <path d="M 1100 80 Q 700 80 600 400" class="conn-track"/>
+                        <path d="M 1100 80 Q 700 80 600 400" class="conn-flow" style="animation-delay: 0.2s;"/>
+
+                        <path d="M 1100 280 Q 750 280 600 400" class="conn-track"/>
+                        <path d="M 1100 280 Q 750 280 600 400" class="conn-flow" style="animation-delay: 0.7s;"/>
+
+                        <path d="M 1100 520 Q 750 520 600 400" class="conn-track"/>
+                        <path d="M 1100 520 Q 750 520 600 400" class="conn-flow" style="animation-delay: 1.2s;"/>
+
+                        <path d="M 1100 720 Q 700 720 600 400" class="conn-track"/>
+                        <path d="M 1100 720 Q 700 720 600 400" class="conn-flow" style="animation-delay: 1.7s;"/>
+                    </svg>
+
+                    <div class="central-brain-glow">
+                        <svg width="60" height="60" viewBox="0 0 100 100" class="mb-2">
+                             <polygon points="50,20 20,80 80,80" fill="#3B82F6"/>
+                        </svg>
+                        <span class="text-sm font-black text-white uppercase tracking-widest text-center leading-tight">Cerveau<br>BatiPilot</span>
+                    </div>
+                </div>
+
+                <div class="brain-column">
+                    <div class="node-card">
+                        <div class="node-header">
+                            <div class="node-icon bg-orange-500/20 text-orange-400"><i class="fa-solid fa-microphone-lines"></i></div>
+                            <h4 class="font-bold text-sm text-white">Comptes-Rendus</h4>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">Dictée vocale chantier : vos remarques orales sont transformées en tableau structuré.</p>
+                    </div>
+
+                    <div class="node-card">
+                        <div class="node-header">
+                            <div class="node-icon bg-orange-500/20 text-orange-400"><i class="fa-solid fa-list-check"></i></div>
+                            <h4 class="font-bold text-sm text-white">Levée Réserves</h4>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">Listes OPR par lot pour la réception, avec photos localisées et suivi des reprises.</p>
+                    </div>
+
+                    <div class="node-card">
+                        <div class="node-header">
+                            <div class="node-icon bg-emerald-500/20 text-emerald-400"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                            <h4 class="font-bold text-sm text-white">Devis & Admin</h4>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">Calcul honoraires, TVA et rédaction automatique des courriers juridiques.</p>
+                    </div>
+
+                    <div class="node-card">
+                        <div class="node-header">
+                            <div class="node-icon bg-purple-500/20 text-purple-400"><i class="fa-solid fa-book"></i></div>
+                            <h4 class="font-bold text-sm text-white">Assistant Normes</h4>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">Moteur de recherche expert réglementaire disponible 24/7 pour valider un point technique.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="py-24 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-20">
+                <h2 class="text-4xl font-black text-slate-900 mb-6">Des outils pour chaque phase</h2>
+                <p class="text-lg text-slate-600 max-w-2xl mx-auto">De la faisabilité à la réception de chantier, BatiPilot automatise la production de vos livrables.</p>
+            </div>
+
+            <div class="mb-20">
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="h-10 w-1 bg-blue-600 rounded-full"></div>
+                    <h3 class="text-2xl font-black text-slate-900">Conception & Études</h3>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="feature-card">
+                        <div class="feature-icon-header theme-blue">
+                            <i class="fa-solid fa-file-contract feature-main-icon"></i>
+                            <div class="absolute top-4 right-4 bg-white/90 backdrop-blur text-blue-700 font-bold px-3 py-1 text-xs rounded-full shadow-sm">Générateur</div>
+                        </div>
+                        <div class="p-6 flex-1 flex flex-col">
+                            <h4 class="text-lg font-black text-slate-900 mb-2">CCTP & DPGF Automatisés</h4>
+                            <p class="text-sm text-slate-600 mb-4 leading-relaxed">Rédiger un CCTP complet prend souvent une journée entière. Avec BatiPilot, sélectionnez vos lots (Gros œuvre, Élec...) et l'assistant rédige un document technique structuré.</p>
+                            <ul class="check-list mt-auto">
+                                <li>Sélection par lots (Maçonn., Élec...)</li>
+                                <li>Export Word modifiable</li>
+                                <li>Pré-chiffrage DPGF inclus</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon-header theme-blue">
+                            <i class="fa-solid fa-map-location-dot feature-main-icon"></i>
+                            <div class="absolute top-4 right-4 bg-white/90 backdrop-blur text-blue-700 font-bold px-3 py-1 text-xs rounded-full shadow-sm">Analyse Rapide</div>
+                        </div>
+                        <div class="p-6 flex-1 flex flex-col">
+                            <h4 class="text-lg font-black text-slate-900 mb-2">Analyse PLU Instantanée</h4>
+                            <p class="text-sm text-slate-600 mb-4 leading-relaxed">Ne lisez plus 200 pages de règlements indigestes. Chargez le PDF, donnez l'adresse, et obtenez les contraintes exactes (Hauteurs, Reculs, Emprise).</p>
+                            <ul class="check-list mt-auto">
+                                <li>Tableau de synthèse clair</li>
+                                <li>Preuves extraites du texte</li>
+                                <li>Localisation parcelle intégrée</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon-header theme-blue">
+                            <i class="fa-solid fa-shield-halved feature-main-icon"></i>
+                            <div class="absolute top-4 right-4 bg-white/90 backdrop-blur text-red-600 font-bold px-3 py-1 text-xs rounded-full shadow-sm">Sécurité</div>
+                        </div>
+                        <div class="p-6 flex-1 flex flex-col">
+                            <h4 class="text-lg font-black text-slate-900 mb-2">Bureau de Contrôle & Sol</h4>
+                            <p class="text-sm text-slate-600 mb-4 leading-relaxed">Pré-validez vos plans avant le dépôt officiel. L'assistant vérifie la conformité Incendie et PMR, et synthétise vos rapports G2.</p>
+                            <ul class="check-list mt-auto">
+                                <li>Vérif largeurs & dégagements</li>
+                                <li>Normes PMR (Girations)</li>
+                                <li>Synthèse risques géotechniques</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-20">
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="h-10 w-1 bg-orange-500 rounded-full"></div>
+                    <h3 class="text-2xl font-black text-slate-900">Direction de Chantier</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="feature-card">
+                        <div class="feature-icon-header theme-orange">
+                             <i class="fa-solid fa-microphone-lines feature-main-icon"></i>
+                             <div class="absolute top-4 right-4 bg-white/90 px-3 py-1 rounded text-[10px] font-bold text-orange-600 shadow-sm">Dictée Vocale</div>
+                        </div>
+                        <div class="p-8 flex-1">
+                            <h4 class="text-lg font-black text-slate-900 mb-3">Comptes-Rendus de Réunion</h4>
+                            <p class="text-sm text-slate-600 mb-4 leading-relaxed">Dictez vos remarques en vrac directement sur le chantier. L'assistant les structure en tableau clair : Qui fait Quoi pour Quand.</p>
+                            <ul class="check-list">
+                                <li>Dictée vocale avancée (reconnaissance jargon)</li>
+                                <li>Classement automatique par lot</li>
+                                <li>Mise en page auto des photos</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon-header theme-orange">
+                             <i class="fa-solid fa-clipboard-check feature-main-icon"></i>
+                             <div class="absolute top-4 right-4 bg-white/90 px-3 py-1 rounded text-[10px] font-bold text-orange-600 shadow-sm">OPR & Réception</div>
+                        </div>
+                        <div class="p-8 flex-1">
+                            <h4 class="text-lg font-black text-slate-900 mb-3">Levée de Réserves (OPR)</h4>
+                            <p class="text-sm text-slate-600 mb-4 leading-relaxed">Générez des listes de réserves professionnelles en quelques minutes pour la réception. Chaque artisan reçoit sa liste précise.</p>
+                            <ul class="check-list">
+                                <li>Listes à cocher par lot</li>
+                                <li>Localisation des défauts dans le tableau</li>
+                                <li>Export PDF officiel pour les retenues</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="pb-24 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h3 class="text-xl font-bold text-center text-slate-800 mb-8">Et bien plus encore... Tout un écosystème inclus</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="mini-card">
+                    <div class="mini-icon bg-indigo-100 text-indigo-600"><i class="fa-solid fa-calendar-days"></i></div>
+                    <div><div class="text-sm font-bold text-slate-900">Planning Gantt</div><div class="text-[10px] text-slate-500">Génération auto</div></div>
+                </div>
+                <div class="mini-card">
+                    <div class="mini-icon bg-emerald-100 text-emerald-600"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                    <div><div class="text-sm font-bold text-slate-900">Devis & Honoraires</div><div class="text-[10px] text-slate-500">Calcul TVA/TTC</div></div>
+                </div>
+                <div class="mini-card">
+                    <div class="mini-icon bg-slate-100 text-slate-600"><i class="fa-solid fa-gavel"></i></div>
+                    <div><div class="text-sm font-bold text-slate-900">Courriers & OS</div><div class="text-[10px] text-slate-500">Juridiquement sûr</div></div>
+                </div>
+                <div class="mini-card">
+                    <div class="mini-icon bg-purple-100 text-purple-600"><i class="fa-solid fa-ear-listen"></i></div>
+                    <div><div class="text-sm font-bold text-slate-900">Acoustique</div><div class="text-[10px] text-slate-500">Analyse de plan</div></div>
+                </div>
+                <div class="mini-card">
+                    <div class="mini-icon bg-orange-100 text-orange-600"><i class="fa-solid fa-percent"></i></div>
+                    <div><div class="text-sm font-bold text-slate-900">Situations</div><div class="text-[10px] text-slate-500">Avancement travaux</div></div>
+                </div>
+                <div class="mini-card">
+                    <div class="mini-icon bg-blue-100 text-blue-600"><i class="fa-solid fa-file-signature"></i></div>
+                    <div><div class="text-sm font-bold text-slate-900">Permis & Cerfa</div><div class="text-[10px] text-slate-500">Notices PC4</div></div>
+                </div>
+                <div class="mini-card">
+                    <div class="mini-icon bg-amber-100 text-amber-600"><i class="fa-solid fa-book"></i></div>
+                    <div><div class="text-sm font-bold text-slate-900">Expert Normes</div><div class="text-[10px] text-slate-500">DTU & RE2020</div></div>
+                </div>
+                <div class="mini-card">
+                    <div class="mini-icon bg-red-100 text-red-600"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <div><div class="text-sm font-bold text-slate-900">Gestion Risques</div><div class="text-[10px] text-slate-500">Sécurité chantier</div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24 bg-slate-900 text-white relative overflow-hidden border-t border-slate-800">
+        <div class="absolute inset-0 bg-gradient-to-br from-slate-950 to-slate-900"></div>
+        <div class="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none" style="background-image: radial-gradient(#334155 1px, transparent 1px); background-size: 40px 40px;"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                
+                <div>
+                    <h2 class="text-4xl md:text-5xl font-black mb-6 leading-tight">
+                        Toute votre charge mentale, <br><span class="text-emerald-400">enfin automatisée.</span>
+                    </h2>
+                    <p class="text-slate-400 text-lg mb-8 leading-relaxed">
+                        Finissez-en avec les tâches répétitives qui grignotent votre créativité. Vos assistants travaillent en synergie pour vous rendre des heures chaque semaine.
+                    </p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-slate-900/50 border border-slate-800 p-4 rounded-xl flex gap-4 hover:border-slate-700 transition">
+                            <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 shrink-0"><i class="fa-solid fa-hourglass-half"></i></div>
+                            <div><h4 class="font-bold text-white text-xs">-15h de travail admin / semaine</h4><p class="text-[10px] text-slate-500 mt-1">Moyenne sur +500 agences.</p></div>
+                        </div>
+                        <div class="bg-slate-900/50 border border-slate-800 p-4 rounded-xl flex gap-4 hover:border-slate-700 transition">
+                            <div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 shrink-0"><i class="fa-solid fa-bolt"></i></div>
+                            <div><h4 class="font-bold text-white text-xs">+80% de productivité sur les CCTP</h4><p class="text-[10px] text-slate-500 mt-1">Rédaction instantanée.</p></div>
+                        </div>
+                        <div class="bg-slate-900/50 border border-slate-800 p-4 rounded-xl flex gap-4 hover:border-slate-700 transition">
+                            <div class="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 shrink-0"><i class="fa-solid fa-shield-check"></i></div>
+                            <div><h4 class="font-bold text-white text-xs">Sécurité Normative garantie</h4><p class="text-[10px] text-slate-500 mt-1">Veille constante DTU/RE2020.</p></div>
+                        </div>
+                        <div class="bg-slate-900/50 border border-slate-800 p-4 rounded-xl flex gap-4 hover:border-slate-700 transition">
+                            <div class="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-400 shrink-0"><i class="fa-solid fa-users"></i></div>
+                            <div><h4 class="font-bold text-white text-xs">Expertise Métier</h4><p class="text-[10px] text-slate-500 mt-1">Votre style, nos standards BTP.</p></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative">
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 relative shadow-2xl">
+                        <div class="flex gap-2 mb-6">
+                            <span class="bg-slate-800 text-slate-300 px-3 py-1 rounded-full text-xs font-bold border border-slate-700"><i class="fa-solid fa-list-check mr-2"></i>Dernières actions</span>
+                            <span class="bg-blue-900/30 text-blue-400 px-3 py-1 rounded-full text-xs font-bold border border-blue-900/50">En cours...</span>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="automation-card">
+                                <div class="check-circle"><i class="fa-solid fa-check text-[#020617] text-[10px]"></i></div>
+                                <div><h5 class="font-bold text-sm text-white">Rédaction Notice PC4 - Villa Martin</h5><p class="text-[10px] text-slate-500 mt-1">Effectué par : <span class="text-blue-400 font-bold bg-blue-400/10 px-1.5 py-0.5 rounded ml-1">Assistant Archi</span></p></div>
+                            </div>
+                            <div class="automation-card">
+                                <div class="check-circle"><i class="fa-solid fa-check text-[#020617] text-[10px]"></i></div>
+                                <div><h5 class="font-bold text-sm text-white">Vérification UP - ERP Type L</h5><p class="text-[10px] text-slate-500 mt-1">Effectué par : <span class="text-red-400 font-bold bg-red-400/10 px-1.5 py-0.5 rounded ml-1">Module Sécurité</span></p></div>
+                            </div>
+                            <div class="automation-card">
+                                <div class="check-circle"><i class="fa-solid fa-check text-[#020617] text-[10px]"></i></div>
+                                <div><h5 class="font-bold text-sm text-white">Synthèse Rapport G2 - Résidence Émeraude</h5><p class="text-[10px] text-slate-500 mt-1">Effectué par : <span class="text-amber-400 font-bold bg-amber-400/10 px-1.5 py-0.5 rounded ml-1">Assistant Sol</span></p></div>
+                            </div>
+                            <div class="automation-card border-blue-500/50 bg-blue-500/5">
+                                <div class="w-6 h-6 rounded-full border-2 border-blue-500 border-t-transparent animate-spin flex-shrink-0"></div>
+                                <div><h5 class="font-bold text-sm text-white">Analyse PLU Zone UA...</h5><p class="text-[10px] text-slate-500 mt-1">Action : <span class="text-slate-300">Extraction contraintes hauteur</span></p></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24 bg-slate-900 text-white relative overflow-hidden border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <h2 class="text-4xl md:text-5xl font-black mb-6 leading-tight">“J'ai peur que ce soit <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">trop compliqué</span> à installer.”</h2>
+                    <p class="text-slate-400 text-lg mb-8 leading-relaxed">BatiPilot est une application Web : pas d'installation, pas de configuration complexe. Vous démarrez en 2 minutes.</p>
+                    
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center gap-3 text-sm text-slate-300 font-semibold"><i class="fa-solid fa-circle-check text-emerald-500"></i> Zéro installation logicielle.</li>
+                        <li class="flex items-center gap-3 text-sm text-slate-300 font-semibold"><i class="fa-solid fa-circle-check text-emerald-500"></i> Accessible sur Mac, PC et Tablette.</li>
+                        <li class="flex items-center gap-3 text-sm text-slate-300 font-semibold"><i class="fa-solid fa-circle-check text-emerald-500"></i> Onboarding guidé de 60 secondes.</li>
+                    </ul>
+
+                    <a href="#pricing" class="inline-flex items-center gap-2 px-8 py-4 bg-white text-slate-900 font-bold rounded-full hover:scale-105 transition shadow-xl">Démarrer maintenant <i class="fa-solid fa-arrow-right text-emerald-500"></i></a>
+                </div>
+
+                <div class="relative h-[450px] w-full">
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 bg-blue-500 rounded-full blur-[120px] opacity-10"></div>
+                    <div class="flow-card" style="top: 0; right: 0; animation-delay: 0s;"><h5>Étape 1</h5><p class="text-sm font-medium">Inscription éclair & Ajout de votre logo agence.</p><div class="flow-avatar flex items-center justify-center text-[10px] text-white font-black">1</div></div>
+                    <svg class="absolute top-20 right-48 w-24 h-24 hidden lg:block" style="transform: rotateY(180deg);"><path d="M5,5 Q50,5 50,80" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="6"/></svg>
+                    <div class="flow-card" style="top: 150px; left: 0; animation-delay: 1s;"><h5>Étape 2</h5><p class="text-sm font-medium">Sélection de l'outil et dépôt de vos plans/PDF.</p><div class="flow-avatar" style="background:#10B981">2</div></div>
+                    <svg class="absolute top-48 left-64 w-24 h-24 hidden lg:block"><path d="M5,5 Q5,80 80,80" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="6"/></svg>
+                    <div class="flow-card" style="bottom: 20px; right: 20px; animation-delay: 2s;"><h5>Étape 3</h5><p class="text-sm font-medium">Validation par l'Assistant et Export immédiat.</p><div class="flow-avatar" style="background:#A855F7">3</div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="faq" class="py-24 bg-slate-950 text-white border-t border-slate-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="grid grid-cols-1 lg:grid-cols-2 gap-16"><div><h2 class="text-4xl md:text-5xl font-black mb-6 leading-tight">Vos questions,<br>nos réponses.</h2></div><div class="space-y-4">
+            <details class="group bg-slate-900 rounded-xl border border-slate-800 open:border-blue-600 transition-all duration-300"><summary class="flex cursor-pointer items-center justify-between p-6 font-bold text-white hover:text-blue-400">Compatible Mac et PC ?<span class="ml-4 flex h-8 w-8 items-center justify-center rounded-full bg-slate-800 group-open:rotate-45 transition"><i class="fa-solid fa-plus"></i></span></summary><div class="px-6 pb-6 text-slate-400 text-sm">Oui, BatiPilot est 100% Web (SaaS) et fonctionne sur Chrome, Safari et Firefox.</div></details>
+            <details class="group bg-slate-900 rounded-xl border border-slate-800 open:border-blue-600 transition-all duration-300"><summary class="flex cursor-pointer items-center justify-between p-6 font-bold text-white hover:text-blue-400">Mes données sont-elles sécurisées ?<span class="ml-4 flex h-8 w-8 items-center justify-center rounded-full bg-slate-800 group-open:rotate-45 transition"><i class="fa-solid fa-plus"></i></span></summary><div class="px-6 pb-6 text-slate-400 text-sm">Oui, vos documents sont cryptés et hébergés en Europe, conformément au RGPD.</div></details>
+            <details class="group bg-slate-900 rounded-xl border border-slate-800 open:border-blue-600 transition-all duration-300"><summary class="flex cursor-pointer items-center justify-between p-6 font-bold text-white hover:text-blue-400">Puis-je résilier à tout moment ?<span class="ml-4 flex h-8 w-8 items-center justify-center rounded-full bg-slate-800 group-open:rotate-45 transition"><i class="fa-solid fa-plus"></i></span></summary><div class="px-6 pb-6 text-slate-400 text-sm">Tout à fait. L'abonnement mensuel est sans engagement.</div></details>
+            <details class="group bg-slate-900 rounded-xl border border-slate-800 open:border-blue-600 transition-all duration-300"><summary class="flex cursor-pointer items-center justify-between p-6 font-bold text-white hover:text-blue-400">L'assistant connaît-il vraiment les DTU ?<span class="ml-4 flex h-8 w-8 items-center justify-center rounded-full bg-slate-800 group-open:rotate-45 transition"><i class="fa-solid fa-plus"></i></span></summary><div class="px-6 pb-6 text-slate-400 text-sm">BatiPilot a été entraîné spécifiquement sur le corpus normatif du bâtiment français.</div></details>
+        </div></div></div>
+    </section>
+
+    <section class="reviews-section-dark">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-black text-white mb-6">Ils nous font confiance</h2>
+                <p class="text-slate-400">Rejoignez plus de 150 professionnels du BTP qui gagnent du temps.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <div class="review-card-dark">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-white font-bold text-xs border border-slate-700 overflow-hidden"><img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=150" alt="Avatar" class="w-full h-full object-cover"></div>
+                            <div class="text-white font-bold text-sm">Sophie Martin</div>
+                        </div>
+                        <div class="flex gap-1 text-emerald-500 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                    </div>
+                    <h4 class="text-white font-bold text-sm mb-2">Architecte DPLG</h4>
+                    <p class="text-slate-400 text-xs leading-relaxed">"Je passais mes soirées à rédiger des CCTP en copiant-collant des vieux dossiers. BatiPilot me sort une base propre et normée en 10 minutes. C'est bluffant."</p>
+                </div>
+
+                <div class="review-card-dark">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-white font-bold text-xs border border-slate-700 overflow-hidden"><img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=150" alt="Avatar" class="w-full h-full object-cover"></div>
+                            <div class="text-white font-bold text-sm">Marc Dubois</div>
+                        </div>
+                        <div class="flex gap-1 text-emerald-500 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                    </div>
+                    <h4 class="text-white font-bold text-sm mb-2">Maître d'Œuvre</h4>
+                    <p class="text-slate-400 text-xs leading-relaxed">"La dictée pour les comptes-rendus a changé ma vie. Je dicte en marchant sur le chantier, et le tableau est prêt avec les photos au bureau. Un gain de temps phénoménal."</p>
+                </div>
+
+                <div class="review-card-dark">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-white font-bold text-xs border border-slate-700 overflow-hidden"><img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=150" alt="Avatar" class="w-full h-full object-cover"></div>
+                            <div class="text-white font-bold text-sm">Julie Bertrand</div>
+                        </div>
+                        <div class="flex gap-1 text-emerald-500 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                    </div>
+                    <h4 class="text-white font-bold text-sm mb-2">Promotrice</h4>
+                    <p class="text-slate-400 text-xs leading-relaxed">"L'analyse des PLU est d'une efficacité redoutable pour les études de faisabilité. Je peux répondre à un client en quelques minutes sans avoir à lire tout le règlement."</p>
+                </div>
+
+                <div class="review-card-dark">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-white font-bold text-xs border border-slate-700 overflow-hidden"><img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=150" alt="Avatar" class="w-full h-full object-cover"></div>
+                            <div class="text-white font-bold text-sm">Thomas Laurent</div>
+                        </div>
+                        <div class="flex gap-1 text-emerald-500 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                    </div>
+                    <h4 class="text-white font-bold text-sm mb-2">Économiste</h4>
+                    <p class="text-slate-400 text-xs leading-relaxed">"Le module de devis automatique m'a fait gagner des appels d'offres. Je peux sortir un chiffrage précis en réunion client, là où mes concurrents mettent 3 jours."</p>
+                </div>
+
+                <div class="review-card-dark">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-white font-bold text-xs border border-slate-700 overflow-hidden"><img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=150" alt="Avatar" class="w-full h-full object-cover"></div>
+                            <div class="text-white font-bold text-sm">Elodie Richard</div>
+                        </div>
+                        <div class="flex gap-1 text-emerald-500 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                    </div>
+                    <h4 class="text-white font-bold text-sm mb-2">Bureau d'Études</h4>
+                    <p class="text-slate-400 text-xs leading-relaxed">"La veille normative est incroyable. Je n'ai plus peur de rater une mise à jour du DTU ou de la RE2020. L'assistant me corrige en temps réel."</p>
+                </div>
+
+                <div class="review-card-dark">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-white font-bold text-xs border border-slate-700 overflow-hidden"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=150" alt="Avatar" class="w-full h-full object-cover"></div>
+                            <div class="text-white font-bold text-sm">Alexandre Petit</div>
+                        </div>
+                        <div class="flex gap-1 text-emerald-500 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                    </div>
+                    <h4 class="text-white font-bold text-sm mb-2">OPC</h4>
+                    <p class="text-slate-400 text-xs leading-relaxed">"Le planning Gantt qui s'ajuste tout seul quand on change une date... C'est de la magie. Mes artisans sont enfin coordonnés et je gagne un temps fou."</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="pricing" class="pricing-section-dark">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            <h2 class="text-4xl md:text-5xl font-black mb-6 text-white leading-tight">Nos offres</h2>
+            <div class="flex justify-center items-center mb-16 select-none"><div class="pricing-toggle-container"><div class="pricing-slider" id="pricing-slider"></div><div class="pricing-toggle-btn active" id="btn-monthly" onclick="switchPricing('monthly')">Mensuel</div><div class="pricing-toggle-btn" id="btn-annual" onclick="switchPricing('annual')">Annuel <span class="text-emerald-400 text-[10px] ml-1 font-bold">-20%</span></div></div></div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start text-left">
+                <div class="pricing-card"><h3 class="text-2xl font-bold text-white mb-2">Starter</h3><p class="text-sm text-slate-400 mb-6 min-h-[40px]">Commencez à automatiser sans complexité.</p><div class="flex items-baseline mb-8"><span class="price-strike text-slate-600">49€</span><span class="text-4xl font-black text-white" id="price-solo">39€</span><span class="text-xs text-slate-500 ml-1">/mois HT</span></div><a href="https://buy.stripe.com/3cI8wIfBNb9o4co2G1dwc00" id="link-starter" class="block w-full py-3 bg-[#1E293B] hover:bg-slate-700 text-white font-bold text-center rounded-xl transition mb-8 text-sm border border-slate-700">Commencer maintenant</a><ul class="pricing-check-list"><li><strong>1 Utilisateur</strong></li><li>50 recherches normatives / mois</li><li>Support standard</li></ul></div>
+                <div class="pricing-card highlight transform lg:-translate-y-4"><div class="badge-best">Meilleure offre</div><h3 class="text-2xl font-bold text-white mb-2">Essential</h3><p class="text-sm text-slate-400 mb-6 min-h-[40px]">Automatisez intelligemment pour gagner en productivité.</p><div class="flex items-baseline mb-8"><span class="price-strike text-slate-600">129€</span><span class="text-5xl font-black text-white" id="price-agence">99€</span><span class="text-xs text-slate-500 ml-1">/mois HT</span></div><a href="https://buy.stripe.com/8x24gsgFR0uK8sEfsNdwc01" id="link-essential" class="block w-full py-3 bg-white text-slate-900 hover:bg-blue-50 font-bold text-center rounded-xl transition mb-8 text-sm shadow">Essayer gratuitement</a><ul class="pricing-check-list"><li class="text-white"><strong>5 Utilisateurs</strong></li><li>Cloud Partagé</li><li>500 recherches normatives / mois</li><li>Exports Word & PDF illimités</li></ul></div>
+                <div class="pricing-card"><h3 class="text-2xl font-bold text-white mb-2">Pro</h3><p class="text-sm text-slate-400 mb-6 min-h-[40px]">Pour les équipes de 20+ qui veulent scaler.</p><div class="flex items-baseline mb-8"><span class="price-strike text-slate-600">399€</span><span class="text-4xl font-black text-white" id="price-pro">319€</span><span class="text-xs text-slate-500 ml-1">/mois HT</span></div><a href="mailto:support@batipilot.app" class="block w-full py-3 bg-[#1E293B] hover:bg-slate-700 text-white font-bold text-center rounded-xl transition mb-8 text-sm border border-slate-700">Contacter les ventes</a><ul class="pricing-check-list"><li><strong>40 Utilisateurs</strong></li><li>Recherches illimitées</li><li>API dédiée</li><li>Exports Word & PDF illimités</li></ul></div>
+            </div>
+            <div class="mt-16 text-center text-sm text-slate-500 font-medium flex items-center justify-center gap-2"><i class="fa-solid fa-lock text-emerald-500"></i> Paiement sécurisé</div>
+        </div>
+    </section>
+
+    <section class="roadmap-section">
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+            <div class="absolute top-1/2 left-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-[100px]"></div>
+            <div class="absolute bottom-0 right-0 w-[500px] h-[500px] bg-emerald-600/5 rounded-full blur-[120px]"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-24">
+                <span class="text-blue-500 font-bold tracking-widest text-xs uppercase mb-2 block">Vision 2026-2027</span>
+                <h2 class="text-4xl md:text-5xl font-black text-white mb-6">L'innovation ne s'arrête <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">jamais.</span></h2>
+                <p class="text-slate-400 max-w-2xl mx-auto text-lg">
+                    Rejoignez BatiPilot aujourd'hui pour sécuriser votre tarif. Nos mises à jour majeures sont incluses sans surcoût pour les membres fondateurs.
+                </p>
+            </div>
+
+            <div class="relative">
+                <div class="roadmap-line-container hidden lg:block">
+                    <div class="roadmap-line-progress"></div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-4 relative">
+                    
+                    <div class="roadmap-card active group">
+                        <div class="roadmap-dot hidden lg:block"></div>
+                        <div class="roadmap-date">Q2 2026 - Arrive bientôt</div>
+                        <div class="mb-4 w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30 group-hover:scale-110 transition duration-300">
+                            <i class="fa-solid fa-wand-magic-sparkles text-xl"></i>
+                        </div>
+                        <h3 class="text-white font-bold text-lg mb-2">Studio Rendu HD</h3>
+                        <p class="text-slate-400 text-xs leading-relaxed">
+                            Transformez un simple export Sketchup/Revit en image photoréaliste bluffante en 1 clic. Le moteur de rendu sublime les matériaux et la lumière.
+                        </p>
+                    </div>
+
+                    <div class="roadmap-card group">
+                        <div class="roadmap-dot hidden lg:block"></div>
+                        <div class="roadmap-date">Q3 2026</div>
+                        <div class="mb-4 w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-emerald-400 group-hover:bg-slate-700 transition">
+                            <i class="fa-solid fa-wifi text-xl"></i>
+                        </div>
+                        <h3 class="text-white font-bold text-lg mb-2">Mode Hors-Ligne</h3>
+                        <p class="text-slate-400 text-xs leading-relaxed">
+                            Accès total à vos dossiers et prise de notes sur chantier, même au 3ème sous-sol sans réseau. Synchro auto au retour.
+                        </p>
+                    </div>
+
+                    <div class="roadmap-card group">
+                        <div class="roadmap-dot hidden lg:block"></div>
+                        <div class="roadmap-date">Q4 2026</div>
+                        <div class="mb-4 w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-purple-400 group-hover:bg-slate-700 transition">
+                            <i class="fa-solid fa-file-signature text-xl"></i>
+                        </div>
+                        <h3 class="text-white font-bold text-lg mb-2">Signature Élec.</h3>
+                        <p class="text-slate-400 text-xs leading-relaxed">
+                            Faites valider les Ordres de Service (OS) et les marchés directement sur tablette. Valeur juridique probante intégrée.
+                        </p>
+                    </div>
+
+                    <div class="roadmap-card group">
+                        <div class="roadmap-dot hidden lg:block"></div>
+                        <div class="roadmap-date">2027</div>
+                        <div class="mb-4 w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-orange-400 group-hover:bg-slate-700 transition">
+                            <i class="fa-solid fa-cubes text-xl"></i>
+                        </div>
+                        <h3 class="text-white font-bold text-lg mb-2">Connecteur BIM</h3>
+                        <p class="text-slate-400 text-xs leading-relaxed">
+                            Import de maquettes IFC. L'analyse géométrique permet de rédiger le CCTP et quantifier les matériaux automatiquement.
+                        </p>
+                    </div>
+
+                    <div class="roadmap-card group">
+                        <div class="roadmap-dot hidden lg:block"></div>
+                        <div class="roadmap-date">Futur</div>
+                        <div class="mb-4 w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-blue-400 group-hover:bg-slate-700 transition">
+                            <i class="fa-solid fa-user-astronaut text-xl"></i>
+                        </div>
+                        <h3 class="text-white font-bold text-lg mb-2">Portail Client</h3>
+                        <p class="text-slate-400 text-xs leading-relaxed">
+                            Un espace dédié pour vos Maîtres d'Ouvrage : suivi financier, photos de chantier et validation des choix en temps réel.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+            
+            <div class="mt-16 text-center">
+                 <a href="#pricing" class="inline-flex items-center justify-center px-6 py-3 text-sm font-bold text-slate-300 bg-slate-900 border border-slate-700 rounded-full hover:text-white hover:border-blue-500 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all">
+                    <i class="fa-regular fa-star mr-2"></i> Accéder à toutes les fonctionnalités actuelles
+                 </a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-white text-slate-500 py-12 border-t border-slate-100 text-center">
+        &copy; 2026 BatiPilot Studio. <span class="text-xs opacity-70">Made in France 🇫🇷</span>
+    </footer>
+
+    <script>
+        // Pricing Logic
+        function switchPricing(plan) {
+            const btnMonthly = document.getElementById('btn-monthly');
+            const btnAnnual = document.getElementById('btn-annual');
+            const slider = document.getElementById('pricing-slider');
+            
+            // Prix affichés
+            const priceSolo = document.getElementById('price-solo');
+            const priceAgence = document.getElementById('price-agence');
+            const pricePro = document.getElementById('price-pro');
+            
+            // Liens d'achat Stripe
+            const linkStarter = document.getElementById('link-starter');
+            const linkEssential = document.getElementById('link-essential');
+
+            // Définition des URLs Stripe fournies
+            const STRIPE_LINKS = {
+                starter: {
+                    monthly: 'https://buy.stripe.com/3cI8wIfBNb9o4co2G1dwc00',
+                    annual: 'https://buy.stripe.com/9B6cMY61dgtI4coa8tdwc03'
+                },
+                essential: {
+                    monthly: 'https://buy.stripe.com/8x24gsgFR0uK8sEfsNdwc01',
+                    annual: 'https://buy.stripe.com/cNi6oAcpB2CS10c4O9dwc04'
+                }
+            };
+
+            if (plan === 'annual') {
+                // Style du toggle
+                slider.style.left = '50%'; slider.style.width = 'calc(50% - 4px)';
+                btnMonthly.classList.remove('active'); btnAnnual.classList.add('active');
+                
+                // Mise à jour des prix affichés
+                priceSolo.innerText = '39€'; priceAgence.innerText = '99€'; pricePro.innerText = '319€';
+                
+                // Mise à jour des liens Stripe vers les abonnements annuels
+                if(linkStarter) linkStarter.href = STRIPE_LINKS.starter.annual;
+                if(linkEssential) linkEssential.href = STRIPE_LINKS.essential.annual;
+                
+            } else {
+                // Style du toggle
+                slider.style.left = '4px'; slider.style.width = '100px';
+                btnAnnual.classList.remove('active'); btnMonthly.classList.add('active');
+                
+                // Mise à jour des prix affichés
+                priceSolo.innerText = '49€'; priceAgence.innerText = '129€'; pricePro.innerText = '399€';
+                
+                // Mise à jour des liens Stripe vers les abonnements mensuels
+                if(linkStarter) linkStarter.href = STRIPE_LINKS.starter.monthly;
+                if(linkEssential) linkEssential.href = STRIPE_LINKS.essential.monthly;
+            }
+        }
+
+        // Testimonial Logic
+        const testimonials = [
+            { text: "Avant BatiPilot, je passais mes weekends à rattraper mes CCTP et mes comptes-rendus. Aujourd'hui, tout est prêt avant même que je quitte le chantier. J'ai retrouvé 2 jours par semaine pour la conception.", author: "Sophie Martin", role: "Architecte DPLG - Nantes", metric1: "+40%", label1: "Marge Brute", metric2: "-12h", label2: "Admin / Semaine", initial: "SM", img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=800" },
+            { text: "Le module de devis automatique m'a fait gagner des appels d'offres. Je peux sortir un chiffrage précis en réunion client, là où mes concurrents mettent 3 jours.", author: "Thomas Laurent", role: "Maître d'Œuvre - Lyon", metric1: "x3", label1: "Taux de conversion", metric2: "15min", label2: "Temps Chiffrage", initial: "TL", img: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=800" },
+            { text: "La veille normative est incroyable. Je n'ai plus peur de rater une mise à jour du DTU ou de la RE2020. L'assistant me corrige en temps réel.", author: "Elodie Richard", role: "Bureau d'Études - Paris", metric1: "100%", label1: "Sérénité", metric2: "0", label2: "Erreur Normative", initial: "ER", img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=800" },
+            { text: "Sur mes chantiers de rénovation, la dictée vocale est un game-changer. Je parle, je prends les photos, et le CR part aux entreprises avant que je remonte dans ma voiture.", author: "Marc Dubois", role: "Conducteur de Travaux - Lille", metric1: "-8h", label1: "Saisie / Semaine", metric2: "+20", label2: "Chantiers gérés", initial: "MD", img: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=800" },
+            { text: "L'analyse PLU instantanée me permet de valider la faisabilité d'un terrain en 2 minutes devant le vendeur. Un avantage concurrentiel énorme.", author: "Julie Bertrand", role: "Promotrice - Bordeaux", metric1: "2min", label1: "Analyse Faisabilité", metric2: "+15%", label2: "Projets Signés", initial: "JB", img: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=800" },
+            { text: "Le planning Gantt qui s'ajuste tout seul quand on change une date... C'est de la magie. Mes artisans sont enfin coordonnés et je gagne un temps fou.", author: "Alexandre Petit", role: "OPC - Strasbourg", metric1: "-30%", label1: "Retard Chantier", metric2: "100%", label2: "Fluidité", initial: "AP", img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=800" }
+        ];
+
+        let currentTestimonial = 0;
+
+        function updateTestimonial(index) {
+            const data = testimonials[index];
+            const contentDiv = document.getElementById('testimonial-content');
+            const imgDiv = document.getElementById('testimonial-image');
+            contentDiv.style.opacity = '0'; imgDiv.style.opacity = '0';
+            setTimeout(() => {
+                contentDiv.innerHTML = `<h3 class="text-3xl font-black text-white mb-4 leading-tight fade-enter-active">"${data.text}"</h3><div class="flex items-center gap-4 mb-8"><div><div class="text-3xl font-black text-white">${data.metric1}</div><div class="text-[10px] uppercase text-slate-500 font-bold tracking-widest">${data.label1}</div></div><div class="w-px h-10 bg-slate-700"></div><div><div class="text-3xl font-black text-white">${data.metric2}</div><div class="text-[10px] uppercase text-slate-500 font-bold tracking-widest">${data.label2}</div></div></div><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center text-white font-bold text-xs overflow-hidden"><img src="${data.img}" class="w-full h-full object-cover"></div><div><div class="text-white font-bold text-sm">${data.author}</div><div class="text-slate-500 text-xs">${data.role}</div></div></div>`;
+                imgDiv.src = data.img;
+                contentDiv.style.opacity = '1'; imgDiv.style.opacity = '0.6';
+            }, 300);
+        }
+        function changeTestimonial(d) { currentTestimonial = (currentTestimonial + d + testimonials.length) % testimonials.length; updateTestimonial(currentTestimonial); }
+        document.addEventListener('DOMContentLoaded', () => updateTestimonial(0));
+    </script>
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BatiPilot Studio - Rendu IA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Animation de chargement pour les bulles du chat */
+        .typing-indicator span {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background-color: #6B7280;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+        /* Scrollbar stylisée pour le chat */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-gray-50 h-screen flex overflow-hidden font-sans">
+
+    <div class="w-1/3 bg-white border-r border-gray-200 flex flex-col p-6 shadow-lg z-10">
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">BatiPilot Studio</h1>
+            <p class="text-sm text-gray-500 mt-1">Générateur d'architecture interactif</p>
+        </div>
+
+        <label id="drop-area" class="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer bg-gray-50 hover:bg-blue-50 hover:border-blue-400 transition-all">
+            <div id="upload-prompt" class="flex flex-col items-center justify-center pt-5 pb-6 text-center px-4">
+                <svg class="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                <p class="mb-2 text-sm text-gray-500 font-semibold">Cliquez ou glissez votre plan 3D ici</p>
+                <p class="text-xs text-gray-400">SketchUp, Revit, PNG, JPG (Max 1024px)</p>
+            </div>
+            <img id="source-preview" class="hidden h-full w-full object-contain p-2 rounded-xl" />
+            <input id="file-upload" type="file" class="hidden" accept="image/*" />
+        </label>
+        
+        <button id="remove-btn" class="hidden mt-3 text-sm text-red-500 hover:text-red-700 font-medium w-full text-center" onclick="resetImage()">
+            Retirer l'image
+        </button>
+
+        <div class="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-100">
+            <h3 class="font-semibold text-blue-800 text-sm mb-2">Comment ça marche ?</h3>
+            <ul class="text-xs text-blue-700 space-y-2">
+                <li>1. Importez votre vue 3D brute.</li>
+                <li>2. L'image est verrouillée comme structure (ControlNet).</li>
+                <li>3. Discutez avec l'IA dans le chat à droite pour générer et affiner vos rendus.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="w-2/3 flex flex-col bg-gray-50 relative">
+        
+        <div id="chat-container" class="flex-1 overflow-y-auto p-8 flex flex-col gap-6">
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xs shrink-0">IA</div>
+                <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-none px-5 py-3 text-sm text-gray-700 shadow-sm max-w-[80%]">
+                    Bonjour ! Je suis votre assistant BatiPilot.<br>
+                    Pour commencer, <strong>importez un plan 3D</strong> sur la gauche, puis dites-moi quel type d'ambiance ou de matériaux vous souhaitez appliquer.
+                </div>
+            </div>
+        </div>
+
+        <div class="p-5 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+            <div class="max-w-4xl mx-auto relative flex items-end gap-2">
+                <textarea id="chat-input" rows="1" class="w-full bg-gray-100 border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-2xl pl-5 pr-12 py-3 text-sm resize-none transition-all disabled:opacity-50 disabled:cursor-not-allowed" placeholder="Décrivez votre rendu (ex: Façade en bois clair, lumière du matin...)" disabled></textarea>
+                
+                <button id="send-btn" onclick="sendChatMessage()" class="absolute right-2 bottom-2 w-8 h-8 bg-blue-600 hover:bg-blue-700 text-white rounded-full flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    <svg class="w-4 h-4 translate-x-[1px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                </button>
+            </div>
+            <p class="text-center text-[10px] text-gray-400 mt-2">Propulsé par Gemini & Flux.1 Dev</p>
+        </div>
+
+    </div>
+
+    <script>
+        // --- VARIABLES GLOBALES ---
+        let currentImageBase64 = null;
+        let currentChatHistory = []; // La "mémoire" de Gemini
+        let isProcessing = false;
+
+        // --- GESTION DE L'IMAGE (Import & Compression) ---
+        const fileInput = document.getElementById('file-upload');
+        const dropArea = document.getElementById('drop-area');
+
+        dropArea.addEventListener('click', () => fileInput.click());
+        dropArea.addEventListener('dragover', (e) => { e.preventDefault(); dropArea.classList.add('border-blue-500', 'bg-blue-50'); });
+        dropArea.addEventListener('dragleave', () => dropArea.classList.remove('border-blue-500', 'bg-blue-50'));
+        dropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropArea.classList.remove('border-blue-500', 'bg-blue-50');
+            if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+        });
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) handleFile(e.target.files[0]);
+        });
+
+        // La moulinette qui réduit l'image avant l'envoi (Évite les erreurs)
+        function compressImage(file, callback) {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const MAX_SIZE = 1024;
+                    let width = img.width; let height = img.height;
+
+                    if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
+                    else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
+
+                    canvas.width = width; canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+                    callback(canvas.toDataURL('image/jpeg', 0.85)); // Compression 85%
+                };
+            };
+        }
+
+        function handleFile(file) {
+            compressImage(file, (optimizedBase64) => {
+                currentImageBase64 = optimizedBase64;
+                
+                // Update UI
+                document.getElementById('source-preview').src = optimizedBase64;
+                document.getElementById('source-preview').classList.remove('hidden');
+                document.getElementById('upload-prompt').classList.add('hidden');
+                document.getElementById('remove-btn').classList.remove('hidden');
+                dropArea.classList.replace('border-dashed', 'border-solid');
+                dropArea.classList.add('border-blue-500');
+
+                // Débloquer le chat
+                document.getElementById('chat-input').disabled = false;
+                document.getElementById('send-btn').disabled = false;
+                document.getElementById('chat-input').focus();
+            });
+        }
+
+        function resetImage() {
+            currentImageBase64 = null;
+            document.getElementById('source-preview').classList.add('hidden');
+            document.getElementById('upload-prompt').classList.remove('hidden');
+            document.getElementById('remove-btn').classList.add('hidden');
+            dropArea.classList.replace('border-solid', 'border-dashed');
+            dropArea.classList.remove('border-blue-500');
+            
+            // Rebloquer le chat
+            document.getElementById('chat-input').disabled = true;
+            document.getElementById('send-btn').disabled = true;
+        }
+
+        // --- GESTION DU CHAT ET DES APPELS API ---
+        const chatInput = document.getElementById('chat-input');
+        const chatContainer = document.getElementById('chat-container');
+
+        // Gérer la touche Entrée
+        chatInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendChatMessage();
+            }
+        });
+
+        // Fonction pour ajouter visuellement un message dans le chat
+        function appendMessage(role, content, isImage = false) {
+            const div = document.createElement('div');
+            div.className = 'flex items-start gap-3 w-full ' + (role === 'user' ? 'flex-row-reverse' : '');
+            
+            let avatar = role === 'user' 
+                ? `<div class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-white text-xs shrink-0">Vous</div>`
+                : `<div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xs shrink-0">IA</div>`;
+
+            let bubbleClass = role === 'user'
+                ? 'bg-blue-600 text-white rounded-2xl rounded-tr-none'
+                : 'bg-white border border-gray-200 text-gray-700 rounded-2xl rounded-tl-none shadow-sm';
+
+            let innerContent = isImage 
+                ? `<img src="${content}" class="w-full max-w-xl rounded-lg shadow-md cursor-pointer hover:opacity-90 transition-opacity" onclick="window.open('${content}')" alt="Rendu généré" />
+                   <div class="mt-2 text-xs text-gray-400 text-right">Cliquez pour agrandir</div>`
+                : content;
+
+            div.innerHTML = `
+                ${avatar}
+                <div class="${bubbleClass} px-5 py-3 text-sm max-w-[80%]">
+                    ${innerContent}
+                </div>
+            `;
+            
+            chatContainer.appendChild(div);
+            scrollToBottom();
+            return div; // Retourne l'élément pour pouvoir le supprimer (utile pour le loader)
+        }
+
+        // Fonction pour afficher l'animation "L'IA écrit..."
+        function showTypingIndicator() {
+            const div = document.createElement('div');
+            div.id = 'typing-indicator';
+            div.className = 'flex items-start gap-3 w-full';
+            div.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xs shrink-0">IA</div>
+                <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-none px-5 py-4 shadow-sm">
+                    <div class="typing-indicator"><span></span><span></span><span></span></div>
+                    <div class="text-xs text-gray-400 mt-2">Génération du rendu en cours (environ 15s)...</div>
+                </div>
+            `;
+            chatContainer.appendChild(div);
+            scrollToBottom();
+        }
+
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) indicator.remove();
+        }
+
+        function scrollToBottom() {
+            chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
+        }
+
+        // --- LA FONCTION CENTRALE ---
+        async function sendChatMessage() {
+            const message = chatInput.value.trim();
+            if (!message || !currentImageBase64 || isProcessing) return;
+
+            // 1. Mise à jour de l'UI avec le message utilisateur
+            chatInput.value = '';
+            chatInput.disabled = true;
+            document.getElementById('send-btn').disabled = true;
+            isProcessing = true;
+
+            appendMessage('user', message);
+            currentChatHistory.push({ role: 'user', content: message });
+            
+            showTypingIndicator();
+
+            try {
+                // 2. Appel à notre API (Cerveau Gemini + Moteur Flux)
+                const response = await fetch('/api/google_render', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        image: currentImageBase64,
+                        chatHistory: currentChatHistory // On envoie l'historique complet !
+                    })
+                });
+
+                const data = await response.json();
+                removeTypingIndicator();
+
+                if (data.success) {
+                    // 3. Succès : On affiche l'image
+                    appendMessage('ia', data.image, true);
+                    // On enregistre dans la mémoire que l'IA a répondu avec succès
+                    currentChatHistory.push({ role: 'ia', content: '[Image générée avec succès selon vos directives]' });
+                } else {
+                    appendMessage('ia', "⚠️ Erreur technique : " + data.error);
+                }
+
+            } catch (error) {
+                removeTypingIndicator();
+                appendMessage('ia', "⚠️ Erreur réseau : " + error.message);
+            } finally {
+                // 4. On débloque l'interface
+                chatInput.disabled = false;
+                document.getElementById('send-btn').disabled = false;
+                chatInput.focus();
+                isProcessing = false;
+            }
+        }
+    </script>
+</body>
+</html>

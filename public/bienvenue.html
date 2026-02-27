@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenue sur BatiPilot - Compte en cours d'activation</title>
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%225%22 y=%225%22 width=%2290%22 height=%2290%22 fill=%22white%22 stroke=%22%23CBD5E1%22 stroke-width=%225%22 stroke-dasharray=%2210%22 rx=%2210%22/><path d=%22M50 20 L20 80 L50 65 z%22 fill=%22%233B82F6%22/><path d=%22M50 20 L80 80 L50 65 z%22 fill=%22%231E293B%22/></svg>" type="image/svg+xml">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #020617; color: #F8FAFC; overflow-x: hidden; scroll-behavior: smooth; }
+        
+        .gradient-text { 
+            background: linear-gradient(135deg, #3B82F6 0%, #10B981 100%); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid #334155;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .deep-dive-card {
+            background: #0F172A;
+            border: 1px solid #1E293B;
+            border-radius: 20px;
+            padding: 32px;
+            margin-bottom: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .deep-dive-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+        }
+        .border-blue::before { background-color: #3B82F6; }
+        .border-orange::before { background-color: #F97316; }
+        .border-emerald::before { background-color: #10B981; }
+        .border-purple::before { background-color: #A855F7; }
+
+        .pro-tip {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid #3B82F6;
+            padding: 16px;
+            border-radius: 0 8px 8px 0;
+            margin-top: 16px;
+            font-size: 0.875rem;
+            color: #94A3B8;
+        }
+
+        .feature-block {
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.2s;
+        }
+        .feature-block:hover { border-color: #475569; background: rgba(30, 41, 59, 0.8); }
+
+        .gain-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(16, 185, 129, 0.1);
+            color: #10B981;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            margin-top: 12px;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        .status-dot { width: 12px; height: 12px; background-color: #10B981; border-radius: 50%; animation: pulse-ring 2s infinite; }
+
+        .bg-glow {
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: 800px; height: 600px;
+            background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, rgba(2,6,23,0) 70%);
+            pointer-events: none; z-index: -1;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen relative">
+
+    <div class="bg-glow"></div>
+    <div class="fixed top-0 left-0 w-full h-full opacity-10 pointer-events-none" style="background-image: radial-gradient(#3B82F6 1px, transparent 1px); background-size: 40px 40px; z-index: -2;"></div>
+
+    <nav class="border-b border-slate-800/50 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" width="140" height="42">
+                <rect x="15" y="15" width="90" height="90" fill="none" stroke="#475569" stroke-width="2" rx="8" />
+                <polygon points="60,25 25,85 60,70" fill="#3B82F6" />
+                <polygon points="60,25 95,85 60,70" fill="#1E293B" />
+                <text x="125" y="72" font-family="'Inter', sans-serif" font-size="52" letter-spacing="-1.5"><tspan font-weight="900" fill="#F8FAFC">Bati</tspan><tspan font-weight="300" fill="#3B82F6">Pilot</tspan><tspan font-weight="900" fill="#10B981">.</tspan></text>
+            </svg>
+            <div class="hidden md:flex items-center gap-2 text-sm text-slate-400 font-medium">
+                <div class="status-dot w-2 h-2"></div> Activation en cours...
+            </div>
+        </div>
+    </nav>
+
+    <section class="pt-16 pb-12 px-4 relative z-10">
+        <div class="glass-card rounded-3xl p-8 md:p-12 max-w-5xl mx-auto flex flex-col md:flex-row gap-10 items-center">
+            
+            <div class="flex-1 text-center md:text-left">
+                <h1 class="text-3xl md:text-4xl font-black mb-4">Paiement validé !<br><span class="gradient-text">Bienvenue à bord 🚀</span></h1>
+                <p class="text-slate-400 text-sm md:text-base leading-relaxed mb-6">
+                    Merci pour votre confiance. Notre équipe active actuellement votre compte manuellement pour vous garantir une configuration parfaite. Cette étape de paramétrage prend généralement <strong>15 à 30 minutes</strong>.
+                </p>
+                <div class="bg-slate-900 border border-slate-700 rounded-xl p-4 inline-block text-left shadow-lg">
+                    <h4 class="text-white font-bold text-sm mb-2"><i class="fa-solid fa-envelope text-blue-400 mr-2"></i> Surveillez votre boîte mail</h4>
+                    <p class="text-slate-500 text-xs">Le lien de connexion finale et vos accès sécurisés vous seront envoyés à l'adresse utilisée pour le paiement.</p>
+                </div>
+            </div>
+
+            <div class="w-full md:w-80 bg-slate-900/80 border border-slate-700 rounded-xl p-6 shrink-0 shadow-2xl">
+                <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800">
+                    <div class="status-dot"></div>
+                    <span class="text-xs font-bold uppercase tracking-widest text-emerald-400">Statut en direct</span>
+                </div>
+                <div class="space-y-5">
+                    <div class="flex items-start gap-3 opacity-50 transition-all">
+                        <i class="fa-solid fa-check-circle text-emerald-500 mt-0.5"></i>
+                        <div><h5 class="text-xs font-bold text-white">Validation Stripe</h5><p class="text-[10px] text-slate-500 mt-1">Paiement sécurisé validé</p></div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <i class="fa-solid fa-gear fa-spin text-blue-500 mt-0.5"></i>
+                        <div><h5 class="text-xs font-bold text-white">Création du Workspace</h5><p class="text-[10px] text-blue-400 mt-1">Déploiement de vos assistants dédiés...</p></div>
+                    </div>
+                    <div class="flex items-start gap-3 opacity-50">
+                        <i class="fa-regular fa-clock text-slate-500 mt-0.5"></i>
+                        <div><h5 class="text-xs font-bold text-white">Envoi des accès</h5><p class="text-[10px] text-slate-500 mt-1">En attente de finalisation</p></div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+
+    <section class="py-16 px-4 bg-slate-950/50 relative z-10 border-t border-slate-800/50">
+        <div class="max-w-4xl mx-auto">
+            
+            <div class="text-center mb-16">
+                <span class="text-blue-500 font-bold tracking-widest text-xs uppercase mb-2 block">Formation Express (~15 min de lecture)</span>
+                <h2 class="text-3xl md:text-4xl font-black text-white mb-6">Maîtrisez BatiPilot avant votre première connexion</h2>
+                <p class="text-slate-400 text-lg">Votre compte est en cours de création. Profitez de ce temps précieux pour découvrir en profondeur chaque fonction de votre nouvel assistant. Voici exactement comment vous allez diviser votre temps administratif par quatre dès aujourd'hui.</p>
+            </div>
+
+            <div class="deep-dive-card border-purple">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400"><i class="fa-solid fa-cloud"></i></div>
+                    <h3 class="text-2xl font-bold text-white">1. Configuration, Cloud & L'Assistant Permanent</h3>
+                </div>
+                <p class="text-slate-300 leading-relaxed mb-6">
+                    BatiPilot est conçu sur une architecture SaaS sécurisée. Cela signifie que vos données sont enregistrées en temps réel sur des serveurs distants. Vous commencez un document au bureau sur votre PC, vous le terminez sur votre tablette directement sur le chantier, sans jamais rien perdre.
+                </p>
+
+                <div class="feature-block">
+                    <h4 class="font-bold text-white text-md mb-2"><i class="fa-solid fa-sitemap text-purple-400 mr-2"></i> La logique de "Projets" et l'importance de l'adresse</h4>
+                    <p class="text-sm text-slate-400 mb-2">Tout votre travail s'organise autour de la création de Projets. Il est primordial de bien renseigner l'adresse exacte lors de la création d'un chantier. <strong>Pourquoi ?</strong> Parce que BatiPilot utilisera cette donnée automatiquement pour localiser vos documents d'urbanisme, rédiger vos Ordres de Service et formater les cartouches de tous vos exports PDF et Word.</p>
+                    <div class="gain-badge"><i class="fa-solid fa-bolt"></i> Gain : Plus aucune saisie répétitive des coordonnées du chantier.</div>
+                </div>
+
+                <div class="feature-block">
+                    <h4 class="font-bold text-white text-md mb-2"><i class="fa-solid fa-users text-purple-400 mr-2"></i> Administrateur et Collaborateurs</h4>
+                    <p class="text-sm text-slate-400 mb-2">Le créateur du compte possède le rôle d'Administrateur. Il a accès aux "Paramètres Agence" pour configurer le nom, l'adresse complète et le logo de l'entreprise qui figureront sur chaque document. Il peut inviter des Collaborateurs (employés) qui partageront le même espace de travail et les mêmes projets, mais sans avoir les droits de modification de l'entreprise.</p>
+                </div>
+
+                <div class="feature-block">
+                    <h4 class="font-bold text-white text-md mb-2"><i class="fa-regular fa-comment-dots text-purple-400 mr-2"></i> Le Chatbot Expert BTP 24/7</h4>
+                    <p class="text-sm text-slate-400 mb-2">Vous n'avez pas toujours besoin de générer un rapport complet. Une bulle flottante reste toujours accessible en bas à droite de votre écran. Cet assistant répond à vos questions techniques instantanément. Demandez-lui : <em>"Quelle est la hauteur réglementaire d'un garde-corps ?"</em>, <em>"Résume-moi le DTU 40.21 sur les toitures"</em>, ou <em>"Quels sont les temps de séchage pour une dalle béton ?"</em>.</p>
+                    <p class="text-xs text-slate-500 italic mt-2">Note sur les quotas : Pour garantir un service ultra-rapide, le Chatbot est limité à 20 questions par jour pour le plan Solo, et 100 questions par jour pour le plan Agence.</p>
+                    <div class="gain-badge"><i class="fa-solid fa-bolt"></i> Gain : Finies les longues recherches dans les classeurs de normes DTU.</div>
+                </div>
+
+                <div class="pro-tip">
+                    <strong class="text-purple-400"><i class="fa-solid fa-lightbulb"></i> Le saviez-vous ? Les "Tags Rapides"</strong><br>
+                    Au-dessus de chaque zone de saisie, BatiPilot vous propose des boutons cliquables comme <em>"+ Ton très ferme"</em> ou <em>"+ Respect RE2020"</em>. Cliquez dessus pour orienter instantanément le comportement de l'assistant sans avoir à taper de longues phrases d'instructions.
+                </div>
+            </div>
+
+            <div class="deep-dive-card border-blue">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400"><i class="fa-solid fa-compass-drafting"></i></div>
+                    <h3 class="text-2xl font-bold text-white">2. Le Pôle Technique & Études</h3>
+                </div>
+                <p class="text-slate-300 leading-relaxed mb-6">
+                    La phase de conception nécessite une rigueur absolue. BatiPilot intègre des assistants spécialisés capables d'analyser vos plans et de rédiger vos documents contractuels en respectant strictement les règles de l'art.
+                </p>
+                
+                <div class="feature-block">
+                    <h4 class="font-bold text-white text-md mb-2"><i class="fa-solid fa-map text-blue-400 mr-2"></i> Analyse PLU (Plan Local d'Urbanisme)</h4>
+                    <p class="text-sm text-slate-400 mb-2">Lire un règlement d'urbanisme de 200 pages est épuisant. Chargez le PDF du règlement (Fichier A), tapez la zone concernée (ex: "UA") et l'adresse du projet. Vous pouvez même cliquer sur l'icône de localisation pour vérifier la parcelle sur le Géoportail de l'Urbanisme. BatiPilot dresse instantanément un tableau de synthèse (Implantation, Hauteurs maximales, Reculs, Stationnement) avec la preuve extraite directement du texte.</p>
+                    <div class="gain-badge"><i class="fa-solid fa-bolt"></i> Gain : Faisabilité d'un terrain validée en 3 minutes au lieu d'une heure.</div>
+                </div>
+
+                <div class="feature-block">
+                    <h4 class="font-bold text-white text-md mb-2"><i class="fa-solid fa-layer-group text-blue-400 mr-2"></i> Synthèse de l'Étude de Sol (G2)</h4>
+                    <p class="text-sm text-slate-400 mb-2">Les rapports de géotechniciens sont souvent denses. Chargez le PDF de l'étude G2, et l'assistant extrait immédiatement les 4 données capitales dont vous avez besoin : le type de fondations préconisées, la profondeur de la garde au gel, le niveau de la nappe phréatique, et les risques majeurs identifiés (argiles gonflantes, sismicité).</p>
+                    <div class="gain-badge"><i class="fa-solid fa-bolt"></i> Gain : Accès direct aux contraintes structurelles sans lire tout le rapport.</div>
+                </div>
+
+                <div class="feature-block">
+                    <h4 class="font-bold text-white text-md mb-2"><i class="fa-solid fa-shield-halved text-blue-400 mr-2"></i> Bureau de Contrôle (Sécurité Incendie & Accessibilité PMR)</h4>
+                    <p class="text-sm text-slate-400 mb-2">L'assistant audite vos plans comme un contrôleur agréé. Chargez l'image d'un plan d'étage. Définissez la réglementation (ERP, Code du travail...) et la nature du bâtiment (ex: Magasin). <strong>Étape cruciale :</strong> Renseignez l'Effectif prévu ! Sur cette base, BatiPilot calculera rigoureusement les Unités de Passage (UP) nécessaires pour l'évacuation. Vous pouvez lancer un audit global, ou un focus spécifique sur l'Accessibilité PMR ou le Désenfumage.</p>
+                    <div class="gain-badge"><i class="fa-solid fa-bolt"></i> Gain : Évite les refus de permis de construire pour non-conformité.</div>
+                </div>
+
+                <div class="feature-block">
+                    <h4 class="font-bold text-white text-md mb-2"><i class="fa-solid fa-volume-high text-blue-400 mr-2"></i> Expert Acoustique</h4>
+                    <p class="text-sm text-slate-400 mb-2">Vérifiez vos plans selon les normes NRA 2000 ou NF S 31-080. Chargez le plan et indiquez l'environnement (ex: Rue bruyante BR3). L'assistant identifie les conflits d'agencement (comme un WC adossé au mur d'une chambre) et préconise les cloisons adaptées (type SAD).</p>
+                    <div class="gain-badge"><i class="fa-solid fa-bolt"></i> Gain : Zéro litige post-construction lié aux nuisances sonores.</div>
+                </div>
+
+                <div class="feature-block">
+                    <h4 class="font-bold text-white text-md mb-2"><i class="fa-solid fa-file-contract text-blue-400 mr-2"></i> CCTP : Double fonction (Création & Analyse)</h4>
+                    <p class="text-sm text-slate-400 mb-2">Dans l'onglet "Rédiger CCTP", sélectionnez la nature des travaux et cochez vos lots (Gros Œuvre, Menuiseries, Enduit...). L'assistant génère un Cahier des Clauses Techniques Particulières complet, structuré et prescriptif, incluant les DTU en vigueur. Dans l'onglet "Analyser CCTP", vous pouvez charger un document rédigé par un tiers (en PDF) ; l'assistant l'analysera pour détecter les oublis normatifs ou les ambiguïtés dangereuses.</p>
+                    <div class="gain-badge"><i class="fa-solid fa-bolt"></i> Gain : Des pièces écrites bétons produites en quelques minutes.</div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="feature-block mb-0">
+                        <h4 class="font-bold text-white text-sm mb-2"><i class="fa-solid fa-ruler-combined text-emerald-400 mr-2"></i> Pré-Métré DPGF</h4>
+                        <p class="text-sm text-slate-400">Chargez votre plan de projet. L'assistant génère l'ossature du budget en créant un tableau listant tous les lots et les ouvrages détectés (ex: "Création cloison 72/48", "Pose porte âme pleine 83cm").</p>
+                    </div>
+                    <div class="feature-block mb-0">
+                        <h4 class="font-bold text-white text-sm mb-2"><i class="fa-solid fa-scale-balanced text-emerald-400 mr-2"></i> Devis d'Honoraires & Comparatif</h4>
+                        <p class="text-sm text-slate-400">Créez vos devis de Maîtrise d'Œuvre (ESQ à DET) avec totaux HT/TVA/TTC automatiques. Vous pouvez également analyser les devis des artisans (ACT) en les comparant à votre CCTP de référence pour traquer les matériaux non-conformes.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="deep-dive-card border-orange">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 rounded-lg bg-orange-500/20 flex items-center justify-center text-orange-400"><i class="fa-solid fa-helmet-safety"></i></div>
+                    <h3 class="text-2xl font-bold text-white">3. Le Pôle Chantier & Direction de l'Exécution</h3>
+                </div>
+                <p class="text-slate-300 leading-relaxed mb-6">
+                    Le terrain exige de la rapidité. Les outils de ce pôle sont conçus pour être utilisés sur tablette ou smartphone, vous permettant de terminer votre administratif avant même de remonter dans votre véhicule.
+                </p>
+
+                <div class="feature-block">
+                    <h4 class="font-bold text-white text-md mb-2"><i class="fa-solid fa-users text-orange-400 mr-2"></i> Comptes-Rendus de Réunion (avec Dictée)</h4>
+                    <p class="text-sm text-slate-400 mb-2">Cliquez sur l'icône micro et dictez vos notes de manière brute, même désordonnée : <em>"Le maçon doit refaire l'arase pour mardi. Le plombier n'est pas venu..."</em>. BatiPilot digère l'information et la transforme en un tableau professionnel et structuré indiquant clairement les Constats, les Actions requises, les Entreprises concernées et les Délais.</p>
+                    <div class="gain-badge"><i class="fa-solid fa-bolt"></i> Gain : Plus aucune remise au propre le soir au bureau.</div>
+                </div>
+
+                <div class="feature-block">
+                    <h4 class="font-bold text-white text-md mb-2"><i class="fa-solid fa-camera text-orange-400 mr-2"></i> Rapport de Chantier (Visites périodiques)</h4>
+                    <p class="text-sm text-slate-400 mb-2">Importez les photos prises lors de votre visite. L'assistant rédige un compte-rendu clair, classé par corps d'état. Surtout, il s'occupe de la mise en page fastidieuse de toutes vos images au sein d'une "Annexe Photographique" impeccable en fin de document.</p>
+                    <div class="gain-badge"><i class="fa-solid fa-bolt"></i> Gain : Des rapports visuels complets envoyés instantanément.</div>
+                </div>
+
+                <div class="feature-block">
+                    <h4 class="font-bold text-white text-md mb-2"><i class="fa-solid fa-list-check text-orange-400 mr-2"></i> Levée de Réserves (OPR & Réception)</h4>
+                    <p class="text-sm text-slate-400 mb-2">L'outil indispensable de fin de chantier. Importez les photos des défauts constatés et listez-les rapidement. L'assistant génère un Procès-Verbal sous forme de tableau regroupant les défauts par Lot et par Artisan. Le tableau inclut automatiquement de vraies cases à cocher (☑), permettant aux entreprises de valider facilement leurs reprises.</p>
+                    <div class="gain-badge"><i class="fa-solid fa-bolt"></i> Gain : Une phase de réception fluide, sans oubli et prête à être signée.</div>
+                </div>
+
+                <div class="feature-block">
+                    <h4 class="font-bold text-white text-md mb-2"><i class="fa-solid fa-calendar-days text-orange-400 mr-2"></i> Planning Chronologique (Gantt Intelligent)</h4>
+                    <p class="text-sm text-slate-400 mb-2">Concevez la timeline de votre projet en un clic. Renseignez la surface, la date de démarrage et les lots concernés. BatiPilot génère un tableau croisé en y intégrant la logique métier de la construction (par exemple, l'outil ajoutera de lui-même 3 semaines de temps de séchage pour le lot Maçonnerie avant de planifier l'intervention du plaquiste).</p>
+                    <div class="gain-badge"><i class="fa-solid fa-bolt"></i> Gain : Un rétroplanning réaliste généré sans maîtriser MS Project.</div>
+                </div>
+            </div>
+
+            <div class="deep-dive-card border-emerald">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400"><i class="fa-solid fa-gavel"></i></div>
+                    <h3 class="text-2xl font-bold text-white">4. Le Pôle Administratif & Légal</h3>
+                </div>
+                <p class="text-slate-300 leading-relaxed mb-6">
+                    Déléguez la rédaction de vos documents officiels, de l'injonction juridique au formulaire Cerfa, avec la garantie d'un formalisme irréprochable.
+                </p>
+
+                <div class="feature-block">
+                    <h4 class="font-bold text-white text-md mb-2"><i class="fa-solid fa-envelope text-emerald-400 mr-2"></i> Courriers et Ordres de Service (OS)</h4>
+                    <p class="text-sm text-slate-400 mb-2">Sélectionnez le type de document (OS, Mise en Demeure, Constat), l'entreprise visée et le motif. BatiPilot formate l'en-tête, récupère vos coordonnées complètes pour la signature, et rédige un texte juridiquement inattaquable. Vous pouvez joindre des photos constatant des malfaçons : l'assistant les décrira dans le corps du texte et les placera dans une Annexe Photographique.</p>
+                    <div class="gain-badge"><i class="fa-solid fa-bolt"></i> Gain : Des litiges désamorcés par des courriers professionnels immédiats.</div>
+                </div>
+
+                <div class="feature-block">
+                    <h4 class="font-bold text-white text-md mb-2"><i class="fa-solid fa-file-signature text-emerald-400 mr-2"></i> Permis de Construire & Formulaires Cerfa</h4>
+                    <p class="text-sm text-slate-400 mb-2">Le menu intègre toutes les destinations légales du Code de l'Urbanisme (Maison, Bureaux, Commerce, Industrie...). Chargez l'image 3D ou les façades du projet et cliquez sur "NOTICE". BatiPilot analyse l'image pour rédiger la notice descriptive (PC4 / DP11), détaillant l'insertion paysagère, les couleurs et les matériaux. De plus, le bouton "CERFA" analyse votre projet et vous indique le formulaire administratif exact à remplir.</p>
+                    <div class="gain-badge"><i class="fa-solid fa-bolt"></i> Gain : Des dossiers d'urbanisme complets qui ne subissent plus de rejets.</div>
+                </div>
+
+                <div class="border-t border-slate-700 pt-8 mt-8">
+                    <h4 class="font-bold text-white text-xl mb-6 text-center"><i class="fa-solid fa-file-export text-slate-400 mr-2"></i> Les Exports de vos documents</h4>
+                    <p class="text-sm text-slate-400 text-center mb-8">Une fois le document généré par BatiPilot, vous pouvez cliquer sur le texte pour le modifier librement (comme dans Word) avant de choisir votre format de sortie.</p>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-slate-800 p-5 rounded-xl text-center border border-slate-700 hover:border-red-500 transition">
+                            <i class="fa-solid fa-file-pdf text-red-400 text-3xl mb-3 block"></i>
+                            <span class="font-bold text-sm block text-white mb-2">Export PDF</span>
+                            <span class="text-xs text-slate-400 leading-snug block">Génère un A4 propre intégrant le cartouche complet de l'agence et les photos.</span>
+                        </div>
+                        <div class="bg-slate-800 p-5 rounded-xl text-center border border-slate-700 hover:border-blue-500 transition">
+                            <i class="fa-solid fa-file-word text-blue-400 text-3xl mb-3 block"></i>
+                            <span class="font-bold text-sm block text-white mb-2">Export Word</span>
+                            <span class="text-xs text-slate-400 leading-snug block">Télécharge un fichier .doc totalement modifiable qui conserve la mise en page.</span>
+                        </div>
+                        <div class="bg-slate-800 p-5 rounded-xl text-center border border-slate-700 hover:border-yellow-500 transition">
+                            <i class="fa-solid fa-envelope-open-text text-yellow-400 text-3xl mb-3 block"></i>
+                            <span class="font-bold text-sm block text-white mb-2">Copier E-mail</span>
+                            <span class="text-xs text-slate-400 leading-snug block">L'assistant rédige le corps de l'e-mail d'accompagnement et le copie dans le presse-papier.</span>
+                        </div>
+                        <div class="bg-slate-800 p-5 rounded-xl text-center border border-slate-700 hover:border-green-500 transition">
+                            <i class="fa-solid fa-table text-green-400 text-3xl mb-3 block"></i>
+                            <span class="font-bold text-sm block text-white mb-2">Export Excel</span>
+                            <span class="text-xs text-slate-400 leading-snug block">Bouton disponible automatiquement si le document contient un tableau (DPGF, Planning).</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <footer class="text-center py-8 border-t border-slate-800/50 bg-slate-950 text-slate-600 text-sm z-10 relative">
+        <p class="mb-2 font-medium">Félicitations, vous maîtrisez maintenant l'essentiel de BatiPilot. Votre espace devrait être prêt d'une minute à l'autre.</p>
+        &copy; 2026 BatiPilot Studio. Tous droits réservés. <a href="mailto:support@batipilot.app" class="text-blue-500 hover:text-blue-400 ml-2 font-medium transition">Contacter le support</a>
+    </footer>
+
+</body>
+</html>

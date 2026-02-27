@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Logiciel de Compte-Rendu de Chantier & Réunion | BatiPilot</title>
+    <meta name="description" content="Dictez ou tapez vos notes directement sur le chantier. L'assistant BatiPilot génère instantanément vos comptes-rendus de réunion structurés et rapports de visite.">
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%225%22 y=%225%22 width=%2290%22 height=%2290%22 fill=%22white%22 stroke=%22%23CBD5E1%22 stroke-width=%225%22 stroke-dasharray=%2210%22 rx=%2210%22/><path d=%22M50 20 L20 80 L50 65 z%22 fill=%22%233B82F6%22/><path d=%22M50 20 L80 80 L50 65 z%22 fill=%22%231E293B%22/></svg>" type="image/svg+xml">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #FFFFFF; color: #0F172A; scroll-behavior: smooth; }
+        .gradient-text { background: linear-gradient(135deg, #F97316 0%, #EA580C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+        details[open] summary ~ * { animation: sweep .5s ease-in-out; }
+        @keyframes sweep { 0% {opacity: 0; transform: translateY(-10px)} 100% {opacity: 1; transform: translateY(0)} }
+    </style>
+</head>
+<body class="antialiased bg-slate-50">
+
+    <nav class="bg-white/90 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <a href="index.html" class="flex items-center hover:opacity-80 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" width="160" height="48">
+                    <rect x="15" y="15" width="90" height="90" fill="none" stroke="#CBD5E1" stroke-width="2" rx="8" />
+                    <polygon points="60,25 25,85 60,70" fill="#3B82F6" />
+                    <polygon points="60,25 95,85 60,70" fill="#1E293B" />
+                    <text x="125" y="72" font-family="'Inter', sans-serif" font-size="52" letter-spacing="-1.5"><tspan font-weight="900" fill="#0F172A">Bati</tspan><tspan font-weight="300" fill="#3B82F6">Pilot</tspan><tspan font-weight="900" fill="#10B981">.</tspan></text>
+                </svg>
+            </a>
+            <div class="hidden md:flex space-x-8">
+                <a href="index.html#features" class="text-sm font-bold text-slate-600 hover:text-blue-600 transition py-2">Toutes les fonctionnalités</a>
+                <a href="index.html#pricing" class="text-sm font-bold text-slate-600 hover:text-blue-600 transition py-2">Tarifs</a>
+            </div>
+            <div class="flex space-x-3">
+                <a href="app.html" class="px-5 py-2.5 text-sm font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 rounded-lg transition">Connexion</a>
+                <a href="index.html#pricing" class="px-5 py-2.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-lg shadow-blue-500/20 transition transform hover:scale-105">Essai gratuit</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="relative bg-white pt-20 pb-16 overflow-hidden border-b border-slate-100">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-full bg-orange-50 rounded-full blur-[100px] opacity-50 -z-10"></div>
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-50 text-orange-700 font-bold text-[11px] uppercase tracking-widest mb-6 border border-orange-100">
+                <i class="fa-solid fa-microphone-lines"></i> Suivi de Chantier & Réunions
+            </div>
+            
+            <h1 class="text-4xl md:text-6xl font-black tracking-tight mb-6 text-slate-900 leading-[1.1]">
+                Vos comptes-rendus générés en direct, <span class="gradient-text">à la voix ou au clavier</span>.
+            </h1>
+            
+            <p class="text-lg md:text-xl text-slate-600 mx-auto mb-10 leading-relaxed font-medium">
+                Fini les fins de journée passées à retaper vos notes. BatiPilot s'adapte à votre méthode : dictez vos remarques en marchant ou tapez-les sur votre ordinateur pendant la réunion. L'assistant structure automatiquement vos données et génère un rapport prêt à envoyer aux entreprises.
+            </p>
+            
+            <a href="index.html#pricing" class="inline-flex px-8 py-4 text-lg font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-xl shadow-xl shadow-orange-600/20 transition transform hover:-translate-y-1">
+                Démarrer mon essai gratuit (14 jours)
+            </a>
+            <p class="text-xs text-slate-400 mt-4 font-medium"><i class="fa-solid fa-check text-emerald-500 mr-1"></i> Optimisé pour smartphone, tablette et ordinateur. 100% Web.</p>
+        </div>
+    </section>
+
+    <section class="py-20 bg-slate-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-20">
+                <div class="order-2 md:order-1">
+                    <div class="bg-white p-2 rounded-2xl shadow-xl border border-slate-200 relative w-full">
+                        <img src="CR1.png" alt="Interface de dictée vocale et de saisie clavier pour le tableau de réunion BatiPilot" class="w-full h-auto rounded-xl border border-slate-100" onerror="this.src='https://placehold.co/600x450/f1f5f9/94a3b8?text=Capture+Dictée+et+Clavier'">
+                    </div>
+                </div>
+                <div class="order-1 md:order-2">
+                    <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-xl flex items-center justify-center text-xl mb-6 shadow-sm"><i class="fa-solid fa-table-list"></i></div>
+                    <h2 class="text-3xl font-black text-slate-900 mb-4">Dictez en marchant ou tapez en direct : vous choisissez</h2>
+                    <p class="text-slate-600 leading-relaxed mb-6">
+                        Lors d'une visite de chantier, vous êtes souvent en mouvement. Sortez votre smartphone et dictez vos remarques au vol ("Le plaquiste doit reprendre la cloison..."). Lors de la réunion dans la baraque de chantier, ouvrez plutôt votre ordinateur et tapez vos notes classiques directement dans l'interface.
+                    </p>
+                    <p class="text-slate-600 leading-relaxed font-bold text-slate-800 border-l-4 border-orange-500 pl-4 mb-4">
+                        Peu importe votre méthode de saisie, la magie opère : l'assistant comprend le jargon du BTP.
+                    </p>
+                    <p class="text-slate-600 leading-relaxed">
+                        Il transforme vos notes (vocales ou écrites) en un <strong>tableau de suivi parfaitement structuré</strong> : il sépare le constat, l'action à mener, identifie l'entreprise responsable et assigne la date limite.
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-20">
+                <div>
+                    <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-xl mb-6 shadow-sm"><i class="fa-solid fa-camera-retro"></i></div>
+                    <h2 class="text-3xl font-black text-slate-900 mb-4">Vos photos triées et intégrées automatiquement</h2>
+                    <p class="text-slate-600 leading-relaxed mb-6">
+                        Prendre des dizaines de photos sur le chantier pour ensuite chercher à s'en souvenir de retour au bureau est un enfer logistique. Avec BatiPilot, la prise de photo s'intègre au cœur de votre compte-rendu.
+                    </p>
+                    <ul class="space-y-3 text-slate-600 font-medium mb-6">
+                        <li class="flex items-start gap-3"><i class="fa-solid fa-check text-orange-500 mt-1"></i> <strong>Ciblage direct :</strong> Associez chaque photo à un lot ou à un artisan précis dès la prise de vue.</li>
+                        <li class="flex items-start gap-3"><i class="fa-solid fa-check text-orange-500 mt-1"></i> <strong>Preuve visuelle :</strong> Vos remarques sont illustrées instantanément pour éviter toute ambiguïté avec les sous-traitants.</li>
+                        <li class="flex items-start gap-3"><i class="fa-solid fa-check text-orange-500 mt-1"></i> <strong>Rapport complet :</strong> L'outil met en page un document professionnel alliant vos tableaux de suivi et les grilles de photos annotées.</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-2 rounded-2xl shadow-xl border border-slate-200">
+                    <img src="CR2.png" alt="Rapport de visite de chantier généré en PDF avec photos et annotations" class="w-full h-auto rounded-xl border border-slate-100" onerror="this.src='https://placehold.co/600x450/f1f5f9/94a3b8?text=Capture+Photos+CR'">
+                </div>
+            </div>
+
+            <div class="bg-slate-900 rounded-3xl p-8 md:p-12 text-white shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-orange-500 rounded-full blur-[100px] opacity-20"></div>
+                <div class="relative z-10 md:w-2/3">
+                    <h2 class="text-3xl font-black mb-4">Exportez et diffusez avant même de quitter le chantier</h2>
+                    <p class="text-slate-300 leading-relaxed mb-6">
+                        Votre réunion est terminée ? Votre compte-rendu l'est aussi. Un clic suffit pour générer l'ensemble de vos données sous la forme d'un document PDF clair, professionnel et à l'image de votre agence.
+                    </p>
+                    <p class="text-slate-300 leading-relaxed">
+                        Envoyez le rapport à tous les intervenants (maître d'ouvrage, entreprises, bureau de contrôle) directement depuis votre smartphone, votre tablette ou votre PC alors que vous êtes encore sur place. Vous rentrez enfin au bureau l'esprit libre.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="py-20 bg-slate-50 border-t border-slate-200">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-black text-slate-900 mb-4">Un écosystème complet pour votre agence</h3>
+                <p class="text-slate-600">BatiPilot vous accompagne du bureau jusqu'au chantier. Découvrez nos autres modules experts pour diviser par 4 votre temps administratif.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <a href="logiciel-cctp-automatique.html" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-blue-500 transition group flex flex-col h-full">
+                    <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-file-contract"></i></div>
+                    <h4 class="font-black text-slate-900 mb-2 group-hover:text-blue-600 transition">Rédacteur de CCTP</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed mb-4 flex-1">Générez des CCTP par lots avec intégration automatique des dernières normes DTU et pré-chiffrage DPGF.</p>
+                    <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest flex items-center gap-1">Découvrir <i class="fa-solid fa-arrow-right transform group-hover:translate-x-1 transition"></i></span>
+                </a>
+
+                <a href="analyse-plu-assistee.html" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-blue-500 transition group flex flex-col h-full">
+                    <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-map-location-dot"></i></div>
+                    <h4 class="font-black text-slate-900 mb-2 group-hover:text-blue-600 transition">Analyse PLU Assistée</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed mb-4 flex-1">Extrayez instantanément les règles de constructibilité (hauteur, emprise, reculs) depuis le règlement de la commune.</p>
+                    <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest flex items-center gap-1">Découvrir <i class="fa-solid fa-arrow-right transform group-hover:translate-x-1 transition"></i></span>
+                </a>
+
+                <a href="logiciel-levee-de-reserves-opr.html" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-emerald-500 transition group flex flex-col h-full">
+                    <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-list-check"></i></div>
+                    <h4 class="font-black text-slate-900 mb-2 group-hover:text-emerald-600 transition">Levée de Réserves (OPR)</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed mb-4 flex-1">Générez des listes de réserves avec cases à cocher par artisan à partir de vos photos localisées.</p>
+                    <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest flex items-center gap-1">Découvrir <i class="fa-solid fa-arrow-right transform group-hover:translate-x-1 transition"></i></span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 bg-white border-t border-slate-100">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h3 class="text-3xl font-black text-center text-slate-900 mb-12">Foire Aux Questions</h3>
+            
+            <div class="space-y-4">
+                <details class="group bg-slate-50 rounded-xl border border-slate-200 open:border-orange-500 transition-all duration-300">
+                    <summary class="flex cursor-pointer items-center justify-between p-6 font-bold text-slate-800 hover:text-orange-600">
+                        L'assistant vocal comprend-il les termes techniques du bâtiment ?
+                        <span class="ml-4 flex h-8 w-8 items-center justify-center rounded-full bg-white border border-slate-200 group-open:rotate-45 transition"><i class="fa-solid fa-plus text-slate-500"></i></span>
+                    </summary>
+                    <div class="px-6 pb-6 text-slate-600 text-sm leading-relaxed">
+                        Absolument. La technologie de reconnaissance a été entraînée spécifiquement pour le secteur de la construction. Elle comprend le vocabulaire des différents lots (gros œuvre, CVC, plomberie, menuiserie, etc.) et sait l'affecter aux bonnes colonnes de votre tableau.
+                    </div>
+                </details>
+
+                <details class="group bg-slate-50 rounded-xl border border-slate-200 open:border-orange-500 transition-all duration-300">
+                    <summary class="flex cursor-pointer items-center justify-between p-6 font-bold text-slate-800 hover:text-orange-600">
+                        Puis-je passer de mon téléphone à mon ordinateur en cours de réunion ?
+                        <span class="ml-4 flex h-8 w-8 items-center justify-center rounded-full bg-white border border-slate-200 group-open:rotate-45 transition"><i class="fa-solid fa-plus text-slate-500"></i></span>
+                    </summary>
+                    <div class="px-6 pb-6 text-slate-600 text-sm leading-relaxed">
+                        Oui, BatiPilot est une solution cloud synchronisée en temps réel. Vous pouvez prendre vos photos et dicter quelques notes sur votre smartphone pendant la visite, puis ouvrir votre PC dans la bulle de vente pour taper la suite du compte-rendu avec les artisans. Tout est sauvegardé au même endroit.
+                    </div>
+                </details>
+
+                <details class="group bg-slate-50 rounded-xl border border-slate-200 open:border-orange-500 transition-all duration-300">
+                    <summary class="flex cursor-pointer items-center justify-between p-6 font-bold text-slate-800 hover:text-orange-600">
+                        Puis-je modifier le tableau généré avant de l'envoyer ?
+                        <span class="ml-4 flex h-8 w-8 items-center justify-center rounded-full bg-white border border-slate-200 group-open:rotate-45 transition"><i class="fa-solid fa-plus text-slate-500"></i></span>
+                    </summary>
+                    <div class="px-6 pb-6 text-slate-600 text-sm leading-relaxed">
+                        Bien sûr. Avant d'exporter votre compte-rendu en PDF, vous avez un accès complet au tableau généré. Vous pouvez corriger une date, préciser le nom d'un artisan, ou rajouter une note écrite manuellement si vous en ressentez le besoin.
+                    </div>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 bg-orange-600 text-center px-4">
+        <h3 class="text-3xl md:text-4xl font-black text-white mb-6">Arrêtez de retaper vos notes de chantier.</h3>
+        <p class="text-orange-100 mb-10 text-lg max-w-2xl mx-auto">Rejoignez les professionnels qui génèrent leurs comptes-rendus directement sur le terrain.</p>
+        <a href="index.html#pricing" class="inline-block px-10 py-5 bg-white text-orange-700 font-black text-lg rounded-xl shadow-2xl hover:bg-slate-50 transition transform hover:scale-105">
+            Testez gratuitement BatiPilot.app
+        </a>
+    </section>
+
+    <footer class="bg-white text-slate-500 py-12 border-t border-slate-100 text-center">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>&copy; 2026 BatiPilot Studio. <span class="text-xs opacity-70">Made in France 🇫🇷</span></p>
+            <div class="mt-4 flex justify-center gap-6 text-sm">
+                <a href="index.html" class="hover:text-slate-800 transition">Accueil</a>
+                <a href="tutorial.html" class="hover:text-slate-800 transition">Manuel d'utilisation</a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

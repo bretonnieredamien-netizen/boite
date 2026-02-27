@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Logiciel de Rédaction CCTP & DPGF Automatique | BatiPilot</title>
+    <meta name="description" content="Rédigez vos CCTP complets et chiffrez votre DPGF en quelques minutes. L'assistant BatiPilot génère vos lots techniques conformes aux normes DTU. Essai gratuit.">
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%225%22 y=%225%22 width=%2290%22 height=%2290%22 fill=%22white%22 stroke=%22%23CBD5E1%22 stroke-width=%225%22 stroke-dasharray=%2210%22 rx=%2210%22/><path d=%22M50 20 L20 80 L50 65 z%22 fill=%22%233B82F6%22/><path d=%22M50 20 L80 80 L50 65 z%22 fill=%22%231E293B%22/></svg>" type="image/svg+xml">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #FFFFFF; color: #0F172A; scroll-behavior: smooth; }
+        .gradient-text { background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+        details[open] summary ~ * { animation: sweep .5s ease-in-out; }
+        @keyframes sweep { 0% {opacity: 0; transform: translateY(-10px)} 100% {opacity: 1; transform: translateY(0)} }
+    </style>
+</head>
+<body class="antialiased bg-slate-50">
+
+    <nav class="bg-white/90 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <a href="index.html" class="flex items-center hover:opacity-80 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" width="160" height="48">
+                    <rect x="15" y="15" width="90" height="90" fill="none" stroke="#CBD5E1" stroke-width="2" rx="8" />
+                    <polygon points="60,25 25,85 60,70" fill="#3B82F6" />
+                    <polygon points="60,25 95,85 60,70" fill="#1E293B" />
+                    <text x="125" y="72" font-family="'Inter', sans-serif" font-size="52" letter-spacing="-1.5"><tspan font-weight="900" fill="#0F172A">Bati</tspan><tspan font-weight="300" fill="#3B82F6">Pilot</tspan><tspan font-weight="900" fill="#10B981">.</tspan></text>
+                </svg>
+            </a>
+            <div class="hidden md:flex space-x-8">
+                <a href="index.html#features" class="text-sm font-bold text-slate-600 hover:text-blue-600 transition py-2">Toutes les fonctionnalités</a>
+                <a href="index.html#pricing" class="text-sm font-bold text-slate-600 hover:text-blue-600 transition py-2">Tarifs</a>
+            </div>
+            <div class="flex space-x-3">
+                <a href="app.html" class="px-5 py-2.5 text-sm font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 rounded-lg transition">Connexion</a>
+                <a href="index.html#pricing" class="px-5 py-2.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-lg shadow-blue-500/20 transition transform hover:scale-105">Essai gratuit</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="relative bg-white pt-20 pb-16 overflow-hidden border-b border-slate-100">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-full bg-blue-50 rounded-full blur-[100px] opacity-50 -z-10"></div>
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 text-blue-700 font-bold text-[11px] uppercase tracking-widest mb-6 border border-blue-100">
+                <i class="fa-solid fa-file-contract"></i> Assistant Rédaction & Chiffrage
+            </div>
+            
+            <h1 class="text-4xl md:text-6xl font-black tracking-tight mb-6 text-slate-900 leading-[1.1]">
+                Rédigez vos CCTP et DPGF en <span class="gradient-text">10 minutes</span> (pas en 10 heures).
+            </h1>
+            
+            <p class="text-lg md:text-xl text-slate-600 mx-auto mb-10 leading-relaxed font-medium">
+                Rédiger un Cahier des Clauses Techniques Particulières prend souvent une journée entière. Entre la page blanche et la peur d'oublier une norme récente, c'est la bête noire de la conception. L'assistant BatiPilot rédige pour vous des documents prescriptifs, structurés et inattaquables.
+            </p>
+            
+            <a href="index.html#pricing" class="inline-flex px-8 py-4 text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-xl shadow-blue-600/20 transition transform hover:-translate-y-1">
+                Démarrer mon essai gratuit (14 jours)
+            </a>
+            <p class="text-xs text-slate-400 mt-4 font-medium"><i class="fa-solid fa-check text-emerald-500 mr-1"></i> Sans engagement. 100% Web, zéro installation.</p>
+        </div>
+    </section>
+
+    <section class="py-20 bg-slate-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-20">
+                <div class="order-2 md:order-1 flex justify-center">
+                    <div class="bg-white p-2 rounded-2xl shadow-xl border border-slate-200 relative w-full max-w-[320px]">
+                        <img src="CCTP1.png" alt="Sélection des lots pour la rédaction automatique du CCTP dans BatiPilot" class="w-full h-auto rounded-xl border border-slate-100">
+                    </div>
+                </div>
+                <div class="order-1 md:order-2">
+                    <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-xl mb-6 shadow-sm"><i class="fa-solid fa-pen-nib"></i></div>
+                    <h2 class="text-3xl font-black text-slate-900 mb-4">Comment notre assistant génère vos lots techniques sur mesure</h2>
+                    <p class="text-slate-600 leading-relaxed mb-6">
+                        Oubliez les modèles Word génériques. L'onglet "Rédiger CCTP" de BatiPilot s'adapte à votre projet spécifique. Choisissez simplement la nature de vos travaux et cochez les lots désirés : Gros Œuvre, Menuiseries, Enduit, Électricité, etc.
+                    </p>
+                    <p class="text-slate-600 leading-relaxed font-bold text-slate-800 border-l-4 border-blue-500 pl-4">
+                        En quelques secondes, notre assistant IA rédige un document exhaustif, structuré par lots, prêt à être transmis aux entreprises de travaux.
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-20">
+                <div>
+                    <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-xl mb-6 shadow-sm"><i class="fa-solid fa-shield-check"></i></div>
+                    <h2 class="text-3xl font-black text-slate-900 mb-4">Une conformité totale avec les dernières normes DTU</h2>
+                    <p class="text-slate-600 leading-relaxed mb-6">
+                        La sécurité juridique de vos chantiers est notre priorité. Lors de la rédaction, BatiPilot inclut automatiquement les normes et DTU en vigueur correspondant à chaque lot sélectionné.
+                    </p>
+                    <ul class="space-y-3 text-slate-600 font-medium mb-6">
+                        <li class="flex items-start gap-3"><i class="fa-solid fa-check text-emerald-500 mt-1"></i> Garantie de fournir un dossier irréprochable.</li>
+                        <li class="flex items-start gap-3"><i class="fa-solid fa-check text-emerald-500 mt-1"></i> Protection de votre responsabilité en cas de litige.</li>
+                        <li class="flex items-start gap-3"><i class="fa-solid fa-check text-emerald-500 mt-1"></i> Export direct en Word modifiable (.doc) pour ajuster le texte à votre style.</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-2 rounded-2xl shadow-xl border border-slate-200">
+                    <img src="CCTP2.png" alt="Aperçu du document CCTP exporté avec listes des normes et DTU intégrés" class="w-full h-auto rounded-xl border border-slate-100">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-20">
+                <div class="order-2 md:order-1 bg-white p-2 rounded-2xl shadow-xl border border-slate-200">
+                    <img src="DPGF.png" alt="Tableau d'estimation DPGF avec quantitatifs généré par l'outil BatiPilot" class="w-full h-auto rounded-xl border border-slate-100">
+                </div>
+                <div class="order-1 md:order-2">
+                    <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-xl flex items-center justify-center text-xl mb-6 shadow-sm"><i class="fa-solid fa-ruler-combined"></i></div>
+                    <h2 class="text-3xl font-black text-slate-900 mb-4">Pré-métré DPGF : l'ossature de votre budget en 1 clic</h2>
+                    <p class="text-slate-600 leading-relaxed mb-4">
+                        L'étude de prix ne devrait pas être une corvée. Au-delà de la rédaction, BatiPilot intègre un module de Pré-Métré DPGF ultra-puissant.
+                    </p>
+                    <p class="text-slate-600 leading-relaxed mb-6">
+                        Chargez le plan de votre projet, et l'assistant extrait le quantitatif détaillé. Il dresse un grand tableau listant tous les lots et les ouvrages détectés sur le plan (comme la création de cloisons ou la pose de menuiseries), vous offrant une base de chiffrage estimatif immédiate.
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 rounded-3xl p-8 md:p-12 text-white shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-blue-500 rounded-full blur-[100px] opacity-20"></div>
+                <div class="relative z-10 md:w-2/3">
+                    <h2 class="text-3xl font-black mb-4">L'audit de CCTP : analysez les documents de vos partenaires</h2>
+                    <p class="text-slate-300 leading-relaxed mb-6">
+                        Vous reprenez le dossier d'un confrère ou vous analysez l'offre d'une entreprise ? L'onglet "Analyser CCTP" agit comme un véritable scanner.
+                    </p>
+                    <p class="text-slate-300 leading-relaxed">
+                        Chargez un CCTP existant au format PDF : BatiPilot l'analyse en profondeur pour détecter instantanément les oublis normatifs ou les ambiguïtés techniques qui pourraient vous porter préjudice sur le chantier.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="py-20 bg-white border-t border-slate-100">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h3 class="text-3xl font-black text-center text-slate-900 mb-12">Foire Aux Questions</h3>
+            
+            <div class="space-y-4">
+                <details class="group bg-slate-50 rounded-xl border border-slate-200 open:border-blue-500 transition-all duration-300">
+                    <summary class="flex cursor-pointer items-center justify-between p-6 font-bold text-slate-800 hover:text-blue-600">
+                        Faut-il installer un logiciel sur mon ordinateur ?
+                        <span class="ml-4 flex h-8 w-8 items-center justify-center rounded-full bg-white border border-slate-200 group-open:rotate-45 transition"><i class="fa-solid fa-plus text-slate-500"></i></span>
+                    </summary>
+                    <div class="px-6 pb-6 text-slate-600 text-sm leading-relaxed">
+                        Non, BatiPilot est une solution 100% Web (SaaS). Elle fonctionne directement sur Chrome, Safari ou Firefox (Mac, PC et tablette) sans aucune installation ni configuration complexe.
+                    </div>
+                </details>
+
+                <details class="group bg-slate-50 rounded-xl border border-slate-200 open:border-blue-500 transition-all duration-300">
+                    <summary class="flex cursor-pointer items-center justify-between p-6 font-bold text-slate-800 hover:text-blue-600">
+                        Puis-je modifier le CCTP généré par BatiPilot ?
+                        <span class="ml-4 flex h-8 w-8 items-center justify-center rounded-full bg-white border border-slate-200 group-open:rotate-45 transition"><i class="fa-solid fa-plus text-slate-500"></i></span>
+                    </summary>
+                    <div class="px-6 pb-6 text-slate-600 text-sm leading-relaxed">
+                        Absolument. Une fois le document généré sur l'application, vous pouvez modifier le texte en cliquant directement dessus avant de l'exporter en PDF ou en fichier Word (.doc) conservant la mise en page.
+                    </div>
+                </details>
+
+                <details class="group bg-slate-50 rounded-xl border border-slate-200 open:border-blue-500 transition-all duration-300">
+                    <summary class="flex cursor-pointer items-center justify-between p-6 font-bold text-slate-800 hover:text-blue-600">
+                        Mes données et mes plans sont-ils en sécurité ?
+                        <span class="ml-4 flex h-8 w-8 items-center justify-center rounded-full bg-white border border-slate-200 group-open:rotate-45 transition"><i class="fa-solid fa-plus text-slate-500"></i></span>
+                    </summary>
+                    <div class="px-6 pb-6 text-slate-600 text-sm leading-relaxed">
+                        Oui, tous vos documents sont cryptés et vos données sont hébergées en Europe, conformément au RGPD.
+                    </div>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 bg-blue-600 text-center px-4">
+        <h3 class="text-3xl md:text-4xl font-black text-white mb-6">Reprenez le contrôle de votre temps de conception.</h3>
+        <p class="text-blue-100 mb-10 text-lg max-w-2xl mx-auto">Rejoignez des centaines d'architectes et maîtres d'œuvre qui ont déjà automatisé la rédaction de leurs pièces écrites.</p>
+        <a href="index.html#pricing" class="inline-block px-10 py-5 bg-white text-blue-700 font-black text-lg rounded-xl shadow-2xl hover:bg-slate-50 transition transform hover:scale-105">
+            Testez gratuitement BatiPilot.app
+        </a>
+    </section>
+
+    <footer class="bg-white text-slate-500 py-12 border-t border-slate-100 text-center">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>&copy; 2026 BatiPilot Studio. <span class="text-xs opacity-70">Made in France 🇫🇷</span></p>
+            <div class="mt-4 flex justify-center gap-6 text-sm">
+                <a href="index.html" class="hover:text-slate-800 transition">Accueil</a>
+                <a href="tutorial.html" class="hover:text-slate-800 transition">Manuel d'utilisation</a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
